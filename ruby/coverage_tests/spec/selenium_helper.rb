@@ -87,6 +87,10 @@ RSpec.configure do |config|
     end
     @eyes.layout_breakpoints = args[:layout_breakpoints] if args.key? :layout_breakpoints
     # raise 'Layout_breakpoints arent implemented in the Ruby SDK (Or it is time to update the test)' if args.key? :layout_breakpoints
+    if args.key? :remove_duplicate_tests
+      @eyes.runner.set_remove_duplicate_tests(args[:remove_duplicate_tests])
+    end
+    @eyes.baseline_env_name = args[:baseline_env_name] if args.key? :baseline_env_name
   end
 
   def parse_browser_info(instance)
