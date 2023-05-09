@@ -168,7 +168,7 @@ module Applitools::Connectivity
       command_with_result(EYES_MANAGER_MAKE_EYES, {manager: manager, target: driver_config, settings: commands_config[:open], config: commands_config})
     end
 
-    def eyes_manager_close_all_eyes(manager)
+    def eyes_manager_close_all_eyes(manager, remove_duplicate_tests)
       # interface GetManagerResultsRequestPayload {
       #   manager: Ref<EyesManager>
       #   settings?: {throwErr?: boolean}
@@ -189,7 +189,7 @@ module Applitools::Connectivity
       #   missing: number
       #   matches: number
       # }
-      settings = {throwErr: false}
+      settings = {throwErr: false, removeDuplicateTests: remove_duplicate_tests}
       command_with_result(EYES_MANAGER_CLOSE_ALL_EYES, {manager: manager, settings: settings})
     end
 
