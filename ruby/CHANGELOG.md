@@ -19,7 +19,7 @@
 - Prevented driver metadata extraction during check in ufg eyes
 - Fixed dynamic import issue in universal binaries
 - Fixed detection of emulated mobile drivers
-- Remove "Execution Cloud" custom property
+- Remove 'Execution Cloud' custom property
 ## [4.6.1] - 2023-04-12
 ### Changed
 - Packaging server core inside eyes_universal
