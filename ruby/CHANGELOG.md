@@ -1,3 +1,25 @@
+## [4.6.2] - 2023-05-10
+### Added
+- Add remove_duplicate_tests option & set_remove_duplicate_tests method to eyes runner 
+### Updated
+- Update version of Universal SDK Core to 2.5.8
+### Features
+- Added functional session feature
+- Add a timeout and max concurrency for fetching resources
+### Bug fixes
+- Fixed issue in dom snapshot that prevented urls that start with a whitespace to be mapped
+- Improved appium prefixed capabilities parsing
+- Fix issue when locate return wrong type of the region, with left and top properties instead of x and y
+- Fixed issue with when webview were wasn't recognized as web compatible world
+- Fixed the issue with session metadata extraction
+- Fixed functional test feature issues in ec client
+- Fixed typo in ec custom property
+- Fixed issue with hanging requests
+- Fixed platform name formatting
+- Prevented driver metadata extraction during check in ufg eyes
+- Fixed dynamic import issue in universal binaries
+- Fixed detection of emulated mobile drivers
+- Remove "Execution Cloud" custom property
 ## [4.6.1] - 2023-04-12
 ### Changed
 - Packaging server core inside eyes_universal
