@@ -30,10 +30,10 @@
     abort-controller "3.0.0"
     throat "6.0.2"
 
-"@applitools/dom-capture@11.2.1":
-  version "11.2.1"
-  resolved "https://registry.npmjs.org/@applitools/dom-capture/-/dom-capture-11.2.1.tgz"
-  integrity sha512-c3x87rgC+8wdyOHDd+jFkrJIfx1mWmSiN7pfOOZNVM1X69cF7qmLIlTrZ09ssU/eOXppRKqhAX6JiNmpD5uXKw==
+"@applitools/dom-capture@11.2.2":
+  version "11.2.2"
+  resolved "https://registry.yarnpkg.com/@applitools/dom-capture/-/dom-capture-11.2.2.tgz#2dd0e93c90df8fe41235801395176d9a2a5d0462"
+  integrity sha512-omSH+c8+ij/mUPKVwRp7ulCOz33EHMnG8Q3s7XuwaB9m04onEAg82/25otOrntqMKmO2doGWN3E97qUstZJiPQ==
   dependencies:
     "@applitools/dom-shared" "1.0.5"
     "@applitools/functional-commons" "1.6.0"
