@@ -12,7 +12,7 @@ Apollo SDK:
   feature:
     - 
   bug-fix:
-    - Fixed issue with viewport information extraction when switched to webview
+    - 
 "@applitools/eyes-selenium":
   feature:
     - 

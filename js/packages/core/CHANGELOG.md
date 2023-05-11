@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.5.11 - 2023/5/11
+
+### Features
+### Bug fixes
+- Fixed issue with viewport information extraction when switched to webview
+
 ## 2.5.10 - 2023/5/3
 
 ### Features
