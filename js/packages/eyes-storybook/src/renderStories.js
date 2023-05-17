@@ -47,9 +47,7 @@ function makeRenderStories({
         prepareNewPage();
         return processStoryLoop();
       }
-      logger.log(`[page ${pageId}] waiting for queued renders`);
-      // await waitForQueuedRenders(storyDataGap);
-      logger.log(`[page ${pageId}] done waiting for queued renders`);
+
       const storyPromise = processStory();
       allStoriesPromise = allStoriesPromise.then(() => storyPromise);
       return processStoryLoop();

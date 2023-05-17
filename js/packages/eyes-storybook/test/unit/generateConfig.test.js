@@ -110,4 +110,8 @@ describe('generateConfig', function() {
     const config = generateConfig({argv: {}});
     expect(config.renderers).to.eql([{name: 'chrome', width: 1024, height: 768}]);
   });
+  it('should set true as default value for failOnDiffs', () => {
+    const config = generateConfig({defaultConfig: {failOnDiffs: true}, argv: {}});
+    expect(config.failOnDiffs).to.eql(true);
+  });
 });

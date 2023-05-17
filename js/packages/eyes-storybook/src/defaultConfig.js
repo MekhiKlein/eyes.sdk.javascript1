@@ -18,4 +18,5 @@ module.exports = {
   reloadPagePerStory: false,
   include: undefined,
   startStorybookServerTimeout: 300,
+  failOnDiffs: true,
 };

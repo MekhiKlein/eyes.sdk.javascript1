@@ -58,7 +58,7 @@ const {performance, timeItAsync} = makeTiming();
       if (config.xmlFilePath) {
         handleXmlFile(config.xmlFilePath, summary, {totalTime});
       }
-      process.exit(config.exitcode ? exitCode : 0);
+      process.exit(config.exitcode && config.failOnDiffs ? exitCode : 0);
     }
   } catch (ex) {
     console.log(ex);
