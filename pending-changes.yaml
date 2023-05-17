@@ -68,7 +68,8 @@ Apollo SDK:
     - 
 "@applitools/eyes-storybook":
   feature:
-    - Add the optiosn to not fail on visual differences when exit code is set to true
+    - |
+      Add the option to not fail on visual differences when `exitcode` is set to true
   bug-fix:
     - 
 "@applitools/eyes-browser-extension":
