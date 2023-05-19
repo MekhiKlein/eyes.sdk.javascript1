@@ -97,7 +97,7 @@ export default function makePluginExport({
         }
       }
 
-      return Object.assign({}, eyesConfig, {eyesPort: port}, moduleExportsResult)
+      return Object.assign({}, eyesConfig, {eyesPort: port, testType: cypressConfig.testingType}, moduleExportsResult)
 
       // This piece of code exists because at the point of writing, Cypress does not support multiple event handlers:
       // https://github.com/cypress-io/cypress/issues/5240#issuecomment-948277554

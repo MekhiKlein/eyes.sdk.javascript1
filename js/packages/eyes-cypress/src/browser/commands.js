@@ -119,12 +119,12 @@ Cypress.Commands.add('eyesOpen', function (args = {}) {
   return cy.then({timeout: 86400000}, async () => {
     setRootContext()
     const target = refer.ref(cy.state('window').document)
-
+    const testingType = Cypress.config('testType') === 'component' ? '/components' : ''
     if (!connectedToUniversal) {
       socket.connect(`wss://localhost:${Cypress.config('eyesPort')}/eyes`)
       connectedToUniversal = true
       socket.emit('Core.makeCore', {
-        agentId: `eyes.cypress/${require('../../package.json').version}`,
+        agentId: `eyes.cypress${testingType}/${require('../../package.json').version}`,
         cwd: Cypress.config('projectRoot'),
         spec: Object.keys(spec).concat(['isSelector', 'isDriver', 'isElement']), // TODO fix spec.isSelector and spec.isDriver and spec.isElement in driver
       })
