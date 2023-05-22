@@ -23,6 +23,8 @@ import * as utils from '@applitools/utils'
 
 const snippets = require('@applitools/snippets')
 
+// THIS IS NEW FEATURE
+
 type DriverState<T extends SpecType> = {
   nmlElement?: Element<T> | null
 }
