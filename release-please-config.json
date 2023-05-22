@@ -95,7 +95,7 @@
       "separate-pull-requests": true,
       "component": "js/eyes-selenium"
     },
-    "js/packages/eyes-webdriverio": {
+    "js/packages/eyes-webdriverio-5": {
       "release-type": "node",
       "separate-pull-requests": true,
       "component": "js/eyes-webdriverio"
