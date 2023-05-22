@@ -89,6 +89,11 @@
     "js/packages/eyes-api": {
       "release-type": "node",
       "component": "eyes"
+    },
+    "js/packages/eyes-selenium": {
+      "release-type": "node",
+      "separate-pull-requests": true,
+      "component": "js/eyes-selenium"
     }
   }
 }
