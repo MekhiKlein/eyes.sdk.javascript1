@@ -1,4 +1,7 @@
 {
+  "includeComponentInTag": true,
+  "includeVInTag": false,
+  "tagSeparator": "@",
   "packages": {
     "js/packages/utils": {
       "release-type": "node",
