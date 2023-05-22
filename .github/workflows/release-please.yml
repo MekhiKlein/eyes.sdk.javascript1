@@ -1,5 +1,11 @@
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - chore/release-please
+
+permissions:
+  contents: write
+  pull-requests: write
 
 name: release-please
 
@@ -7,9 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-    - name: Release Please
-      id: prepare
-      shell: bash
-      run: |
-        echo hello world
-
+      - uses: google-github-actions/release-please-action@v3
+        with:
+          release-type: node
+          package-name: release-please-action
