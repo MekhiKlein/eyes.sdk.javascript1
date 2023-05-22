@@ -1,0 +1,109 @@
+{
+  "packages": {
+    "js/packages/utils": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "utils"
+    },
+    "js/packages/logger": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "logger"
+    },
+    "js/packages/socket": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "socket"
+    },
+    "js/packages/req": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "req"
+    },
+    "js/packages/image": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "image"
+    },
+    "js/packages/snippets": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "snippets"
+    },
+    "js/packages/spec-driver-browser-extension": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "spec-driver-browser-extension"
+    },
+    "js/packages/spec-driver-selenium": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "spec-driver-selenium"
+    },
+    "js/packages/spec-driver-webdriverio": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "spec-driver-webdriverio"
+    },
+    "js/packages/spec-driver-webdriver": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "spec-driver-webdriver"
+    },
+    "js/packages/spec-driver-puppeteer": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "spec-driver-puppeteer"
+    },
+    "js/packages/spec-driver-playwright": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "spec-driver-playwright"
+    },
+    "js/packages/driver": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "driver"
+    },
+    "js/packages/screenshoter": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "screenshoter"
+    },
+    "js/packages/nml-client": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "nml-client"
+    },
+    "js/packages/tunnel-client": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "tunnel-client"
+    },
+    "js/packages/ufg-client": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "ufg-client"
+    },
+    "js/packages/execution-grid-client": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "ec-client"
+    },
+    "js/packages/core-base": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "core-base"
+    },
+    "js/packages/core": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "core"
+    },
+    "js/packages/eyes": {
+      "release-type": "node",
+      "plugins": ["node-workspace"],
+      "component": "eyes"
+    }
+  }
+}
