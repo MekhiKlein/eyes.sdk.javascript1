@@ -16,5 +16,6 @@ jobs:
       - uses: google-github-actions/release-please-action@v3
         with:
           last-release-sha: c86d8bb6af37717af4debe75607f7908e193e667
+          bootstrap-sha: c86d8bb6af37717af4debe75607f7908e193e667
           command: manifest
           default-branch: chore/release-please
