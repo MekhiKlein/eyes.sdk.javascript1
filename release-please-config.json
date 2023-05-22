@@ -4,7 +4,7 @@
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
-  "plugins": ["node-workspace"],
+  "plugins": [{"type": "node-workspace", "merge": false}],
   "packages": {
     "js/packages/utils": {
       "release-type": "node",
@@ -94,6 +94,26 @@
       "release-type": "node",
       "separate-pull-requests": true,
       "component": "js/eyes-selenium"
+    },
+    "js/packages/eyes-webdriverio": {
+      "release-type": "node",
+      "separate-pull-requests": true,
+      "component": "js/eyes-webdriverio"
+    },
+    "js/packages/eyes-nightwatch": {
+      "release-type": "node",
+      "separate-pull-requests": true,
+      "component": "js/eyes-nightwatch"
+    },
+    "js/packages/eyes-playwright": {
+      "release-type": "node",
+      "separate-pull-requests": true,
+      "component": "js/eyes-playwright"
+    },
+    "js/packages/eyes-puppeteer": {
+      "release-type": "node",
+      "separate-pull-requests": true,
+      "component": "js/eyes-puppeteer"
     }
   }
 }

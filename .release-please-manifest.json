@@ -18,5 +18,11 @@
   "js/packages/ufg-client":"1.2.15",
   "js/packages/execution-grid-client":"1.2.31",
   "js/packages/core-base":"1.1.55",
-  "js/packages/core":"3.0.2"
+  "js/packages/core":"3.0.2",
+  "js/packages/eyes-images":"4.23.0",
+  "js/packages/eyes-selenium":"3.0.2",
+  "js/packages/eyes-webdriverio":"5.44.1",
+  "js/packages/eyes-nightwatch":"1.15.0",
+  "js/packages/eyes-playwright":"1.17.0",
+  "js/packages/eyes-puppeteer":"1.17.0"
 }
