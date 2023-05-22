@@ -1,4 +1,6 @@
 {
+  "lastReleaseSha": "c86d8bb6af37717af4debe75607f7908e193e667",
+  "bootstrapSha": "c86d8bb6af37717af4debe75607f7908e193e667",
   "includeComponentInTag": true,
   "includeVInTag": false,
   "tagSeparator": "@",
