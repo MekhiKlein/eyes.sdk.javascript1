@@ -86,7 +86,7 @@
       "release-type": "node",
       "component": "core"
     },
-    "js/packages/eyes": {
+    "js/packages/eyes-api": {
       "release-type": "node",
       "component": "eyes"
     }
