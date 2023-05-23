@@ -3,9 +3,9 @@ name: Test packages
 run-name: ${{github.event_name == 'schedule' && 'Nightly' || github.event_name == 'workflow_dispatch' && format('Test {0}', inputs.packages) || ''}}
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
-    branches: ['!dependabot/**', '!draft/**', '!play/**', '**']
+  # pull_request:
+  #   types: [opened, reopened, synchronize, ready_for_review]
+  #   branches: ['!dependabot/**', '!draft/**', '!play/**', '**']
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
