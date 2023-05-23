@@ -3,8 +3,12 @@ name: Publish
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: 
-      - 'release-please**'
+    # branches: 
+    #   - '**'
+
+permissions:
+  packages: write
+  contents: read
 
 concurrency: 
   group: ${{github.event_name == 'pull_request' && github.ref || github.run_id }}
