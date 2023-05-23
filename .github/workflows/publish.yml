@@ -52,10 +52,10 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           always-auth: true
       - name: Install global dependencies
-        run: yarn
+        run: yarn install
       - name: Install packages dependencies
         working-directory: ${{matrix.path}}
-        run: yarn
+        run: yarn install
       - name: Build
         working-directory: ${{matrix.path}}
         run: yarn build
