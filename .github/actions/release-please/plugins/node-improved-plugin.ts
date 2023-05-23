@@ -9,8 +9,9 @@ export class NodeImprovedWorkspace extends NodeWorkspace {
   }
   protected newCandidate(a: any, b: any) {
     const c = super.newCandidate(a, b)
-    console.log(c, this.repositoryConfig)
     c.config = {...c.config, ...this.repositoryConfig[c.path]}
+    ;(c.pullRequest as any).headRefName += `--components--${c.config.component || c.config.packageName}`
+    console.log('new candidate', c)
     return c
   }
 }
