@@ -4,7 +4,7 @@
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
-  "plugins": [{"type": "node-workspace", "merge": false}],
+  "plugins": ["node-improved-workspace"],
   "packages": {
     "js/packages/utils": {
       "release-type": "node",

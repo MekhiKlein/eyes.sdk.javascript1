@@ -1,5 +1,17 @@
-import {GitHub, Manifest} from 'release-please'
+import {GitHub, Manifest, registerPlugin} from 'release-please'
+import {NodeImprovedWorkspace} from './plugins/node-improved-plugin'
 import * as core from '@actions/core'
+
+registerPlugin(
+  'node-improved-workspace',
+  options =>
+    new NodeImprovedWorkspace(
+      options.github,
+      options.targetBranch,
+      options.repositoryConfig,
+      {...options, ...(options.type as any)}
+    )
+)
 
 async function main() {
   const configFile = core.getInput('config-file') || 'release-please-config.json'
