@@ -2,15 +2,19 @@ import {NodeWorkspace} from 'release-please/build/src/plugins/node-workspace'
 import {PullRequestTitle} from 'release-please/build/src/util/pull-request-title'
 
 export class NodeImprovedWorkspace extends NodeWorkspace {
-  protected postProcessCandidates(candidates: any, b: any) {
-    const res = super.postProcessCandidates(candidates, b)
-    console.log('post process', res.map(r => r.pullRequest))
-    return res
+  protected postProcessCandidates(candidates: any[], updatedVersions: any) {
+    const newCandidates = super.postProcessCandidates(candidates, updatedVersions)
+    const labeledCandidate = newCandidates.find(candidate => candidate.pullRequest.labels)
+    if (labeledCandidate) {
+      newCandidates.forEach(candidate => (candidate.pullRequest as any).labels = labeledCandidate.pullRequest.labels)
+    }
+    return newCandidates
   }
-  protected newCandidate(a: any, b: any) {
-    const candidate = super.newCandidate(a, b)
+  protected newCandidate(pkg: any, updatedVersions: any) {
+    const candidate = super.newCandidate(pkg, updatedVersions)
     const config = {...candidate.config, ...this.repositoryConfig[candidate.path]}
     const pullRequest = candidate.pullRequest
+    console.log(this)
     return {
       ...candidate,
       config,
