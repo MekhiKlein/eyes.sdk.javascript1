@@ -13,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/release-please
+      - uses: ./.github/actions/release-please@chore/release-please
         with:
           token: ${{secrets.RUN_GITHUB_TOKEN}}
           branch: chore/release-please
