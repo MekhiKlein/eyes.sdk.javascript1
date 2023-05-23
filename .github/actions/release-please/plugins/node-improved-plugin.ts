@@ -9,7 +9,8 @@ export class NodeImprovedWorkspace extends NodeWorkspace {
   // }
   protected newCandidate(a: any, b: any) {
     const c = super.newCandidate(a, b)
-    console.log(c)
+    console.log(c, this.repositoryConfig)
+    c.config = {...c.config}
     return c
   }
 }
