@@ -8,11 +8,15 @@ export class NodeImprovedWorkspace extends NodeWorkspace {
     return res
   }
   protected newCandidate(a: any, b: any) {
-    const c = super.newCandidate(a, b)
-    c.config = {...c.config, ...this.repositoryConfig[c.path]}
-    ;(c.pullRequest as any).headRefName += `--components--${c.config.component || c.config.packageName}`
-    ;(c.pullRequest as any).title = PullRequestTitle.ofComponentTargetBranchVersion(c.config.component, this.targetBranch, c.pullRequest.version, c.config.pullRequestTitlePattern)
-    console.log('new candidate', c)
-    return c
+    const candidate = super.newCandidate(a, b)
+    return {
+      ...candidate,
+      config: {...candidate.config, ...this.repositoryConfig[candidate.path]},
+      pullRequest: {
+        ...candidate.pullRequest,
+        title: PullRequestTitle.ofComponentTargetBranchVersion(candidate.config.component, this.targetBranch, candidate.pullRequest.version, candidate.config.pullRequestTitlePattern),
+        headRefName: `${candidate.pullRequest.headRefName}--components--${candidate.config.component || candidate.config.packageName}`
+      }
+    }
   }
 }
