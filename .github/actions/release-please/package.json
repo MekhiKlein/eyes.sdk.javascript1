@@ -1,7 +1,7 @@
 {
   "name": "@applitools/action-release-please",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "ncc build ./main.ts --out dist"
   },
