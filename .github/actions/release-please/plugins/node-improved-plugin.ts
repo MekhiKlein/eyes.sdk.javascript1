@@ -8,7 +8,7 @@ export class NodeImprovedWorkspace extends NodeWorkspace {
   //   return res
   // }
   protected postProcessCandidates(candidates: any, updatedVersions: any) {
-    console.log(candidates.map((p: any) => p.pullRequest))
+    candidates.forEach((p: any) => console.log(p.pullRequest))
     return super.postProcessCandidates(candidates, updatedVersions)
   }
 }
