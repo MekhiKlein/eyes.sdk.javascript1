@@ -34,12 +34,12 @@ jobs:
         id: setup
         with:
           packages: changed
-  test:
+  publish:
     needs: [setup]
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{fromJSON(needs.setup.outputs.packages)}}
+        include: ${{fromJSON(needs.setup.outputs.packages).*}}
     name: ${{matrix.displayName}}
     runs-on: ${{matrix.params.runner}}
     steps:
