@@ -9,13 +9,15 @@ export class NodeImprovedWorkspace extends NodeWorkspace {
   }
   protected newCandidate(a: any, b: any) {
     const candidate = super.newCandidate(a, b)
+    const config = {...candidate.config, ...this.repositoryConfig[candidate.path]}
+    const pullRequest = candidate.pullRequest
     return {
       ...candidate,
-      config: {...candidate.config, ...this.repositoryConfig[candidate.path]},
+      config,
       pullRequest: {
-        ...candidate.pullRequest,
-        title: PullRequestTitle.ofComponentTargetBranchVersion(candidate.config.component, this.targetBranch, candidate.pullRequest.version, candidate.config.pullRequestTitlePattern),
-        headRefName: `${candidate.pullRequest.headRefName}--components--${candidate.config.component || candidate.config.packageName}`
+        ...pullRequest,
+        title: PullRequestTitle.ofComponentTargetBranchVersion(config.component, this.targetBranch, pullRequest.version, config.pullRequestTitlePattern),
+        headRefName: `${pullRequest.headRefName}--components--${config.component || config.packageName}`
       }
     }
   }
