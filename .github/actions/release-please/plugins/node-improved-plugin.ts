@@ -14,7 +14,6 @@ export class NodeImprovedWorkspace extends NodeWorkspace {
     const candidate = super.newCandidate(pkg, updatedVersions)
     const config = {...candidate.config, ...this.repositoryConfig[candidate.path]}
     const pullRequest = candidate.pullRequest
-    console.log(this)
     return {
       ...candidate,
       config,
