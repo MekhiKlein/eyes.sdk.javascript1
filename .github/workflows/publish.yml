@@ -52,10 +52,10 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           always-auth: true
       - name: Install global dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Install packages dependencies
         working-directory: ${{matrix.path}}
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: Build
         working-directory: ${{matrix.path}}
         run: yarn build
