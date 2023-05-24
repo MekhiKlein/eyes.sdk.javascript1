@@ -1,6 +1,6 @@
 {
-  "last-release-sha": "995c682db072e19705a44597ba0eed144096f300",
-  "bootstrap-sha": "995c682db072e19705a44597ba0eed144096f300",
+  "last-release-sha": "29cd8d181f692e4910f1281e637d7b52da6db14f",
+  "bootstrap-sha": "29cd8d181f692e4910f1281e637d7b52da6db14f",
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
@@ -90,6 +90,10 @@
     "js/packages/eyes-api": {
       "release-type": "node",
       "component": "eyes"
+    },
+    "js/packages/eyes-images": {
+      "release-type": "node",
+      "component": "js/eyes-images"
     },
     "js/packages/eyes-selenium": {
       "release-type": "node",
