@@ -21,7 +21,7 @@
   "js/packages/core":"3.0.2",
   "js/packages/eyes-images":"4.23.0",
   "js/packages/eyes-selenium":"3.0.2",
-  "js/packages/eyes-webdriverio":"5.44.1",
+  "js/packages/eyes-webdriverio-5":"5.44.1",
   "js/packages/eyes-nightwatch":"1.15.0",
   "js/packages/eyes-playwright":"1.17.0",
   "js/packages/eyes-puppeteer":"1.17.0"
