@@ -71,7 +71,7 @@ async function run({links}) {
     } else {
       execSync(`npm install`, {cwd: targetPackage.path})
     }
-    execSync(`npm run build --if-exists`, {cwd: targetPackage.path})
+    execSync(`npm run build --if-present`, {cwd: targetPackage.path})
   }
 }
 
