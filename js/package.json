@@ -14,7 +14,7 @@
     "prepare": "cd .. && husky install ./js/.husky"
   },
   "devDependencies": {
-    "@applitools/test-utils": "link:./packages/test-utils",
+    "@applitools/test-utils": "file:./packages/test-utils",
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
     "@types/mocha": "^9.1.1",

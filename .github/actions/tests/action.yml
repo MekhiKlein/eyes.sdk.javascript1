@@ -41,30 +41,22 @@ runs:
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.jobs}}
       run: |
-        echo "::group::Configure NPM and YARN"
+        echo "::group::Configure NPM"
         if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
-        yarn config set ignore-engines true
+        npm config set ignore-engines true
         echo "::endgroup::"
 
         echo "::group::Installing and updating dependencies"
-        yarn --cwd ../../ install
-        yarn install
-        if [ "${{runner.os}}" = "Windows" ]
-        then
-          npm run deps --if-present --script-shell $COMSPEC
-        else
-          npm run deps --if-present
-        fi
+        npm install --prefix ../../
+
+        # npm install
+        node ../../scripts/workspace.js prepare --links "${{inputs.links}}"
+
+        ls -F ./node_modules/@applitools
+
         npm run upgrade:framework --if-present
         echo "::endgroup::"
 
-        if [ ! -z "${{inputs.links}}" ]
-        then
-          echo "::group::Linking dependencies"
-          node ../../scripts/link.js "${{inputs.links}}" --build --install
-          ls -F ./node_modules/@applitools
-          echo "::endgroup::"
-        fi
 
         echo "::group::Building package"
         if [ ! -z "${{inputs.build-type}}" ]

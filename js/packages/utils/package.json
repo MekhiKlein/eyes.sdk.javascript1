@@ -54,7 +54,6 @@
     "version": "bongo version",
     "postversion": "bongo postversion"
   },
-  "dependencies": {},
   "devDependencies": {
     "@applitools/bongo": "^3.0.3",
     "@types/node": "^12.20.55"
