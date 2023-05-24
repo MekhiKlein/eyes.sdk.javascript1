@@ -3313,7 +3313,7 @@ async function main() {
         return Boolean(commits);
     }
     function getChangedPackagesInput() {
-        const changedFiles = (0,external_node_child_process_namespaceObject.execSync)('git --no-pager diff --name-only origin/master', { encoding: 'utf8' });
+        const changedFiles = (0,external_node_child_process_namespaceObject.execSync)(`git --no-pager diff --name-only origin/${process.env.GITHUB_BASE_REF || 'master'}`, { encoding: 'utf8' });
         const changedPackageNames = changedFiles.split('\n').reduce((changedPackageNames, changedFile) => {
             const changedPackage = Object.values(packages).find(changedPackage => {
                 const changedFilePath = external_node_path_namespaceObject.resolve(process.cwd(), changedFile, './');
