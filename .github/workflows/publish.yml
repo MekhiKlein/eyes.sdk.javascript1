@@ -49,16 +49,22 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
-          registry-url: https://npm.pkg.github.com/
+          registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Install global dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Install packages dependencies
         working-directory: ${{matrix.path}}
-        run: yarn install --frozen-lockfile
+        run: yarn install
       - name: Build
         working-directory: ${{matrix.path}}
         run: yarn build
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          registry-url: https://npm.pkg.github.com/
+          always-auth: true
       - name: Publish
         working-directory: ${{matrix.path}}
         run: yarn publish
