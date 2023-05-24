@@ -1,5 +1,5 @@
-name: Tests
-description: Run tests for a package
+name: Test
+description: Tests a package
 inputs:
   working-directory:
     description: the path to the directory from repository root
@@ -43,7 +43,6 @@ runs:
       run: |
         echo "::group::Configure NPM"
         if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
-        # npm config set ignore-engines true
         echo "::endgroup::"
 
         echo "::group::Installing and updating dependencies"
@@ -56,7 +55,6 @@ runs:
 
         npm run upgrade:framework --if-present
         echo "::endgroup::"
-
 
         echo "::group::Building package"
         if [ ! -z "${{inputs.build-type}}" ]

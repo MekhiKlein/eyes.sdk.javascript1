@@ -1,12 +1,11 @@
 {
   "last-release-sha": "995c682db072e19705a44597ba0eed144096f300",
   "bootstrap-sha": "995c682db072e19705a44597ba0eed144096f300",
-  "pull-request-title-pattern": "chore: release ${component}@${version}",
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
   "sequential-calls": true,
-  "plugins": ["node-improved-workspace"],
+  "plugins": ["node-workspace"],
   "packages": {
     "js/packages/utils": {
       "release-type": "node",
@@ -94,27 +93,22 @@
     },
     "js/packages/eyes-selenium": {
       "release-type": "node",
-      "separate-pull-requests": true,
       "component": "js/eyes-selenium"
     },
     "js/packages/eyes-webdriverio-5": {
       "release-type": "node",
-      "separate-pull-requests": true,
       "component": "js/eyes-webdriverio"
     },
     "js/packages/eyes-nightwatch": {
       "release-type": "node",
-      "separate-pull-requests": true,
       "component": "js/eyes-nightwatch"
     },
     "js/packages/eyes-playwright": {
       "release-type": "node",
-      "separate-pull-requests": true,
       "component": "js/eyes-playwright"
     },
     "js/packages/eyes-puppeteer": {
       "release-type": "node",
-      "separate-pull-requests": true,
       "component": "js/eyes-puppeteer"
     }
   }
