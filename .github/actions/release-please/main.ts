@@ -1,17 +1,7 @@
 import {GitHub, Manifest, registerPlugin} from 'release-please'
-import {NodeImprovedWorkspace} from './plugins/node-improved-plugin'
+import {RichNodeWorkspace} from './plugins/rich-node-workspace'
+import {ReachCommits} from './plugins/rich-commits'
 import * as core from '@actions/core'
-
-registerPlugin(
-  'node-improved-workspace',
-  options =>
-    new NodeImprovedWorkspace(
-      options.github,
-      options.targetBranch,
-      options.repositoryConfig,
-      {...options, ...(options.type as any)}
-    )
-)
 
 async function main() {
   const configFile = core.getInput('config-file') || 'release-please-config.json'
@@ -71,5 +61,27 @@ function outputPRs(prs: any[]) {
     core.setOutput('prs', JSON.stringify(prs))
   }
 }
+
+
+registerPlugin(
+  'node-improved-workspace',
+  options =>
+    new RichNodeWorkspace(
+      options.github,
+      options.targetBranch,
+      options.repositoryConfig,
+      {...options, ...(options.type as any)}
+    )
+)
+
+registerPlugin(
+  'node-improved-workspace',
+  options =>
+    new ReachCommits(
+      options.github,
+      options.targetBranch,
+      options.repositoryConfig,
+    )
+)
 
 main().catch(err => core.setFailed(`release-please failed: ${err.message}`))

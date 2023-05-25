@@ -10,7 +10,7 @@
     "release-please": "^15.10.4"
   },
   "devDependencies": {
-    "@types/node": "16",
+    "@types/node": "18",
     "@vercel/ncc": "^0.27.0",
     "typescript": "^5.0.4"
   }
