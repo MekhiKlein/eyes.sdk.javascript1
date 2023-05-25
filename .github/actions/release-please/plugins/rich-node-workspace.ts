@@ -29,6 +29,7 @@ export class RichNodeWorkspace extends NodeWorkspace {
   }
 
   async run(candidateReleasePullRequest: CandidateReleasePullRequest[]) {
+    console.log('RICH NODE WORKSPACE', Object.keys(this.strategiesByPath))
     this.releasePullRequestsByPath = await Object.entries(this.strategiesByPath).reduce(async (promise, [path, strategy]) => {
       console.log('COMMITS FOR PATH', path, this.commitsByPath[path])
       const releasePullRequest = 
