@@ -37,6 +37,7 @@ export class RichCommits extends ManifestPlugin {
     commits = this.addCommitNotes(commits)
     commits = this.filterRedundantCommits(commits, component)
 
+    console.log('COMMITS FOR COMPONENT', component, commits)
     const skipReleaseCommit = [...commits].reverse().find(commit => commit.notes.some(note => note.title.toLowerCase() === 'SKIP RELEASE'))
     console.log('SKIP RELEASE FOR COMPONENT', component, !!skipReleaseCommit)
     if (skipReleaseCommit) {
