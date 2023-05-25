@@ -1,31 +1,56 @@
 import {type CandidateReleasePullRequest} from 'release-please/build/src/manifest'
+import {type ReleasePullRequest} from 'release-please/build/src/release-pull-request'
 import {type Strategy} from 'release-please/build/src/strategy'
 import {type Release} from 'release-please/build/src/release'
-import {parseConventionalCommits, type Commit} from 'release-please/build/src/commit'
+import {type Commit, type ConventionalCommit} from 'release-please/build/src/commit'
 import {NodeWorkspace} from 'release-please/build/src/plugins/node-workspace'
-import {PullRequestTitle} from 'release-please/build/src/util/pull-request-title'
 
 export class RichNodeWorkspace extends NodeWorkspace {
-  protected postProcessCandidates(candidates: CandidateReleasePullRequest[], updatedVersions: any) {
-    const newCandidates = super.postProcessCandidates(candidates, updatedVersions)
-    const labeledCandidate = newCandidates.find(candidate => candidate.pullRequest.labels)
-    if (labeledCandidate) {
-      newCandidates.forEach(candidate => (candidate.pullRequest as any).labels = labeledCandidate.pullRequest.labels)
-    }
-    return newCandidates
+  private index = -1
+  protected strategiesByPath: Record<string, Strategy> = {}
+  protected commitsByPath: Record<string, ConventionalCommit[]> = {}
+  protected releasesByPath: Record<string, Release> = {}
+  protected releasePullRequestsByPath: Record<string, ReleasePullRequest | undefined> = {}
+
+  async preconfigure(
+    strategiesByPath: Record<string, Strategy>,
+    _commitsByPath: Record<string, Commit[]>,
+    releasesByPath: Record<string, Release>
+  ): Promise<Record<string, Strategy>> {
+    this.strategiesByPath = strategiesByPath
+    this.releasesByPath = releasesByPath
+    return strategiesByPath
   }
+
+  processCommits(commits: ConventionalCommit[]): ConventionalCommit[] {
+    this.index += 1
+    this.commitsByPath[Object.keys(this.strategiesByPath)[this.index]] = commits
+    return commits
+  }
+
+  async run(candidateReleasePullRequest: CandidateReleasePullRequest[]) {
+    this.releasePullRequestsByPath = await Object.entries(this.strategiesByPath).reduce(async (promise, [path, strategy]) => {
+      const releasePullRequest = 
+        candidateReleasePullRequest.find(candidateReleasePullRequest => candidateReleasePullRequest.path === path)?.pullRequest ??
+        await strategy.buildReleasePullRequest(this.commitsByPath[path], this.releasesByPath[path])
+      return promise.then(releasePullRequestsByPath => {
+        releasePullRequestsByPath[path] = releasePullRequest
+        return releasePullRequestsByPath
+      })
+    }, Promise.resolve({} as Record<string, ReleasePullRequest | undefined>))
+    return super.run(candidateReleasePullRequest)
+  }
+
   protected newCandidate(pkg: any, updatedVersions: any) {
-    const candidate = super.newCandidate(pkg, updatedVersions)
-    const config = {...candidate.config, ...this.repositoryConfig[candidate.path]}
-    const pullRequest = candidate.pullRequest
-    return {
-      ...candidate,
-      config,
-      pullRequest: {
-        ...pullRequest,
-        title: PullRequestTitle.ofComponentTargetBranchVersion(config.component, this.targetBranch, pullRequest.version, config.pullRequestTitlePattern),
-        headRefName: `${pullRequest.headRefName}--components--${config.component || config.packageName}`
-      }
+    const poorCandidateReleasePullRequest = super.newCandidate(pkg, updatedVersions)
+    if (!this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path]) {
+      return poorCandidateReleasePullRequest
     }
+    const candidateReleasePullRequest = {
+      path: poorCandidateReleasePullRequest.path,
+      pullRequest: this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path]!,
+      config: {...this.repositoryConfig[poorCandidateReleasePullRequest.path], separatePullRequests: false}
+    }
+    return super.updateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
   }
 }
