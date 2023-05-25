@@ -20,6 +20,7 @@ export class RichCommits extends ManifestPlugin {
       const conventionalCommits = parseConventionalCommits(commitsByPath[path], this.logger)
 
       // add extra label to strategies that should be skipped
+      console.log('Conventional commits for COMPONENT', component, commits, conventionalCommits)
       const skipReleaseConventionalCommit = [...conventionalCommits].reverse().find(conventionalCommit => {
         return conventionalCommit.notes.some(note => note.title.toLowerCase() === 'skip-release')
       })
