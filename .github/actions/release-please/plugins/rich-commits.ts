@@ -54,6 +54,6 @@ export class RichCommits extends ManifestPlugin {
     if (redundantConventionalCommits.length === 0) {
       return commits
     }
-    return commits.filter(commit => !redundantConventionalCommits.some(redundantCommit => commit.sha !== redundantCommit.sha))
+    return commits.filter(commit => !redundantConventionalCommits.some(redundantCommit => commit.sha === redundantCommit.sha))
   }
 }
