@@ -1,8 +1,11 @@
 import {type CandidateReleasePullRequest} from 'release-please/build/src/manifest'
 import {type ReleasePullRequest} from 'release-please/build/src/release-pull-request'
 import {type Strategy} from 'release-please/build/src/strategy'
+import {type BaseStrategy} from 'release-please/build/src/strategies/base'
+import {type Version} from 'release-please/build/src/version'
 import {type Release} from 'release-please/build/src/release'
 import {type Commit, type ConventionalCommit} from 'release-please/build/src/commit'
+import {type DependencyGraph} from 'release-please/build/src/plugins/workspace'
 import {NodeWorkspace} from 'release-please/build/src/plugins/node-workspace'
 
 export class RichNodeWorkspace extends NodeWorkspace {
@@ -54,15 +57,24 @@ export class RichNodeWorkspace extends NodeWorkspace {
     return super.run(candidateReleasePullRequest)
   }
 
-  protected newCandidate(pkg: any, updatedVersions: any) {
-    const poorCandidateReleasePullRequest = super.newCandidate(pkg, updatedVersions)
-    if (!this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path]) {
-      return poorCandidateReleasePullRequest
-    }
+  protected async buildGraph(pkgs: any[]): Promise<DependencyGraph<any>> {
+    const graph = await super.buildGraph(pkgs)
+    graph.forEach((_, packageName) => {
+      const path = Object.keys(this.repositoryConfig).find(path => this.repositoryConfig[path].packageName === packageName)
+      if (path && (this.strategiesByPath[path] as BaseStrategy)?.extraLabels.includes('skip-release')) {
+        console.log('DEPS GRAPH REMOVE', packageName)
+        graph.delete(packageName)
+      }
+    })
+    return graph
+  }
+
+  protected newCandidate(pkg: any, updatedVersions: Map<string, Version>) {
+    const {path} = super.newCandidate(pkg, updatedVersions)
     const candidateReleasePullRequest = {
-      path: poorCandidateReleasePullRequest.path,
-      pullRequest: this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path]!,
-      config: {...this.repositoryConfig[poorCandidateReleasePullRequest.path], separatePullRequests: false}
+      path,
+      pullRequest: this.releasePullRequestsByPath[path]!,
+      config: this.repositoryConfig[path]
     }
     return super.updateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
   }
