@@ -5,7 +5,10 @@
   "include-v-in-tag": false,
   "tag-separator": "@",
   "sequential-calls": true,
-  "plugins": ["rich-commits", "node-workspace"],
+  "plugins": [
+    "rich-commits",
+    {"type": "node-workspace", "merge": false}
+  ],
   "packages": {
     "js/packages/utils": {
       "release-type": "node",

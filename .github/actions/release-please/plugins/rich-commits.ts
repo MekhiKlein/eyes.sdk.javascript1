@@ -47,7 +47,7 @@ export class RichCommits extends ManifestPlugin {
     const redundantConventionalCommits = conventionalCommits.filter(conventionalCommit => {
       return (
         (conventionalCommit.files?.length ?? 0) === 0 &&
-        (conventionalCommit.scope && conventionalCommit.scope.split(/,\s*/g).includes(component))
+        (conventionalCommit.scope && !conventionalCommit.scope.split(/,\s*/g).includes(component))
       )
     })
     console.log('REDUNDANT COMMITS FOR', component, redundantConventionalCommits)
