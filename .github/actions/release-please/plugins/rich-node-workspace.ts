@@ -63,6 +63,7 @@ export class RichNodeWorkspace extends NodeWorkspace {
     graph.forEach((_, packageName) => {
       console.log('DEPS GRAPH PACKAGE', packageName)
       const path = Object.keys(this.repositoryConfig).find(path => this.repositoryConfig[path].packageName === packageName)
+      console.log('DEPS GRAPH PATH', path)
       if (path && (this.strategiesByPath[path] as BaseStrategy)?.extraLabels.includes('skip-release')) {
         console.log('DEPS GRAPH REMOVE', packageName)
         graph.delete(packageName)
