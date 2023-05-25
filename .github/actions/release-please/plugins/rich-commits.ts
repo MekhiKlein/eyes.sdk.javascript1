@@ -48,6 +48,7 @@ export class RichCommits extends ManifestPlugin {
   }
 
   async run(candidatePullRequests: CandidateReleasePullRequest[]): Promise<CandidateReleasePullRequest[]> {
+    console.log('FILTERING OUT PULL REQUESTS', candidatePullRequests.length, candidatePullRequests.map(candidatePullRequest => [candidatePullRequest.path, candidatePullRequest.pullRequest.labels]))
     // filter out pull requests that were labeled to skip
     return candidatePullRequests.filter(candidatePullRequest => {
       return !candidatePullRequest.pullRequest.labels.includes('skip-release')
