@@ -60,15 +60,21 @@ export class RichNodeWorkspace extends NodeWorkspace {
   protected async buildGraph(pkgs: any[]): Promise<DependencyGraph<any>> {
     const graph = await super.buildGraph(pkgs)
     console.log('DEPS GRAPH', graph)
-    graph.forEach((_, packageName) => {
+    for (const packageName of graph.keys()) {
       console.log('DEPS GRAPH PACKAGE', packageName)
-      const path = Object.keys(this.repositoryConfig).find(path => this.repositoryConfig[path].packageName === packageName)
-      console.log('DEPS GRAPH PATH', path)
-      if (path && (this.strategiesByPath[path] as BaseStrategy)?.extraLabels.includes('skip-release')) {
+      let packageStrategy: BaseStrategy | undefined
+      for (const strategy of Object.values(this.strategiesByPath) as BaseStrategy[]) {
+        if (await strategy.getPackageName() === packageName) {
+          packageStrategy = strategy
+          break
+        }
+      }
+      console.log('DEPS GRAPH STRATEGY', !!packageStrategy)
+      if (packageStrategy?.extraLabels.includes('skip-release')) {
         console.log('DEPS GRAPH REMOVE', packageName)
         graph.delete(packageName)
       }
-    })
+    }
     return graph
   }
 
