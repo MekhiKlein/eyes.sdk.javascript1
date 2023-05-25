@@ -6,7 +6,7 @@
   "tag-separator": "@",
   "sequential-calls": true,
   "plugins": [
-    {"type": "node-workspace", "merge": false},
+    {"type": "rich-node-workspace", "merge": false},
     "rich-commits"
   ],
   "packages": {
