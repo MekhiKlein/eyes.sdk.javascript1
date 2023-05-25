@@ -40,6 +40,7 @@ export class RichCommits extends ManifestPlugin {
     if (skipReleaseCommit) {
       const skipReleaseNote = [...skipReleaseCommit.notes].reverse().find(note => note.title === 'SKIP RELEASE')!
       if (skipReleaseNote.text === 'true') {
+        console.log('SKIP RELEASE', strategy.path, commits)
         strategy.extraLabels.push('skip-release')
       }
     }
