@@ -1,6 +1,6 @@
 import {GitHub, Manifest, registerPlugin} from 'release-please'
 import {RichNodeWorkspace} from './plugins/rich-node-workspace'
-import {ReachCommits} from './plugins/rich-commits'
+import {RichCommits} from './plugins/rich-commits'
 import * as core from '@actions/core'
 
 async function main() {
@@ -64,7 +64,7 @@ function outputPRs(prs: any[]) {
 
 
 registerPlugin(
-  'node-improved-workspace',
+  'rich-node-workspace',
   options =>
     new RichNodeWorkspace(
       options.github,
@@ -75,9 +75,9 @@ registerPlugin(
 )
 
 registerPlugin(
-  'node-improved-workspace',
+  'rich-commits',
   options =>
-    new ReachCommits(
+    new RichCommits(
       options.github,
       options.targetBranch,
       options.repositoryConfig,

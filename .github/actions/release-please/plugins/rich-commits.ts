@@ -5,7 +5,7 @@ import {type Release} from 'release-please/build/src/release'
 import {parseConventionalCommits, type Commit} from 'release-please/build/src/commit'
 import {ManifestPlugin} from 'release-please/build/src/plugin'
 
-export class ReachCommits extends ManifestPlugin {
+export class RichCommits extends ManifestPlugin {
   async preconfigure(
     strategiesByPath: Record<string, Strategy>,
     commitsByPath: Record<string, Commit[]>,
