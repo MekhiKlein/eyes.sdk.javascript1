@@ -7,7 +7,8 @@
   "sequential-calls": true,
   "plugins": [
     "rich-commits",
-    {"type": "rich-node-workspace", "merge": false}
+    {"type": "rich-node-workspace", "merge": false},
+    "filter-pull-requests"
   ],
   "packages": {
     "js/packages/utils": {
