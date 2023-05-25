@@ -64,24 +64,27 @@ export class RichCommits extends ManifestPlugin {
     // if empty commit has scope it should contain component in order to be attached to the path
     return commits.filter(commit => {
       return (
-        (commit.files?.length ?? 0) > 0 &&
-        (!commit.scope || commit.scope.split(/,\s*/g).includes(component))
+        (commit.files?.length ?? 0) > 0 ||
+        !commit.scope ||
+        commit.scope.split(/,\s*/g).includes(component)
       )
     })
   }
 
   protected addCommitNotes(commits: ConventionalCommit[]): ConventionalCommit[] {
     // unknown footers are parsed as separate commits by release-please they has to be converted to notes
-    return commits.reduce((commits, commit) => {
-      if (commit.type.toLowerCase() === 'skip-release') {
-        commits.at(-1)?.notes.push({
-          title: 'SKIP RELEASE',
-          text: commit.bareMessage
-        })
-      } else {
-        commits.push(commit)
-      }
-      return commits
-    }, [] as ConventionalCommit[])
+    return commits
+      .reduceRight((commits, commit) => {
+        if (commit.type.toLowerCase() === 'skip-release') {
+          commits.at(-1)?.notes.push({
+            title: 'SKIP RELEASE',
+            text: commit.bareMessage
+          })
+        } else {
+          commits.push(commit)
+        }
+        return commits
+      }, [] as ConventionalCommit[])
+      .reverse()
   }
 }
