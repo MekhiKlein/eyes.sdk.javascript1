@@ -29,18 +29,27 @@ export class RichNodeWorkspace extends NodeWorkspace {
   }
 
   async run(candidateReleasePullRequest: CandidateReleasePullRequest[]) {
-    console.log('RICH NODE WORKSPACE', Object.keys(this.strategiesByPath))
+    const updateDepsCommit = {
+      sha: '',
+      message: 'deps: update some dependencies',
+      files: [],
+      pullRequest: undefined,
+      type: 'deps',
+      scope: undefined,
+      bareMessage: 'update some dependencies',
+      notes: [],
+      references: [],
+      breaking: false
+    }
     this.releasePullRequestsByPath = await Object.entries(this.strategiesByPath).reduce(async (promise, [path, strategy]) => {
-      console.log('COMMITS FOR PATH', path, this.commitsByPath[path])
       const releasePullRequest = 
         candidateReleasePullRequest.find(candidateReleasePullRequest => candidateReleasePullRequest.path === path)?.pullRequest ??
-        await strategy.buildReleasePullRequest(this.commitsByPath[path], this.releasesByPath[path])
+        await strategy.buildReleasePullRequest([...this.commitsByPath[path], updateDepsCommit], this.releasesByPath[path])
       return promise.then(releasePullRequestsByPath => {
         releasePullRequestsByPath[path] = releasePullRequest
         return releasePullRequestsByPath
       })
     }, Promise.resolve({} as Record<string, ReleasePullRequest | undefined>))
-    console.log('RICH NODE WORKSPACE', this.releasePullRequestsByPath)
     return super.run(candidateReleasePullRequest)
   }
 
