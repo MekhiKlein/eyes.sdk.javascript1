@@ -17,14 +17,16 @@ export class RichCommits extends ManifestPlugin {
       const component = (await strategy.getComponent()) || ''
   
       commitsByPath[path] = this.filterRedundantCommits(commits, component)
-      const conventionalCommits = parseConventionalCommits(commits, this.logger)
+      const conventionalCommits = parseConventionalCommits(commitsByPath[path], this.logger)
 
       // add extra label to strategies that should be skipped
       const skipReleaseConventionalCommit = [...conventionalCommits].reverse().find(conventionalCommit => {
         return conventionalCommit.notes.some(note => note.title.toLowerCase() === 'skip-release')
       })
+      console.log('SKIP RELEASE FOR COMPONENT', component, !!skipReleaseConventionalCommit)
       if (skipReleaseConventionalCommit) {
         const skipReleaseNote = [...skipReleaseConventionalCommit.notes].reverse().find(note => note.title.toLowerCase() === 'skip-release')!
+        console.log('SKIP RELEASE NOTE FOR COMPONENT', component, skipReleaseNote)
         if (skipReleaseNote.text === 'true') {
           strategy.extraLabels.push('skip-release')
         }
@@ -34,6 +36,7 @@ export class RichCommits extends ManifestPlugin {
   }
 
   async run(candidatePullRequests: CandidateReleasePullRequest[]): Promise<CandidateReleasePullRequest[]> {
+    console.log('FILTERING OUT PULL REQUESTS', candidatePullRequests.length, candidatePullRequests.map(candidatePullRequest => [candidatePullRequest.path, candidatePullRequest.pullRequest.labels]))
     // filter out pull requests that were labeled to skip
     return candidatePullRequests.filter(candidatePullRequest => {
       return !candidatePullRequest.pullRequest.labels.includes('skip-release')
@@ -42,7 +45,6 @@ export class RichCommits extends ManifestPlugin {
 
   protected filterRedundantCommits(commits: Commit[], component: string): Commit[] {
     // if empty commit has scope it should contain component in order to be attached to the path
-    console.log('FILTERING REDUNDANT COMMITS FOR', component)
     const conventionalCommits = parseConventionalCommits(commits, this.logger)
     const redundantConventionalCommits = conventionalCommits.filter(conventionalCommit => {
       return (
@@ -50,7 +52,6 @@ export class RichCommits extends ManifestPlugin {
         (conventionalCommit.scope && !conventionalCommit.scope.split(/,\s*/g).includes(component))
       )
     })
-    console.log('REDUNDANT COMMITS FOR', component, redundantConventionalCommits)
     if (redundantConventionalCommits.length === 0) {
       return commits
     }
