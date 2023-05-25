@@ -89,7 +89,7 @@
     },
     "js/packages/eyes-api": {
       "release-type": "node",
-      "component": "eyes"
+      "component": "js/eyes"
     },
     "js/packages/eyes-images": {
       "release-type": "node",

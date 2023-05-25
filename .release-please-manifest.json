@@ -19,6 +19,7 @@
   "js/packages/execution-grid-client": "1.2.31",
   "js/packages/core-base": "1.1.55",
   "js/packages/core": "3.0.2",
+  "js/packages/eyes-api": "1.2.11",
   "js/packages/eyes-images": "4.23.0",
   "js/packages/eyes-selenium": "3.0.2",
   "js/packages/eyes-webdriverio-5": "5.44.1",
