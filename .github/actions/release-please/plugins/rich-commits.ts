@@ -42,13 +42,15 @@ export class RichCommits extends ManifestPlugin {
 
   protected filterRedundantCommits(commits: Commit[], component: string): Commit[] {
     // if empty commit has scope it should contain component in order to be attached to the path
+    console.log('FILTERING REDUNDANT COMMITS FOR', component)
     const conventionalCommits = parseConventionalCommits(commits, this.logger)
     const redundantConventionalCommits = conventionalCommits.filter(conventionalCommit => {
       return (
         (conventionalCommit.files?.length ?? 0) === 0 &&
-        (conventionalCommit.scope?.split(/,\s*/g) ?? []).includes(component)
+        !(conventionalCommit.scope?.split(/,\s*/g) ?? []).includes(component)
       )
     })
+    console.log('REDUNDANT COMMITS FOR', component, redundantConventionalCommits)
     if (redundantConventionalCommits.length === 0) {
       return commits
     }
