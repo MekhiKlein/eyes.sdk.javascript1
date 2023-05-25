@@ -6,8 +6,8 @@
   "tag-separator": "@",
   "sequential-calls": true,
   "plugins": [
-    "rich-commits",
-    {"type": "node-workspace", "merge": false}
+    {"type": "node-workspace", "merge": false},
+    "rich-commits"
   ],
   "packages": {
     "js/packages/utils": {
