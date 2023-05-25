@@ -1,6 +1,7 @@
 import {GitHub, Manifest, registerPlugin} from 'release-please'
 import {RichNodeWorkspace} from './plugins/rich-node-workspace'
 import {RichCommits} from './plugins/rich-commits'
+import {FilterPullRequests} from './plugins/filter-pull-requests'
 import * as core from '@actions/core'
 
 async function main() {
@@ -81,6 +82,17 @@ registerPlugin(
       options.github,
       options.targetBranch,
       options.repositoryConfig,
+    )
+)
+
+registerPlugin(
+  'filter-pull-requests',
+  options =>
+    new FilterPullRequests(
+      options.github,
+      options.targetBranch,
+      options.repositoryConfig,
+      {...options, ...(options.type as any)}
     )
 )
 
