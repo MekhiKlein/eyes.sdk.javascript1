@@ -30,6 +30,7 @@ export class RichNodeWorkspace extends NodeWorkspace {
 
   async run(candidateReleasePullRequest: CandidateReleasePullRequest[]) {
     this.releasePullRequestsByPath = await Object.entries(this.strategiesByPath).reduce(async (promise, [path, strategy]) => {
+      console.log('COMMITS FOR PATH', path, this.commitsByPath[path])
       const releasePullRequest = 
         candidateReleasePullRequest.find(candidateReleasePullRequest => candidateReleasePullRequest.path === path)?.pullRequest ??
         await strategy.buildReleasePullRequest(this.commitsByPath[path], this.releasesByPath[path])
@@ -44,7 +45,6 @@ export class RichNodeWorkspace extends NodeWorkspace {
 
   protected newCandidate(pkg: any, updatedVersions: any) {
     const poorCandidateReleasePullRequest = super.newCandidate(pkg, updatedVersions)
-    console.log('-_-_-_-_-_-_-', poorCandidateReleasePullRequest, this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path])
     if (!this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path]) {
       return poorCandidateReleasePullRequest
     }
