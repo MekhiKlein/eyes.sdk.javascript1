@@ -1,39 +1,52 @@
-import {type CandidateReleasePullRequest} from 'release-please/build/src/manifest'
 import {type Strategy} from 'release-please/build/src/strategy'
 import {type BaseStrategy} from 'release-please/build/src/strategies/base'
+import {type Commit, type ConventionalCommit} from 'release-please/build/src/commit'
+import {type CandidateReleasePullRequest} from 'release-please/build/src/manifest'
 import {type Release} from 'release-please/build/src/release'
-import {parseConventionalCommits, type Commit} from 'release-please/build/src/commit'
 import {ManifestPlugin} from 'release-please/build/src/plugin'
 
 export class RichCommits extends ManifestPlugin {
+  private index = -1
+  protected componentsByPath: Record<string, string> = {}
+  protected strategiesByPath: Record<string, Strategy> = {}
+  protected commitsByPath: Record<string, Commit[]> = {}
+  protected releasesByPath: Record<string, Release> = {}
+
   async preconfigure(
     strategiesByPath: Record<string, Strategy>,
     commitsByPath: Record<string, Commit[]>,
-    _releasesByPath: Record<string, Release>
+    releasesByPath: Record<string, Release>
   ): Promise<Record<string, Strategy>> {
-    for (const path in strategiesByPath) {
-      const strategy = strategiesByPath[path] as BaseStrategy
-      const commits = commitsByPath[path]
+    this.componentsByPath = await Object.entries(strategiesByPath).reduce(async (promise, [path, strategy]) => {
       const component = (await strategy.getComponent()) || ''
-  
-      commitsByPath[path] = this.filterRedundantCommits(commits, component)
-      const conventionalCommits = parseConventionalCommits(commitsByPath[path], this.logger)
-
-      // add extra label to strategies that should be skipped
-      console.log('Conventional commits for COMPONENT', component, commits, conventionalCommits)
-      const skipReleaseConventionalCommit = [...conventionalCommits].reverse().find(conventionalCommit => {
-        return conventionalCommit.notes.some(note => note.title.toLowerCase() === 'skip-release')
+      return promise.then(componentsByPath => {
+        componentsByPath[path] = component
+        return componentsByPath
       })
-      console.log('SKIP RELEASE FOR COMPONENT', component, !!skipReleaseConventionalCommit)
-      if (skipReleaseConventionalCommit) {
-        const skipReleaseNote = [...skipReleaseConventionalCommit.notes].reverse().find(note => note.title.toLowerCase() === 'skip-release')!
-        console.log('SKIP RELEASE NOTE FOR COMPONENT', component, skipReleaseNote)
-        if (skipReleaseNote.text === 'true') {
-          strategy.extraLabels.push('skip-release')
-        }
+    }, Promise.resolve({} as Record<string, string>))
+    this.strategiesByPath = strategiesByPath
+    this.commitsByPath = commitsByPath
+    this.releasesByPath = releasesByPath
+    return strategiesByPath
+  }
+
+  processCommits(commits: ConventionalCommit[]): ConventionalCommit[] {
+    this.index += 1
+    const component = this.componentsByPath[Object.keys(this.componentsByPath)[this.index]]
+    const strategy = this.strategiesByPath[Object.keys(this.strategiesByPath)[this.index]] as BaseStrategy
+    commits = this.addCommitNotes(commits)
+    commits = this.filterRedundantCommits(commits, component)
+
+    const skipReleaseCommit = [...commits].reverse().find(commit => commit.notes.some(note => note.title.toLowerCase() === 'SKIP RELEASE'))
+    console.log('SKIP RELEASE FOR COMPONENT', component, !!skipReleaseCommit)
+    if (skipReleaseCommit) {
+      const skipReleaseNote = [...skipReleaseCommit.notes].reverse().find(note => note.title.toLowerCase() === 'SKIP RELEASE')!
+      console.log('SKIP RELEASE NOTE FOR COMPONENT', component, skipReleaseNote)
+      if (skipReleaseNote.text === 'true') {
+        strategy.extraLabels.push('skip-release')
       }
     }
-    return strategiesByPath
+    return commits
   }
 
   async run(candidatePullRequests: CandidateReleasePullRequest[]): Promise<CandidateReleasePullRequest[]> {
@@ -44,18 +57,28 @@ export class RichCommits extends ManifestPlugin {
     })
   }
 
-  protected filterRedundantCommits(commits: Commit[], component: string): Commit[] {
+  protected filterRedundantCommits(commits: ConventionalCommit[], component: string): ConventionalCommit[] {
     // if empty commit has scope it should contain component in order to be attached to the path
-    const conventionalCommits = parseConventionalCommits(commits, this.logger)
-    const redundantConventionalCommits = conventionalCommits.filter(conventionalCommit => {
+    return commits.filter(commit => {
       return (
-        (conventionalCommit.files?.length ?? 0) === 0 &&
-        (conventionalCommit.scope && !conventionalCommit.scope.split(/,\s*/g).includes(component))
+        (commit.files?.length ?? 0) > 0 &&
+        (!commit.scope || commit.scope.split(/,\s*/g).includes(component))
       )
     })
-    if (redundantConventionalCommits.length === 0) {
+  }
+
+  protected addCommitNotes(commits: ConventionalCommit[]): ConventionalCommit[] {
+    // unknown footers are parsed as separate commits by release-please they has to be converted to notes
+    return commits.reduce((commits, commit) => {
+      if (commit.type.toLowerCase() === 'skip-release') {
+        commits.at(-1)?.notes.push({
+          title: 'SKIP RELEASE',
+          text: commit.bareMessage
+        })
+      } else {
+        commits.push(commit)
+      }
       return commits
-    }
-    return commits.filter(commit => !redundantConventionalCommits.some(redundantCommit => commit.sha === redundantCommit.sha))
+    }, [] as ConventionalCommit[])
   }
 }
