@@ -59,7 +59,9 @@ export class RichNodeWorkspace extends NodeWorkspace {
 
   protected async buildGraph(pkgs: any[]): Promise<DependencyGraph<any>> {
     const graph = await super.buildGraph(pkgs)
+    console.log('DEPS GRAPH', graph)
     graph.forEach((_, packageName) => {
+      console.log('DEPS GRAPH PACKAGE', packageName)
       const path = Object.keys(this.repositoryConfig).find(path => this.repositoryConfig[path].packageName === packageName)
       if (path && (this.strategiesByPath[path] as BaseStrategy)?.extraLabels.includes('skip-release')) {
         console.log('DEPS GRAPH REMOVE', packageName)
