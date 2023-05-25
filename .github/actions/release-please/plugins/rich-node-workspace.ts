@@ -43,6 +43,7 @@ export class RichNodeWorkspace extends NodeWorkspace {
 
   protected newCandidate(pkg: any, updatedVersions: any) {
     const poorCandidateReleasePullRequest = super.newCandidate(pkg, updatedVersions)
+    console.log('-_-_-_-_-_-_-', poorCandidateReleasePullRequest, this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path])
     if (!this.releasePullRequestsByPath[poorCandidateReleasePullRequest.path]) {
       return poorCandidateReleasePullRequest
     }
