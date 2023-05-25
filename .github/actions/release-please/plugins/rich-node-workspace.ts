@@ -50,6 +50,7 @@ export class RichNodeWorkspace extends NodeWorkspace {
         return releasePullRequestsByPath
       })
     }, Promise.resolve({} as Record<string, ReleasePullRequest | undefined>))
+    console.log('RICH NODE WORKSPACE', this.releasePullRequestsByPath)
     return super.run(candidateReleasePullRequest)
   }
 
