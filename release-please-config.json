@@ -7,8 +7,7 @@
   "sequential-calls": true,
   "plugins": [
     "rich-commits",
-    {"type": "rich-node-workspace", "merge": false},
-    "filter-pull-requests"
+    {"type": "rich-workspace", "workspace": "node"}
   ],
   "changelog-sections": [
     {"type": "feat", "section": "Features"},

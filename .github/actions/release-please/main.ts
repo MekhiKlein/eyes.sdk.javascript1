@@ -1,7 +1,6 @@
 import {GitHub, Manifest, registerPlugin} from 'release-please'
-import {RichNodeWorkspace} from './plugins/rich-node-workspace'
+import {RichWorkspace} from './plugins/rich-workspace'
 import {RichCommits} from './plugins/rich-commits'
-import {FilterPullRequests} from './plugins/filter-pull-requests'
 import * as core from '@actions/core'
 
 async function main() {
@@ -63,18 +62,6 @@ function outputPRs(prs: any[]) {
   }
 }
 
-
-registerPlugin(
-  'rich-node-workspace',
-  options =>
-    new RichNodeWorkspace(
-      options.github,
-      options.targetBranch,
-      options.repositoryConfig,
-      {...options, ...(options.type as any)}
-    )
-)
-
 registerPlugin(
   'rich-commits',
   options =>
@@ -86,9 +73,9 @@ registerPlugin(
 )
 
 registerPlugin(
-  'filter-pull-requests',
+  'rich-workspace',
   options =>
-    new FilterPullRequests(
+    new RichWorkspace(
       options.github,
       options.targetBranch,
       options.repositoryConfig,
