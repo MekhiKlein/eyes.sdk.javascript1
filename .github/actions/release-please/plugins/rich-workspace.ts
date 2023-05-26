@@ -105,7 +105,7 @@ export class RichWorkspace extends ManifestPlugin {
     }
     
     const originalNewCandidate = (workspacePlugin as any).newCandidate.bind(workspacePlugin)
-    const originalUpdateCandidate = (workspacePlugin as any).newCandidate.bind(workspacePlugin)
+    const originalUpdateCandidate = (workspacePlugin as any).updateCandidate.bind(workspacePlugin)
     ;(workspacePlugin as any).newCandidate = (pkg: any, updatedVersions: Map<string, Version>): CandidateReleasePullRequest => {
       const {path} = originalNewCandidate(pkg, updatedVersions)
       const candidateReleasePullRequest = {
