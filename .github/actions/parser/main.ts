@@ -46,7 +46,6 @@ async function main() {
   const includeOnlyChanged = core.getBooleanInput('include-only-changed')
   const includeDependencies = core.getBooleanInput('include-dependencies')
   const linkDependencies = core.getBooleanInput('link-dependencies')
-  const defaultPublishVersion = core.getInput('default-publish-version')
 
   const packages = await getPackages()
 
@@ -86,6 +85,7 @@ async function main() {
       if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
   
       const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))
+      const matrix = JSON.parse(await fs.readFile(path.resolve(packagePath, 'matrix.json'), {encoding: 'utf8'}))
       if (SKIP_PACKAGES.includes(manifest.name)) return packages
   
       return packages.then(packages => {
@@ -98,6 +98,7 @@ async function main() {
           tag: `${manifest.name}@`,
           dependencies: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
           framework: Object.keys({...manifest.peerDependencies})[0],
+          matrix,
         }
         return packages
       })
@@ -155,12 +156,9 @@ async function main() {
 
   function createJobs(input: string): Record<string, Job> {
     return input.split(/[\s,]+(?=(?:[^()]*\([^())]*\))*[^()]*$)/).reduce((jobs, input) => {
-      let [_, packageKey, publishVersion, frameworkVersion, frameworkProtocol, nodeVersion, jobOS, linkPackages, shortPublishVersion, shortFrameworkVersion, shortFrameworkProtocol]
-        = input.match(/^(.*?)(?:\((?:version:(patch|minor|major);?)?(?:framework:([\d.]+);?)?(?:protocol:(.+?);?)?(?:node:([\d.]+);?)?(?:os:(linux|ubuntu|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?::(patch|minor|major))?(?:@([\d.]+))?(?:\+(.+?))?$/i) ?? []
-    
-      publishVersion ??= shortPublishVersion ?? defaultPublishVersion
+      let [_, packageKey, useMatrix, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion]
+        = input.match(/^(.*?)(?:\((?:matrix:(true|false);?)(?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?:@([\d.]+))?$/i) ?? []
       frameworkVersion ??= shortFrameworkVersion
-      frameworkProtocol ??= shortFrameworkProtocol
   
       const packageInfo = Object.values(packages).find(({name, jobName, dirname, aliases}) => {
         return [name, jobName, dirname, ...(aliases ?? [])].includes(packageKey)
@@ -170,7 +168,8 @@ async function main() {
         core.warning(`Package name is unknown! Package configured as "${input}" will be ignored!`)
         return jobs
       }
-      if (frameworkVersion || frameworkProtocol) {
+
+      if (frameworkVersion || langVersion || runner) {
         if (!allowVariations) {
           core.warning(`Modifiers are not allowed! Package "${packageInfo.name}" configured as "${input}" will be ignored!`)
           return jobs
@@ -185,9 +184,10 @@ async function main() {
         return {...envs, [key]: value}
       }, {})
   
-      const appendix = Object.entries({version: publishVersion, framework: frameworkVersion, protocol: frameworkProtocol, node: nodeVersion, os: jobOS})
+      const appendix = Object.entries({framework: frameworkVersion, [langName]: langVersion, runner})
         .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [] as string[])
         .join('; ')
+
       const job: Job = {
         name: packageInfo.jobName,
         displayName: `${packageInfo.jobName}${appendix ? ` (${appendix})` : ''}`,
@@ -197,21 +197,25 @@ async function main() {
         path: packageInfo.path,
         tag: packageInfo.tag,
         params: {
-          version: publishVersion,
-          runner: Runner[jobOS as keyof typeof Runner] ?? Runner.linux,
-          node: nodeVersion ?? 'lts/*',
+          runner: Runner[runner as keyof typeof Runner] ?? Runner.linux,
+          [`${langName}-version`]: langVersion ?? (langName === 'node' ? 'lts/*': undefined),
           links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
           env: {
             [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
             [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
-            [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_PROTOCOL`]: frameworkProtocol,
             ...envs,
           },
         },
         requested: true,
       }
-    
-      jobs[allowVariations ? job.displayName : job.name] = job
+
+      if (allowVariations && useMatrix === 'true') {
+        packageInfo.matrix?.forEach(params => {
+          jobs[job.displayName] = {...job, params: {...params, ...job.params, env: {...params.env, ...job.params!.env}}}
+        })
+      } else {
+        jobs[allowVariations ? job.displayName : job.name] = job
+      }
     
       return jobs
     }, {} as Record<string, Job>)

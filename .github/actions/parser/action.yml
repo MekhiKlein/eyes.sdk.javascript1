@@ -25,9 +25,6 @@ inputs:
     description: whether dependencies of the target packages should be linked
     type: boolean
     default: false
-  default-publish-version:
-    description: default publish version type (major, minor, patch)
-    type: string
 outputs:
   packages:
     description: map or array of each package or variation respectively

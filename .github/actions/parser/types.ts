@@ -25,4 +25,5 @@ export interface Package {
   tag: string
   dependencies: string[]
   framework?: string
+  matrix?: Record<string, any>[]
 }

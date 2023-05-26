@@ -1716,6 +1716,10 @@ function checkBypass(reqUrl) {
     if (!reqUrl.hostname) {
         return false;
     }
+    const reqHost = reqUrl.hostname;
+    if (isLoopbackAddress(reqHost)) {
+        return true;
+    }
     const noProxy = process.env['no_proxy'] || process.env['NO_PROXY'] || '';
     if (!noProxy) {
         return false;
@@ -1741,13 +1745,24 @@ function checkBypass(reqUrl) {
         .split(',')
         .map(x => x.trim().toUpperCase())
         .filter(x => x)) {
-        if (upperReqHosts.some(x => x === upperNoProxyItem)) {
+        if (upperNoProxyItem === '*' ||
+            upperReqHosts.some(x => x === upperNoProxyItem ||
+                x.endsWith(`.${upperNoProxyItem}`) ||
+                (upperNoProxyItem.startsWith('.') &&
+                    x.endsWith(`${upperNoProxyItem}`)))) {
             return true;
         }
     }
     return false;
 }
 exports.checkBypass = checkBypass;
+function isLoopbackAddress(host) {
+    const hostLower = host.toLowerCase();
+    return (hostLower === 'localhost' ||
+        hostLower.startsWith('127.') ||
+        hostLower.startsWith('[::1]') ||
+        hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
 //# sourceMappingURL=proxy.js.map
 
 /***/ }),
@@ -3103,7 +3118,6 @@ async function main() {
     const includeOnlyChanged = core.getBooleanInput('include-only-changed');
     const includeDependencies = core.getBooleanInput('include-dependencies');
     const linkDependencies = core.getBooleanInput('link-dependencies');
-    const defaultPublishVersion = core.getInput('default-publish-version');
     const packages = await getPackages();
     if (input === 'changed') {
         input = getChangedPackagesInput();
@@ -3137,6 +3151,7 @@ async function main() {
             if (!(await promises_namespaceObject.stat(packageManifestPath).catch(() => false)))
                 return packages;
             const manifest = JSON.parse(await promises_namespaceObject.readFile(packageManifestPath, { encoding: 'utf8' }));
+            const matrix = JSON.parse(await promises_namespaceObject.readFile(external_node_path_namespaceObject.resolve(packagePath, 'matrix.json'), { encoding: 'utf8' }));
             if (SKIP_PACKAGES.includes(manifest.name))
                 return packages;
             return packages.then(packages => {
@@ -3149,6 +3164,7 @@ async function main() {
                     tag: `${manifest.name}@`,
                     dependencies: Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }),
                     framework: Object.keys({ ...manifest.peerDependencies })[0],
+                    matrix,
                 };
                 return packages;
             });
@@ -3202,10 +3218,8 @@ async function main() {
     }
     function createJobs(input) {
         return input.split(/[\s,]+(?=(?:[^()]*\([^())]*\))*[^()]*$)/).reduce((jobs, input) => {
-            let [_, packageKey, publishVersion, frameworkVersion, frameworkProtocol, nodeVersion, jobOS, linkPackages, shortPublishVersion, shortFrameworkVersion, shortFrameworkProtocol] = input.match(/^(.*?)(?:\((?:version:(patch|minor|major);?)?(?:framework:([\d.]+);?)?(?:protocol:(.+?);?)?(?:node:([\d.]+);?)?(?:os:(linux|ubuntu|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?::(patch|minor|major))?(?:@([\d.]+))?(?:\+(.+?))?$/i) ?? [];
-            publishVersion ??= shortPublishVersion ?? defaultPublishVersion;
+            let [_, packageKey, useMatrix, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion] = input.match(/^(.*?)(?:\((?:matrix:(true|false);?)(?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?:@([\d.]+))?$/i) ?? [];
             frameworkVersion ??= shortFrameworkVersion;
-            frameworkProtocol ??= shortFrameworkProtocol;
             const packageInfo = Object.values(packages).find(({ name, jobName, dirname, aliases }) => {
                 return [name, jobName, dirname, ...(aliases ?? [])].includes(packageKey);
             });
@@ -3213,7 +3227,7 @@ async function main() {
                 core.warning(`Package name is unknown! Package configured as "${input}" will be ignored!`);
                 return jobs;
             }
-            if (frameworkVersion || frameworkProtocol) {
+            if (frameworkVersion || langVersion || runner) {
                 if (!allowVariations) {
                     core.warning(`Modifiers are not allowed! Package "${packageInfo.name}" configured as "${input}" will be ignored!`);
                     return jobs;
@@ -3227,7 +3241,7 @@ async function main() {
                 const [key, value] = env.split('=');
                 return { ...envs, [key]: value };
             }, {});
-            const appendix = Object.entries({ version: publishVersion, framework: frameworkVersion, protocol: frameworkProtocol, node: nodeVersion, os: jobOS })
+            const appendix = Object.entries({ framework: frameworkVersion, [langName]: langVersion, runner })
                 .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
                 .join('; ');
             const job = {
@@ -3239,20 +3253,25 @@ async function main() {
                 path: packageInfo.path,
                 tag: packageInfo.tag,
                 params: {
-                    version: publishVersion,
-                    runner: Runner[jobOS] ?? Runner.linux,
-                    node: nodeVersion ?? 'lts/*',
+                    runner: Runner[runner] ?? Runner.linux,
+                    [`${langName}-version`]: langVersion ?? (langName === 'node' ? 'lts/*' : undefined),
                     links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
                     env: {
                         [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
                         [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
-                        [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_PROTOCOL`]: frameworkProtocol,
                         ...envs,
                     },
                 },
                 requested: true,
             };
-            jobs[allowVariations ? job.displayName : job.name] = job;
+            if (allowVariations && useMatrix === 'true') {
+                packageInfo.matrix?.forEach(params => {
+                    jobs[job.displayName] = { ...job, params: { ...params, ...job.params, env: { ...params.env, ...job.params.env } } };
+                });
+            }
+            else {
+                jobs[allowVariations ? job.displayName : job.name] = job;
+            }
             return jobs;
         }, {});
     }
