@@ -83,4 +83,7 @@ registerPlugin(
     )
 )
 
-main().catch(err => core.setFailed(`release-please failed: ${err.message}`))
+main().catch(err => {
+  console.error(err)
+  core.setFailed(`release-please failed: ${err.message}`)
+})

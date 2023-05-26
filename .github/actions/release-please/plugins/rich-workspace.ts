@@ -1,5 +1,4 @@
 import {type GitHub} from 'release-please/build/src/github'
-import {type Logger} from 'release-please/build/src/util/logger'
 import {type RepositoryConfig, type CandidateReleasePullRequest} from 'release-please/build/src/manifest'
 import {type ReleasePullRequest} from 'release-please/build/src/release-pull-request'
 import {type Strategy} from 'release-please/build/src/strategy'
@@ -31,40 +30,14 @@ export class RichWorkspace extends ManifestPlugin {
     options: RichWorkspaceOptions
   ) {
     super(github, targetBranch, repositoryConfig, options.logger);
-    const originalPlugin: any = buildPlugin({
+    const workspacePlugin = buildPlugin({
       type: {type: `${options.workspace}-workspace`, merge: false},
       github,
       targetBranch,
       repositoryConfig,
       ...options,
-    })
-    const patchedPlugin = Object.create(originalPlugin)
-    patchedPlugin.buildGraph = async function buildGraph(pkgs: unknown[]): Promise<DependencyGraph<any>> {
-      const graph = await originalPlugin.buildGraph(pkgs)
-      for (const packageName of graph.keys()) {
-        let packageStrategy: BaseStrategy | undefined
-        for (const strategy of Object.values(this.strategiesByPath) as BaseStrategy[]) {
-          if (await strategy.getPackageName() === packageName) {
-            packageStrategy = strategy
-            break
-          }
-        }
-        if (packageStrategy?.extraLabels.includes('skip-release')) {
-          graph.delete(packageName)
-        }
-      }
-      return graph
-    }
-    patchedPlugin.newCandidate = function newCandidate(pkg: any, updatedVersions: Map<string, Version>): CandidateReleasePullRequest {
-      const {path} = originalPlugin.newCandidate(pkg, updatedVersions)
-      const candidateReleasePullRequest = {
-        path,
-        pullRequest: this.releasePullRequestsByPath[path]!,
-        config: this.repositoryConfig[path]
-      }
-      return originalPlugin.updateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
-    }
-    this.plugin = patchedPlugin
+    }) as WorkspacePlugin<unknown>
+    this.plugin = this.patchWorkspacePlugin(workspacePlugin)
   }
 
   preconfigure(
@@ -110,5 +83,40 @@ export class RichWorkspace extends ManifestPlugin {
     return updatedCandidateReleasePullRequests.filter(candidatePullRequest => {
       return !candidatePullRequest.pullRequest.labels.some(label => label === 'skip-release')
     })
+  }
+
+  protected patchWorkspacePlugin(workspacePlugin: WorkspacePlugin<unknown>): WorkspacePlugin<unknown> {
+    const self = this
+
+    const patchedWorkspacePlugin = Object.create(workspacePlugin) as any
+    patchedWorkspacePlugin.buildGraph = patchedBuildGraph.bind(workspacePlugin)
+    patchedWorkspacePlugin.newCandidate = patchedNewCandidate.bind(workspacePlugin)
+    return patchedWorkspacePlugin
+
+    async function patchedBuildGraph(pkgs: unknown[]): Promise<DependencyGraph<any>> {
+      const graph = await (workspacePlugin as any).buildGraph(pkgs)
+      for (const packageName of graph.keys()) {
+        let packageStrategy: BaseStrategy | undefined
+        for (const strategy of Object.values(self.strategiesByPath) as BaseStrategy[]) {
+          if (await strategy.getPackageName() === packageName) {
+            packageStrategy = strategy
+            break
+          }
+        }
+        if (packageStrategy?.extraLabels.includes('skip-release')) {
+          graph.delete(packageName)
+        }
+      }
+      return graph
+    }
+    function patchedNewCandidate(pkg: any, updatedVersions: Map<string, Version>): CandidateReleasePullRequest {
+      const {path} = (workspacePlugin as any).newCandidate(pkg, updatedVersions)
+      const candidateReleasePullRequest = {
+        path,
+        pullRequest: self.releasePullRequestsByPath[path]!,
+        config: self.repositoryConfig[path]
+      }
+      return (workspacePlugin as any).updateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
+    }
   }
 }
