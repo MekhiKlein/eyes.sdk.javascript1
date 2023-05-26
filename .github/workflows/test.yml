@@ -107,7 +107,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Run tests
-        uses: ./.github/actions/tests
+        uses: ./.github/actions/js/test
         with:
           working-directory: ${{matrix.path}}
           test-type: ${{github.event.inputs.test-type}}
