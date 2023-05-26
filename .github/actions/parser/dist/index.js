@@ -3241,37 +3241,35 @@ async function main() {
                 const [key, value] = env.split('=');
                 return { ...envs, [key]: value };
             }, {});
-            const appendix = Object.entries({ framework: frameworkVersion, [langName]: langVersion, runner })
-                .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
-                .join('; ');
-            const job = {
-                name: packageInfo.jobName,
-                displayName: `${packageInfo.jobName}${appendix ? ` (${appendix})` : ''}`,
-                packageName: packageInfo.name,
-                artifactName: `artifact-${packageInfo.jobName}`,
-                dirname: packageInfo.dirname,
-                path: packageInfo.path,
-                tag: packageInfo.tag,
-                params: {
-                    runner: Runner[runner] ?? Runner.linux,
-                    [`${langName}-version`]: langVersion ?? (langName === 'node' ? 'lts/*' : undefined),
-                    links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
-                    env: {
-                        [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
-                        [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
-                        ...envs,
-                    },
+            const params = {
+                runner: Runner[runner] ?? Runner.linux,
+                [`${langName}-version`]: langVersion ?? (langName === 'node' ? 'lts/*' : undefined),
+                [`framework-version`]: frameworkVersion,
+                links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
+                env: {
+                    [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
+                    [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
+                    ...envs,
                 },
-                requested: true,
             };
-            if (allowVariations && useMatrix === 'true') {
-                packageInfo.matrix?.forEach(params => {
-                    jobs[job.displayName] = { ...job, params: { ...params, ...job.params, env: { ...params.env, ...job.params.env } } };
-                });
-            }
-            else {
-                jobs[allowVariations ? job.displayName : job.name] = job;
-            }
+            const matrix = allowVariations && useMatrix === 'true' && packageInfo.matrix?.map(matrixParams => ({ ...matrixParams, ...params, env: { ...matrixParams.env, ...params.env } })) || [params];
+            matrix.forEach(params => {
+                const appendix = Object.entries({ framework: params['framework-version'], node: params['node-version'], runner: params.runner })
+                    .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
+                    .join('; ');
+                const displayName = `${packageInfo.jobName}${appendix ? ` (${appendix})` : ''}`;
+                jobs[allowVariations ? displayName : packageInfo.jobName] = {
+                    name: packageInfo.jobName,
+                    displayName,
+                    packageName: packageInfo.name,
+                    artifactName: `artifact-${packageInfo.jobName}`,
+                    dirname: packageInfo.dirname,
+                    path: packageInfo.path,
+                    tag: packageInfo.tag,
+                    params,
+                    requested: true,
+                };
+            });
             return jobs;
         }, {});
     }
