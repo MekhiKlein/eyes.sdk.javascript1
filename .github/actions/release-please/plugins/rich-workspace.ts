@@ -30,13 +30,6 @@ export class RichWorkspace extends ManifestPlugin {
     options: RichWorkspaceOptions
   ) {
     super(github, targetBranch, repositoryConfig, options.logger);
-    console.log({
-      ...options,
-      type: {type: `${options.workspace}-workspace`, merge: false},
-      github,
-      targetBranch,
-      repositoryConfig,
-    })
     const workspacePlugin = buildPlugin({
       ...options,
       type: {type: `${options.workspace}-workspace`, merge: false},
@@ -93,18 +86,12 @@ export class RichWorkspace extends ManifestPlugin {
   }
 
   protected patchWorkspacePlugin(workspacePlugin: WorkspacePlugin<unknown>): WorkspacePlugin<unknown> {
-    const self = this
-
-    const patchedWorkspacePlugin = Object.create(workspacePlugin) as any
-    patchedWorkspacePlugin.buildGraph = patchedBuildGraph.bind(workspacePlugin)
-    patchedWorkspacePlugin.newCandidate = patchedNewCandidate.bind(workspacePlugin)
-    return patchedWorkspacePlugin
-
-    async function patchedBuildGraph(pkgs: unknown[]): Promise<DependencyGraph<any>> {
-      const graph = await (workspacePlugin as any).buildGraph(pkgs)
+    const originalBuildGraph = (workspacePlugin as any).buildGraph.bind(workspacePlugin)
+    ;(workspacePlugin as any).buildGraph = async (pkgs: unknown[]): Promise<DependencyGraph<any>> => {
+      const graph = await originalBuildGraph(pkgs)
       for (const packageName of graph.keys()) {
         let packageStrategy: BaseStrategy | undefined
-        for (const strategy of Object.values(self.strategiesByPath) as BaseStrategy[]) {
+        for (const strategy of Object.values(this.strategiesByPath) as BaseStrategy[]) {
           if (await strategy.getPackageName() === packageName) {
             packageStrategy = strategy
             break
@@ -116,14 +103,19 @@ export class RichWorkspace extends ManifestPlugin {
       }
       return graph
     }
-    function patchedNewCandidate(pkg: any, updatedVersions: Map<string, Version>): CandidateReleasePullRequest {
-      const {path} = (workspacePlugin as any).newCandidate(pkg, updatedVersions)
+    
+    const originalNewCandidate = (workspacePlugin as any).newCandidate.bind(workspacePlugin)
+    const originalUpdateCandidate = (workspacePlugin as any).newCandidate.bind(workspacePlugin)
+    ;(workspacePlugin as any).newCandidate = (pkg: any, updatedVersions: Map<string, Version>): CandidateReleasePullRequest => {
+      const {path} = originalNewCandidate(pkg, updatedVersions)
       const candidateReleasePullRequest = {
         path,
-        pullRequest: self.releasePullRequestsByPath[path]!,
-        config: self.repositoryConfig[path]
+        pullRequest: this.releasePullRequestsByPath[path]!,
+        config: this.repositoryConfig[path]
       }
-      return (workspacePlugin as any).updateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
+      return originalUpdateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
     }
+
+    return workspacePlugin
   }
 }
