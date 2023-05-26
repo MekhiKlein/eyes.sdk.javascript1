@@ -30,6 +30,13 @@ export class RichWorkspace extends ManifestPlugin {
     options: RichWorkspaceOptions
   ) {
     super(github, targetBranch, repositoryConfig, options.logger);
+    console.log({
+      type: {type: `${options.workspace}-workspace`, merge: false},
+      github,
+      targetBranch,
+      repositoryConfig,
+      ...options,
+    })
     const workspacePlugin = buildPlugin({
       type: {type: `${options.workspace}-workspace`, merge: false},
       github,
