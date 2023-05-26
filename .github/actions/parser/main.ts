@@ -83,10 +83,11 @@ async function main() {
       const packagePath = path.resolve(jsPackagesPath, packageDir)
       const packageManifestPath = path.resolve(packagePath, 'package.json')
       if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
-  
       const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))
-      const matrix = JSON.parse(await fs.readFile(path.resolve(packagePath, 'matrix.json'), {encoding: 'utf8'}))
+
       if (SKIP_PACKAGES.includes(manifest.name)) return packages
+
+      const matrix = JSON.parse(await fs.readFile(path.resolve(packagePath, 'matrix.json'), {encoding: 'utf8'}).catch(() => 'null'))
   
       return packages.then(packages => {
         packages[manifest.name] = {

@@ -3151,9 +3151,9 @@ async function main() {
             if (!(await promises_namespaceObject.stat(packageManifestPath).catch(() => false)))
                 return packages;
             const manifest = JSON.parse(await promises_namespaceObject.readFile(packageManifestPath, { encoding: 'utf8' }));
-            const matrix = JSON.parse(await promises_namespaceObject.readFile(external_node_path_namespaceObject.resolve(packagePath, 'matrix.json'), { encoding: 'utf8' }));
             if (SKIP_PACKAGES.includes(manifest.name))
                 return packages;
+            const matrix = JSON.parse(await promises_namespaceObject.readFile(external_node_path_namespaceObject.resolve(packagePath, 'matrix.json'), { encoding: 'utf8' }).catch(() => 'null'));
             return packages.then(packages => {
                 packages[manifest.name] = {
                     name: manifest.name,
