@@ -179,11 +179,11 @@
         {"node-version": 16},
         {"node-version": 18},
         {"node-version": 20},
-        {"runner": "linux", "container": "node:lts-alpine", "shell": "ash -eo pipefail {0}", "test-type": "bin", "build-type": "bin:x64"},
-        {"runner": "linux", "test-type": "bin", "build-type": "bin:x64"},
-        {"runner": "linuxarm", "test-type": "bin", "build-type": "bin:arm64"},
-        {"runner": "windows", "test-type": "bin", "build-type": "bin:x64"},
-        {"runner": "macos", "test-type": "bin", "build-type": "bin:x64"}
+        {"runner": "linux", "container": "node:lts-alpine", "shell": "ash -eo pipefail {0}", "test-type": "bin", "build-type": "bin:x64", "setup-type": "none"},
+        {"runner": "linux", "test-type": "bin", "build-type": "bin:x64", "setup-type": "none"},
+        {"runner": "linuxarm", "test-type": "bin", "build-type": "bin:arm64", "setup-type": "none"},
+        {"runner": "windows", "test-type": "bin", "build-type": "bin:x64", "setup-type": "none"},
+        {"runner": "macos", "test-type": "bin", "build-type": "bin:x64", "setup-type": "none"}
       ]
     },
     "js/packages/eyes-api": {
