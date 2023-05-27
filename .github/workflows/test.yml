@@ -85,7 +85,7 @@ jobs:
         with:
           packages: ${{github.event.inputs.packages || (github.event_name == 'pull_request' && 'changed') || (github.event_name == 'schedule' && 'all')}}
           env: ${{github.event.inputs.env}}
-          allow-variations: true
+          use-matrix: ${{github.event_name == 'pull_request'}}
           link-dependencies: ${{github.event.inputs.links == 'all' || github.event_name == 'pull_request' || github.event_name == 'schedule'}}
   test:
     needs: [setup]

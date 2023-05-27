@@ -9,8 +9,8 @@ inputs:
     description: list of environment variables to add to every job
     type: string
     required: false
-  allow-variations:
-    description: whether modifiers should be allowed to create variations (wdio+cdp or selenium@3)
+  use-matrix:
+    description: wether variations should be generated from matrix per package
     type: boolean
     default: false
   include-only-changed:
