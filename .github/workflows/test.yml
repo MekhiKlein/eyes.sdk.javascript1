@@ -111,6 +111,7 @@ jobs:
         uses: ./.github/actions/js/test
         with:
           working-directory: ${{matrix.path}}
+          shell: ${{matrix.params.shell || 'bash'}}
           test-type: ${{matrix.params.test-type || github.event.inputs.test-type}}
           build-type: ${{matrix.params.build-type || github.event.inputs.build-type}}
           setup-type: ${{matrix.params.setup-type || github.event.inputs.setup-type}}
