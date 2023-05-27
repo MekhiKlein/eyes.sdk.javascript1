@@ -95,7 +95,7 @@ jobs:
         include: ${{fromJSON(needs.setup.outputs.packages)}}
     name: ${{matrix.displayName}}
     timeout-minutes: 60
-    runs-on: ${{matrix.params.runner}}
+    runs-on: ${{matrix.params.runner || 'ubuntu-latest'}}
     container: ${{matrix.params.container}}
     env: ${{matrix.params.env}}
     steps:
@@ -104,7 +104,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{matrix.params.node-version}}
+          node-version: ${{matrix.params.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Run tests
@@ -115,6 +115,7 @@ jobs:
           build-type: ${{matrix.params.build-type || github.event.inputs.build-type}}
           setup-type: ${{matrix.params.setup-type || github.event.inputs.setup-type}}
           links: ${{matrix.params.links || github.event.inputs.links}}
+          jobs: ${{matrix.params.parallel}}
           grep: ${{github.event.inputs.grep}}
       - name: Save testing artifacts
         if: always()

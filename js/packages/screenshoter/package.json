@@ -25,9 +25,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "screenshoter"
-  ],
   "exports": {
     ".": {
       "default": "./index.js"

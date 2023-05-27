@@ -15,10 +15,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "ufg-client",
-    "ufg"
-  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

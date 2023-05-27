@@ -15,12 +15,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "ec-client",
-    "ecc",
-    "eg-client",
-    "egc"
-  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

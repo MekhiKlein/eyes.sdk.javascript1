@@ -25,9 +25,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "spec-selenium"
-  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

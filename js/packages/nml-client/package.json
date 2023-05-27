@@ -16,10 +16,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "nml-client",
-    "nml"
-  ],
   "files": [
     "dist",
     "types"

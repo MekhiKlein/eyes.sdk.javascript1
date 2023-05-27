@@ -15,9 +15,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "tunnel-client"
-  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

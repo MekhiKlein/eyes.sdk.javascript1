@@ -27,10 +27,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "spec-webdriver",
-    "spec-wd"
-  ],
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "exports": {

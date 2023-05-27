@@ -15,9 +15,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "core-base"
-  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",

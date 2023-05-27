@@ -42,10 +42,10 @@ main()
 async function main() {
   let input = core.getInput('packages', {required: true}) 
   const defaultEnv = core.getInput('env')
-  const allowVariations = core.getBooleanInput('allow-variations')
   const includeOnlyChanged = core.getBooleanInput('include-only-changed')
   const includeDependencies = core.getBooleanInput('include-dependencies')
   const linkDependencies = core.getBooleanInput('link-dependencies')
+  const defaultUseMatrix = core.getBooleanInput('use-matrix')
 
   const packages = await getPackages()
 
@@ -74,110 +74,96 @@ async function main() {
     core.info(`Filtered jobs: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
   }
 
-  core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs)
+  core.setOutput('packages', jobs)
 
   async function getPackages(): Promise<Record<string, Package>> {
-    const jsPackagesPath = path.resolve(process.cwd(), './js/packages')
-    const jsPackageDirs = await fs.readdir(jsPackagesPath)
-    const jsPackages = await jsPackageDirs.reduce(async (packages, packageDir) => {
-      const packagePath = path.resolve(jsPackagesPath, packageDir)
-      const packageManifestPath = path.resolve(packagePath, 'package.json')
-      if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
-      const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))
+    const releaseConfigPath = path.resolve(process.cwd(), './release-please-config.json')
+    const releaseConfig = JSON.parse(await fs.readFile(releaseConfigPath, {encoding: 'utf8'}))
+    const packages = await Object.entries(releaseConfig.packages as Record<string, any>).reduce(async (packages, [packagePath, packageConfig]) => {
+      if (packagePath.startsWith('js/')) {
+        const packageManifestPath = path.resolve(packagePath, 'package.json')
+        const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))
 
-      if (SKIP_PACKAGES.includes(manifest.name)) return packages
-
-      const matrix = JSON.parse(await fs.readFile(path.resolve(packagePath, 'matrix.json'), {encoding: 'utf8'}).catch(() => 'null'))
-  
-      return packages.then(packages => {
-        packages[manifest.name] = {
-          name: manifest.name,
-          aliases: manifest.aliases,
-          jobName: manifest.aliases?.[0] ?? packageDir,
-          dirname: packageDir,
-          path: packagePath,
-          tag: `${manifest.name}@`,
-          dependencies: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
-          framework: Object.keys({...manifest.peerDependencies})[0],
-          matrix,
-        }
-        return packages
-      })
-    }, Promise.resolve({} as Record<string, Package>))
-    Object.values(jsPackages).forEach(packageInfo => {
-      packageInfo.dependencies = packageInfo.dependencies.filter(depName => jsPackages[depName])
-    })
-  
-    const pyPackagesPath = path.resolve(process.cwd(), './python')
-    const pyPackageDirs = await fs.readdir(pyPackagesPath)
-    const pyPackages = await pyPackageDirs.reduce(async (packages, packageDir) => {
-      const packagePath = path.resolve(pyPackagesPath, packageDir)
-      const packageManifestPath = path.resolve(packagePath, 'setup.cfg')
-      if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
-  
-      const {iniString} = await fs.readFile(packageManifestPath, {encoding: 'utf8'}).then(iniString => {
-        return iniString.split(/[\n\r]+/).reduce(({lastField, iniString}, line) => {
-          const indent = line.slice(0, Array.from(line).findIndex(char => char !== ' ' && char !== '\t'))
-          if (!lastField || indent.length <= lastField.indent.length) {
-            const [key] = line.split(/\s?=/, 1)
-            lastField = {key, indent}
-            iniString += line + '\n'
-          } else {
-            iniString += lastField.indent + `${lastField.key}[]=` + line.trim() + '\n'
+        return packages.then(packages => {
+          packages[manifest.name] = {
+            name: manifest.name,
+            component: packageConfig.component,
+            path: packagePath,
+            tag: `${packageConfig.component}@`,
+            dependencies: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
+            framework: Object.keys({...manifest.peerDependencies})[0],
+            matrix: packageConfig.matrix,
           }
-          return {lastField, iniString}
-        }, {lastField: null as null | {key: string, indent: string}, iniString: ''})
-      })
-      const manifest = INI.parse(iniString) as any
-  
-      return packages.then(packages => {
-        const packageName = manifest.metadata.name.replace('_', '-')
-        const alias = packageName.replace('eyes-', '')
-        const dependencies = (manifest.options.install_requires ?? []) as string[]
-        packages[packageName] = {
-          name: packageName,
-          jobName: `python-${alias}`,
-          aliases: [`py-${alias}`, `python-${alias}`],
-          dirname: packageDir,
-          path: packagePath,
-          tag: `@applitools/python/${packageDir}@`,
-          dependencies: dependencies.map(depString => depString.split(/[<=>]/, 1)[0])
-        }
-        return packages
-      })
+          return packages
+        })
+      }
+      return packages
     }, Promise.resolve({} as Record<string, Package>))
-    Object.values(pyPackages).forEach(packageInfo => {
-      packageInfo.dependencies = packageInfo.dependencies.filter(depName => pyPackages[depName])
+    Object.values(packages).forEach(packageInfo => {
+      packageInfo.dependencies = packageInfo.dependencies.filter(depName => packages[depName])
     })
   
-    pyPackages['core-universal'].dependencies.push('@applitools/core')
+    // const pyPackagesPath = path.resolve(process.cwd(), './python')
+    // const pyPackageDirs = await fs.readdir(pyPackagesPath)
+    // const pyPackages = await pyPackageDirs.reduce(async (packages, packageDir) => {
+    //   const packagePath = path.resolve(pyPackagesPath, packageDir)
+    //   const packageManifestPath = path.resolve(packagePath, 'setup.cfg')
+    //   if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
   
-    return {...jsPackages}
+    //   const {iniString} = await fs.readFile(packageManifestPath, {encoding: 'utf8'}).then(iniString => {
+    //     return iniString.split(/[\n\r]+/).reduce(({lastField, iniString}, line) => {
+    //       const indent = line.slice(0, Array.from(line).findIndex(char => char !== ' ' && char !== '\t'))
+    //       if (!lastField || indent.length <= lastField.indent.length) {
+    //         const [key] = line.split(/\s?=/, 1)
+    //         lastField = {key, indent}
+    //         iniString += line + '\n'
+    //       } else {
+    //         iniString += lastField.indent + `${lastField.key}[]=` + line.trim() + '\n'
+    //       }
+    //       return {lastField, iniString}
+    //     }, {lastField: null as null | {key: string, indent: string}, iniString: ''})
+    //   })
+    //   const manifest = INI.parse(iniString) as any
+  
+    //   return packages.then(packages => {
+    //     const packageName = manifest.metadata.name.replace('_', '-')
+    //     const alias = packageName.replace('eyes-', '')
+    //     const dependencies = (manifest.options.install_requires ?? []) as string[]
+    //     packages[packageName] = {
+    //       name: packageName,
+    //       jobName: `python-${alias}`,
+    //       aliases: [`py-${alias}`, `python-${alias}`],
+    //       dirname: packageDir,
+    //       path: packagePath,
+    //       tag: `@applitools/python/${packageDir}@`,
+    //       dependencies: dependencies.map(depString => depString.split(/[<=>]/, 1)[0])
+    //     }
+    //     return packages
+    //   })
+    // }, Promise.resolve({} as Record<string, Package>))
+    // Object.values(pyPackages).forEach(packageInfo => {
+    //   packageInfo.dependencies = packageInfo.dependencies.filter(depName => pyPackages[depName])
+    // })
+  
+    // pyPackages['core-universal'].dependencies.push('@applitools/core')
+  
+    return packages
   }
 
-  function createJobs(input: string): Record<string, Job> {
+  function createJobs(input: string): Job[] {
     return input.split(/[\s,]+(?=(?:[^()]*\([^())]*\))*[^()]*$)/).reduce((jobs, input) => {
-      let [_, packageKey, useMatrix, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion]
+      let [_, packageKey, priorityUseMatrix, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion]
         = input.match(/^(.*?)(?:\((?:matrix:(true|false);?)(?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?:@([\d.]+))?$/i) ?? []
       frameworkVersion ??= shortFrameworkVersion
+      const useMatrix = priorityUseMatrix ? priorityUseMatrix === 'true' : defaultUseMatrix 
   
-      const packageInfo = Object.values(packages).find(({name, jobName, dirname, aliases}) => {
-        return [name, jobName, dirname, ...(aliases ?? [])].includes(packageKey)
+      const packageInfo = Object.values(packages).find(({name, path, component}) => {
+        return [name, component, path].includes(packageKey)
       })
     
       if (!packageInfo) {
         core.warning(`Package name is unknown! Package configured as "${input}" will be ignored!`)
         return jobs
-      }
-
-      if (frameworkVersion || langVersion || runner) {
-        if (!allowVariations) {
-          core.warning(`Modifiers are not allowed! Package "${packageInfo.name}" configured as "${input}" will be ignored!`)
-          return jobs
-        } else if (!packageInfo.framework) {
-          core.warning(`Framework modifiers are not allowed for package "${packageInfo.name}"! Package configured as "${input}" will be ignored!`)
-          return jobs
-        }
       }
     
       const envs = defaultEnv.split(/[;\s]+/).reduce((envs, env) => {
@@ -187,81 +173,83 @@ async function main() {
   
 
       const params: Record<string, any> = {
-        runner: Runner[runner as keyof typeof Runner] ?? Runner.linux,
-        [`${langName}-version`]: langVersion ?? (langName === 'node' ? 'lts/*': undefined),
+        runner,
+        [`${langName}-version`]: langVersion,
         [`framework-version`]: frameworkVersion,
         links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
         env: {
-          [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
-          [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
+          [`APPLITOOLS_FRAMEWORK_MAJOR_VERSION`]: frameworkVersion,
+          [`APPLITOOLS_FRAMEWORK_VERSION`]: frameworkVersion,
           ...envs,
         },
       }
 
-      const matrix = allowVariations && useMatrix === 'true' && packageInfo.matrix?.map(matrixParams => ({...matrixParams, ...params, env: {...matrixParams.env, ...params.env}})) || [params]
+      const matrix = useMatrix && packageInfo.matrix?.map(matrixParams => ({...params, ...matrixParams, env: {...params.env, ...matrixParams.env}})) || [params]
       matrix.forEach(params => {
-        const appendix = Object.entries({framework: params['framework-version'], node: params['node-version'], runner: params.runner})
-          .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [] as string[])
-          .join('; ')
-        const displayName = `${packageInfo.jobName}${appendix ? ` (${appendix})` : ''}`
-        jobs[allowVariations ? displayName : packageInfo.jobName] = {
-          name: packageInfo.jobName,
+        const description = [
+          params.runner && `runner: ${params.runner}`,
+          params.container && `container: ${params.container}`,
+          params['node-version'] && `node: ${params['node-version']}`,
+          params['java-version'] && `java: ${params['java-version']}`,
+          params['python-version'] && `python: ${params['python-version']}`,
+          params['ruby-version'] && `ruby: ${params['ruby-version']}`,
+          params['framework-version'] && `framework: ${params['framework-version']}`,
+          params['test-type'] && `test: ${params['test-type']}`,
+        ].filter(Boolean).join(', ')
+        const displayName = `${packageInfo.component}${description ? ` (${description})` : ''}`
+        jobs.push({
+          name: packageInfo.component,
           displayName,
           packageName: packageInfo.name,
-          artifactName: `artifact-${packageInfo.jobName}`,
-          dirname: packageInfo.dirname,
+          artifactName: `artifact-${packageInfo.component.replace(/\//g, '-')}`,
           path: packageInfo.path,
           tag: packageInfo.tag,
-          params,
+          params: {...params, runner: Runner[params.runner as keyof typeof Runner]},
           requested: true,
-        }
+        })
       })
     
       return jobs
-    }, {} as Record<string, Job>)
+    }, [] as Job[])
   }
 
-  function createDependencyJobs(jobs: Record<string, Job>) {
-    const packageNames = Object.values(jobs).map(job => job.packageName)
-    const dependencyJobs = {} as Record<string, Job>
+  function createDependencyJobs(jobs: Job[]) {
+    const packageNames = jobs.map(job => job.packageName)
+    const dependencyJobs = [] as Job[]
   
     for (const packageName of packageNames) {
       for (const dependencyName of packages[packageName].dependencies) {
         if (packageNames.includes(dependencyName)) continue
         packageNames.push(dependencyName)
-        dependencyJobs[packages[dependencyName].jobName] = {
-          name: packages[dependencyName].jobName,
-          displayName: packages[dependencyName].jobName,
+        dependencyJobs.push({
+          name: packages[dependencyName].component,
+          displayName: packages[dependencyName].component,
           packageName: packages[dependencyName].name,
-          artifactName: `artifact-${packages[dependencyName].jobName}`,
-          dirname: packages[dependencyName].dirname,
+          artifactName: `artifact-${packages[dependencyName].component.replace(/\//g, '-')}`,
           path: packages[dependencyName].path,
           tag: packages[dependencyName].tag,
           params: {
             links: linkDependencies ? packages[dependencyName].dependencies.join(',') : undefined,
           },
           requested: false
-        }
+        })
       }
     }
   
     return dependencyJobs
   }
 
-  function filterInsignificantJobs(jobs: Record<string, Job>) {
-    const filteredJobs = Object.entries(jobs).reduce((filteredJobs, [jobName, job]) => {
-      if (job.requested || changedSinceLastTag(job)) filteredJobs[jobName] = job
-      return filteredJobs
-    }, {} as Record<string, Job>)
+  function filterInsignificantJobs(jobs: Job[]) {
+    const filteredJobs = jobs.filter(job => job.requested || changedSinceLastTag(job))
   
     let more = true
     while (more) {
       more = false
-      for (const [jobName, job] of Object.entries(jobs)) {
-        if (filteredJobs[jobName]) continue
+      for (const job of jobs) {
+        if (filteredJobs.some(filteredJob => filteredJob.name === job.name)) continue
         if (packages[job.packageName].dependencies.some(packageName => Object.values(filteredJobs).some(job => job.packageName === packageName))) {
           more = true
-          filteredJobs[jobName] = job
+          filteredJobs.push(job)
         }
       }
     }
@@ -288,13 +276,13 @@ async function main() {
         const changedFilePath = path.resolve(process.cwd(), changedFile, './')
         return changedFilePath.startsWith(changedPackage.path + '/')
       })
-      if (changedPackage) changedPackageNames.add(changedPackage.jobName)
+      if (changedPackage) changedPackageNames.add(changedPackage.component)
       return changedPackageNames
     }, new Set())
     return Array.from(changedPackageNames.values()).join(' ')
   }
 
   function getAllPackagesInput(): string {
-    return Object.values(packages).map(({jobName}) => jobName).join(' ')
+    return Object.values(packages).map(({component}) => component).join(' ')
   }
 }

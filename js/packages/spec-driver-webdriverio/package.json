@@ -28,10 +28,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "spec-webdriverio",
-    "spec-wdio"
-  ],
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "exports": {

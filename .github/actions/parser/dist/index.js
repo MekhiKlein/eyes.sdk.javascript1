@@ -1767,243 +1767,6 @@ function isLoopbackAddress(host) {
 
 /***/ }),
 
-/***/ 45:
-/***/ ((module) => {
-
-const { hasOwnProperty } = Object.prototype
-
-/* istanbul ignore next */
-const eol = typeof process !== 'undefined' &&
-  process.platform === 'win32' ? '\r\n' : '\n'
-
-const encode = (obj, opt) => {
-  const children = []
-  let out = ''
-
-  if (typeof opt === 'string') {
-    opt = {
-      section: opt,
-      whitespace: false,
-    }
-  } else {
-    opt = opt || Object.create(null)
-    opt.whitespace = opt.whitespace === true
-  }
-
-  const separator = opt.whitespace ? ' = ' : '='
-
-  for (const k of Object.keys(obj)) {
-    const val = obj[k]
-    if (val && Array.isArray(val)) {
-      for (const item of val) {
-        out += safe(k + '[]') + separator + safe(item) + eol
-      }
-    } else if (val && typeof val === 'object') {
-      children.push(k)
-    } else {
-      out += safe(k) + separator + safe(val) + eol
-    }
-  }
-
-  if (opt.section && out.length) {
-    out = '[' + safe(opt.section) + ']' + eol + out
-  }
-
-  for (const k of children) {
-    const nk = dotSplit(k).join('\\.')
-    const section = (opt.section ? opt.section + '.' : '') + nk
-    const { whitespace } = opt
-    const child = encode(obj[k], {
-      section,
-      whitespace,
-    })
-    if (out.length && child.length) {
-      out += eol
-    }
-
-    out += child
-  }
-
-  return out
-}
-
-const dotSplit = str =>
-  str.replace(/\1/g, '\u0002LITERAL\\1LITERAL\u0002')
-    .replace(/\\\./g, '\u0001')
-    .split(/\./)
-    .map(part =>
-      part.replace(/\1/g, '\\.')
-        .replace(/\2LITERAL\\1LITERAL\2/g, '\u0001'))
-
-const decode = str => {
-  const out = Object.create(null)
-  let p = out
-  let section = null
-  //          section     |key      = value
-  const re = /^\[([^\]]*)\]$|^([^=]+)(=(.*))?$/i
-  const lines = str.split(/[\r\n]+/g)
-
-  for (const line of lines) {
-    if (!line || line.match(/^\s*[;#]/)) {
-      continue
-    }
-    const match = line.match(re)
-    if (!match) {
-      continue
-    }
-    if (match[1] !== undefined) {
-      section = unsafe(match[1])
-      if (section === '__proto__') {
-        // not allowed
-        // keep parsing the section, but don't attach it.
-        p = Object.create(null)
-        continue
-      }
-      p = out[section] = out[section] || Object.create(null)
-      continue
-    }
-    const keyRaw = unsafe(match[2])
-    const isArray = keyRaw.length > 2 && keyRaw.slice(-2) === '[]'
-    const key = isArray ? keyRaw.slice(0, -2) : keyRaw
-    if (key === '__proto__') {
-      continue
-    }
-    const valueRaw = match[3] ? unsafe(match[4]) : true
-    const value = valueRaw === 'true' ||
-      valueRaw === 'false' ||
-      valueRaw === 'null' ? JSON.parse(valueRaw)
-      : valueRaw
-
-    // Convert keys with '[]' suffix to an array
-    if (isArray) {
-      if (!hasOwnProperty.call(p, key)) {
-        p[key] = []
-      } else if (!Array.isArray(p[key])) {
-        p[key] = [p[key]]
-      }
-    }
-
-    // safeguard against resetting a previously defined
-    // array by accidentally forgetting the brackets
-    if (Array.isArray(p[key])) {
-      p[key].push(value)
-    } else {
-      p[key] = value
-    }
-  }
-
-  // {a:{y:1},"a.b":{x:2}} --> {a:{y:1,b:{x:2}}}
-  // use a filter to return the keys that have to be deleted.
-  const remove = []
-  for (const k of Object.keys(out)) {
-    if (!hasOwnProperty.call(out, k) ||
-        typeof out[k] !== 'object' ||
-        Array.isArray(out[k])) {
-      continue
-    }
-
-    // see if the parent section is also an object.
-    // if so, add it to that, and mark this one for deletion
-    const parts = dotSplit(k)
-    p = out
-    const l = parts.pop()
-    const nl = l.replace(/\\\./g, '.')
-    for (const part of parts) {
-      if (part === '__proto__') {
-        continue
-      }
-      if (!hasOwnProperty.call(p, part) || typeof p[part] !== 'object') {
-        p[part] = Object.create(null)
-      }
-      p = p[part]
-    }
-    if (p === out && nl === l) {
-      continue
-    }
-
-    p[nl] = out[k]
-    remove.push(k)
-  }
-  for (const del of remove) {
-    delete out[del]
-  }
-
-  return out
-}
-
-const isQuoted = val => {
-  return (val.startsWith('"') && val.endsWith('"')) ||
-    (val.startsWith("'") && val.endsWith("'"))
-}
-
-const safe = val => {
-  if (
-    typeof val !== 'string' ||
-    val.match(/[=\r\n]/) ||
-    val.match(/^\[/) ||
-    (val.length > 1 && isQuoted(val)) ||
-    val !== val.trim()
-  ) {
-    return JSON.stringify(val)
-  }
-  return val.split(';').join('\\;').split('#').join('\\#')
-}
-
-const unsafe = (val, doUnesc) => {
-  val = (val || '').trim()
-  if (isQuoted(val)) {
-    // remove the single quotes before calling JSON.parse
-    if (val.charAt(0) === "'") {
-      val = val.slice(1, -1)
-    }
-    try {
-      val = JSON.parse(val)
-    } catch {
-      // ignore errors
-    }
-  } else {
-    // walk the val to find the first not-escaped ; character
-    let esc = false
-    let unesc = ''
-    for (let i = 0, l = val.length; i < l; i++) {
-      const c = val.charAt(i)
-      if (esc) {
-        if ('\\;#'.indexOf(c) !== -1) {
-          unesc += c
-        } else {
-          unesc += '\\' + c
-        }
-
-        esc = false
-      } else if (';#'.indexOf(c) !== -1) {
-        break
-      } else if (c === '\\') {
-        esc = true
-      } else {
-        unesc += c
-      }
-    }
-    if (esc) {
-      unesc += '\\'
-    }
-
-    return unesc.trim()
-  }
-  return val
-}
-
-module.exports = {
-  parse: decode,
-  decode,
-  stringify: encode,
-  encode,
-  safe,
-  unsafe,
-}
-
-
-/***/ }),
-
 /***/ 294:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -3024,35 +2787,6 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
 /******/ }
 /******/ 
 /************************************************************************/
-/******/ /* webpack/runtime/compat get default export */
-/******/ (() => {
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__nccwpck_require__.n = (module) => {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			() => (module['default']) :
-/******/ 			() => (module);
-/******/ 		__nccwpck_require__.d(getter, { a: getter });
-/******/ 		return getter;
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__nccwpck_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
@@ -3070,11 +2804,7 @@ const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(impo
 const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(186);
-// EXTERNAL MODULE: ./node_modules/ini/lib/ini.js
-var ini = __nccwpck_require__(45);
-var ini_default = /*#__PURE__*/__nccwpck_require__.n(ini);
 ;// CONCATENATED MODULE: ./main.ts
-
 
 
 
@@ -3090,7 +2820,7 @@ var Runner;
     Runner["win"] = "windows-2022";
     Runner["windows"] = "windows-2022";
 })(Runner || (Runner = {}));
-const SKIP_PACKAGES = [
+const SKIP_PACKAGES = (/* unused pure expression or super */ null && ([
     // tools
     '@applitools/bongo',
     '@applitools/sdk-coverage-tests',
@@ -3109,15 +2839,15 @@ const SKIP_PACKAGES = [
     '@applitools/eyes.webdriverio',
     '@applitools/eyes-protractor',
     'applitools-for-selenium-ide',
-];
+]));
 main();
 async function main() {
     let input = core.getInput('packages', { required: true });
     const defaultEnv = core.getInput('env');
-    const allowVariations = core.getBooleanInput('allow-variations');
     const includeOnlyChanged = core.getBooleanInput('include-only-changed');
     const includeDependencies = core.getBooleanInput('include-dependencies');
     const linkDependencies = core.getBooleanInput('link-dependencies');
+    const defaultUseMatrix = core.getBooleanInput('use-matrix');
     const packages = await getPackages();
     if (input === 'changed') {
         input = getChangedPackagesInput();
@@ -3141,178 +2871,163 @@ async function main() {
         jobs = filterInsignificantJobs(jobs);
         core.info(`Filtered jobs: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`);
     }
-    core.setOutput('packages', allowVariations ? Object.values(jobs) : jobs);
+    core.setOutput('packages', jobs);
     async function getPackages() {
-        const jsPackagesPath = external_node_path_namespaceObject.resolve(process.cwd(), './js/packages');
-        const jsPackageDirs = await promises_namespaceObject.readdir(jsPackagesPath);
-        const jsPackages = await jsPackageDirs.reduce(async (packages, packageDir) => {
-            const packagePath = external_node_path_namespaceObject.resolve(jsPackagesPath, packageDir);
-            const packageManifestPath = external_node_path_namespaceObject.resolve(packagePath, 'package.json');
-            if (!(await promises_namespaceObject.stat(packageManifestPath).catch(() => false)))
-                return packages;
-            const manifest = JSON.parse(await promises_namespaceObject.readFile(packageManifestPath, { encoding: 'utf8' }));
-            if (SKIP_PACKAGES.includes(manifest.name))
-                return packages;
-            const matrix = JSON.parse(await promises_namespaceObject.readFile(external_node_path_namespaceObject.resolve(packagePath, 'matrix.json'), { encoding: 'utf8' }).catch(() => 'null'));
-            return packages.then(packages => {
-                packages[manifest.name] = {
-                    name: manifest.name,
-                    aliases: manifest.aliases,
-                    jobName: manifest.aliases?.[0] ?? packageDir,
-                    dirname: packageDir,
-                    path: packagePath,
-                    tag: `${manifest.name}@`,
-                    dependencies: Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }),
-                    framework: Object.keys({ ...manifest.peerDependencies })[0],
-                    matrix,
-                };
-                return packages;
-            });
+        const releaseConfigPath = external_node_path_namespaceObject.resolve(process.cwd(), './release-please-config.json');
+        const releaseConfig = JSON.parse(await promises_namespaceObject.readFile(releaseConfigPath, { encoding: 'utf8' }));
+        const packages = await Object.entries(releaseConfig.packages).reduce(async (packages, [packagePath, packageConfig]) => {
+            if (packagePath.startsWith('js/')) {
+                const packageManifestPath = external_node_path_namespaceObject.resolve(packagePath, 'package.json');
+                const manifest = JSON.parse(await promises_namespaceObject.readFile(packageManifestPath, { encoding: 'utf8' }));
+                return packages.then(packages => {
+                    packages[manifest.name] = {
+                        name: manifest.name,
+                        component: packageConfig.component,
+                        path: packagePath,
+                        tag: `${packageConfig.component}@`,
+                        dependencies: Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }),
+                        framework: Object.keys({ ...manifest.peerDependencies })[0],
+                        matrix: packageConfig.matrix,
+                    };
+                    return packages;
+                });
+            }
+            return packages;
         }, Promise.resolve({}));
-        Object.values(jsPackages).forEach(packageInfo => {
-            packageInfo.dependencies = packageInfo.dependencies.filter(depName => jsPackages[depName]);
+        Object.values(packages).forEach(packageInfo => {
+            packageInfo.dependencies = packageInfo.dependencies.filter(depName => packages[depName]);
         });
-        const pyPackagesPath = external_node_path_namespaceObject.resolve(process.cwd(), './python');
-        const pyPackageDirs = await promises_namespaceObject.readdir(pyPackagesPath);
-        const pyPackages = await pyPackageDirs.reduce(async (packages, packageDir) => {
-            const packagePath = external_node_path_namespaceObject.resolve(pyPackagesPath, packageDir);
-            const packageManifestPath = external_node_path_namespaceObject.resolve(packagePath, 'setup.cfg');
-            if (!(await promises_namespaceObject.stat(packageManifestPath).catch(() => false)))
-                return packages;
-            const { iniString } = await promises_namespaceObject.readFile(packageManifestPath, { encoding: 'utf8' }).then(iniString => {
-                return iniString.split(/[\n\r]+/).reduce(({ lastField, iniString }, line) => {
-                    const indent = line.slice(0, Array.from(line).findIndex(char => char !== ' ' && char !== '\t'));
-                    if (!lastField || indent.length <= lastField.indent.length) {
-                        const [key] = line.split(/\s?=/, 1);
-                        lastField = { key, indent };
-                        iniString += line + '\n';
-                    }
-                    else {
-                        iniString += lastField.indent + `${lastField.key}[]=` + line.trim() + '\n';
-                    }
-                    return { lastField, iniString };
-                }, { lastField: null, iniString: '' });
-            });
-            const manifest = ini_default().parse(iniString);
-            return packages.then(packages => {
-                const packageName = manifest.metadata.name.replace('_', '-');
-                const alias = packageName.replace('eyes-', '');
-                const dependencies = (manifest.options.install_requires ?? []);
-                packages[packageName] = {
-                    name: packageName,
-                    jobName: `python-${alias}`,
-                    aliases: [`py-${alias}`, `python-${alias}`],
-                    dirname: packageDir,
-                    path: packagePath,
-                    tag: `@applitools/python/${packageDir}@`,
-                    dependencies: dependencies.map(depString => depString.split(/[<=>]/, 1)[0])
-                };
-                return packages;
-            });
-        }, Promise.resolve({}));
-        Object.values(pyPackages).forEach(packageInfo => {
-            packageInfo.dependencies = packageInfo.dependencies.filter(depName => pyPackages[depName]);
-        });
-        pyPackages['core-universal'].dependencies.push('@applitools/core');
-        return { ...jsPackages };
+        // const pyPackagesPath = path.resolve(process.cwd(), './python')
+        // const pyPackageDirs = await fs.readdir(pyPackagesPath)
+        // const pyPackages = await pyPackageDirs.reduce(async (packages, packageDir) => {
+        //   const packagePath = path.resolve(pyPackagesPath, packageDir)
+        //   const packageManifestPath = path.resolve(packagePath, 'setup.cfg')
+        //   if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
+        //   const {iniString} = await fs.readFile(packageManifestPath, {encoding: 'utf8'}).then(iniString => {
+        //     return iniString.split(/[\n\r]+/).reduce(({lastField, iniString}, line) => {
+        //       const indent = line.slice(0, Array.from(line).findIndex(char => char !== ' ' && char !== '\t'))
+        //       if (!lastField || indent.length <= lastField.indent.length) {
+        //         const [key] = line.split(/\s?=/, 1)
+        //         lastField = {key, indent}
+        //         iniString += line + '\n'
+        //       } else {
+        //         iniString += lastField.indent + `${lastField.key}[]=` + line.trim() + '\n'
+        //       }
+        //       return {lastField, iniString}
+        //     }, {lastField: null as null | {key: string, indent: string}, iniString: ''})
+        //   })
+        //   const manifest = INI.parse(iniString) as any
+        //   return packages.then(packages => {
+        //     const packageName = manifest.metadata.name.replace('_', '-')
+        //     const alias = packageName.replace('eyes-', '')
+        //     const dependencies = (manifest.options.install_requires ?? []) as string[]
+        //     packages[packageName] = {
+        //       name: packageName,
+        //       jobName: `python-${alias}`,
+        //       aliases: [`py-${alias}`, `python-${alias}`],
+        //       dirname: packageDir,
+        //       path: packagePath,
+        //       tag: `@applitools/python/${packageDir}@`,
+        //       dependencies: dependencies.map(depString => depString.split(/[<=>]/, 1)[0])
+        //     }
+        //     return packages
+        //   })
+        // }, Promise.resolve({} as Record<string, Package>))
+        // Object.values(pyPackages).forEach(packageInfo => {
+        //   packageInfo.dependencies = packageInfo.dependencies.filter(depName => pyPackages[depName])
+        // })
+        // pyPackages['core-universal'].dependencies.push('@applitools/core')
+        return packages;
     }
     function createJobs(input) {
         return input.split(/[\s,]+(?=(?:[^()]*\([^())]*\))*[^()]*$)/).reduce((jobs, input) => {
-            let [_, packageKey, useMatrix, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion] = input.match(/^(.*?)(?:\((?:matrix:(true|false);?)(?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?:@([\d.]+))?$/i) ?? [];
+            let [_, packageKey, priorityUseMatrix, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion] = input.match(/^(.*?)(?:\((?:matrix:(true|false);?)(?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?:@([\d.]+))?$/i) ?? [];
             frameworkVersion ??= shortFrameworkVersion;
-            const packageInfo = Object.values(packages).find(({ name, jobName, dirname, aliases }) => {
-                return [name, jobName, dirname, ...(aliases ?? [])].includes(packageKey);
+            const useMatrix = priorityUseMatrix ? priorityUseMatrix === 'true' : defaultUseMatrix;
+            const packageInfo = Object.values(packages).find(({ name, path, component }) => {
+                return [name, component, path].includes(packageKey);
             });
             if (!packageInfo) {
                 core.warning(`Package name is unknown! Package configured as "${input}" will be ignored!`);
                 return jobs;
-            }
-            if (frameworkVersion || langVersion || runner) {
-                if (!allowVariations) {
-                    core.warning(`Modifiers are not allowed! Package "${packageInfo.name}" configured as "${input}" will be ignored!`);
-                    return jobs;
-                }
-                else if (!packageInfo.framework) {
-                    core.warning(`Framework modifiers are not allowed for package "${packageInfo.name}"! Package configured as "${input}" will be ignored!`);
-                    return jobs;
-                }
             }
             const envs = defaultEnv.split(/[;\s]+/).reduce((envs, env) => {
                 const [key, value] = env.split('=');
                 return { ...envs, [key]: value };
             }, {});
             const params = {
-                runner: Runner[runner] ?? Runner.linux,
-                [`${langName}-version`]: langVersion ?? (langName === 'node' ? 'lts/*' : undefined),
+                runner,
+                [`${langName}-version`]: langVersion,
                 [`framework-version`]: frameworkVersion,
                 links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
                 env: {
-                    [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
-                    [`APPLITOOLS_${packageInfo.jobName.toUpperCase()}_VERSION`]: frameworkVersion,
+                    [`APPLITOOLS_FRAMEWORK_MAJOR_VERSION`]: frameworkVersion,
+                    [`APPLITOOLS_FRAMEWORK_VERSION`]: frameworkVersion,
                     ...envs,
                 },
             };
-            const matrix = allowVariations && useMatrix === 'true' && packageInfo.matrix?.map(matrixParams => ({ ...matrixParams, ...params, env: { ...matrixParams.env, ...params.env } })) || [params];
+            const matrix = useMatrix && packageInfo.matrix?.map(matrixParams => ({ ...params, ...matrixParams, env: { ...params.env, ...matrixParams.env } })) || [params];
             matrix.forEach(params => {
-                const appendix = Object.entries({ framework: params['framework-version'], node: params['node-version'], runner: params.runner })
-                    .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
-                    .join('; ');
-                const displayName = `${packageInfo.jobName}${appendix ? ` (${appendix})` : ''}`;
-                jobs[allowVariations ? displayName : packageInfo.jobName] = {
-                    name: packageInfo.jobName,
+                const description = [
+                    params.runner && `runner: ${params.runner}`,
+                    params.container && `container: ${params.container}`,
+                    params['node-version'] && `node: ${params['node-version']}`,
+                    params['java-version'] && `java: ${params['java-version']}`,
+                    params['python-version'] && `python: ${params['python-version']}`,
+                    params['ruby-version'] && `ruby: ${params['ruby-version']}`,
+                    params['framework-version'] && `framework: ${params['framework-version']}`,
+                    params['test-type'] && `test: ${params['test-type']}`,
+                ].filter(Boolean).join(', ');
+                const displayName = `${packageInfo.component}${description ? ` (${description})` : ''}`;
+                jobs.push({
+                    name: packageInfo.component,
                     displayName,
                     packageName: packageInfo.name,
-                    artifactName: `artifact-${packageInfo.jobName}`,
-                    dirname: packageInfo.dirname,
+                    artifactName: `artifact-${packageInfo.component.replace(/\//g, '-')}`,
                     path: packageInfo.path,
                     tag: packageInfo.tag,
-                    params,
+                    params: { ...params, runner: Runner[params.runner] },
                     requested: true,
-                };
+                });
             });
             return jobs;
-        }, {});
+        }, []);
     }
     function createDependencyJobs(jobs) {
-        const packageNames = Object.values(jobs).map(job => job.packageName);
-        const dependencyJobs = {};
+        const packageNames = jobs.map(job => job.packageName);
+        const dependencyJobs = [];
         for (const packageName of packageNames) {
             for (const dependencyName of packages[packageName].dependencies) {
                 if (packageNames.includes(dependencyName))
                     continue;
                 packageNames.push(dependencyName);
-                dependencyJobs[packages[dependencyName].jobName] = {
-                    name: packages[dependencyName].jobName,
-                    displayName: packages[dependencyName].jobName,
+                dependencyJobs.push({
+                    name: packages[dependencyName].component,
+                    displayName: packages[dependencyName].component,
                     packageName: packages[dependencyName].name,
-                    artifactName: `artifact-${packages[dependencyName].jobName}`,
-                    dirname: packages[dependencyName].dirname,
+                    artifactName: `artifact-${packages[dependencyName].component.replace(/\//g, '-')}`,
                     path: packages[dependencyName].path,
                     tag: packages[dependencyName].tag,
                     params: {
                         links: linkDependencies ? packages[dependencyName].dependencies.join(',') : undefined,
                     },
                     requested: false
-                };
+                });
             }
         }
         return dependencyJobs;
     }
     function filterInsignificantJobs(jobs) {
-        const filteredJobs = Object.entries(jobs).reduce((filteredJobs, [jobName, job]) => {
-            if (job.requested || changedSinceLastTag(job))
-                filteredJobs[jobName] = job;
-            return filteredJobs;
-        }, {});
+        const filteredJobs = jobs.filter(job => job.requested || changedSinceLastTag(job));
         let more = true;
         while (more) {
             more = false;
-            for (const [jobName, job] of Object.entries(jobs)) {
-                if (filteredJobs[jobName])
+            for (const job of jobs) {
+                if (filteredJobs.some(filteredJob => filteredJob.name === job.name))
                     continue;
                 if (packages[job.packageName].dependencies.some(packageName => Object.values(filteredJobs).some(job => job.packageName === packageName))) {
                     more = true;
-                    filteredJobs[jobName] = job;
+                    filteredJobs.push(job);
                 }
             }
         }
@@ -3337,13 +3052,13 @@ async function main() {
                 return changedFilePath.startsWith(changedPackage.path + '/');
             });
             if (changedPackage)
-                changedPackageNames.add(changedPackage.jobName);
+                changedPackageNames.add(changedPackage.component);
             return changedPackageNames;
         }, new Set());
         return Array.from(changedPackageNames.values()).join(' ');
     }
     function getAllPackagesInput() {
-        return Object.values(packages).map(({ jobName }) => jobName).join(' ');
+        return Object.values(packages).map(({ component }) => component).join(' ');
     }
 }
 

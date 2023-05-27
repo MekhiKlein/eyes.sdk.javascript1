@@ -54,55 +54,137 @@
     },
     "js/packages/spec-driver-selenium": {
       "release-type": "node",
-      "component": "spec-driver-selenium"
+      "component": "spec-driver-selenium",
+      "matrix": [
+        {"framework-version": 4.4, "node-version": 14},
+        {"framework-version": 4.4, "node-version": 16},
+        {"framework-version": 4.4, "node-version": 18},
+        {"framework-version": 4.4, "node-version": 20}
+      ]
     },
     "js/packages/spec-driver-webdriverio": {
       "release-type": "node",
-      "component": "spec-driver-webdriverio"
+      "component": "spec-driver-webdriverio",
+      "matrix": [
+        {"framework-version": 5, "node-version": 14},
+        {"framework-version": 6, "node-version": 14},
+        {"framework-version": 7, "node-version": 16},
+        {"framework-version": 8, "node-version": 18},
+        {"framework-version": 8, "node-version": 20}
+      ]
     },
     "js/packages/spec-driver-webdriver": {
       "release-type": "node",
-      "component": "spec-driver-webdriver"
+      "component": "spec-driver-webdriver",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/spec-driver-puppeteer": {
       "release-type": "node",
-      "component": "spec-driver-puppeteer"
+      "component": "spec-driver-puppeteer",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/spec-driver-playwright": {
       "release-type": "node",
-      "component": "spec-driver-playwright"
+      "component": "spec-driver-playwright",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/driver": {
       "release-type": "node",
-      "component": "driver"
+      "component": "driver",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/screenshoter": {
       "release-type": "node",
-      "component": "screenshoter"
+      "component": "screenshoter",
+      "matrix": [
+        {"test-type": "it"},
+        {"test-type": "e2e:web", "setup-type": "web", "parallel": 15},
+        {"test-type": "e2e:android", "setup-type": "android", "parallel": "3"},
+        {"test-type": "e2e:ios", "setup-type": "ios", "parallel": "4"}
+      ]
     },
     "js/packages/nml-client": {
       "release-type": "node",
-      "component": "nml-client"
+      "component": "nml-client",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/tunnel-client": {
       "release-type": "node",
-      "component": "tunnel-client"
+      "component": "tunnel-client",
+      "matrix": [
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/ufg-client": {
       "release-type": "node",
-      "component": "ufg-client"
+      "component": "ufg-client",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/execution-grid-client": {
       "release-type": "node",
-      "component": "ec-client"
+      "component": "ec-client",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/core-base": {
       "release-type": "node",
-      "component": "core-base"
+      "component": "core-base",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20}
+      ]
     },
     "js/packages/core": {
       "release-type": "node",
-      "component": "core"
+      "component": "core",
+      "matrix": [
+        {"node-version": 14},
+        {"node-version": 16},
+        {"node-version": 18},
+        {"node-version": 20},
+        {"runner": "linux", "container": "node:lts-alpine", "build-type": "bin:x64", "test-type": "bin"},
+        {"runner": "linux", "build-type": "bin:x64", "test-type": "bin"},
+        {"runner": "linuxarm", "build-type": "bin:arm64", "test-type": "bin"},
+        {"runner": "windows", "build-type": "bin:x64", "test-type": "bin"},
+        {"runner": "macos", "build-type": "bin:x64", "test-type": "bin"}
+      ]
     },
     "js/packages/eyes-api": {
       "release-type": "node",

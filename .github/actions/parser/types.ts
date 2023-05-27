@@ -3,7 +3,6 @@ export interface Job {
   displayName: string,
   packageName: string,
   artifactName: string,
-  dirname: string,
   path: string,
   tag: string,
   params?: {
@@ -18,9 +17,7 @@ export interface Job {
 
 export interface Package {
   name: string
-  aliases: string[]
-  jobName: string
-  dirname: string
+  component: string
   path: string
   tag: string
   dependencies: string[]
