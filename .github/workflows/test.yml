@@ -1,6 +1,6 @@
 name: Test packages
 
-run-name: ${{github.event_name == 'schedule' && 'Nightly' || github.event_name == 'workflow_dispatch' && format('Test {0}', inputs.packages) || ''}}
+run-name: ${{github.event_name == 'schedule' && 'Nightly' || github.event_name == 'workflow_dispatch' && format('Test {0}', inputs.packages) || github.event_name == 'pull_request' && format('CI ({0})', github.event.pull_request.title) || ''}}
 
 on:
   pull_request:

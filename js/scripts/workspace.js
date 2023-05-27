@@ -47,6 +47,7 @@ async function run({links}) {
   async function processPackage({targetPackage}) {
     if (targetPackage.processed) return
     targetPackage.processed = true
+    console.log('processing', targetPackage.path)
     if (links && links.length > 0) {
       const linkPackages = targetPackage.depPackageNames.flatMap(depPackageName => {
         const dependencyPackage = packages[depPackageName]
