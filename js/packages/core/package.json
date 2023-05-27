@@ -43,7 +43,7 @@
   "scripts": {
     "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
     "build": "yarn build:dist",
-    "build:dist": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
+    "build:dist": "node $(readlink -f ../../node_modules/.bin/tsc) --project ./tsconfig.build.json",
     "build:x64": "yarn build:dist && yarn build:bin:x64",
     "build:arm64": "yarn build:dist && yarn build:bin:arm64",
     "build:bin:x64": "pkg . --target node14-linux-x64,node14-alpine-x64,node14-macos-x64,node14-win-x64",
