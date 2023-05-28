@@ -26,13 +26,7 @@
   "scripts": {
     "bongo": "src/cli/index.js",
     "lint": "eslint . --ext .js",
-    "test": "mocha test/**/*.spec.js",
-    "test:sanity": "yarn test",
-    "deps": "yarn bongo deps",
-    "prepublish:setup": "echo 'no setup'",
-    "preversion": "yarn bongo preversion",
-    "version": "yarn bongo version",
-    "postversion": "yarn bongo postversion"
+    "test": "mocha test/**/*.spec.js"
   },
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
@@ -59,10 +53,5 @@
     "mocha": "^6.2.2",
     "nock": "^13.3.0",
     "prettier": "^2.1.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
   }
 }

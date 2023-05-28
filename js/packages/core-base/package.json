@@ -39,12 +39,7 @@
     "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
     "test:e2e": "MOCHA_GROUP=e2e node ../../node_modules/.bin/mocha './test/e2e/*.spec.ts'",
     "test:it": "MOCHA_GROUP=it node ../../node_modules/.bin/mocha './test/it/*.spec.ts'",
-    "test:unit": "MOCHA_GROUP=unit node ../../node_modules/.bin/mocha './test/unit/*.spec.ts'",
-    "test:sanity": "yarn test:unit && yarn test:it",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
+    "test:unit": "MOCHA_GROUP=unit node ../../node_modules/.bin/mocha './test/unit/*.spec.ts'"
   },
   "dependencies": {
     "@applitools/image": "1.0.34",

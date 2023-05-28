@@ -22,12 +22,7 @@
   ],
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "mocha --no-timeouts 'test/**/*.spec.js'",
-    "test:sanity": "yarn test",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
+    "test": "mocha --no-timeouts 'test/**/*.spec.js'"
   },
   "dependencies": {
     "node-fetch": "2.6.1"

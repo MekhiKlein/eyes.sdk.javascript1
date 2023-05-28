@@ -33,12 +33,11 @@
     "lint": "eslint '**/*.js'",
     "build": "rollup -c rollup.config.js",
     "build:heavy": "node scripts/bitmap.js",
-    "test": "yarn build && yarn test:mocha && yarn lint",
-    "test:sanity": "yarn test:unit && yarn test:it",
+    "test": "npm run build && npm run test:mocha && npm run lint",
     "test:mocha": "mocha --no-timeouts --trace-warnings 'test/{unit,it,e2e}/*.test.js'",
     "test:unit": "mocha --no-timeouts --trace-warnings 'test/unit/*.test.js'",
     "test:it": "mocha --no-timeouts --trace-warnings 'test/it/*.test.js'",
-    "test:versions": "yarn build && yarn test:e2e:versions && yarn lint",
+    "test:versions": "npm run build && npm run test:e2e:versions && npm run lint",
     "test:e2e": "mocha --no-timeouts --trace-warnings 'test/e2e/*.e2e.test.js'",
     "test:e2e:versions": "npx mocha --no-timeouts --trace-warnings --require test/fixtures/storybook-versions/mochaHooks.js test/versions/*.e2e.versions.test.js",
     "test:e2e:versions_local": "STORYBOOK_VERSION=latest npx mocha --no-timeouts --trace-warnings --require test/fixtures/storybook-versions/mochaHooks.js test/versions/*.e2e.versions.test.js",
@@ -60,18 +59,7 @@
     "changelog": "git changelog -x -p -f v$npm_package_version > History.md && git add ./History.md && git commit -am 'changelog'",
     "changelog:init": "git config changelog.format \"* %s [[%h]($(echo $npm_package_repository_url|cut -d+ -f2|cut -d. -f1-2)/commit/%H)]\"",
     "changelog:install": "sudo apt-get install git-extras",
-    "gh:publish": "gh workflow run publish-storybook.yml --ref $(git rev-parse --abbrev-ref HEAD)",
-    "prepublish:setup": "echo 'setup is a no-op. Move along, nothing to see here.'",
-    "deps": "bongo deps",
-    "postinstall": "node src/postinstall",
-    "preversion": "bongo preversion --verifyPendingChanges",
-    "version": "bongo version --withPendingChanges",
-    "postversion": "bongo postversion"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
+    "postinstall": "node src/postinstall"
   },
   "dependencies": {
     "@applitools/core": "3.0.2",

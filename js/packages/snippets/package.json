@@ -18,12 +18,7 @@
     "test": "node ../../node_modules/.bin/mocha './test/*.spec.js' -r ./test/util/hook.js",
     "test:chrome": "MOCHA_GROUP=chrome node ../../node_modules/.bin/mocha './test/*.spec.js' --grep chrome -r ./test/util/hook.js",
     "test:ie": "MOCHA_GROUP=ie node ../../node_modules/.bin/mocha './test/*.spec.js' --grep 'internet explorer' -r ./test/util/hook.js",
-    "test:ios": "MOCHA_GROUP=ios node ../../node_modules/.bin/mocha './test/*.spec.js' --grep 'ios safari' -r ./test/util/hook.js",
-    "test:sanity": "yarn test:chrome",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
+    "test:ios": "MOCHA_GROUP=ios node ../../node_modules/.bin/mocha './test/*.spec.js' --grep 'ios safari' -r ./test/util/hook.js"
   },
   "dependencies": {},
   "devDependencies": {

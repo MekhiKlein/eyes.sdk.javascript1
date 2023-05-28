@@ -45,22 +45,17 @@
   ],
   "scripts": {
     "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "yarn build:dist",
+    "build": "npm run build:dist",
     "build:dist": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
-    "build:x64": "yarn build:dist && yarn build:bin:x64",
-    "build:arm64": "yarn build:dist && yarn build:bin:arm64",
+    "build:x64": "npm run build:dist && npm run build:bin:x64",
+    "build:arm64": "npm run build:dist && npm run build:bin:arm64",
     "build:bin:x64": "pkg . --target node14-linux-x64,node14-alpine-x64,node14-macos-x64,node14-win-x64",
     "build:bin:arm64": "pkg . --target node14-linux-arm64 --output ./bin/tunnel-client-linux-arm64",
     "build:bin:zip": "zip -j ./bin/tunnel-client.zip $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)",
     "build:bin:tgz": "tar -czf ./bin/tunnel-client.tar.gz $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)",
     "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
     "test:e2e": "MOCHA_GROUP=e2e node ../../node_modules/.bin/mocha './test/e2e/*.spec.ts'",
-    "test:it": "MOCHA_GROUP=it node ../../node_modules/.bin/mocha './test/it/*.spec.ts'",
-    "test:sanity": "yarn test",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
+    "test:it": "MOCHA_GROUP=it node ../../node_modules/.bin/mocha './test/it/*.spec.ts'"
   },
   "pkg": {
     "scripts": "./dist/cli/cli.js",

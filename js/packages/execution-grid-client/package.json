@@ -49,12 +49,7 @@
     "build": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
     "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
     "test:e2e": "MOCHA_GROUP=e2e node ../../node_modules/.bin/mocha './test/e2e/*.spec.ts'",
-    "test:it": "MOCHA_GROUP=it node ../../node_modules/.bin/mocha './test/it/*.spec.ts'",
-    "test:sanity": "yarn test",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
+    "test:it": "MOCHA_GROUP=it node ../../node_modules/.bin/mocha './test/it/*.spec.ts'"
   },
   "dependencies": {
     "@applitools/core-base": "1.1.56",

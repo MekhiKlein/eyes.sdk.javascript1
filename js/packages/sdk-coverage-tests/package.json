@@ -24,13 +24,7 @@
   },
   "scripts": {
     "lint": "eslint . --ext .js",
-    "test": "mocha 'test/**/*.spec.js'",
-    "test:sanity": "yarn test",
-    "preversion": "bongo preversion && yarn test",
-    "version": "bongo version",
-    "postversion": "bongo postversion",
-    "deps": "bongo deps",
-    "prepublish:setup": "echo 'no setup'"
+    "test": "mocha 'test/**/*.spec.js'"
   },
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"

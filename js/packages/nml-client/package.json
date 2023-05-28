@@ -33,12 +33,7 @@
   "scripts": {
     "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
     "build": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
-    "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
-    "test:sanity": "yarn test",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
+    "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}"
   },
   "dependencies": {
     "@applitools/logger": "2.0.2",
