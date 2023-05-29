@@ -82,7 +82,7 @@
     "perf:full": "npm run perf && npm run perf -c 5",
     "perf:lite": "testcafe chrome:headless test/perf/perf-lite.spec.js",
     "perf:lite:full": "npm run perf:lite && npm run perf:lite -c 5",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_TESTCAFE_VERSION ]; then packagejson=`cat package.json`; yarn upgrade --no-lockfile testcafe@$APPLITOOLS_TESTCAFE_VERSION; echo \"$packagejson\" > package.json; fi",
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then npm i --no-save testcafe@$APPLITOOLS_FRAMEWORK_VERSION; fi",
     "report": "bongo report --name 'testcafe'",
     "postpublish": "bongo send-release-notification --name 'testcafe'"
   },

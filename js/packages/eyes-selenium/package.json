@@ -49,7 +49,7 @@
     "setup": "npm run docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_SELENIUM_MAJOR_VERSION ]; then packagejson=`cat package.json`; yarn upgrade --no-lockfile selenium-webdriver@$APPLITOOLS_SELENIUM_MAJOR_VERSION; echo \"$packagejson\" > package.json; fi",
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then npm i --no-save selenium-webdriver@$APPLITOOLS_FRAMEWORK_VERSION; fi",
     "report": "bongo report --name 'js_selenium_4'",
     "postpublish": "bongo send-release-notification --name 'js_selenium_4'"
   },

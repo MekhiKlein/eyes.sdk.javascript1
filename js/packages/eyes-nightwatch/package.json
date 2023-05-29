@@ -53,7 +53,7 @@
     "setup": "npm run docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_NIGHTWATCH_MAJOR_VERSION ]; then packagejson=`cat package.json`; yarn upgrade --no-lockfile nightwatch@$APPLITOOLS_NIGHTWATCH_MAJOR_VERSION; echo \"$packagejson\" > package.json; fi",
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then npm i --no-save nightwatch@$APPLITOOLS_FRAMEWORK_VERSION; fi",
     "report": "bongo report --name 'nightwatch'",
     "postpublish": "bongo send-release-notification --name 'nightwatch'"
   },

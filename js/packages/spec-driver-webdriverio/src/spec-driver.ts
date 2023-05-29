@@ -83,7 +83,7 @@ function scriptRunner(script: string, arg: any, ...elements: Element[]) {
   }
 }
 function loadCommand() {
-  return Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) < 8
+  return Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 8
     ? require('webdriver/build/command').default
     : (method: string, url: string, body: any) => {
         const webdriver = import('webdriver') as any
@@ -326,7 +326,7 @@ export async function hover(browser: Driver, element: Element | Selector): Promi
 }
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(browser, selector)
-  if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '5') {
     // @ts-ignore
     await element.waitForDisplayed(timeout)
   } else {

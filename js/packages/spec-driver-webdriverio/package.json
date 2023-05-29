@@ -84,12 +84,12 @@
   ],
   "scripts": {
     "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "node ../../node_modules/.bin/tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_WEBDRIVERIO_VERSION ] && echo ${APPLITOOLS_WEBDRIVERIO_VERSION%%.*} || echo 8).json",
+    "build": "node ../../node_modules/.bin/tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo ${APPLITOOLS_FRAMEWORK_VERSION%%.*} || echo 8).json",
     "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' -r @applitools/test-utils/mocha-hooks/docker --exit",
     "setup": "npm run docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_WEBDRIVERIO_VERSION ]; then packagejson=`cat package.json`; NODE_VERSION=${NODE_VERSION:-$(node -v)} yarn upgrade --no-lockfile webdriverio@$APPLITOOLS_WEBDRIVERIO_VERSION @types/node@${NODE_VERSION%%.*}; echo \"$packagejson\" > package.json; fi"
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then NODE_VERSION=${NODE_VERSION:-$(node -v)} npm i --no-save webdriverio@$APPLITOOLS_FRAMEWORK_VERSION @types/node@${NODE_VERSION%%.*}; fi"
   },
   "dependencies": {
     "@applitools/driver": "1.12.1",

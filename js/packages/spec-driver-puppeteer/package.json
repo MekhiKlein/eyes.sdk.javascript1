@@ -37,7 +37,7 @@
     "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --exit",
     "setup": "mpm run puppeteer:setup",
     "puppeteer:setup": "PUPPETEER_PRODUCT=firefox node ./node_modules/puppeteer/install.js",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_PUPPETEER_VERSION ]; then packagejson=`cat package.json`; yarn upgrade --no-lockfile puppeteer@$APPLITOOLS_PUPPETEER_VERSION; echo \"$packagejson\" > package.json; fi"
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then npm i --no-save puppeteer@$APPLITOOLS_FRAMEWORK_VERSION; fi"
   },
   "dependencies": {
     "@applitools/driver": "1.12.1",

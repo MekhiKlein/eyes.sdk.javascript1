@@ -8,7 +8,7 @@ let browser
 
 setDefaultTimeout(100000)
 BeforeAll(async () => {
-  if (process.env.APPLITOOLS_NIGHTWATCH_MAJOR_VERSION === '1') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '1') {
     await startWebDriver({
       env: process.env.NIGHTWATCH_ENV || 'default',
       configFile: path.join(__dirname, '../../nightwatch.conf.js'),
@@ -25,7 +25,7 @@ BeforeAll(async () => {
 })
 
 AfterAll(async () => {
-  if (process.env.APPLITOOLS_NIGHTWATCH_MAJOR_VERSION === '1') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '1') {
     await closeSession()
     await stopWebDriver()
   } else {

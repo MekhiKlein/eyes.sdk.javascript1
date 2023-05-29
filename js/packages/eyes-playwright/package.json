@@ -42,7 +42,7 @@
     "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js --name 'eyes-playwright'",
     "test": "npm run test:coverage",
     "test:coverage": "npm run generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-playwright' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage node ../../node_modules/.bin/mocha './test/generic/*.spec.js' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then packagejson=`cat package.json`; yarn upgrade --no-lockfile playwright@$APPLITOOLS_FRAMEWORK_VERSION; echo \"$packagejson\" > package.json; fi",
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then npm i --no-save playwright@$APPLITOOLS_FRAMEWORK_VERSION; fi",
     "report": "bongo report --name 'playwright'",
     "postpublish": "bongo send-release-notification --name 'playwright'"
   },
@@ -56,7 +56,7 @@
     "@applitools/sdk-coverage-tests": "3.0.2",
     "@applitools/test-utils": "1.5.17",
     "@types/node": "^12.20.55",
-    "playwright": "1.20"
+    "playwright": "^1.34.3"
   },
   "peerDependencies": {
     "playwright": ">=1.0.0"
