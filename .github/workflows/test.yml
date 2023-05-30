@@ -1,44 +1,12 @@
-name: Test packages
-
-run-name: ${{github.event_name == 'schedule' && 'Nightly' || github.event_name == 'workflow_dispatch' && format('Test {0}', inputs.packages) || github.event_name == 'pull_request' && format('CI ({0})', github.event.pull_request.title) || ''}}
+name: CI
 
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: ['**', '!dependabot/**', '!draft/**', '!play/**']
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
-    inputs:
-      packages:
-        description: package names (aliases and variations)
-        type: string
-        required: true
-      test-type:
-        description: testing type (unit, it, e2e)
-        type: string
-        required: false
-      build-type:
-        description: build type
-        type: string
-        required: false
-      setup-type:
-        description: setup type
-        type: string
-        required: false
-      env:
-        description: environment variables
-        type: string
-        required: false
-      grep:
-        description: test name pattern
-        required: false
-      links:
-        description: use packages from source
-        required: false
+    branches: [master]
 
-concurrency: 
-  group: ${{github.event_name == 'pull_request' && github.ref || github.run_id }}
+concurrency:
+  group: ${{github.ref}}
   cancel-in-progress: true
 
 env:
@@ -55,26 +23,13 @@ env:
 jobs:
   setup:
     name: Setup
-    if: ${{github.event_name == 'workflow_dispatch' || (github.actor != 'dependabot[bot]' && !github.event.pull_request.draft)}}
+    if: ${{github.actor != 'dependabot[bot]' && !github.event.pull_request.draft}}
     runs-on: ubuntu-latest
     outputs:
-      packages: ${{steps.setup.outputs.packages}}
+      builds: ${{steps.setup.outputs.builds}}
+      tests: ${{steps.setup.outputs.tests}}
+      releases: ${{steps.setup.outputs.releases}}
     steps:
-      - name: print inputs values
-        if: ${{github.event_name == 'workflow_dispatch'}}
-        run: |
-          jsonGithubInput=$(echo '${{ toJSON(github.event.inputs) }}' )
-          if [[ $jsonGithubInput != 'null' ]]; then
-            jsonData=$(jq -r 'to_entries' <<< "$jsonGithubInput")
-            for row in $(echo "${jsonData}" | jq -r '.[] | @base64'); do
-                _jq() {
-                  echo "${row}" | base64 --decode | jq -r "${1}"
-                }
-                key=$(_jq '.key')
-                value=$(_jq '.value')
-                echo "::notice::$key=$value"
-            done
-          fi
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
@@ -83,21 +38,52 @@ jobs:
         uses: ./.github/actions/parser
         id: setup
         with:
-          packages: ${{github.event.inputs.packages || (github.event_name == 'pull_request' && 'changed') || (github.event_name == 'schedule' && 'all')}}
-          env: ${{github.event.inputs.env}}
+          packages: changed
           use-matrix: ${{github.event_name == 'pull_request'}}
-          link-dependencies: ${{github.event.inputs.links == 'all' || github.event_name == 'pull_request' || github.event_name == 'schedule'}}
+          link-dependencies: true
+  
+  build:
+    needs: [setup]
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{fromJSON(needs.setup.outputs.builds)}}
+    name: ${{matrix.display-name}}
+    timeout-minutes: 20
+    runs-on: ${{matrix.runner || 'ubuntu-latest'}}
+    container: ${{matrix.container}}
+    env: ${{matrix.env}}
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version || 'lts/*'}}
+          registry-url: https://registry.npmjs.org/
+          always-auth: true
+      - name: Build
+        uses: ./.github/actions/js/build
+        with:
+          working-directory: ${{matrix.path}}
+          shell: ${{matrix.shell || 'bash'}}
+          build-type: ${{matrix.build-type}}
+      - name: Save build artifacts
+        if: ${{matrix.cache}}
+        uses: ./.github/actions/cache/save
+        with: ${{matrix.cache}}
+
   test:
     needs: [setup]
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{fromJSON(needs.setup.outputs.packages)}}
-    name: ${{matrix.displayName}}
+        include: ${{fromJSON(needs.setup.outputs.tests)}}
+    name: ${{matrix.display-name}}
     timeout-minutes: 60
-    runs-on: ${{matrix.params.runner || 'ubuntu-latest'}}
-    container: ${{matrix.params.container}}
-    env: ${{matrix.params.env}}
+    runs-on: ${{matrix.runner || 'ubuntu-latest'}}
+    container: ${{matrix.container}}
+    env: ${{matrix.env}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -107,66 +93,24 @@ jobs:
           node-version: ${{matrix.params.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
+      - name: Restore build artifacts
+        uses: ./.github/actions/cache/restore
+        with: ${{fromJSON(matrix.cache)}}
       - name: Run tests
         uses: ./.github/actions/js/test
         with:
           working-directory: ${{matrix.path}}
-          shell: ${{matrix.params.shell || 'bash'}}
-          test-type: ${{matrix.params.test-type || github.event.inputs.test-type}}
-          build-type: ${{matrix.params.build-type || github.event.inputs.build-type}}
-          setup-type: ${{matrix.params.setup-type || github.event.inputs.setup-type}}
-          links: ${{matrix.params.links || github.event.inputs.links}}
-          jobs: ${{matrix.params.parallel}}
-          grep: ${{github.event.inputs.grep}}
+          shell: ${{matrix.shell || 'bash'}}
+          test-type: ${{matrix.test-type}}
+          build-type: ${{matrix.build-type}}
+          setup-type: ${{matrix.setup-type}}
+          links: ${{matrix.links}}
+          parallel: ${{matrix.parallel}}
       - name: Save testing artifacts
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{matrix.artifactName}}
+          name: ${{matrix.artifact-name}}
           retention-days: 2
           if-no-files-found: ignore
-          path: |
-            ${{matrix.path}}/logs/**/*
-
-  report:
-    name: Report
-    needs: [setup, test]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v3
-      - name: Download testing artifacts
-        uses: actions/download-artifact@v3
-      - name: Report
-        id: report
-        uses: ./.github/actions/report
-        with:
-          artifact: ${{join(fromJSON(needs.setup.outputs.packages).*.artifactName)}}
-          path: |
-            ./report*.json
-      - name: Send slack notification
-        if: ${{always() && github.event_name == 'schedule'}}
-        uses: slackapi/slack-github-action@v1.23.0
-        with:
-          payload: |
-            {
-              "attachments": [
-                {
-                  "color": "${{(steps.report.outputs.status == 'failed') && '#f85149' || '#3fb950'}}",
-                  "blocks": [
-                    {
-                      "type":"section",
-                      "text": {"type": "mrkdwn", "text": "@channel *Nightly* <https://github.com/applitools/eyes.sdk.javascript1/actions/runs/${{github.run_id}}|workflow> has been finished 🦉"}
-                    },
-                    {
-                      "type":"section",
-                      "text": {"type": "plain_text", "emoji": true, "text": "${{steps.report.outputs.status == 'failed' && '❌' || '✅'}} ${{steps.report.outputs.message}}"}
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{secrets.JS_SLACK_WEBHOOK_URL}}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          path: ${{matrix.path}}/logs/**/*
