@@ -1,5 +1,5 @@
 name: JS Test
-description: Tests a JS package
+description: Test JS package
 inputs:
   working-directory:
     description: the path to the directory from repository root

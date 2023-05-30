@@ -1,0 +1,54 @@
+name: JS Build
+description: Build JS package
+inputs:
+  working-directory:
+    description: the path to the directory from repository root
+    type: string
+    required: true
+  build-type:
+    description: type of the build script
+    type: string
+  links:
+    description: names of package directories to link before building
+    type: string
+  shell:
+    description: shell to use
+    type: string
+    default: bash
+
+runs:
+  using: composite
+  steps:
+    - name: Build
+      shell: ${{inputs.shell}}
+      working-directory: ${{inputs.working-directory}}
+      run: |
+        echo "::group::Configure NPM"
+        if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
+        echo "::endgroup::"
+
+        echo "::group::Installing and updating dependencies"
+        npm install --prefix ../../
+
+        # npm install
+        node ../../scripts/workspace.js prepare --links "${{inputs.links}}"
+
+        ls -F ./node_modules/@applitools
+        echo "::endgroup::"
+
+        echo "::group::Settings up building environment"
+        if [ -e .env ]
+        then
+          set -o allexport
+          source .env
+          set +o allexport
+        fi
+
+        echo "::group::Building package"
+        if [ ! -z "${{inputs.build-type}}" ]
+        then
+          if [ "${{inputs.build-type}}" != "none" ]; then npm run build:${{inputs.build-type}}; fi
+        else
+          npm run build --if-present
+        fi
+        echo "::endgroup::"
