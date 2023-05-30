@@ -28,7 +28,6 @@ jobs:
     outputs:
       builds: ${{steps.setup.outputs.builds}}
       tests: ${{steps.setup.outputs.tests}}
-      releases: ${{steps.setup.outputs.releases}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
@@ -39,7 +38,7 @@ jobs:
         id: setup
         with:
           packages: changed
-          use-matrix: ${{github.event_name == 'pull_request'}}
+          ci: true
           link-dependencies: true
   
   build:
@@ -74,7 +73,7 @@ jobs:
         with: ${{matrix.cache}}
 
   test:
-    needs: [setup]
+    needs: [setup, build]
     strategy:
       fail-fast: false
       matrix: 

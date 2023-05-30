@@ -39,7 +39,7 @@ jobs:
         id: setup
         with:
           packages: changed
-          use-matrix: ${{github.event_name == 'pull_request'}}
+          ci: true
           link-dependencies: true
   
   build:
