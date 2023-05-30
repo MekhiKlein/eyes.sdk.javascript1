@@ -1,4 +1,4 @@
-name: Publish
+name: NPM Publish
 
 description: Publish a package to NPM
 
@@ -7,25 +7,6 @@ inputs:
     description: the path to the directory from repository root
     type: string
     required: true
-  version:
-    description: version type (patch, major, minor)
-    type: string
-  skip-build:
-    descriptions: should package be build before publish
-    type: boolean
-    default: false
-  skip-npm:
-    description: should the package be published in npm
-    type: boolean
-    default: false
-
-outputs:
-  tag:
-    description: name of the tag pushed after publishing
-    value: ${{steps.publish.outputs.tag}}
-  changelog:
-    description: changelog entries for the latest package version
-    value: ${{steps.publish.outputs.changelog}}
 
 runs:
   using: composite
@@ -35,27 +16,6 @@ runs:
       shell: bash
       working-directory: ${{inputs.working-directory}}
       run: |
-        echo "::group::Prepare package"
-        PACKAGE_NAME="$(cat ./package.json | jq -r .name)"
-        echo "::endgroup::"
-
-        echo "::group::Configure Git"
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        echo "::endgroup::"
-
-        BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-        if [ "$BRANCH" = "${{github.ref_name}}" ]
-        then
-          echo "::group::Creating temporary branch"
-          BRANCH="${PACKAGE_NAME}_$(date +%F_%H-%M)"
-          git checkout -b $BRANCH
-          git push -u origin $BRANCH
-          echo "::notice::Publish branch - $BRANCH"
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "::endgroup::"
-        fi
-
         echo "::group::Installing and updating dependencies"
         yarn --cwd ../../ install
         yarn install

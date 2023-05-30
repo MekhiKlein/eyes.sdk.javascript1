@@ -1,17 +1,18 @@
 export interface Job {
   name: string,
-  displayName: string,
-  packageName: string,
-  artifactName: string,
+  'display-name': string,
+  'package-name': string,
+  'artifact-name': string,
   path: string,
   tag: string,
-  params?: {
-    version?: string,
-    runner?: string,
-    node?: string,
-    links?: string,
-    env?: Record<string, string>,
-  }
+  runner?: string,
+  'framework-version'?: string,
+  'node-version'?: string,
+  'java-version'?: string,
+  'python-version'?: string,
+  'ruby-version'?: string,
+  links?: string,
+  env?: Record<string, string>,
   requested: boolean,
 }
 
@@ -21,6 +22,7 @@ export interface Package {
   path: string
   tag: string
   dependencies: string[]
-  framework?: string
-  matrix?: Record<string, any>[]
+  builds: Record<string, any>[]
+  tests: Record<string, any>[]
+  releases: Record<string, any>[]
 }

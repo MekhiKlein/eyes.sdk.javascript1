@@ -1,0 +1,11 @@
+name: Restore cache
+
+inputs:
+  cache:
+    description: cache config as json string
+    type: string
+    required: true
+
+runs:
+  using: node16
+  main: dist/index.js

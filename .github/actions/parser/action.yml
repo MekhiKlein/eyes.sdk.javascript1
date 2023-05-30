@@ -2,17 +2,17 @@ name: Parser
 
 inputs:
   packages:
-    description: list of package names (aliases) with modifiers such as version or aut protocol
+    description: list of package names (aliases) with optional variations
     type: string
     required: true
+  ci:
+    description: wether variations should be generated from package configs
+    type: boolean
+    default: false
   env:
     description: list of environment variables to add to every job
     type: string
     required: false
-  use-matrix:
-    description: wether variations should be generated from matrix per package
-    type: boolean
-    default: false
   include-only-changed:
     description: whether including of not changed since last version packages should be allowed
     type: boolean
@@ -25,9 +25,15 @@ inputs:
     description: whether dependencies of the target packages should be linked
     type: boolean
     default: false
+
 outputs:
-  packages:
-    description: map or array of each package or variation respectively
+  tests:
+    description: array of tests
+  builds:
+    description: array of builds
+  releases:
+    description: array of releases
+
 runs:
   using: node16
   main: dist/index.js

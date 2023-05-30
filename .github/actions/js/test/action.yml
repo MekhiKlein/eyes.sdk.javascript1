@@ -1,5 +1,5 @@
-name: Test
-description: Tests a package
+name: JS Test
+description: Tests a JS package
 inputs:
   working-directory:
     description: the path to the directory from repository root
@@ -31,6 +31,7 @@ inputs:
     description: shell to use
     type: string
     default: bash
+
 runs:
   using: composite
   steps:
