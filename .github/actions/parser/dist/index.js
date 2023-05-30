@@ -2854,7 +2854,7 @@ async function main() {
                     packages[manifest.name] = {
                         name: manifest.name,
                         component: packageConfig.component,
-                        path: packagePath,
+                        path: external_node_path_namespaceObject.resolve(process.cwd(), packagePath),
                         tag: `${packageConfig.component}@`,
                         dependencies: Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }),
                         tests: (packageConfig.tests ?? [{}]).map(transformCache),
