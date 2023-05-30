@@ -190,23 +190,10 @@
         {"runner": "windows", "test-type": "bin", "build-type": "bin:x64", "setup-type": "none", "cache": {"path": ["./bin", "./dist", "./types"], "key": "core-x64-{{hash}}"}},
         {"runner": "macos", "test-type": "bin", "build-type": "bin:x64", "setup-type": "none", "cache": {"path": ["./bin", "./dist", "./types"], "key": "core-x64-{{hash}}"}}
       ],
-      "releases": [{
-        "name": "github",
-        "cache": [
-          {"path": ["./bin", "./dist", "./types"], "key": "core-x64-{{hash}}"},
-          {"path": ["./bin"], "key": "core-arm64-{{hash}}"}
-        ],
-        "files": [
-          "./bin/core-alpine",
-          "./bin/core-linux",
-          "./bin/core-linux-arm64",
-          "./bin/core-macos",
-          "./bin/core-win.exe"
-        ]
-      }, {
-        "name": "npm",
-        "caches": [{"path": ["./dist", "./types"], "key": "core-x64-{{hash}}"}]
-      }]
+      "releases": [
+        {"name": "github", "cache": [{"path": ["./bin", "./dist", "./types"], "key": "core-x64-{{hash}}"}, {"path": ["./bin"], "key": "core-arm64-{{hash}}"}], "files": ["./bin/core-alpine", "./bin/core-linux", "./bin/core-linux-arm64", "./bin/core-macos", "./bin/core-win.exe"]},
+        {"name": "npm", "caches": [{"path": ["./dist", "./types"], "key": "core-x64-{{hash}}"}]}
+      ]
     },
     "js/packages/eyes-api": {
       "release-type": "node",

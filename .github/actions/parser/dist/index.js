@@ -2859,8 +2859,8 @@ async function main() {
                         tag: `${packageConfig.component}@`,
                         dependencies: Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }),
                         tests: (packageConfig.tests ?? [{}]).map(transformCache),
-                        builds: packageConfig.builds ?? [{}].map(transformCache),
-                        releases: packageConfig.releases ?? [{}].map(transformCache),
+                        builds: (packageConfig.builds ?? [{}]).map(transformCache),
+                        releases: (packageConfig.releases ?? [{}]).map(transformCache),
                     };
                     return packages;
                 });
@@ -2868,7 +2868,7 @@ async function main() {
                     if (cacheable.cache) {
                         const cache = (Array.isArray(cacheable.cache) ? cacheable.cache : [cacheable.cache]).map(cache => {
                             return {
-                                ...cache,
+                                key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA),
                                 path: cache.path.map(cachePath => external_node_path_namespaceObject.resolve(packagePath, cachePath))
                             };
                         });
@@ -2931,7 +2931,7 @@ async function main() {
                 packageInfo.builds.forEach(build => {
                     const buildParams = { ...params, ...build, env: { ...params.env, ...build.env } };
                     const description = buildParams.name;
-                    jobs.tests.push({
+                    jobs.builds.push({
                         name: packageInfo.component,
                         'display-name': `${packageInfo.component}${description ? ` (${description})` : ''}`,
                         'package-name': packageInfo.name,
@@ -2946,7 +2946,7 @@ async function main() {
                 packageInfo.releases.forEach(release => {
                     const releaseParams = { ...params, ...release, env: { ...params.env, ...release.env } };
                     const description = releaseParams.name;
-                    jobs.tests.push({
+                    jobs.releases.push({
                         name: packageInfo.component,
                         'display-name': `${packageInfo.component}${description ? ` (${description})` : ''}`,
                         'package-name': packageInfo.name,
