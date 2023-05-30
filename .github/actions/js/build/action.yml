@@ -25,6 +25,8 @@ runs:
       run: |
         echo "::group::Configure NPM"
         if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
+        npm set audit false
+        npm set fund false
         echo "::endgroup::"
 
         echo "::group::Installing and updating dependencies"
