@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: [master]
+    branches: [chore/release-please]
 
 concurrency:
   group: ${{github.ref}}
