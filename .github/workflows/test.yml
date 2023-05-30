@@ -67,6 +67,7 @@ jobs:
           working-directory: ${{matrix.path}}
           shell: ${{matrix.shell || 'bash'}}
           build-type: ${{matrix.build-type}}
+          links: ${{matrix.links}}
       - name: Save build artifacts
         if: ${{matrix.cache}}
         uses: ./.github/actions/cache/save
