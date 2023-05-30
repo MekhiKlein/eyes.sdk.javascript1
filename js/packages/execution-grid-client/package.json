@@ -62,7 +62,7 @@
     "@applitools/utils": "1.3.37",
     "abort-controller": "3.0.0",
     "webdriver": "7",
-    "yargs": "17.6.2"
+    "yargs": "17.7.2"
   },
   "devDependencies": {
     "@applitools/bongo": "^4.0.0",
