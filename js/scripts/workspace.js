@@ -22,6 +22,8 @@ yargs
       try {
         await run(args)
       } catch (err) {
+        if (err.stdout) err.stdout = err.stdout.toString('utf8')
+        if (err.stderr) err.stderr = err.stderr.toString('utf8')
         console.error(err)
         process.exit(1)
       }
