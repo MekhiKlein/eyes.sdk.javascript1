@@ -2839,6 +2839,7 @@ async function main() {
         core.notice(`Input provided: "${input}"`);
     }
     let jobs = createJobs(input);
+    console.log(jobs);
     // core.info(`Requested jobs: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
     core.setOutput('tests', jobs.tests);
     core.setOutput('builds', jobs.builds);
@@ -3038,11 +3039,9 @@ async function main() {
     }
     function getChangedPackagesInput() {
         const changedFiles = (0,external_node_child_process_namespaceObject.execSync)(`git --no-pager diff --name-only origin/${process.env.GITHUB_BASE_REF || 'master'}`, { encoding: 'utf8' });
-        console.log(changedFiles);
         const changedPackageNames = changedFiles.split('\n').reduce((changedPackageNames, changedFile) => {
             const changedPackage = Object.values(packages).find(changedPackage => {
                 const changedFilePath = external_node_path_namespaceObject.resolve(process.cwd(), changedFile, './');
-                console.log(changedFilePath, changedPackage.path + '/');
                 return changedFilePath.startsWith(changedPackage.path + '/');
             });
             if (changedPackage)

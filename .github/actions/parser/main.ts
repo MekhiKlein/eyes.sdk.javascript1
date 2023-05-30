@@ -37,6 +37,8 @@ async function main() {
 
   let jobs = createJobs(input)
 
+  console.log(jobs)
+
   // core.info(`Requested jobs: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
 
   core.setOutput('tests', jobs.tests)
@@ -256,11 +258,9 @@ async function main() {
 
   function getChangedPackagesInput(): string {
     const changedFiles = execSync(`git --no-pager diff --name-only origin/${process.env.GITHUB_BASE_REF || 'master'}`, {encoding: 'utf8'})
-    console.log(changedFiles)
     const changedPackageNames = changedFiles.split('\n').reduce((changedPackageNames, changedFile) => {
       const changedPackage = Object.values(packages).find(changedPackage => {
         const changedFilePath = path.resolve(process.cwd(), changedFile, './')
-        console.log(changedFilePath, changedPackage.path + '/')
         return changedFilePath.startsWith(changedPackage.path + '/')
       })
       if (changedPackage) changedPackageNames.add(changedPackage.component)
