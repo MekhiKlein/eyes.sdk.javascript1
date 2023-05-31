@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix: 
         include: ${{fromJSON(needs.setup.outputs.builds)}}
-    name: ${{matrix.display-name}}
+    name: Build / ${{matrix.display-name}}
     timeout-minutes: 20
     runs-on: ${{matrix.runner || 'ubuntu-latest'}}
     container: ${{matrix.container}}
@@ -79,7 +79,7 @@ jobs:
       fail-fast: false
       matrix: 
         include: ${{fromJSON(needs.setup.outputs.tests)}}
-    name: ${{matrix.display-name}}
+    name: Test / ${{matrix.display-name}}
     timeout-minutes: 60
     runs-on: ${{matrix.runner || 'ubuntu-latest'}}
     container: ${{matrix.container}}
@@ -94,8 +94,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
           always-auth: true
       - name: Restore build artifacts
+        if: ${{matrix.cache}}
         uses: ./.github/actions/cache/restore
-        with: ${{fromJSON(matrix.cache)}}
+        with: ${{matrix.cache}}
       - name: Run tests
         uses: ./.github/actions/js/test
         with:
