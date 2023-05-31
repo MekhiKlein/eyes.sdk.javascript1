@@ -34,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup
-        uses: ./.github/actions/parser
+        uses: ./.github/actions/setup
         id: setup
         with:
           packages: changed
