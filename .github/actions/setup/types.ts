@@ -20,7 +20,6 @@ export interface Package {
   name: string
   component: string
   path: string
-  tag: string
   dependencies: string[]
   builds: Record<string, any>[]
   tests: Record<string, any>[]

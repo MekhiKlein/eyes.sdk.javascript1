@@ -57,8 +57,7 @@ async function main() {
           packages[manifest.name] = {
             name: manifest.name,
             component: packageConfig.component,
-            path: path.resolve(process.cwd(), packagePath),
-            tag: `${packageConfig.component}@`,
+            path: packagePath,
             dependencies: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
             tests: (packageConfig.tests ?? [{}]).map(transformCache),
             builds: (packageConfig.builds ?? [{}]).map(transformCache),
@@ -72,7 +71,7 @@ async function main() {
             const cache = (Array.isArray(cacheable.cache) ? cacheable.cache : [cacheable.cache]).map(cache => {
               return {
                 key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA),
-                path: (cache.path as string[]).map(cachePath => path.resolve(packagePath, cachePath))
+                path: (cache.path as string[]).map(cachePath => path.join(packagePath, cachePath))
               }
             })
             cacheable.cache = {cache: JSON.stringify(cache)}
@@ -131,7 +130,6 @@ async function main() {
             'package-name': packageInfo.name,
             'artifact-name': `artifact-${packageInfo.component.replace(/\//g, '-')}`,
             path: packageInfo.path,
-            tag: packageInfo.tag,
             ...testParams,
             runner: Runner[testParams.runner as keyof typeof Runner],
             requested: true,
@@ -147,7 +145,6 @@ async function main() {
             'package-name': packageInfo.name,
             'artifact-name': `artifact-${packageInfo.component.replace(/\//g, '-')}`,
             path: packageInfo.path,
-            tag: packageInfo.tag,
             ...buildParams,
             runner: Runner[buildParams.runner as keyof typeof Runner],
             requested: true,
@@ -163,7 +160,6 @@ async function main() {
             'package-name': packageInfo.name,
             'artifact-name': `artifact-${packageInfo.component.replace(/\//g, '-')}`,
             path: packageInfo.path,
-            tag: packageInfo.tag,
             ...releaseParams,
             runner: Runner[releaseParams.runner as keyof typeof Runner],
             requested: true,
@@ -188,7 +184,6 @@ async function main() {
             'package-name': packageInfo.name,
             'artifact-name': `artifact-${packageInfo.component.replace(/\//g, '-')}`,
             path: packageInfo.path,
-            tag: packageInfo.tag,
             ...testParams,
             runner: Runner[testParams.runner as keyof typeof Runner],
             requested: true,
@@ -214,7 +209,6 @@ async function main() {
   //         packageName: packages[dependencyName].name,
   //         artifactName: `artifact-${packages[dependencyName].component.replace(/\//g, '-')}`,
   //         path: packages[dependencyName].path,
-  //         tag: packages[dependencyName].tag,
   //         params: {
   //           links: linkDependencies ? packages[dependencyName].dependencies.join(',') : undefined,
   //         },
@@ -260,8 +254,9 @@ async function main() {
     const changedFiles = execSync(`git --no-pager diff --name-only origin/${process.env.GITHUB_BASE_REF || 'master'}`, {encoding: 'utf8'})
     const changedPackageNames = changedFiles.split('\n').reduce((changedPackageNames, changedFile) => {
       const changedPackage = Object.values(packages).find(changedPackage => {
+        const changedPackagePath = path.resolve(process.cwd(), changedPackage.path)
         const changedFilePath = path.resolve(process.cwd(), changedFile, './')
-        return changedFilePath.startsWith(changedPackage.path + '/')
+        return changedFilePath.startsWith(changedPackagePath)
       })
       if (changedPackage) changedPackageNames.add(changedPackage.component)
       return changedPackageNames
