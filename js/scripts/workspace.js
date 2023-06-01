@@ -12,7 +12,6 @@ yargs
     builder: yargs =>
       yargs.options({
         packages: {
-          alias: ['p', 'package'],
           description: 'Package names to link',
           type: 'string',
           coerce: string => string.split(/[\s,]+/),
@@ -36,14 +35,14 @@ yargs
   })
   .wrap(yargs.terminalWidth()).argv
 
-async function link({links, cwd}) {
+async function link({packages: links, cwd}) {
   if (!links || links.length === 0) {
     console.log('No links provided')
     return
   }
   const packages = await getPackages({packagesPath: path.resolve(cwd, '..')})
-  const currentPackage = packages.find(currentPackage => currentPackage.path === cwd)
-  if (!(await fs.stat(packageManifestPath).catch(() => false))) {
+  const currentPackage = Object.values(packages).find(currentPackage => currentPackage.path === cwd)
+  if (!currentPackage) {
     throw new Error(`This command can only run in the package directory, but the current directory is "${cwd}"`)
   }
 
