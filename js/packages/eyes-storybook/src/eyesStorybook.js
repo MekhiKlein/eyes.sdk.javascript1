@@ -24,6 +24,7 @@ const executeRenders = require('./executeRenders');
 const {makeCore} = require('@applitools/core');
 const {makeUFGClient} = require('@applitools/ufg-client');
 const makeGetStoriesWithConfig = require('./getStoriesWithConfig');
+const configDigest = require('./configDigest');
 
 const MAX_RETRIES = 10;
 const RETRY_INTERVAL = 1000;
@@ -182,6 +183,13 @@ async function eyesStorybook({
     logger.log(
       `starting to run ${storiesByBrowserWithConfig.stories.length} normal stories ("non fake IE") and ${storiesByBrowserWithConfig.storiesWithIE.length} "fake IE stories"`,
     );
+
+    if (config.dryRun) {
+      console.log('Running with the following configuration:\n', configDigest(config))
+      console.log('Running the following stories:\n', )
+      console.log(storiesByBrowserWithConfig.stories.map(({storyTitle}, i) => `${i+1}. ${storyTitle}`).join('\n'))
+      return
+    }
 
     const getStoryData = makeGetStoryData({
       logger,

@@ -70,7 +70,8 @@ Apollo SDK:
     - 
 "@applitools/eyes-storybook":
   feature:
-    - 
+    - |
+      Support `--dryRun` in order to show configurations and stories without running tests
   bug-fix:
     - Increase timeout for rendering results polling
 "@applitools/eyes-browser-extension":
