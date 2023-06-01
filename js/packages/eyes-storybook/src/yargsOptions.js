@@ -71,7 +71,8 @@ module.exports = {
   },
 
   dryRun: {
-    description: 'Output the different stories with their configurations, but don\'t actually run any visual tests',
+    description:
+      "Output the different stories with their configurations, but don't actually run any visual tests",
     boolean: true,
-  }
+  },
 };

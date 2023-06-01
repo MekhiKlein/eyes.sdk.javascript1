@@ -185,10 +185,14 @@ async function eyesStorybook({
     );
 
     if (config.dryRun) {
-      console.log('Running with the following configuration:\n', configDigest(config))
-      console.log('Running the following stories:\n', )
-      console.log(storiesByBrowserWithConfig.stories.map(({storyTitle}, i) => `${i+1}. ${storyTitle}`).join('\n'))
-      return
+      console.log('Running with the following configuration:\n', configDigest(config));
+      console.log('Running the following stories:\n');
+      console.log(
+        storiesByBrowserWithConfig.stories
+          .map(({storyTitle}, i) => `${i + 1}. ${storyTitle}`)
+          .join('\n'),
+      );
+      return;
     }
 
     const getStoryData = makeGetStoryData({
