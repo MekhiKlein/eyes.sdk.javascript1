@@ -64,7 +64,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/js/build
         with:
-          working-directory: ${{matrix.path}}
+          working-directory: ${{matrix.working-directory}}
           shell: ${{matrix.shell || 'bash'}}
           build-type: ${{matrix.build-type}}
           links: ${{matrix.links}}
@@ -100,8 +100,9 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/js/test
         with:
-          working-directory: ${{matrix.path}}
+          working-directory: ${{matrix.working-directory}}
           shell: ${{matrix.shell || 'bash'}}
+          framework-version: ${{matrix.framework-version}}
           test-type: ${{matrix.test-type}}
           build-type: ${{matrix.build-type}}
           setup-type: ${{matrix.setup-type}}
@@ -114,4 +115,4 @@ jobs:
           name: ${{matrix.artifact-name}}
           retention-days: 2
           if-no-files-found: ignore
-          path: ${{matrix.path}}/logs/**/*
+          path: ${{matrix.working-directory}}/logs/**/*

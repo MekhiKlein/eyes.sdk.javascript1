@@ -5,6 +5,9 @@ inputs:
     description: the path to the directory from repository root
     type: string
     required: true
+  framework-version:
+    description: version of the framework
+    type: string
   test-type:
     description: type of the testing (unit, it, e2e, coverage)
     type: string
@@ -20,9 +23,9 @@ inputs:
   grep:
     description: grep pattern to filter tests
     type: string
-  jobs:
-    description: number of jobs to run tests in parallel
-    type: string
+  parallel:
+    description: number of parallel processes to run tests
+    type: number
   report:
     description: report level
     type: string
@@ -40,7 +43,9 @@ runs:
       working-directory: ${{inputs.working-directory}}
       env:
         MOCHA_GREP: ${{inputs.grep}}
-        MOCHA_JOBS: ${{inputs.jobs}}
+        MOCHA_JOBS: ${{inputs.parallel}}
+        APPLITOOLS_FRAMEWORK_VERSION: ${{inputs.framework-version}}
+        APPLITOOLS_FRAMEWORK_MAJOR_VERSION: ${{inputs.framework-version}}
       run: |
         echo "::group::Configure NPM"
         if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
