@@ -7,7 +7,7 @@
   },
   "scripts": {
     "render": "node ./scripts/render.js",
-    "link": "node ./scripts/link.js",
+    "link": "node ./scripts/workspace.js link",
     "lint:commit": "commitlint --extends @commitlint/config-conventional --edit",
     "lint:changed": "eslint $(git --no-pager diff --name-only --relative --diff-filter=d -- \"*.ts\" \"*.js\")",
     "lint:staged": "eslint $(git --no-pager diff --name-only --relative --diff-filter=d --cached -- \"*.ts\" \"*.js\")",

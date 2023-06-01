@@ -1,4 +1,4 @@
-import type {Package, Job} from './types.js'
+import type {Job, Cache, Package} from './types.js'
 import {execSync} from 'node:child_process'
 import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
@@ -20,8 +20,8 @@ main()
 async function main() {
   let input = core.getInput('packages', {required: true}) 
   const useCI = core.getBooleanInput('ci')
+  const useLink = core.getBooleanInput('link')
   const env = core.getInput('env')
-  const linkDependencies = core.getBooleanInput('link-dependencies')
 
   const packages = await getPackages()
 
@@ -52,13 +52,11 @@ async function main() {
       if (packagePath.startsWith('js/')) {
         const packageManifestPath = path.resolve(packagePath, 'package.json')
         const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))
-
         return packages.then(packages => {
           packages[manifest.name] = {
             name: manifest.name,
             component: packageConfig.component,
             path: packagePath,
-            dependencies: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
             tests: packageConfig.tests ?? [],
             builds: packageConfig.builds ?? [],
             releases: packageConfig.releases ?? [],
@@ -68,16 +66,13 @@ async function main() {
       }
       return packages
     }, Promise.resolve({} as Record<string, Package>))
-    Object.values(packages).forEach(packageInfo => {
-      packageInfo.dependencies = packageInfo.dependencies.filter(depName => packages[depName])
-    })
     return packages
   }
 
   function createJobs(input: string): {builds: Job[], tests: Job[], releases: Job[]} {
-    return input.split(/[\s,]+(?=(?:[^()]*\([^())]*\))*[^()]*$)/).reduce((jobs, input) => {
-      let [_, packageKey, frameworkVersion, langName, langVersion, runner, linkPackages, shortFrameworkVersion]
-        = input.match(/^(.*?)(?:\((?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?(?:links:(.+?);?)?\))?(?:@([\d.]+))?$/i) ?? []
+    const jobs = input.split(/[\s,]+(?=(?:[^()]*\([^())]*\))*[^()]*$)/).reduce((jobs, input) => {
+      let [_, packageKey, frameworkVersion, langName, langVersion, runner, shortFrameworkVersion]
+        = input.match(/^(.*?)(?:\((?:framework-version:([\d.]+);?)?(?:(node|python|java|ruby)-version:([\d.]+);?)?(?:runner:(linux|ubuntu|linuxarm|ubuntuarm|mac|macos|win|windows);?)?\))?(?:@([\d.]+))?$/i) ?? []
       frameworkVersion ??= shortFrameworkVersion
   
       const packageInfo = Object.values(packages).find(({name, path, component}) => [name, component, path].includes(packageKey))
@@ -86,16 +81,15 @@ async function main() {
         return jobs
       }
 
-      const defaultJob: Job = {
+      const baseJob = {
         name: packageInfo.component,
         'display-name': packageInfo.component,
         'package-name': packageInfo.name,
         'artifact-name': `artifact-${packageInfo.component.replace(/\//g, '-')}`,
         'working-directory': packageInfo.path,
-        runner,
+        runner: Runner[runner as keyof typeof Runner],
         [`${langName}-version`]: langVersion,
         [`framework-version`]: frameworkVersion,
-        links: linkDependencies ? packageInfo.dependencies.join(',') : linkPackages,
         env: env.split(/[;\s]+/).reduce((envs, env) => {
           const [key, value] = env.split('=')
           return {...envs, [key]: value}
@@ -103,50 +97,65 @@ async function main() {
       }
 
       if (useCI) {
-        (packageInfo.tests ?? [{}]).forEach(extension => {
-          const job = makeJob(defaultJob, extension)
-          jobs.tests.push({...job, runner: Runner[job.runner as keyof typeof Runner]})
+        packageInfo.tests.forEach(extension => {
+          jobs.tests.push(makeJob(baseJob, extension))
         })
         packageInfo.builds.forEach(extension => {
-          const job = makeJob(defaultJob, extension)
-          jobs.builds.push({...job, runner: Runner[job.runner as keyof typeof Runner]})
+          jobs.builds.push(makeJob(baseJob, extension))
         })
         packageInfo.releases.forEach(extension => {
-          const job = makeJob(defaultJob, extension)
-          jobs.releases.push({...job, runner: Runner[job.runner as keyof typeof Runner]})
+          jobs.releases.push(makeJob(baseJob, extension))
         })
-      } else {
-        const job = makeJob(defaultJob)
-        jobs.tests.push({...job, runner: Runner[job.runner as keyof typeof Runner]})
       }
-    
-      return jobs
 
-      function makeJob(baseJob: Job, extension?: Partial<Job>): Job {
-        const job = {...baseJob, ...extension, env: {...baseJob.env, ...extension?.env}}
-        job.description ??= [
-          job.runner && `runner: ${job.runner}`,
-          job.container && `container: ${job.container}`,
-          job['node-version'] && `node: ${job['node-version']}`,
-          job['java-version'] && `java: ${job['java-version']}`,
-          job['python-version'] && `python: ${job['python-version']}`,
-          job['ruby-version'] && `ruby: ${job['ruby-version']}`,
-          job['framework-version'] && `framework: ${job['framework-version']}`,
-          job['test-type'] && `test: ${job['test-type']}`,
-        ].filter(Boolean).join(', ')
-        job['display-name'] = `${job['display-name'] ?? job.name} ${job.description ? `(${job.description})` : ''}`.trim()
-        if (job.cache) {
-          const cache = (Array.isArray(job.cache) ? job.cache : [job.cache]).map(cache => {
-            return {
-              key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA ?? ''),
-              path: (cache.path as string[]).map(cachePath => path.join(job['working-directory'], cachePath))
-            }
-          })
-          job.cache = {cache: JSON.stringify(cache)} as any
-        }
-        return job
+      if (!useCI || packageInfo.tests.length === 0) {
+        jobs.tests.push(makeJob(baseJob))
       }
+
+      return jobs
     }, {builds: [] as Job[], tests: [] as Job[], releases: [] as Job[]})
+
+    if (useLink) {
+      jobs.builds.forEach(job => {
+        const links = jobs.builds.reduce((links, linkJob) => {
+          if (linkJob.name !== job.name) {
+            links.add(path.relative(job['working-directory'], linkJob['working-directory']))
+          }
+          return links
+        }, new Set<string>())
+        job.links = Array.from(links).join(' ')
+      })
+    }
+
+    return jobs
+
+    function makeJob(baseJob: Job, extension?: Partial<Job>): Job {
+      const job = {
+        ...baseJob,
+        ...extension,
+        runner: extension?.runner ? (Runner[extension.runner as keyof typeof Runner] ?? extension.runner) : baseJob.runner,
+        env: {...baseJob.env, ...extension?.env}
+      }
+
+      job.description ??= [
+        job.runner && `runner: ${Object.keys(Runner).find(runner => Runner[runner as keyof typeof Runner] === job.runner) ?? job.runner}`,
+        job.container && `container: ${job.container}`,
+        job['node-version'] && `node: ${job['node-version']}`,
+        job['java-version'] && `java: ${job['java-version']}`,
+        job['python-version'] && `python: ${job['python-version']}`,
+        job['ruby-version'] && `ruby: ${job['ruby-version']}`,
+        job['framework-version'] && `framework: ${job['framework-version']}`,
+        job['test-type'] && `test: ${job['test-type']}`,
+      ].filter(Boolean).join(', ')
+      job['display-name'] = `${job['display-name'] ?? job.name} ${job.description ? `(${job.description})` : ''}`.trim()
+
+      job.cache &&= ([] as Cache[]).concat(job.cache).map(cache => ({
+        key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA ?? 'unknown').replace('{{component}}', job.name),
+        path: cache.path.map(cachePath => path.join(job['working-directory'], cachePath))
+      }))
+
+      return job
+    }
   }
 
   function getChangedPackagesInput(): string {

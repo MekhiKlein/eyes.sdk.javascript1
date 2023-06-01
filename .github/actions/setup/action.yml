@@ -9,28 +9,20 @@ inputs:
     description: wether variations should be generated from package configs
     type: boolean
     default: false
+  link:
+    description: whether all of the specified packages should be linked
+    type: boolean
+    default: false
   env:
     description: list of environment variables to add to every job
     type: string
     required: false
-  include-only-changed:
-    description: whether including of not changed since last version packages should be allowed
-    type: boolean
-    default: false
-  include-dependencies:
-    description: whether dependencies of the target packages should be targeted as well
-    type: boolean
-    default: false
-  link-dependencies:
-    description: whether dependencies of the target packages should be linked
-    type: boolean
-    default: false
 
 outputs:
-  tests:
-    description: array of tests
   builds:
     description: array of builds
+  tests:
+    description: array of tests
   releases:
     description: array of releases
 

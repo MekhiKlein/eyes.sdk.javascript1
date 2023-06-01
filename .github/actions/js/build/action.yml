@@ -30,11 +30,9 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Installing and updating dependencies"
-        npm install --prefix ../../
-
-        # npm install
-        node ../../scripts/workspace.js prepare --links "${{inputs.links}}"
-
+        npm --prefix ../../ ci
+        npm ci
+        npm --prefix ../../ run link -- --packages="${{links}}" --cwd="$PWD"
         ls -F ./node_modules/@applitools
         echo "::endgroup::"
 
@@ -45,6 +43,7 @@ runs:
           source .env
           set +o allexport
         fi
+        echo "::endgroup::"
 
         echo "::group::Building package"
         if [ ! -z "${{inputs.build-type}}" ]

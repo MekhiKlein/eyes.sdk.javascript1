@@ -8,19 +8,24 @@ const yargs = require('yargs')
 
 yargs
   .command({
-    command: 'prepare',
+    command: 'link <packages>',
     builder: yargs =>
       yargs.options({
-        links: {
-          alias: ['l', 'link'],
+        packages: {
+          alias: ['p', 'package'],
           description: 'Package names to link',
           type: 'string',
           coerce: string => string.split(/[\s,]+/),
         },
+        cwd: {
+          description: 'Current working directory',
+          type: 'string',
+          default: process.cwd(),
+        },
       }),
     handler: async args => {
       try {
-        await run(args)
+        await link(args)
       } catch (err) {
         if (err.stdout) err.stdout = err.stdout.toString('utf8')
         if (err.stderr) err.stderr = err.stderr.toString('utf8')
@@ -31,50 +36,37 @@ yargs
   })
   .wrap(yargs.terminalWidth()).argv
 
-async function run({links}) {
-  const packagePath = process.cwd()
-  const packageManifestPath = path.resolve(packagePath, 'package.json')
-  if (!(await fs.stat(packageManifestPath).catch(() => false))) {
-    throw new Error(
-      `Manifest file is not found in "${packageManifestPath}"! Please run this command in the package directory`,
-    )
+async function link({links, cwd}) {
+  if (!links || links.length === 0) {
+    console.log('No links provided')
+    return
   }
-  const manifest = JSON.parse(await fs.readFile(packageManifestPath, {encoding: 'utf8'}))
-  const packages = await getPackages({packagesPath: path.resolve(packagePath, '..')})
+  const packages = await getPackages({packagesPath: path.resolve(cwd, '..')})
+  const currentPackage = packages.find(currentPackage => currentPackage.path === cwd)
+  if (!(await fs.stat(packageManifestPath).catch(() => false))) {
+    throw new Error(`This command can only run in the package directory, but the current directory is "${cwd}"`)
+  }
 
-  const currentPackage = packages[manifest.name]
+  await linkDependencies({targetPackage: currentPackage})
 
-  await processPackage({targetPackage: currentPackage})
-
-  async function processPackage({targetPackage}) {
+  async function linkDependencies({targetPackage}) {
     if (targetPackage.processed) return
     targetPackage.processed = true
-    console.log('processing', targetPackage.path)
-    if (links && links.length > 0) {
-      const linkPackages = targetPackage.depPackageNames.flatMap(depPackageName => {
-        const dependencyPackage = packages[depPackageName]
-        const match = links.some(
-          link =>
-            dependencyPackage.name === link ||
-            dependencyPackage.dirname === link ||
-            (dependencyPackage.aliases && dependencyPackage.aliases.includes(link)) ||
-            dependencyPackage.path === path.resolve(link),
-        )
-        return match ? dependencyPackage : []
-      })
+    if (targetPackage !== currentPackage) execSync(`npm ci`, {cwd: targetPackage.path})
 
-      for (const linkPackage of linkPackages) {
-        await processPackage({targetPackage: linkPackage})
-      }
-      if (linkPackages.length > 0) {
-        execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: targetPackage.path})
-      } else {
-        execSync(`npm install`, {cwd: targetPackage.path})
-      }
-    } else {
-      execSync(`npm install`, {cwd: targetPackage.path})
+    const linkPackages = targetPackage.depPackageNames.flatMap(depPackageName => {
+      const dependencyPackage = packages[depPackageName]
+      const match = links.some(link => {
+        return dependencyPackage.name === link || dependencyPackage.path === path.resolve(cwd, link)
+      })
+      return match ? dependencyPackage : []
+    })
+    for (const linkPackage of linkPackages) {
+      await linkDependencies({targetPackage: linkPackage})
     }
-    execSync(`npm run build --if-present`, {cwd: targetPackage.path})
+    execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: targetPackage.path})
+
+    if (targetPackage !== currentPackage) execSync(`npm run build --if-present`, {cwd: targetPackage.path})
   }
 }
 

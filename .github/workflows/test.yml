@@ -39,7 +39,7 @@ jobs:
         with:
           packages: changed
           ci: true
-          link-dependencies: true
+          link: true
   
   build:
     needs: [setup]

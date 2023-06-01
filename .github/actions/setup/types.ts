@@ -29,7 +29,6 @@ export interface Package {
   name: string
   component: string
   path: string
-  dependencies: string[]
   builds: Record<string, any>[]
   tests: Record<string, any>[]
   releases: Record<string, any>[]
