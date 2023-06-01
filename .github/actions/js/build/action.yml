@@ -29,14 +29,14 @@ runs:
         npm set fund false
         echo "::endgroup::"
 
-        echo "::group::Installing and updating dependencies"
+        echo "::group::Installing and linking dependencies"
         npm --prefix ../../ ci
         npm ci
-        npm --prefix ../../ run link -- --packages="${{inputs.links}}" --cwd="$PWD"
+        npm --prefix ../../ run link -- '${{inputs.links}}' --cwd="$PWD"
         ls -F ./node_modules/@applitools
         echo "::endgroup::"
 
-        echo "::group::Settings up building environment"
+        echo "::group::Setting up building environment"
         if [ -e .env ]
         then
           set -o allexport
