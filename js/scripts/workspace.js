@@ -8,18 +8,20 @@ const yargs = require('yargs')
 
 yargs
   .command({
-    command: 'link <packages>',
+    command: 'install',
     builder: yargs =>
       yargs.options({
-        packages: {
-          description: 'Package names to link',
+        target: {
+          aliases: ['t'],
+          description: 'Target package path',
+          type: 'string',
+          demandOption: true,
+        },
+        links: {
+          aliases: ['l', 'link'],
+          description: 'Package paths to link',
           type: 'string',
           coerce: string => string.split(/[\s,]+/),
-        },
-        cwd: {
-          description: 'Current working directory',
-          type: 'string',
-          default: process.cwd(),
         },
       }),
     handler: async args => {
@@ -35,37 +37,40 @@ yargs
   })
   .wrap(yargs.terminalWidth()).argv
 
-async function link({packages: links, cwd}) {
-  if (!links || links.length === 0) {
-    console.log('No links provided')
-    return
-  }
-  const packages = await getPackages({packagesPath: path.resolve(cwd, '..')})
-  const currentPackage = Object.values(packages).find(currentPackage => currentPackage.path === cwd)
-  if (!currentPackage) {
-    throw new Error(`This command can only run in the package directory, but the current directory is "${cwd}"`)
+async function link({target, links}) {
+  const packages = await getPackages({packagesPath: path.resolve('./packages')})
+  const targetPackage = Object.values(packages).find(targetPackage => targetPackage.path === target)
+  if (!targetPackage) {
+    throw new Error(`This command can only run in the package directory, but the current directory is "${target}"`)
   }
 
-  await linkDependencies({targetPackage: currentPackage})
+  execSync(`npm install`)
 
-  async function linkDependencies({targetPackage}) {
-    if (targetPackage.processed) return
-    targetPackage.processed = true
-    if (targetPackage !== currentPackage) execSync(`npm ci`, {cwd: targetPackage.path})
+  await installDependencies({currentPackage: targetPackage})
 
-    const linkPackages = targetPackage.depPackageNames.flatMap(depPackageName => {
+  async function installDependencies({currentPackage}) {
+    if (currentPackage.processed) return
+    currentPackage.processed = true
+
+    const linkPackages = currentPackage.depPackageNames.flatMap(depPackageName => {
       const dependencyPackage = packages[depPackageName]
-      const match = links.some(link => {
-        return dependencyPackage.name === link || dependencyPackage.path === path.resolve(cwd, link)
+      const match = links?.some(link => {
+        return dependencyPackage.name === link || dependencyPackage.path === path.resolve(targetPackage.path, link)
       })
       return match ? dependencyPackage : []
     })
-    for (const linkPackage of linkPackages) {
-      await linkDependencies({targetPackage: linkPackage})
+    if (linkPackages.length > 0) {
+      for (const linkPackage of linkPackages) {
+        await installDependencies({targetPackage: linkPackage})
+      }
+      execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: currentPackage.path})
+    } else {
+      execSync(`npm install`, {cwd: currentPackage.path})
     }
-    execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: targetPackage.path})
 
-    if (targetPackage !== currentPackage) execSync(`npm run build --if-present`, {cwd: targetPackage.path})
+    if (currentPackage !== targetPackage) {
+      execSync(`npm run build --if-present`, {cwd: currentPackage.path})
+    }
   }
 }
 
