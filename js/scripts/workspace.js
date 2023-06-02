@@ -44,8 +44,6 @@ async function link({target, links}) {
     throw new Error(`This command can only run in the package directory, but the current directory is "${target}"`)
   }
 
-  execSync(`npm install`)
-
   await installDependencies({currentPackage: targetPackage})
 
   async function installDependencies({currentPackage}) {
