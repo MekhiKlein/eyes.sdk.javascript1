@@ -63,10 +63,17 @@ async function install({target, links}) {
       for (const linkPackage of linkPackages) {
         await installDependencies({currentPackage: linkPackage})
       }
-      console.log('running ', `npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {
-        cwd: currentPackage.path,
-      })
-      execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: currentPackage.path})
+      console.log(
+        'running ',
+        `npm link ${linkPackages.map(linkPackage => path.relative(currentPackage.path, linkPackage.path)).join(' ')}`,
+        {
+          cwd: currentPackage.path,
+        },
+      )
+      execSync(
+        `npm link ${linkPackages.map(linkPackage => path.relative(currentPackage.path, linkPackage.path)).join(' ')}`,
+        {cwd: currentPackage.path},
+      )
     } else {
       console.log('running ', `npm install`, {cwd: currentPackage.path})
       execSync(`npm install`, {cwd: currentPackage.path})
