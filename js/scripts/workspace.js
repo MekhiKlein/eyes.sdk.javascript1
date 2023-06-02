@@ -50,6 +50,7 @@ async function install({target, links}) {
   async function installDependencies({currentPackage}) {
     if (currentPackage.processed) return
     currentPackage.processed = true
+    console.log('installing in', currentPackage)
 
     const linkPackages = currentPackage.depPackageNames.flatMap(depPackageName => {
       const dependencyPackage = packages[depPackageName]
@@ -62,8 +63,12 @@ async function install({target, links}) {
       for (const linkPackage of linkPackages) {
         await installDependencies({currentPackage: linkPackage})
       }
+      console.log('running ', `npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {
+        cwd: currentPackage.path,
+      })
       execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: currentPackage.path})
     } else {
+      console.log('running ', `npm install`, {cwd: currentPackage.path})
       execSync(`npm install`, {cwd: currentPackage.path})
     }
 
