@@ -57934,17 +57934,20 @@ var core = __nccwpck_require__(2186);
 
 const cache = JSON.parse(core.getInput('cache', { required: true }));
 main(cache)
-    .then(console.log)
+    .then(results => {
+    core.debug(`successfully restored caches ${results}`);
+})
     .catch(err => {
-    console.error(err);
-    core.setFailed(`restore cache failed: ${err.message}`);
+    core.debug(err);
+    core.setFailed(err.message);
 });
 async function main(cache) {
     if (process.platform === 'linux' && (0,external_node_fs_namespaceObject.existsSync)('/etc/alpine-release')) {
-        (0,external_node_child_process_namespaceObject.execSync)('apk add --no-cache tar');
+        core.debug('alpine system is detected, installing necessary dependencies');
+        (0,external_node_child_process_namespaceObject.execSync)('apk add --no-cache zstd tar');
     }
     cache = Array.isArray(cache) ? cache : [cache];
-    return await Promise.all(cache.map(async (cache) => {
+    return Promise.all(cache.map(async (cache) => {
         return (0,lib_cache.restoreCache)(cache.path, cache.key, [], {}, true);
     }));
 }
