@@ -15,10 +15,11 @@ enum Runner {
   win = 'windows-2022',
 }
 
-main().catch(err => {
-  console.error(err)
-  core.setFailed(`setup failed: ${err.message}`)
-})
+main()
+  .catch(err => {
+    core.debug(err)
+    core.setFailed(err.message)
+  })
 
 async function main() {
   let input = core.getInput('packages', {required: true}) 
@@ -40,13 +41,20 @@ async function main() {
 
   let jobs = createJobs(input)
 
-  console.log(jobs)
+  core.debug(JSON.stringify(jobs, null, 2))
 
-  // core.info(`Requested jobs: "${Object.values(jobs).map(job => job.displayName).join(', ')}"`)
-
-  core.setOutput('tests', jobs.tests)
-  core.setOutput('builds', jobs.builds)
-  core.setOutput('releases', jobs.releases)
+  if (jobs.tests.length > 0) {
+    core.info(`Test jobs: "${Object.values(jobs.tests).map(job => job['display-name']).join(', ')}"`)
+    core.setOutput('tests', jobs.tests)
+  }
+  if (jobs.builds.length > 0) {
+    core.info(`Build jobs: "${Object.values(jobs.builds).map(job => job['display-name']).join(', ')}"`)
+    core.setOutput('builds', jobs.builds)
+  }
+  if (jobs.releases.length > 0) {
+    core.info(`Test jobs: "${Object.values(jobs.releases).map(job => job['display-name']).join(', ')}"`)
+    core.setOutput('releases', jobs.releases)
+  }
 
   async function getPackages(): Promise<Record<string, Package>> {
     const releaseConfigPath = path.resolve(process.cwd(), './release-please-config.json')

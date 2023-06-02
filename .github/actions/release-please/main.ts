@@ -3,6 +3,33 @@ import {RichWorkspace} from './plugins/rich-workspace'
 import {RichCommits} from './plugins/rich-commits'
 import * as core from '@actions/core'
 
+registerPlugin(
+  'rich-commits',
+  options =>
+    new RichCommits(
+      options.github,
+      options.targetBranch,
+      options.repositoryConfig,
+    )
+)
+
+registerPlugin(
+  'rich-workspace',
+  options =>
+    new RichWorkspace(
+      options.github,
+      options.targetBranch,
+      options.repositoryConfig,
+      {...options, ...(options.type as any)}
+    )
+)
+
+main()
+  .catch(err => {
+    core.debug(err)
+    core.setFailed(err.message)
+  })
+
 async function main() {
   const configFile = core.getInput('config-file') || 'release-please-config.json'
   const manifestFile = core.getInput('manifest-file') || '.release-please-manifest.json'
@@ -61,29 +88,3 @@ function outputPRs(prs: any[]) {
     core.setOutput('prs', JSON.stringify(prs))
   }
 }
-
-registerPlugin(
-  'rich-commits',
-  options =>
-    new RichCommits(
-      options.github,
-      options.targetBranch,
-      options.repositoryConfig,
-    )
-)
-
-registerPlugin(
-  'rich-workspace',
-  options =>
-    new RichWorkspace(
-      options.github,
-      options.targetBranch,
-      options.repositoryConfig,
-      {...options, ...(options.type as any)}
-    )
-)
-
-main().catch(err => {
-  console.error(err)
-  core.setFailed(`release-please failed: ${err.message}`)
-})
