@@ -94,6 +94,7 @@ jobs:
           node-version: ${{matrix.params.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
+      - run: 
       - name: Restore build artifacts
         if: ${{matrix.cache}}
         uses: ./.github/actions/cache/restore

@@ -2815,12 +2815,15 @@ var Runner;
     Runner["ubuntu"] = "ubuntu-latest";
     Runner["linuxarm"] = "buildjet-2vcpu-ubuntu-2204-arm";
     Runner["ubuntuarm"] = "buildjet-2vcpu-ubuntu-2204-arm";
-    Runner["mac"] = "macos-latest";
     Runner["macos"] = "macos-latest";
-    Runner["win"] = "windows-2022";
+    Runner["mac"] = "macos-latest";
     Runner["windows"] = "windows-2022";
+    Runner["win"] = "windows-2022";
 })(Runner || (Runner = {}));
-main();
+main().catch(err => {
+    console.error(err);
+    core.setFailed(`setup failed: ${err.message}`);
+});
 async function main() {
     let input = core.getInput('packages', { required: true });
     const useCI = core.getBooleanInput('ci');

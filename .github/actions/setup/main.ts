@@ -9,13 +9,16 @@ enum Runner {
   ubuntu = 'ubuntu-latest',
   linuxarm = 'buildjet-2vcpu-ubuntu-2204-arm',
   ubuntuarm = 'buildjet-2vcpu-ubuntu-2204-arm',
-  mac = 'macos-latest',
   macos = 'macos-latest',
-  win = 'windows-2022',
+  mac = 'macos-latest',
   windows = 'windows-2022',
+  win = 'windows-2022',
 }
 
-main()
+main().catch(err => {
+  console.error(err)
+  core.setFailed(`setup failed: ${err.message}`)
+})
 
 async function main() {
   let input = core.getInput('packages', {required: true}) 

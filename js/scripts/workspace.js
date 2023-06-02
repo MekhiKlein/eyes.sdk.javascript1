@@ -98,7 +98,7 @@ async function getPackages({packagesPath}) {
         name: manifest.name,
         aliases: manifest.aliases,
         dirname: packageDir,
-        path: packagePath,
+        path: path.normalize(packagePath),
         depPackageNames: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
       },
     }

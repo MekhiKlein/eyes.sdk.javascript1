@@ -4,7 +4,10 @@ import * as core from "@actions/core";
 
 const cache = JSON.parse(core.getInput('cache', {required: true})) as Cache | Cache[]
 
-main(cache)
+main(cache).catch(err => {
+  console.error(err)
+  core.setFailed(`save cache failed: ${err.message}`)
+})
 
 async function main(cache: Cache | Cache[]): Promise<number[]> {
   cache = Array.isArray(cache) ? cache : [cache]

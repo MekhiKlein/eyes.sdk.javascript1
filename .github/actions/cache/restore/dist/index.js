@@ -57933,8 +57933,12 @@ var core = __nccwpck_require__(2186);
 
 
 const cache = JSON.parse(core.getInput('cache', { required: true }));
-main(cache);
+main(cache).catch(err => {
+    console.error(err);
+    core.setFailed(`restore cache failed: ${err.message}`);
+});
 async function main(cache) {
+    console.log(process.platform === 'linux', (0,external_node_fs_namespaceObject.existsSync)('/etc/alpine-release'));
     if (process.platform === 'linux' && (0,external_node_fs_namespaceObject.existsSync)('/etc/alpine-release')) {
         (0,external_node_child_process_namespaceObject.execSync)('apk add --no-cache tar');
     }

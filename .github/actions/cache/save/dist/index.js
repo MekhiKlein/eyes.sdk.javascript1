@@ -57954,7 +57954,10 @@ var __webpack_exports__ = {};
 
 
 const cache = JSON.parse(_actions_core__WEBPACK_IMPORTED_MODULE_1__.getInput('cache', { required: true }));
-main(cache);
+main(cache).catch(err => {
+    console.error(err);
+    _actions_core__WEBPACK_IMPORTED_MODULE_1__.setFailed(`save cache failed: ${err.message}`);
+});
 async function main(cache) {
     cache = Array.isArray(cache) ? cache : [cache];
     return await Promise.all(cache.map(async (cache) => {
