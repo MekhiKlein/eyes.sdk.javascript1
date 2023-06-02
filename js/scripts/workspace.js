@@ -45,7 +45,10 @@ yargs
 
 async function install({target, links, buildLinks}) {
   const packages = await getPackages({packagesPath: path.resolve('./packages')})
-  const targetPackage = Object.values(packages).find(targetPackage => targetPackage.path === target)
+  const targetPackage = Object.values(packages).find(targetPackage => {
+    console.log(targetPackage.path, target, targetPackage.path === target)
+    return targetPackage.path === target
+  })
   if (!targetPackage) {
     throw new Error(`This command can only run in the package directory, but the current directory is "${target}"`)
   }
