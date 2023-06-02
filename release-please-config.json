@@ -266,8 +266,8 @@
       "release-type": "node",
       "component": "core",
       "builds": [
-        {"description": "x64", "runner": "linux", "build-type": "bin:x64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin", "./dist", "./types"], "key": "{{component}}/x64/{{hash}}"}},
-        {"description": "arm64", "runner": "linuxarm", "build-type": "bin:arm64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin", "./dist", "./types"], "key": "{{component}}/arm64/{{hash}}"}}
+        {"runner": "linux", "build-type": "x64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin", "./dist", "./types"], "key": "{{component}}/x64/{{hash}}"}},
+        {"runner": "linuxarm", "build-type": "arm64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin", "./dist", "./types"], "key": "{{component}}/arm64/{{hash}}"}}
       ],
       "tests": [
         {"node-version": 14, "build-type": "none", "cache": {"path": ["./dist", "./types"], "key": "{{component}}/x64/{{hash}}"}},

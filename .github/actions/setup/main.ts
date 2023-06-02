@@ -98,18 +98,18 @@ async function main() {
 
       if (useCI) {
         packageInfo.tests.forEach(extension => {
-          jobs.tests.push(makeJob(baseJob, extension))
+          jobs.tests.push(makeJob(baseJob, {type: 'test', extension}))
         })
         packageInfo.builds.forEach(extension => {
-          jobs.builds.push(makeJob(baseJob, extension))
+          jobs.builds.push(makeJob(baseJob, {type: 'build', extension}))
         })
         packageInfo.releases.forEach(extension => {
-          jobs.releases.push(makeJob(baseJob, extension))
+          jobs.releases.push(makeJob(baseJob, {type: 'release', extension}))
         })
       }
 
       if (!useCI || packageInfo.tests.length === 0) {
-        jobs.tests.push(makeJob(baseJob))
+        jobs.tests.push(makeJob(baseJob, {type: 'test'}))
       }
 
       return jobs
@@ -129,7 +129,7 @@ async function main() {
 
     return jobs
 
-    function makeJob(baseJob: Job, extension?: Partial<Job>): Job {
+    function makeJob(baseJob: Job, {type, extension}: {type: string, extension?: Partial<Job>}): Job {
       const job = {
         ...baseJob,
         ...extension,
@@ -137,17 +137,19 @@ async function main() {
         env: {...baseJob.env, ...extension?.env}
       }
 
-      job.description ??= [
-        job.runner && `runner: ${Object.keys(Runner).find(runner => Runner[runner as keyof typeof Runner] === job.runner) ?? job.runner}`,
-        job.container && `container: ${job.container}`,
-        job['node-version'] && `node: ${job['node-version']}`,
-        job['java-version'] && `java: ${job['java-version']}`,
-        job['python-version'] && `python: ${job['python-version']}`,
-        job['ruby-version'] && `ruby: ${job['ruby-version']}`,
-        job['framework-version'] && `framework: ${job['framework-version']}`,
-        job['test-type'] && `test: ${job['test-type']}`,
-      ].filter(Boolean).join(', ')
-      job['display-name'] = `${job['display-name'] ?? job.name} ${job.description ? `(${job.description})` : ''}`.trim()
+      const description = Object.entries({
+        runner: Object.keys(Runner).find(runner => Runner[runner as keyof typeof Runner] === job.runner) ?? job.runner,
+        container: job.container,
+        node: job['node-version'],
+        java: job['java-version'],
+        python: job['python-version'],
+        ruby: job['ruby-version'],
+        framework: job['framework-version'],
+        [type]: job[`${type as 'build' | 'test'}-type`],
+      })
+        .flatMap(([key, value]) => value ? `${key}: ${value}` : [])
+        .join(', ')
+      job['display-name'] = `${job['display-name'] ?? job.name} ${description ? `(${description})` : ''}`.trim()
 
       job.cache &&= ([] as Cache[]).concat(job.cache).map(cache => ({
         key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA ?? 'unknown').replace('{{component}}', job.name),
