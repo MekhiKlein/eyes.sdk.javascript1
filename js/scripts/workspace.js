@@ -12,13 +12,13 @@ yargs
     builder: yargs =>
       yargs.options({
         target: {
-          aliases: ['t'],
+          alias: ['t'],
           description: 'Target package path',
           type: 'string',
           demandOption: true,
         },
         links: {
-          aliases: ['l', 'link'],
+          alias: ['l', 'link'],
           description: 'Package paths to link',
           type: 'string',
           coerce: string => string.split(/[\s,]+/),
@@ -26,7 +26,7 @@ yargs
       }),
     handler: async args => {
       try {
-        await link(args)
+        await install(args)
       } catch (err) {
         if (err.stdout) err.stdout = err.stdout.toString('utf8')
         if (err.stderr) err.stderr = err.stderr.toString('utf8')
@@ -37,7 +37,7 @@ yargs
   })
   .wrap(yargs.terminalWidth()).argv
 
-async function link({target, links}) {
+async function install({target, links}) {
   const packages = await getPackages({packagesPath: path.resolve('./packages')})
   const targetPackage = Object.values(packages).find(targetPackage => targetPackage.path === target)
   if (!targetPackage) {
@@ -59,7 +59,7 @@ async function link({target, links}) {
     })
     if (linkPackages.length > 0) {
       for (const linkPackage of linkPackages) {
-        await installDependencies({targetPackage: linkPackage})
+        await installDependencies({currentPackage: linkPackage})
       }
       execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.path).join(' ')}`, {cwd: currentPackage.path})
     } else {
