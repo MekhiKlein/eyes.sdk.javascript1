@@ -23,6 +23,11 @@ yargs
           type: 'string',
           coerce: string => string.split(/[\s,]+/),
         },
+        buildLinks: {
+          description: 'Build linked packages',
+          type: 'boolean',
+          default: true,
+        },
       }),
     handler: async args => {
       try {
@@ -38,7 +43,7 @@ yargs
   })
   .wrap(yargs.terminalWidth()).argv
 
-async function install({target, links}) {
+async function install({target, links, buildLinks}) {
   const packages = await getPackages({packagesPath: path.resolve('./packages')})
   const targetPackage = Object.values(packages).find(targetPackage => targetPackage.path === target)
   if (!targetPackage) {
@@ -50,7 +55,6 @@ async function install({target, links}) {
   async function installDependencies({currentPackage}) {
     if (currentPackage.processed) return
     currentPackage.processed = true
-    console.log('installing in', currentPackage)
 
     const linkPackages = currentPackage.depPackageNames.flatMap(depPackageName => {
       const dependencyPackage = packages[depPackageName]
@@ -70,7 +74,9 @@ async function install({target, links}) {
 
     if (currentPackage !== targetPackage) {
       execSync(`npm link`, {cwd: currentPackage.path})
-      execSync(`npm run build --if-present`, {cwd: currentPackage.path})
+      if (buildLinks) {
+        execSync(`npm run build --if-present`, {cwd: currentPackage.path})
+      }
     }
   }
 }

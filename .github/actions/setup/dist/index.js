@@ -2916,6 +2916,21 @@ async function main() {
                 }, new Set());
                 job.links = Array.from(links).join(' ');
             });
+            jobs.tests.forEach(job => {
+                const links = jobs.tests.reduce((links, linkJob) => {
+                    if (linkJob.name === job.name)
+                        return links;
+                    links.add(external_node_path_namespaceObject.relative(job['working-directory'], linkJob['working-directory']));
+                    return links;
+                }, new Set());
+                job.links = Array.from(links).join(' ');
+                const caches = jobs.builds.flatMap(buildJob => {
+                    if (buildJob.name === job.name)
+                        return [];
+                    return buildJob.cache ?? [];
+                });
+                job.cache = caches.concat(job.cache ?? []);
+            });
         }
         return jobs;
         function makeJob(baseJob, { type, extension }) {

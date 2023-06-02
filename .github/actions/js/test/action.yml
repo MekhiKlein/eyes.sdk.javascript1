@@ -54,7 +54,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Installing and linking dependencies"
-        npm --prefix=../../ run workspace -- install --target=$PWD --link="${{inputs.links}}"
+        npm --prefix=../../ run workspace -- install --target=$PWD --link="${{inputs.links}}" --build-links=${{inputs.build-type != "none"}}
         ls -F ./node_modules/@applitools
         npm run upgrade:framework --if-present
         echo "::endgroup::"
