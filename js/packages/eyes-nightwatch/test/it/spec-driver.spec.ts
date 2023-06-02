@@ -32,6 +32,8 @@ describe('spec driver', async () => {
   describe('headless desktop', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+      // eslint-disable-next-line
+      console.log(driver)
       await driver.url(url)
     })
 
