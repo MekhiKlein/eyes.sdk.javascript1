@@ -6,13 +6,14 @@ import * as core from '@actions/core'
 
 const cache = JSON.parse(core.getInput('cache', {required: true})) as Cache | Cache[]
 
-main(cache).catch(err => {
+main(cache)
+.then(console.log)
+.catch(err => {
   console.error(err)
   core.setFailed(`restore cache failed: ${err.message}`)
 })
 
 async function main(cache: Cache | Cache[]): Promise<(string | undefined)[]> {
-  console.log(process.platform === 'linux', existsSync('/etc/alpine-release'))
   if (process.platform === 'linux' && existsSync('/etc/alpine-release')) {
     execSync('apk add --no-cache tar')
   }

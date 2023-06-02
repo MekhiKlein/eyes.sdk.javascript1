@@ -46,8 +46,8 @@ yargs
 async function install({target, links, buildLinks}) {
   const packages = await getPackages({packagesPath: path.resolve('./packages')})
   const targetPackage = Object.values(packages).find(targetPackage => {
-    console.log(targetPackage.path, target, targetPackage.path === target)
-    return targetPackage.path === target
+    console.log(targetPackage.path, path.normalize(target), targetPackage.path === target)
+    return targetPackage.path === path.normalize(target)
   })
   if (!targetPackage) {
     throw new Error(`This command can only run in the package directory, but the current directory is "${target}"`)
@@ -98,7 +98,7 @@ async function getPackages({packagesPath}) {
         name: manifest.name,
         aliases: manifest.aliases,
         dirname: packageDir,
-        path: path.normalize(packagePath),
+        path: packagePath,
         depPackageNames: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
       },
     }
