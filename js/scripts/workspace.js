@@ -26,6 +26,7 @@ yargs
       }),
     handler: async args => {
       try {
+        console.log(args)
         await install(args)
       } catch (err) {
         if (err.stdout) err.stdout = err.stdout.toString('utf8')
