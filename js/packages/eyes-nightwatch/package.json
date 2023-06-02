@@ -72,8 +72,7 @@
     "chromedriver": "^110.0.0",
     "cucumber": "6.0.7",
     "geckodriver": "^3.0.1",
-    "nightwatch": "^2.5.4",
-    "nightwatch-api": "^3.0.2"
+    "nightwatch": "^2.5.4"
   },
   "peerDependencies": {
     "nightwatch": ">=1.3.4"
