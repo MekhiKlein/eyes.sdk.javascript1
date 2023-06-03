@@ -43,10 +43,5 @@ runs:
         fi
 
         echo "::group::Building package"
-        if [ ! -z "${{inputs.build-type}}" ]
-        then
-          if [ "${{inputs.build-type}}" != "none" ]; then npm run build:${{inputs.build-type}}; fi
-        else
-          npm run build --if-present
-        fi
+        npm --prefix=../../ run build -- --target=$PWD --type=${{inputs.build-type}} --with-deps
         echo "::endgroup::"
