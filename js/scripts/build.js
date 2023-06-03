@@ -8,7 +8,7 @@ const yargs = require('yargs')
 
 yargs
   .command({
-    command: 'build',
+    command: '*',
     builder(yargs) {
       return yargs.options({
         target: {
