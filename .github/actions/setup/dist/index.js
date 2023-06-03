@@ -2843,16 +2843,16 @@ async function main() {
     }
     let jobs = createJobs(input);
     core.debug(JSON.stringify(jobs, null, 2));
-    if (jobs.tests.length > 0) {
-        core.info(`Test jobs: "${Object.values(jobs.tests).map(job => job['display-name']).join(', ')}"`);
-        core.setOutput('tests', jobs.tests);
-    }
     if (jobs.builds.length > 0) {
         core.info(`Build jobs: "${Object.values(jobs.builds).map(job => job['display-name']).join(', ')}"`);
         core.setOutput('builds', jobs.builds);
     }
+    if (jobs.tests.length > 0) {
+        core.info(`Test jobs: "${Object.values(jobs.tests).map(job => job['display-name']).join(', ')}"`);
+        core.setOutput('tests', jobs.tests);
+    }
     if (jobs.releases.length > 0) {
-        core.info(`Test jobs: "${Object.values(jobs.releases).map(job => job['display-name']).join(', ')}"`);
+        core.info(`Release jobs: "${Object.values(jobs.releases).map(job => job['display-name']).join(', ')}"`);
         core.setOutput('releases', jobs.releases);
     }
     async function getPackages() {

@@ -60,7 +60,7 @@ async function build({target, type, withDeps}) {
       if (cache.has(workspace)) return cache.get(workspace)
       const promise = new Promise(async (resolve, reject) => {
         if (withDeps) await Promise.all(workspace.dependencies.map(buildWorkspace))
-        const command = `npm run build${type && targetWorkspaces.includes(workspace) ? `:${type}` : '--if-present'}`
+        const command = `npm run build${type && targetWorkspaces.includes(workspace) ? `:${type}` : ' --if-present'}`
         const script = exec(command, {stdio: 'pipe', cwd: workspace.path})
 
         let stdout = ''
