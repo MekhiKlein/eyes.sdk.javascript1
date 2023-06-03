@@ -29,19 +29,18 @@ runs:
         npm set fund false
         echo "::endgroup::"
 
-        echo "::group::Installing and linking dependencies"
-        npm --prefix=../../ run workspace -- install --target=$PWD --link="${{inputs.links}}"
-        ls -F ./node_modules/@applitools
+        echo "::group::Installing dependencies"
+        npm --prefix=../../ ci
         echo "::endgroup::"
 
-        echo "::group::Setting up building environment"
         if [ -e .env ]
         then
+          echo "::group::Setting environment variables"
           set -o allexport
           source .env
           set +o allexport
+          echo "::endgroup::"
         fi
-        echo "::endgroup::"
 
         echo "::group::Building package"
         if [ ! -z "${{inputs.build-type}}" ]

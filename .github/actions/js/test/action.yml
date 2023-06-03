@@ -17,9 +17,6 @@ inputs:
   setup-type:
     description: type of the setup script
     type: string
-  links:
-    description: names of package directories to link before testing
-    type: string
   grep:
     description: grep pattern to filter tests
     type: string
@@ -53,36 +50,33 @@ runs:
         npm set fund false
         echo "::endgroup::"
 
-        echo "::group::Installing and linking dependencies"
-        npm --prefix=../../ run workspace -- install --target=$PWD --link="${{inputs.links}}" --build-links=${{inputs.build-type != 'none'}}
-        ls -F ./node_modules/@applitools
+        echo "::group::Installing dependencies"
+        npm --prefix=../../ ci
         npm run upgrade:framework --if-present
         echo "::endgroup::"
 
-        echo "::group::Setting up test environment"
-        if [ ! -z "${{inputs.setup-type}}" ]
+        if [ "${{inputs.setup-type}}" != "none" ]
         then
-          if [ "${{inputs.setup-type}}" != "none" ]; then npm run setup:${{inputs.setup-type}}; fi
-        else
-          npm run setup --if-present
+          echo "::group::Setting up test environment"
+          if [ ! -z "${{inputs.setup-type}}" ]; then npm run setup:${{inputs.setup-type}}; else npm run setup --if-present; fi
+          echo "::endgroup::"
         fi
 
         if [ -e .env ]
         then
+          echo "::group::Setting environment variables"
           set -o allexport
           source .env
           set +o allexport
+          echo "::endgroup::"
         fi
-        echo "::endgroup::"
 
-        echo "::group::Building package"
-        if [ ! -z "${{inputs.build-type}}" ]
+        if [ "${{inputs.build-type}}" != "none" ]
         then
-          if [ "${{inputs.build-type}}" != "none" ]; then npm run build:${{inputs.build-type}}; fi
-        else
-          npm run build --if-present
+          echo "::group::Building package"
+          npm --prefix=../../ run build -- --target=$PWD --type=${{inputs.build-type}} --with-deps
+          echo "::endgroup::"
         fi
-        echo "::endgroup::"
 
         echo "::group::Running tests"
         if [ ! -z "${{inputs.test-type}}" ]; then npm run test:${{inputs.test-type}}; else npm run test --if-present; fi

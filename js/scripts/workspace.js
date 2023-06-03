@@ -3,39 +3,33 @@
 /* eslint "no-console": "off" */
 const fs = require('fs').promises
 const path = require('path')
-const {execSync} = require('child_process')
+const {exec} = require('child_process')
 const yargs = require('yargs')
 
 yargs
   .command({
-    command: 'install',
-    builder: yargs =>
-      yargs.options({
+    command: 'build',
+    builder(yargs) {
+      return yargs.options({
         target: {
-          alias: ['t'],
           description: 'Target package path',
           type: 'string',
-          demandOption: true,
         },
-        links: {
-          alias: ['l', 'link'],
-          description: 'Package paths to link',
+        type: {
+          description: 'Type of the build script for target package',
           type: 'string',
-          coerce: string => string.split(/[\s,]+/),
         },
-        buildLinks: {
-          description: 'Build linked packages',
+        withDeps: {
+          description: 'Build dependencies',
           type: 'boolean',
-          default: true,
         },
-      }),
-    handler: async args => {
+      })
+    },
+    async handler(args) {
       try {
         console.log(args)
-        await install(args)
+        await build(args)
       } catch (err) {
-        if (err.stdout) err.stdout = err.stdout.toString('utf8')
-        if (err.stderr) err.stderr = err.stderr.toString('utf8')
         console.error(err)
         process.exit(1)
       }
@@ -43,70 +37,83 @@ yargs
   })
   .wrap(yargs.terminalWidth()).argv
 
-async function install({target, links, buildLinks}) {
-  const packages = await getPackages({packagesPath: path.resolve('./packages')})
-  const targetPackage = Object.values(packages).find(targetPackage => {
-    console.log(targetPackage.path, path.normalize(target), targetPackage.path === target)
-    return targetPackage.path === path.normalize(target)
-  })
-  if (!targetPackage) {
-    throw new Error(`This command can only run in the package directory, but the current directory is "${target}"`)
+async function build({target, type, withDeps}) {
+  const workspaces = await getWorkspaces()
+  const targetWorkspaces = []
+  if (target) {
+    const targetWorkspace = Object.values(workspaces).find(workspace => workspace.path === path.normalize(target))
+    if (!targetWorkspace)
+      throw new Error(`Target should be a workspace directory, but the current directory is "${target}"`)
+    targetWorkspaces.push(targetWorkspace)
+  } else {
+    targetWorkspaces.push(...Object.values(workspaces))
   }
 
-  await installDependencies({currentPackage: targetPackage})
+  await buildWorkspaces(targetWorkspaces)
 
-  async function installDependencies({currentPackage}) {
-    if (currentPackage.processed) return
-    currentPackage.processed = true
+  async function buildWorkspaces(workspaces) {
+    const cache = new Map()
 
-    const linkPackages = currentPackage.depPackageNames.flatMap(depPackageName => {
-      const dependencyPackage = packages[depPackageName]
-      const match = links?.some(link => {
-        return dependencyPackage.name === link || dependencyPackage.path === path.resolve(targetPackage.path, link)
+    await Promise.all(workspaces.map(buildWorkspace))
+
+    function buildWorkspace(workspace) {
+      if (cache.has(workspace)) return cache.get(workspace)
+      const promise = new Promise(async (resolve, reject) => {
+        if (withDeps) await Promise.all(workspace.dependencies.map(buildWorkspace))
+        const command = `npm run build${type && targetWorkspaces.includes(workspace) ? `:${type}` : '--if-present'}`
+        const script = exec(command, {stdio: 'pipe', cwd: buildPackage.path})
+
+        let stdout = ''
+        script.stdout.on('data', data => (stdout += data.toString()))
+        let stderr = ''
+        script.stderr.on('data', data => (stderr += data.toString()))
+
+        script.on('error', reject)
+        script.on('exit', (code, signal) => {
+          if (code === 0) {
+            resolve({code, stdout, stderr})
+          } else if (signal) {
+            reject(
+              Object.assign(new Error(`Command "${command}" exited due to a signal ${signal}`), {
+                signal,
+                stdout,
+                stderr,
+              }),
+            )
+          } else {
+            reject(
+              Object.assign(new Error(`Command "${command}" exited due non-zero code ${code}`), {code, stdout, stderr}),
+            )
+          }
+        })
       })
-      return match ? dependencyPackage : []
-    })
-    if (linkPackages.length > 0) {
-      for (const linkPackage of linkPackages) {
-        await installDependencies({currentPackage: linkPackage})
-      }
-      execSync(`npm link ${linkPackages.map(linkPackage => linkPackage.name).join(' ')}`, {cwd: currentPackage.path})
-    } else {
-      execSync(`npm install`, {cwd: currentPackage.path})
-    }
-
-    if (currentPackage !== targetPackage) {
-      execSync(`npm link`, {cwd: currentPackage.path})
-      if (buildLinks) {
-        execSync(`npm run build --if-present`, {cwd: currentPackage.path})
-      }
+      cache.set(workspace, promise)
+      return workspace
     }
   }
 }
 
-async function getPackages({packagesPath}) {
-  const jsPackageDirs = await fs.readdir(packagesPath)
-  const jsPackages = await jsPackageDirs.reduce(async (packages, packageDir) => {
-    const packagePath = path.resolve(packagesPath, packageDir)
-    const packageManifestPath = path.resolve(packagePath, 'package.json')
-    if (!(await fs.stat(packageManifestPath).catch(() => false))) return packages
-    const rawManifest = await fs.readFile(packageManifestPath, {encoding: 'utf8'})
-    const manifest = JSON.parse(rawManifest)
+async function getWorkspaces() {
+  const rootManifestPath = path.resolve('package.json')
+  const rootManifest = JSON.parse(await fs.readFile(rootManifestPath, {encoding: 'utf8'}))
+  const workspaces = await rootManifest.workspaces.reduce(async (workspaces, workspaceDir) => {
+    const workspacePath = path.resolve(workspaceDir)
+    const workspaceManifestPath = path.resolve(workspacePath, 'package.json')
+    if (!(await fs.stat(workspaceManifestPath).catch(() => false))) return workspaces
+    const manifest = JSON.parse(await fs.readFile(workspaceManifestPath, {encoding: 'utf8'}))
     return {
-      ...(await packages),
+      ...(await workspaces),
       [manifest.name]: {
         name: manifest.name,
-        aliases: manifest.aliases,
-        dirname: packageDir,
-        path: packagePath,
-        depPackageNames: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
+        path: workspacePath,
+        dependencies: Object.keys({...manifest.dependencies, ...manifest.devDependencies}),
       },
     }
   }, Promise.resolve({}))
 
-  Object.values(jsPackages).forEach(packageInfo => {
-    packageInfo.depPackageNames = packageInfo.depPackageNames.filter(depName => jsPackages[depName])
+  Object.values(workspaces).forEach(workspace => {
+    workspace.dependencies = workspace.dependencies.flatMap(name => workspaces[name] ?? [])
   })
 
-  return jsPackages
+  return workspaces
 }
