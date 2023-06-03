@@ -58,6 +58,7 @@ async function build({target, type, withDeps}) {
 
     function buildWorkspace(workspace) {
       if (cache.has(workspace)) return cache.get(workspace)
+      console.log('building', workspace.path)
       const promise = new Promise(async (resolve, reject) => {
         if (withDeps) await Promise.all(workspace.dependencies.map(buildWorkspace))
         const command = `npm run build${type && targetWorkspaces.includes(workspace) ? `:${type}` : ' --if-present'}`
@@ -88,7 +89,7 @@ async function build({target, type, withDeps}) {
         })
       })
       cache.set(workspace, promise)
-      return workspace
+      return promise
     }
   }
 }
