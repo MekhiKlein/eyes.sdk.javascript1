@@ -2828,7 +2828,6 @@ main()
 async function main() {
     let input = core.getInput('packages', { required: true });
     const useCI = core.getBooleanInput('ci');
-    const useLink = core.getBooleanInput('link');
     const env = core.getInput('env');
     const packages = await getPackages();
     if (input === 'changed') {
@@ -2918,24 +2917,8 @@ async function main() {
             }
             return jobs;
         }, { builds: [], tests: [], releases: [] });
-        if (useLink) {
-            jobs.builds.forEach(job => {
-                const links = jobs.builds.reduce((links, linkJob) => {
-                    if (linkJob.name !== job.name) {
-                        links.add(external_node_path_namespaceObject.relative(job['working-directory'], linkJob['working-directory']));
-                    }
-                    return links;
-                }, new Set());
-                job.links = Array.from(links).join(' ');
-            });
+        if (useCI) {
             jobs.tests.forEach(job => {
-                const links = jobs.tests.reduce((links, linkJob) => {
-                    if (linkJob.name === job.name)
-                        return links;
-                    links.add(external_node_path_namespaceObject.relative(job['working-directory'], linkJob['working-directory']));
-                    return links;
-                }, new Set());
-                job.links = Array.from(links).join(' ');
                 const caches = jobs.builds.flatMap(buildJob => {
                     if (buildJob.name === job.name)
                         return [];

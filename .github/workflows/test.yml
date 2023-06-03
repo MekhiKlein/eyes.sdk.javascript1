@@ -40,7 +40,6 @@ jobs:
         with:
           packages: changed
           ci: true
-          link: true
   
   build:
     needs: [setup]
@@ -62,13 +61,14 @@ jobs:
           node-version: ${{matrix.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
+          cache: npm
+          cache-dependency-path: js/package-lock.json
       - name: Build
         uses: ./.github/actions/js/build
         with:
           working-directory: ${{matrix.working-directory}}
           shell: ${{matrix.shell || 'bash'}}
           build-type: ${{matrix.build-type}}
-          links: ${{matrix.links}}
       - name: Save build artifacts
         if: ${{matrix.cache}}
         uses: ./.github/actions/cache/save
@@ -95,6 +95,8 @@ jobs:
           node-version: ${{matrix.params.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
+          cache: npm
+          cache-dependency-path: js/package-lock.json
       - name: Restore build artifacts
         if: ${{matrix.cache}}
         uses: ./.github/actions/cache/restore
@@ -109,7 +111,6 @@ jobs:
           test-type: ${{matrix.test-type}}
           build-type: ${{matrix.build-type}}
           setup-type: ${{matrix.setup-type}}
-          links: ${{matrix.links}}
           parallel: ${{matrix.parallel}}
       - name: Save testing artifacts
         if: always()

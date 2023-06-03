@@ -24,7 +24,6 @@ main()
 async function main() {
   let input = core.getInput('packages', {required: true}) 
   const useCI = core.getBooleanInput('ci')
-  const useLink = core.getBooleanInput('link')
   const env = core.getInput('env')
 
   const packages = await getPackages()
@@ -126,24 +125,8 @@ async function main() {
       return jobs
     }, {builds: [] as Job[], tests: [] as Job[], releases: [] as Job[]})
 
-    if (useLink) {
-      jobs.builds.forEach(job => {
-        const links = jobs.builds.reduce((links, linkJob) => {
-          if (linkJob.name !== job.name) {
-            links.add(path.relative(job['working-directory'], linkJob['working-directory']))
-          }
-          return links
-        }, new Set<string>())
-        job.links = Array.from(links).join(' ')
-      })
-
+    if (useCI) {
       jobs.tests.forEach(job => {
-        const links = jobs.tests.reduce((links, linkJob) => {
-          if (linkJob.name === job.name) return links
-          links.add(path.relative(job['working-directory'], linkJob['working-directory']))
-          return links
-        }, new Set<string>())
-        job.links = Array.from(links).join(' ')
         const caches = jobs.builds.flatMap(buildJob => {
           if (buildJob.name === job.name) return []
           return buildJob.cache ?? []

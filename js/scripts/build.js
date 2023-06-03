@@ -12,11 +12,11 @@ yargs
     builder(yargs) {
       return yargs.options({
         target: {
-          description: 'Target package path',
+          description: 'Target workspace path',
           type: 'string',
         },
         type: {
-          description: 'Type of the build script for target package',
+          description: 'Type of the build script for target workspace',
           type: 'string',
         },
         withDeps: {
@@ -61,7 +61,7 @@ async function build({target, type, withDeps}) {
       const promise = new Promise(async (resolve, reject) => {
         if (withDeps) await Promise.all(workspace.dependencies.map(buildWorkspace))
         const command = `npm run build${type && targetWorkspaces.includes(workspace) ? `:${type}` : '--if-present'}`
-        const script = exec(command, {stdio: 'pipe', cwd: buildPackage.path})
+        const script = exec(command, {stdio: 'pipe', cwd: workspace.path})
 
         let stdout = ''
         script.stdout.on('data', data => (stdout += data.toString()))
