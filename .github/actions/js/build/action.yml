@@ -24,9 +24,9 @@ runs:
       working-directory: ${{inputs.working-directory}}
       run: |
         echo "::group::Configure NPM"
-        if [ "${{runner.os}}" = "Windows" ]; then npm config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
-        npm set audit false
-        npm set fund false
+        if [ "${{runner.os}}" = "Windows" ]; then npm --prefix=/ config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
+        npm --prefix=/ config set audit false
+        npm --prefix=/ config set fund false
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
