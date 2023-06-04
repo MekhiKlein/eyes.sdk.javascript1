@@ -126,12 +126,10 @@ async function main() {
     }, {builds: [] as Job[], tests: [] as Job[], releases: [] as Job[]})
 
     if (useCI) {
-      jobs.tests.forEach(job => {
-        const caches = jobs.builds.flatMap(buildJob => {
-          if (buildJob.name === job.name) return []
-          return buildJob.cache ?? []
-        })
-        job.cache = caches.concat(job.cache ?? [])
+      jobs.tests.forEach(testJob => {
+        testJob.cache ??= jobs.builds
+          .filter((buildJob) => buildJob.name === testJob.name && buildJob.cache)
+          .flatMap(buildJob => buildJob.cache!)
       })
     }
 
