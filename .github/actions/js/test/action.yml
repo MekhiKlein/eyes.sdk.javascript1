@@ -41,8 +41,6 @@ runs:
       env:
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.parallel}}
-        APPLITOOLS_FRAMEWORK_VERSION: ${{inputs.framework-version}}
-        APPLITOOLS_FRAMEWORK_MAJOR_VERSION: ${{inputs.framework-version}}
       run: |
         echo "::group::Configure NPM"
         if [ "${{runner.os}}" = "Windows" ]; then npm --prefix=/ config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
@@ -52,7 +50,12 @@ runs:
 
         echo "::group::Installing dependencies"
         npm --prefix=../../ ci
-        npm run upgrade:framework --if-present
+        if [ ! -z "${{inputs.framework-version}}" ]
+        then
+          export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}
+          export APPLITOOLS_FRAMEWORK_MAJOR_VERSION=${{inputs.framework-version}}
+          npm run upgrade:framework --if-present
+        fi
         echo "::endgroup::"
 
         if [ "${{inputs.setup-type}}" != "none" ]

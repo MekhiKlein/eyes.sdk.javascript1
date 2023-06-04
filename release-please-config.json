@@ -277,11 +277,11 @@
         {"node-version": 16, "build-type": "none", "cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}},
         {"node-version": 18, "build-type": "none", "cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}},
         {"node-version": 20, "build-type": "none", "cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}},
-        {"runner": "linux", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}},
-        {"runner": "linuxarm", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin"], "key": "{{component}}/bin-arm64/{{hash}}"}},
-        {"runner": "linux", "container": "node:lts-alpine", "shell": "ash -eo pipefail {0}", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}},
-        {"runner": "windows", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}},
-        {"runner": "macos", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}}
+        {"runner": "linux", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": [{"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}, {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}]},
+        {"runner": "linuxarm", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": [{"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}, {"path": ["./bin"], "key": "{{component}}/bin-arm64/{{hash}}"}]},
+        {"runner": "linux", "container": "node:lts-alpine", "shell": "ash -eo pipefail {0}", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": [{"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}, {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}]},
+        {"runner": "windows", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": [{"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}, {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}]},
+        {"runner": "macos", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "cache": [{"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}, {"path": ["./bin"], "key": "{{component}}/bin-x64/{{hash}}"}]}
       ]
     },
     "js/packages/eyes-api": {
