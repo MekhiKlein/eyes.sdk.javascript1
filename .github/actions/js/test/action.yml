@@ -49,7 +49,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        npm --prefix=../../ ci
+        npm --prefix=../../ install
         if [ ! -z "${{inputs.framework-version}}" ]
         then
           export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}
