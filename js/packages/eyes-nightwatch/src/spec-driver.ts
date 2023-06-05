@@ -195,6 +195,7 @@ export async function build(env: any): Promise<[NWDriver, () => Promise<void>]> 
       start_process: false,
     },
     output: logLevel !== 'silent',
+    config: null,
     useAsync: true,
   }
   if (configurable) {
