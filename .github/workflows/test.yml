@@ -92,7 +92,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{matrix.params.node-version || 'lts/*'}}
+          node-version: ${{matrix.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
           cache: npm
