@@ -92,7 +92,7 @@
     "build": "node ../../node_modules/.bin/tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo ${APPLITOOLS_FRAMEWORK_VERSION%%.*} || echo 8).json",
     "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js --name 'eyes.webdriverio.javascript5'",
     "test": "npm run test:service && npm run test:coverage",
-    "test:service": "wdio run ./test/service/vg/wdio.vg.conf.js",
+    "test:service": "MOCHA_GROUP=service node ../../node_modules/.bin/mocha './test/service/unit/*.spec.js' && wdio run ./test/service/wdio.conf.js && wdio run ./test/service/no-config/wdio.no-config.conf.js && wdio run ./test/service/vg/wdio.vg.conf.js",
     "test:coverage": "npm run generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-webdriverio' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage node ../../node_modules/.bin/mocha './test/generic/*.spec.js' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
     "setup": "npm run docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
