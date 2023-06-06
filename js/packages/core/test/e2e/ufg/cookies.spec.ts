@@ -9,7 +9,7 @@ describe('cookies', () => {
   let server: any
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
     server = await makeTestServer({
       middlewares: ['cookies', 'handlebars'],
       hbData: {

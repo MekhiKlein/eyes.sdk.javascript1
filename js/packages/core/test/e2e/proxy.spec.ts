@@ -52,7 +52,7 @@ describe('proxy', () => {
         )
       })
       proxy = await makeProxyServer()
-      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
+      ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
     })
 
     after(async () => {
@@ -115,7 +115,7 @@ describe('proxy', () => {
         )
       })
       proxy = await makeProxyServer()
-      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
+      ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
     })
 
     after(async () => {
@@ -166,7 +166,6 @@ describe('proxy', () => {
         app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp-instrumented-nml-nmg-flat-caps.zip',
         injectUFGLib: true,
         withNML: true,
-        webdriverio: require('webdriverio'),
       })
     })
 

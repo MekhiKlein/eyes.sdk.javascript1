@@ -5,7 +5,7 @@ describe('typed check', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
   })
 
   after(async () => {

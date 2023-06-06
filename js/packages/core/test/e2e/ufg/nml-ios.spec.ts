@@ -11,7 +11,6 @@ describe('nml - ios', () => {
       app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp-instrumented-nml-nmg-flat-caps.zip',
       injectUFGLib: true,
       withNML: true,
-      webdriverio: require('webdriverio'),
     })
   })
 

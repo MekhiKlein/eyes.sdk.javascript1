@@ -10,7 +10,7 @@ describe('locate web', () => {
 
   before(async () => {
     core = makeCore({spec})
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
   })
 
   after(async () => {
@@ -62,11 +62,7 @@ describe('locate web emulator', () => {
 
   before(async () => {
     core = makeCore({spec})
-    ;[driver, destroyDriver] = await spec.build({
-      browser: 'chrome',
-      emulation: 'Android 8.0',
-      webdriverio: require('webdriverio'),
-    })
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', emulation: 'Android 8.0'})
   })
 
   after(async () => {
@@ -122,7 +118,6 @@ describe('locate ios', () => {
     ;[driver, destroyDriver] = await spec.build({
       device: 'iPhone 13',
       app: 'https://applitools.jfrog.io/artifactory/Examples/eyes-ios-hello-world/1.2/eyes-ios-hello-world.zip',
-      webdriverio: require('webdriverio'),
     })
   })
 
@@ -178,7 +173,6 @@ describe('locate android', () => {
     ;[driver, destroyDriver] = await spec.build({
       device: 'Pixel 4 XL',
       app: 'https://applitools.jfrog.io/artifactory/Examples/eyes-android-hello-world.apk',
-      webdriverio: require('webdriverio'),
     })
   })
 

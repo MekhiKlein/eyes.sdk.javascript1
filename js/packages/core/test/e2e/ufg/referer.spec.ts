@@ -9,7 +9,7 @@ describe('referer', () => {
   let server: any, serverCors: any, pageUrl: string
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
     server = await makeTestServer({port: 5555})
     pageUrl = adjustUrlToDocker('http://localhost:5555/referer/cors.html')
     serverCors = await makeTestServer({

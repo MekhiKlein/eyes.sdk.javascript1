@@ -336,8 +336,14 @@ const browserOptionsNames: Record<string, string> = {
  * When wiring the spec-driver up to an SDK and calling this function, if you don't have the same dev deps
  * installed in the SDK, then this function will error.
  */
-export async function build({selenium, ...env}: any): Promise<[Driver & {__serverUrl?: string}, () => Promise<void>]> {
-  const {Builder} = (selenium ?? require('selenium-webdriver')) as typeof Selenium
+export async function build(env: any): Promise<[Driver & {__serverUrl?: string}, () => Promise<void>]> {
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('selenium-webdriver', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'selenium-webdriver'
+  }
+  const {Builder} = require(frameworkPath) as typeof Selenium
   const parseEnv = require('@applitools/test-utils/src/parse-env')
 
   const {

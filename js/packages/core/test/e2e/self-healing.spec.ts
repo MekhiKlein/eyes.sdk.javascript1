@@ -27,7 +27,6 @@ describe('self-healing', () => {
       browser: 'chrome',
       headless: false,
       url: client.url,
-      webdriverio: require('webdriverio'),
     })
   })
 
