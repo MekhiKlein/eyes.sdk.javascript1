@@ -41,6 +41,7 @@
     "types"
   ],
   "scripts": {
+    "lol": "mocha ./ff",
     "lint": "eslint '**/*.ts' '**/*.js'",
     "build": "tspc --project ./tsconfig.build.json",
     "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-nightwatch'",
@@ -72,7 +73,7 @@
     "chromedriver": "^110.0.0",
     "cucumber": "6.0.7",
     "geckodriver": "^3.0.1",
-    "nightwatch": "^2.5.4"
+    "nightwatch": "^2.6.21"
   },
   "peerDependencies": {
     "nightwatch": ">=1.3.4"

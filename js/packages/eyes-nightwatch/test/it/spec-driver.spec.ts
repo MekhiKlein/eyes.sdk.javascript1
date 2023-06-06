@@ -125,12 +125,12 @@ describe('spec driver', async () => {
     })
     it('findElement(by)', async function () {
       if (Number.parseInt(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION!) < 2) return this.skip()
-      const {By} = require('selenium-webdriver')
+      const {By} = require('nightwatch/node_modules/selenium-webdriver')
       await findElement({input: {selector: By.css('div')}})
     })
     it('findElement(relative-by)', async function () {
       if (Number.parseInt(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION!) < 2) return this.skip()
-      const {locateWith, By} = require('selenium-webdriver')
+      const {locateWith, By} = require('nightwatch/node_modules/selenium-webdriver')
       await findElement({input: {selector: locateWith(By.css('div')).toLeftOf(By.css('iframe'))}})
     })
     it('findElement(nw-selector, element-root)', async () => {
@@ -163,12 +163,12 @@ describe('spec driver', async () => {
     })
     it('findElements(by)', async function () {
       if (Number.parseInt(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION!) < 2) return this.skip()
-      const {By} = require('selenium-webdriver')
+      const {By} = require('nightwatch/node_modules/selenium-webdriver')
       await findElements({input: {selector: By.css('div')}})
     })
     it('findElements(relative-by)', async function () {
       if (Number.parseInt(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION!) < 2) return this.skip()
-      const {locateWith, By} = require('selenium-webdriver')
+      const {locateWith, By} = require('nightwatch/node_modules/selenium-webdriver')
       await findElements({input: {selector: locateWith(By.css('div')).toLeftOf(By.css('iframe'))}})
     })
     it('findElements(nw-selector, element-root)', async () => {
@@ -246,7 +246,7 @@ describe('spec driver', async () => {
         expected = await driver.findElement(input.selector as Definition)
       }
     }
-    if (Number.parseInt(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION!) < 2) expected = (expected as any)?.value
+    if (Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 2) expected = (expected as any)?.value
     const element = await spec.findElement(spec.transformDriver(driver), input.selector, input.parent)
     if (element && expected) {
       assert.ok(await equalElements(driver, element, expected))
