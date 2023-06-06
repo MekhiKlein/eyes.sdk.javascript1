@@ -25,6 +25,7 @@ runs:
       run: |
         echo "::group::Configure NPM"
         npm install --global npm@9.6.4
+        npm -v
         if [ "${{runner.os}}" = "Windows" ]; then npm --prefix=/ config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
         npm --prefix=/ config set audit false
         npm --prefix=/ config set fund false
