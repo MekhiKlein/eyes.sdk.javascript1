@@ -24,7 +24,7 @@ runs:
       working-directory: ${{inputs.working-directory}}
       run: |
         echo "::group::Configure NPM"
-        nvm install-latest-npm
+        npm install --global npm@9.6.4
         if [ "${{runner.os}}" = "Windows" ]; then npm --prefix=/ config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
         npm --prefix=/ config set audit false
         npm --prefix=/ config set fund false
