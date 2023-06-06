@@ -32,10 +32,10 @@
     "types"
   ],
   "scripts": {
-    "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "node ../../node_modules/.bin/tspc --project ./tsconfig.build.json",
+    "lint": "eslint '**/*.ts'",
+    "build": "tspc --project ./tsconfig.build.json",
     "build:extension": "cd ./test/fixtures/extension && npm i && npm run webpack",
-    "test": "npm run build:extension && node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --exit",
+    "test": "npm run build:extension && mocha './test/**/*.spec.ts' --exit",
     "setup": "npm run xvfb:setup",
     "xvfb:setup": "sudo apt-get install -y xvfb; Xvfb -ac $DISPLAY -screen 0 1280x1024x16 & echo 'Run xvfb'; sleep 10"
   },

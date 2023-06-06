@@ -30,9 +30,9 @@
     "dist"
   ],
   "scripts": {
-    "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
-    "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts'"
+    "lint": "eslint '**/*.ts'",
+    "build": "tsc --project ./tsconfig.build.json",
+    "test": "mocha './test/**/*.spec.ts'"
   },
   "dependencies": {},
   "devDependencies": {

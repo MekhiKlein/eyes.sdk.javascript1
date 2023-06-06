@@ -34,12 +34,12 @@
     "types"
   ],
   "scripts": {
-    "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
-    "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
-    "test:e2e": "MOCHA_GROUP=e2e node ../../node_modules/.bin/mocha './test/e2e/*.spec.ts'",
-    "test:it": "MOCHA_GROUP=it node ../../node_modules/.bin/mocha './test/it/*.spec.ts'",
-    "test:unit": "MOCHA_GROUP=unit node ../../node_modules/.bin/mocha './test/unit/*.spec.ts'"
+    "lint": "eslint '**/*.ts'",
+    "build": "tsc --project ./tsconfig.build.json",
+    "test": "mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
+    "test:e2e": "MOCHA_GROUP=e2e mocha './test/e2e/*.spec.ts'",
+    "test:it": "MOCHA_GROUP=it mocha './test/it/*.spec.ts'",
+    "test:unit": "MOCHA_GROUP=unit mocha './test/unit/*.spec.ts'"
   },
   "dependencies": {
     "@applitools/image": "1.0.34",

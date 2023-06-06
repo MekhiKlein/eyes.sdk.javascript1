@@ -83,9 +83,9 @@
     "types"
   ],
   "scripts": {
-    "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "node ../../node_modules/.bin/tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo ${APPLITOOLS_FRAMEWORK_VERSION%%.*} || echo 8).json",
-    "test": "node ../../node_modules/.bin/mocha './test/**/*.spec.ts' -r @applitools/test-utils/mocha-hooks/docker --exit",
+    "lint": "eslint '**/*.ts'",
+    "build": "tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo ${APPLITOOLS_FRAMEWORK_VERSION%%.*} || echo 8).json",
+    "test": "mocha './test/**/*.spec.ts' -r @applitools/test-utils/mocha-hooks/docker --exit",
     "setup": "npm run docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
