@@ -23,6 +23,7 @@ describe('chrome 107 on window 8', () => {
           accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
         },
       },
+      webdriverio: require('webdriverio'),
     })
   })
 
@@ -73,6 +74,7 @@ describe('chrome 107 on mac os 12', () => {
           accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
         },
       },
+      webdriverio: require('webdriverio'),
     })
   })
 

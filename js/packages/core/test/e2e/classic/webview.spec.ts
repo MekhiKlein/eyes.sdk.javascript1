@@ -20,6 +20,7 @@ describe('webview', () => {
     ;[driver, destroyDriver] = await spec.build({
       device: 'iPhone 12',
       app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.9/app/IOSTestApp.zip',
+      webdriverio: require('webdriverio'),
     })
     await driver.$('xpath://XCUIElementTypeStaticText[@name="Web view"]').click()
   })

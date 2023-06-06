@@ -17,6 +17,7 @@ describe('nml - android', () => {
         'appium:idleTimeout': 300,
       },
       injectUFGLib: true,
+      webdriverio: require('webdriverio'),
     })
   })
 

@@ -10,7 +10,7 @@ describe('locate web', () => {
 
   before(async () => {
     core = makeCore({spec})
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
   })
 
   after(async () => {

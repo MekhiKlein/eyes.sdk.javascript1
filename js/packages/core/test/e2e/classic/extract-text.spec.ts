@@ -6,7 +6,7 @@ describe('extract-text', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
   })
 
   after(async () => {

@@ -9,7 +9,7 @@ describe('cross origin frames', () => {
   let server: any, serverCors: any
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
     serverCors = await makeTestServer({allowCors: false})
     server = await makeTestServer({
       middlewares: ['handlebars'],

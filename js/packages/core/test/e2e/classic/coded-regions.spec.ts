@@ -11,7 +11,7 @@ describe('coded regions', () => {
     core: Core<SpecType<spec.Driver, spec.Driver, spec.Element, spec.Selector>>
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', webdriverio: require('webdriverio')})
     core = makeCore({spec})
     const page = `data:text/html,
       <div id='outer' style='margin-left: 50px; width:600px; height: 2000px; border: 1px solid;'>

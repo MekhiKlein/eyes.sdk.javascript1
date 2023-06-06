@@ -413,8 +413,8 @@ const browserOptionsNames: Record<string, string> = {
  * When wiring the spec-driver up to an SDK and calling this function, if you don't have the same dev deps
  * installed in the SDK, then this function will error.
  */
-export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const webdriverio = require('webdriverio')
+export async function build({webdriverio, ...env}: any): Promise<[Driver, () => Promise<void>]> {
+  const {remote} = webdriverio ?? require('webdriverio')
   const chromedriver = require('chromedriver')
   const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {
@@ -481,7 +481,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       noProxy: proxy.bypass.join(','),
     }
   }
-  const driver = await webdriverio.remote(options)
+  const driver = await remote(options)
   return [driver, () => driver.deleteSession().then(() => chromedriver.stop())]
 }
 

@@ -6,7 +6,11 @@ describe('wait before capture', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
 
   before(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
+    ;[driver, destroyDriver] = await spec.build({
+      browser: 'chrome',
+      headless: false,
+      webdriverio: require('webdriverio'),
+    })
   })
 
   after(async () => {

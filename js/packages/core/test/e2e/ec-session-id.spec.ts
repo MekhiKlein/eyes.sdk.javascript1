@@ -13,9 +13,14 @@ describe('ecSessionId', () => {
   before(async () => {
     core = makeCore({spec})
     client = await core.getECClient({
-      settings: {capabilities: {useSelfHealing: true}},
+      settings: {options: {useSelfHealing: true}},
     })
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false, url: client.url})
+    ;[driver, destroyDriver] = await spec.build({
+      browser: 'chrome',
+      headless: false,
+      url: client.url,
+      webdriverio: require('webdriverio'),
+    })
   })
 
   after(async () => {
