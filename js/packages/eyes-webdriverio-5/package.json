@@ -97,7 +97,7 @@
     "setup": "npm run docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then NODE_VERSION=${NODE_VERSION:-$(node -v)} npm i --no-save --no-workspaces webdriverio@$APPLITOOLS_FRAMEWORK_VERSION @types/node@${NODE_VERSION%%.*}; fi",
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then NODE_VERSION=${NODE_VERSION:-$(node -v)} npm i --no-save webdriverio@$APPLITOOLS_FRAMEWORK_VERSION @types/node@${NODE_VERSION%%.*}; fi",
     "report": "bongo report --name 'js_wdio_5'",
     "postpublish": "bongo send-release-notification --name 'js_wdio_5'"
   },
