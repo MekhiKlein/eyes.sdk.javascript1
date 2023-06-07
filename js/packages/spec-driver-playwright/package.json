@@ -40,7 +40,7 @@
     "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then yarn add --no-lockfile playwright@$APPLITOOLS_FRAMEWORK_VERSION; fi"
   },
   "dependencies": {
-    "@applitools/driver": "1.12.0",
+    "@applitools/driver": "1.12.1",
     "@applitools/utils": "1.3.37"
   },
   "devDependencies": {
