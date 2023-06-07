@@ -20,9 +20,7 @@
     "test:ie": "MOCHA_GROUP=ie mocha './test/*.spec.js' --grep 'internet explorer' -r ./test/util/hook.js",
     "test:ios": "MOCHA_GROUP=ios mocha './test/*.spec.js' --grep 'ios safari' -r ./test/util/hook.js"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@applitools/bongo": "^3.0.3",
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "@rollup/plugin-babel": "^5.2.1",

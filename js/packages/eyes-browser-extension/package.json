@@ -17,14 +17,14 @@
   ],
   "scripts": {
     "lint": "eslint '**/*.js'",
-    "build": "npm run build:dist && npm run build:zip",
+    "build": "yarn build:dist && yarn build:zip",
     "build:dist": "webpack",
     "build:zip": "cd dist; zip -r eyes-browser-extension.zip *; mv eyes-browser-extension.zip ../",
     "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-browser-extension'",
-    "test:xvfb": "xvfb-run --auto-servernum -- npm run test",
-    "test": "npm run test:it && npm run test:coverage",
+    "test:xvfb": "xvfb-run --auto-servernum -- yarn test",
+    "test": "yarn test:it && yarn test:coverage",
     "test:it": "mocha --no-timeouts --exit ./test/it/*.spec.js",
-    "test:coverage": "npm run generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-browser-extension' APPLITOOLS_BATCH_ID=$(uuidgen) mocha --config .mocharc.cvg.js",
+    "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-browser-extension' APPLITOOLS_BATCH_ID=$(uuidgen) mocha --config .mocharc.cvg.js",
     "report": "coverage-tests report https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js --name 'eyes-browser-extension'"
   },
   "dependencies": {

@@ -23,16 +23,15 @@ runs:
       shell: ${{inputs.shell}}
       working-directory: ${{inputs.working-directory}}
       run: |
-        echo "::group::Configure NPM"
-        npm install --global npm@9.6.7
-        npm -v
-        if [ "${{runner.os}}" = "Windows" ]; then npm --prefix=/ config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
-        npm --prefix=/ config set audit false
-        npm --prefix=/ config set fund false
+        echo "::group::Configure Yarn"
+        yarn set version stable
+        yarn -v
+        yarn plugin import workspace-tools
+        WORKSPACE_NAME=$(jq -r .name ./package.json)
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        npm --prefix=../../ ci
+        yarn workspaces focus $WORKSPACE_NAME
         echo "::endgroup::"
 
         if [ -e .env ]
@@ -45,5 +44,6 @@ runs:
         fi
 
         echo "::group::Building package"
-        npm --prefix=../../ run build -- --target=$PWD --type=${{inputs.build-type}} --with-deps
+        yarn workspaces foreach --topological-dev --recursive --parallel --from $WORKSPACE_NAME run build
+        yarn workspace $WORKSPACE_NAME run build:${{inputs.build-type}}
         echo "::endgroup::"

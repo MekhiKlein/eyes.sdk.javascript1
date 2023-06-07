@@ -42,27 +42,27 @@ runs:
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.parallel}}
       run: |
-        echo "::group::Configure NPM"
-        npm install --global npm@9.6.7
-        if [ "${{runner.os}}" = "Windows" ]; then npm --prefix=/ config set script-shell "C:\\Program Files\\Git\\bin\\bash.exe"; fi
-        npm --prefix=/ config set audit false
-        npm --prefix=/ config set fund false
+        echo "::group::Configure Yarn"
+        yarn set version stable
+        yarn -v
+        yarn plugin import workspace-tools
+        WORKSPACE_NAME=$(jq -r .name ./package.json)
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        npm --prefix=../../ ci
+        yarn workspaces focus $WORKSPACE_NAME
         if [ ! -z "${{inputs.framework-version}}" ]
         then
           export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}
           export APPLITOOLS_FRAMEWORK_MAJOR_VERSION=${{inputs.framework-version}}
-          npm run upgrade:framework --if-present
+          yarn upgrade:framework
         fi
         echo "::endgroup::"
 
         if [ "${{inputs.setup-type}}" != "none" ]
         then
           echo "::group::Setting up test environment"
-          if [ ! -z "${{inputs.setup-type}}" ]; then npm run setup:${{inputs.setup-type}}; else npm run setup --if-present; fi
+          if [ ! -z "${{inputs.setup-type}}" ]; then yarn setup:${{inputs.setup-type}}; elif [ "$(jq -r .scripts.setup ./package.json)" != "null" ]; then yarn setup; fi
           echo "::endgroup::"
         fi
 
@@ -78,14 +78,18 @@ runs:
         if [ "${{inputs.build-type}}" != "none" ]
         then
           echo "::group::Building package"
-          npm --prefix=../../ run build -- --target=$PWD --type=${{inputs.build-type}} --with-deps
+          yarn workspaces foreach --topological-dev --recursive --parallel --from $WORKSPACE_NAME run build
+          yarn workspace $WORKSPACE_NAME run build:${{inputs.build-type}}
           echo "::endgroup::"
         fi
 
         echo "::group::Running tests"
-        if [ ! -z "${{inputs.test-type}}" ]; then npm run test:${{inputs.test-type}}; else npm run test --if-present; fi
+        if [ ! -z "${{inputs.test-type}}" ]; then yarn test:${{inputs.test-type}}; elif [ "$(jq -r .scripts.test ./package.json)" != "null" ]; then yarn test; fi
         echo "::endgroup::"
 
-        echo "::group::Sending reports"
-        if [ "${{inputs.report}}" = "sandbox" ]; then npm run report --if-present -- --sandbox; else npm run report --if-present; fi
-        echo "::endgroup::"
+        if [ "$(jq -r .scripts.report ./package.json)" != "null" ]
+        then
+          echo "::group::Sending reports"
+          if [ "${{inputs.report}}" = "sandbox" ]; then yarn report --sandbox; else yarn report; fi
+          echo "::endgroup::"
+        fi

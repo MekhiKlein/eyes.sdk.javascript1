@@ -21,14 +21,13 @@
     "index.js"
   ],
   "scripts": {
-    "lint": "eslint . --ext .js",
-    "test": "mocha --no-timeouts 'test/**/*.spec.js'"
+    "lint": "run --top-level eslint . --ext .js",
+    "test": "run --top-level mocha --no-timeouts 'test/**/*.spec.js'"
   },
   "dependencies": {
     "node-fetch": "2.6.1"
   },
   "devDependencies": {
-    "@applitools/bongo": "^3.0.3",
     "eslint": "^6.6.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-mocha-no-only": "^1.1.1",

@@ -45,11 +45,11 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "tsc --project ./tsconfig.build.json",
-    "test": "mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
-    "test:e2e": "MOCHA_GROUP=e2e mocha './test/e2e/*.spec.ts'",
-    "test:it": "MOCHA_GROUP=it mocha './test/it/*.spec.ts'"
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "run --top-level tsc --project ./tsconfig.build.json",
+    "test": "run --top-level mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
+    "test:e2e": "MOCHA_GROUP=e2e run --top-level mocha './test/e2e/*.spec.ts'",
+    "test:it": "MOCHA_GROUP=it run --top-level mocha './test/it/*.spec.ts'"
   },
   "dependencies": {
     "@applitools/core-base": "1.1.56",
@@ -65,7 +65,6 @@
     "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@applitools/bongo": "^4.0.0",
     "@applitools/test-server": "^1.2.2",
     "@applitools/test-utils": "^1.5.17",
     "@types/node": "^12.20.55",

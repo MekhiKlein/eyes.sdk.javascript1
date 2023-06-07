@@ -83,8 +83,14 @@ function scriptRunner(script: string, arg: any, ...elements: Element[]) {
   }
 }
 function loadCommand() {
+  let commandPath
+  try {
+    commandPath = require.resolve('webdriverio/build/command', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    commandPath = 'webdriverio/build/command'
+  }
   return Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 8
-    ? require('webdriver/build/command').default
+    ? require(commandPath).default
     : (method: string, url: string, body: any) => {
         const webdriver = import('webdriver') as any
         return async function (this: any, ...args: any[]) {

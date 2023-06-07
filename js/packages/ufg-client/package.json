@@ -33,11 +33,11 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "tsc --project ./tsconfig.build.json",
-    "test": "mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
-    "test:it": "MOCHA_GROUP=it mocha './test/it/**/*.spec.ts'",
-    "test:unit": "MOCHA_GROUP=unit mocha './test/unit/**/*.spec.ts'"
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "run --top-level tsc --project ./tsconfig.build.json",
+    "test": "run --top-level mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
+    "test:it": "MOCHA_GROUP=it run --top-level mocha './test/it/**/*.spec.ts'",
+    "test:unit": "MOCHA_GROUP=unit run --top-level mocha './test/unit/**/*.spec.ts'"
   },
   "dependencies": {
     "@applitools/jsdom": "1.0.4",
@@ -49,7 +49,6 @@
     "throat": "6.0.1"
   },
   "devDependencies": {
-    "@applitools/bongo": "^4.0.0",
     "@applitools/test-server": "^1.2.2",
     "@applitools/test-utils": "^1.5.17",
     "@types/css-tree": "^2.3.1",

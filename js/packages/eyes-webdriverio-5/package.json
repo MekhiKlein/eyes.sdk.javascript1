@@ -88,16 +88,16 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo ${APPLITOOLS_FRAMEWORK_VERSION%%.*} || echo 8).json",
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "run --top-level tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo $APPLITOOLS_FRAMEWORK_VERSION | cut -f1 -d'.' || echo 8).json",
     "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js --name 'eyes.webdriverio.javascript5'",
-    "test": "npm run test:service && npm run test:coverage",
-    "test:service": "MOCHA_GROUP=service mocha './test/service/unit/*.spec.js' && wdio run ./test/service/wdio.conf.js && wdio run ./test/service/no-config/wdio.no-config.conf.js && wdio run ./test/service/vg/wdio.vg.conf.js",
-    "test:coverage": "npm run generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-webdriverio' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage mocha './test/generic/*.spec.js' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
-    "setup": "npm run docker:setup",
+    "test": "yarn test:service && yarn test:coverage",
+    "test:service": "MOCHA_GROUP=service run --top-level mocha './test/service/unit/*.spec.js' && wdio run ./test/service/wdio.conf.js && wdio run ./test/service/no-config/wdio.no-config.conf.js && wdio run ./test/service/vg/wdio.vg.conf.js",
+    "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-webdriverio' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage run --top-level mocha './test/generic/*.spec.js' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
+    "setup": "yarn docker:setup",
     "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then NODE_VERSION=${NODE_VERSION:-$(node -v)} npm i --no-save webdriverio@$APPLITOOLS_FRAMEWORK_VERSION @types/node@${NODE_VERSION%%.*}; fi",
+    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then NODE_VERSION=${NODE_VERSION:-$(node -v)} yarn add --no-lockfile webdriverio@$APPLITOOLS_FRAMEWORK_VERSION @types/node@${NODE_VERSION%%.*}; fi",
     "report": "bongo report --name 'js_wdio_5'",
     "postpublish": "bongo send-release-notification --name 'js_wdio_5'"
   },
@@ -119,7 +119,7 @@
     "chromedriver": "^111.0.0",
     "expect-webdriverio": "^4.0.1",
     "geckodriver": "^1.20.0",
-    "webdriverio": "^8.3.9"
+    "webdriverio": "^8.10.7"
   },
   "peerDependencies": {
     "webdriverio": ">=5.0.0"

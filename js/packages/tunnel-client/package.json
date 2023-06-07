@@ -36,26 +36,24 @@
   },
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
-  "bin": {
-    "tunnel-client": "./dist/cli/cli.js"
-  },
+  "bin": "./dist/cli/cli.js",
   "files": [
     "dist",
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "npm run build:dist",
-    "build:dist": "tsc --project ./tsconfig.build.json",
-    "build:x64": "npm run build:dist && npm run build:bin:x64",
-    "build:arm64": "npm run build:dist && npm run build:bin:arm64",
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "yarn build:dist",
+    "build:dist": "run --top-level tsc --project ./tsconfig.build.json",
+    "build:x64": "yarn build:dist && yarn build:bin:x64",
+    "build:arm64": "yarn build:dist && yarn build:bin:arm64",
     "build:bin:x64": "pkg . --target node14-linux-x64,node14-alpine-x64,node14-macos-x64,node14-win-x64",
     "build:bin:arm64": "pkg . --target node14-linux-arm64 --output ./bin/tunnel-client-linux-arm64",
     "build:bin:zip": "zip -j ./bin/tunnel-client.zip $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)",
     "build:bin:tgz": "tar -czf ./bin/tunnel-client.tar.gz $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)",
-    "test": "mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
-    "test:e2e": "MOCHA_GROUP=e2e mocha './test/e2e/*.spec.ts'",
-    "test:it": "MOCHA_GROUP=it mocha './test/it/*.spec.ts'"
+    "test": "run --top-level mocha './test/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
+    "test:e2e": "MOCHA_GROUP=e2e run --top-level mocha './test/e2e/*.spec.ts'",
+    "test:it": "MOCHA_GROUP=it run --top-level mocha './test/it/*.spec.ts'"
   },
   "pkg": {
     "scripts": "./dist/cli/cli.js",
@@ -71,7 +69,6 @@
     "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@applitools/bongo": "^3.0.4",
     "@types/node": "18",
     "@types/yargs": "^17.0.24",
     "nock": "^13.3.1",

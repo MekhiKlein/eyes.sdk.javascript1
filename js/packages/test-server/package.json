@@ -16,8 +16,8 @@
     "test-server"
   ],
   "bin": {
-    "test-server": "./dist/cli/test-server.js",
-    "proxy-server": "./dist/cli/proxy-server.js"
+    "proxy-server": "./dist/cli/proxy-server.js",
+    "test-server": "./dist/cli/test-server.js"
   },
   "exports": {
     ".": {
@@ -34,8 +34,8 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "tsc --project ./tsconfig.build.json"
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "run --top-level tsc --project ./tsconfig.build.json"
   },
   "dependencies": {
     "@applitools/logger": "2.0.2",
@@ -50,7 +50,6 @@
     "yargs": "17.0.1"
   },
   "devDependencies": {
-    "@applitools/bongo": "^4.0.0",
     "@types/node-forge": "^1.3.2"
   },
   "engines": {

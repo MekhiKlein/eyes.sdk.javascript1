@@ -8,9 +8,7 @@
     "lib": "./src",
     "test": "./test"
   },
-  "bin": {
-    "bongo": "./src/cli/index.js"
-  },
+  "bin": "./src/cli/index.js",
   "description": "Release Kit for Applitools SDKs",
   "author": "Applitools team <team@applitools.com>",
   "homepage": "https://github.com/applitools/eyes.sdk.javascript1#readme",

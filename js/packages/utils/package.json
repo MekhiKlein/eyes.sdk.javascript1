@@ -45,12 +45,11 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "tsc --project ./tsconfig.build.json",
-    "test": "mocha './test/**/*.spec.ts'"
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "run --top-level tsc --project ./tsconfig.build.json",
+    "test": "run --top-level mocha './test/**/*.spec.ts'"
   },
   "devDependencies": {
-    "@applitools/bongo": "^3.0.3",
     "@types/node": "^12.20.55"
   },
   "engines": {
