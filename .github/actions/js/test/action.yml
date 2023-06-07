@@ -38,9 +38,6 @@ runs:
     - name: Test
       shell: ${{inputs.shell}}
       working-directory: ${{inputs.working-directory}}
-      env:
-        MOCHA_GREP: ${{inputs.grep}}
-        MOCHA_JOBS: ${{inputs.parallel}}
       run: |
         echo "::group::Configure Yarn"
         yarn set version stable
@@ -54,7 +51,7 @@ runs:
         then
           export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}
           export APPLITOOLS_FRAMEWORK_MAJOR_VERSION=${{inputs.framework-version}}
-          yarn upgrade:framework
+          yarn workspace $WORKSPACE_NAME run up:framework
         fi
         echo "::endgroup::"
 
@@ -83,6 +80,9 @@ runs:
         fi
 
         echo "::group::Running tests"
+        if [ ! -z "${{inputs.grep}}" ]; then export MOCHA_GREP=${{inputs.grep}}; fi
+        if [ ! -z "${{inputs.parallel}}" ]; then export MOCHA_GREP=${{inputs.parallel}}; fi
+
         if [ ! -z "${{inputs.test-type}}" ]; then yarn test:${{inputs.test-type}}; elif [ "$(jq -r .scripts.test ./package.json)" != "null" ]; then yarn test; fi
         echo "::endgroup::"
 

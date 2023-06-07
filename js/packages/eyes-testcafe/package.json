@@ -82,7 +82,7 @@
     "perf:full": "yarn perf && yarn perf -c 5",
     "perf:lite": "testcafe chrome:headless test/perf/perf-lite.spec.js",
     "perf:lite:full": "yarn perf:lite && yarn perf:lite -c 5",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then yarn add --no-lockfile testcafe@$APPLITOOLS_FRAMEWORK_VERSION; fi",
+    "up:framework": "run --top-level add-silent testcafe",
     "report": "bongo report --name 'testcafe'",
     "postpublish": "bongo send-release-notification --name 'testcafe'"
   },

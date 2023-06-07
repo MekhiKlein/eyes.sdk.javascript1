@@ -86,10 +86,8 @@
     "lint": "run --top-level eslint '**/*.ts'",
     "build": "run --top-level tspc --project tsconfig.build.v$([ ! -z $APPLITOOLS_FRAMEWORK_VERSION ] && echo $APPLITOOLS_FRAMEWORK_VERSION | cut -f1 -d'.' || echo 8).json",
     "test": "run --top-level mocha './test/**/*.spec.ts' -r @applitools/test-utils/mocha-hooks/docker --exit",
-    "setup": "yarn docker:setup",
-    "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then NODE_VERSION=${NODE_VERSION:-$(node -v)} yarn add --no-lockfile webdriverio@$APPLITOOLS_FRAMEWORK_VERSION @types/node@${NODE_VERSION%%.*}; fi"
+    "setup": "run --top-level browsers:setup",
+    "up:framework": "run --top-level add-silent webdriverio"
   },
   "dependencies": {
     "@applitools/driver": "1.12.1",

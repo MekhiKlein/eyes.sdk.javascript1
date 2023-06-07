@@ -55,9 +55,7 @@
     "test:e2e": "MOCHA_GROUP=e2e run --top-level mocha './test/e2e/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
     "test:it": "MOCHA_GROUP=it run --top-level mocha './test/it/**/*.spec.ts'",
     "test:unit": "MOCHA_GROUP=unit run --top-level mocha './test/unit/**/*.spec.ts'",
-    "setup": "yarn docker:setup",
-    "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down",
+    "setup": "run --top-level browsers:setup",
     "report": "bongo report --name 'core' --group 'core'",
     "postpublish": "bongo send-release-notification --name 'core'"
   },

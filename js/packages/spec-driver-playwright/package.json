@@ -37,7 +37,7 @@
     "test": "run --top-level mocha './test/**/*.spec.ts' --exit",
     "setup": "yarn playwright:setup",
     "playwright:setup": "sudo npx playwright install-deps",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_FRAMEWORK_VERSION ]; then yarn add --no-lockfile playwright@$APPLITOOLS_FRAMEWORK_VERSION; fi"
+    "up:framework": "run --top-level add-silent playwright"
   },
   "dependencies": {
     "@applitools/driver": "1.12.1",

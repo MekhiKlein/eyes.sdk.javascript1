@@ -45,9 +45,7 @@
     "lint": "run --top-level eslint '**/*.ts'",
     "build": "run --top-level tspc --project ./tsconfig.build.json",
     "test": "run --top-level mocha './test/**/*.spec.ts' -r @applitools/test-utils/mocha-hooks/docker --exit",
-    "setup": "yarn docker:setup",
-    "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down"
+    "setup": "run --top-level browsers:setup"
   },
   "dependencies": {
     "@applitools/driver": "1.12.1",
