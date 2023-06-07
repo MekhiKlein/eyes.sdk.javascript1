@@ -26,7 +26,6 @@ runs:
         echo "::group::Configure Yarn"
         yarn set version stable
         yarn -v
-        yarn plugin import workspace-tools
         WORKSPACE_NAME=$(jq -r .name ./package.json)
         echo "::endgroup::"
 
