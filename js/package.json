@@ -8,8 +8,8 @@
   "scripts": {
     "render": "node ./scripts/render.js",
     "lint:commit": "commitlint --extends @commitlint/config-conventional --edit",
-    "lint:changed": "eslint $(git --no-pager diff --name-only --relative --diff-filter=d -- \"*.ts\" \"*.js\")",
-    "lint:staged": "eslint $(git --no-pager diff --name-only --relative --diff-filter=d --cached -- \"*.ts\" \"*.js\")",
+    "lint:changed": "FILES=$(git --no-pager diff --name-only --relative --diff-filter=d -- '*.ts' '*.js') && eslint $FILES",
+    "lint:staged": "FILES=$(git --no-pager diff --name-only --relative --diff-filter=d --cached -- '*.ts' '*.js') && eslint $FILES",
     "postinstall": "cd .. && husky install ./js/.husky"
   },
   "workspaces": [
