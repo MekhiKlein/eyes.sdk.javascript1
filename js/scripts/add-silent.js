@@ -34,7 +34,7 @@ yargs
         const manifestContent = fs.readFileSync(manifestPath)
         const lockfilePath = path.resolve(process.cwd(), './yarn.lock')
         const lockfileContent = fs.readFileSync(lockfilePath)
-        execSync(`yarn add -D ${packages.map(package => `${package}@${defaultVersion}`)}`, {cwd})
+        execSync(`yarn add -D ${packages.map(package => `${package}@${defaultVersion}`).join(' ')}`, {cwd})
         fs.writeFileSync(manifestPath, manifestContent)
         fs.writeFileSync(lockfilePath, lockfileContent)
       } catch (err) {
