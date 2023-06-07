@@ -49,7 +49,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        yarn workspaces focus $WORKSPACE_NAME
+        yarn workspaces focus {root,$WORKSPACE_NAME}
         if [ ! -z "${{inputs.framework-version}}" ]
         then
           export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}

@@ -30,7 +30,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        yarn workspaces focus $WORKSPACE_NAME
+        yarn workspaces focus {root,$WORKSPACE_NAME}
         echo "::endgroup::"
 
         if [ -e .env ]
