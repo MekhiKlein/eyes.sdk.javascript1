@@ -44,5 +44,5 @@ runs:
 
         echo "::group::Building package"
         yarn workspaces foreach --topological-dev --recursive --parallel --from $WORKSPACE_NAME run build
-        yarn workspace $WORKSPACE_NAME run build:${{inputs.build-type}}
+        if [ ! -z "${{inputs.build-type}}" ]; then yarn workspace $WORKSPACE_NAME run build:${{inputs.build-type}}; fi
         echo "::endgroup::"
