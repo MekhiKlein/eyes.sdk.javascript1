@@ -97,7 +97,7 @@
     "@applitools/api-extractor": "1.2.21",
     "@applitools/test-utils": "1.5.17",
     "@types/node": "^16.18.14",
-    "chromedriver": "^101.0.0",
+    "chromedriver": "^114.0.1",
     "nock": "^13.2.9",
     "webdriverio": "^8.10.7"
   },

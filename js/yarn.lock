@@ -133,7 +133,7 @@ __metadata:
     "@types/yargs": ^17.0.22
     abort-controller: 3.0.0
     chalk: 4.1.2
-    chromedriver: ^106.0.0
+    chromedriver: ^114.0.1
     nock: ^13.2.8
     node-fetch: 2.6.7
     pkg: ^5.8.0
@@ -360,7 +360,7 @@ __metadata:
     "@applitools/utils": 1.3.37
     "@types/nightwatch": ^2.3.16
     "@types/node": ^12.20.55
-    chromedriver: ^110.0.0
+    chromedriver: ^114.0.1
     cucumber: 6.0.7
     geckodriver: ^3.0.1
     nightwatch: ^2.6.21
@@ -416,7 +416,7 @@ __metadata:
     "@applitools/test-utils": 1.5.17
     "@types/node": ^12.20.55
     "@types/selenium-webdriver": ^4.1.1
-    chromedriver: 112.0.0
+    chromedriver: ^114.0.1
     selenium-webdriver: 4.4.0
   peerDependencies:
     selenium-webdriver: ">=3.6.0"
@@ -439,7 +439,7 @@ __metadata:
     "@wdio/globals": ^8.3.9
     "@wdio/local-runner": ^8.3.9
     "@wdio/mocha-framework": ^8.3.0
-    chromedriver: ^111.0.0
+    chromedriver: ^114.0.1
     expect-webdriverio: ^4.0.1
     geckodriver: ^1.20.0
     webdriverio: ^8.10.7
@@ -572,7 +572,7 @@ __metadata:
     "@applitools/test-utils": ^1.5.17
     "@applitools/utils": 1.3.37
     "@types/node": ^12.20.55
-    chromedriver: ^109.0.0
+    chromedriver: ^114.0.1
     nock: ^13.2.9
     webdriverio: ^8.3.2
   languageName: unknown
@@ -617,7 +617,7 @@ __metadata:
     "@applitools/test-utils": ^1.5.17
     "@applitools/utils": 1.3.37
     appium: ^1.22.3
-    chromedriver: ^101.0.0
+    chromedriver: ^114.0.1
     eslint: ^8.16.0
     eslint-plugin-mocha-no-only: ^1.1.1
     eslint-plugin-node: ^11.1.0
@@ -810,7 +810,7 @@ __metadata:
     "@applitools/test-utils": 1.5.17
     "@applitools/utils": 1.3.37
     "@types/node": ^16.18.14
-    chromedriver: ^101.0.0
+    chromedriver: ^114.0.1
     nock: ^13.2.9
     webdriverio: ^8.10.7
   peerDependencies:
@@ -4100,7 +4100,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testim/chrome-version@npm:^1.1.2, @testim/chrome-version@npm:^1.1.3":
+"@testim/chrome-version@npm:^1.1.3":
   version: 1.1.3
   resolution: "@testim/chrome-version@npm:1.1.3"
   checksum: 0874590ae515c2e9e80d62130cd9be070932b60724cef93217c6d2d62f2776a2a9cbc4ef3548e674f57236a4c75f322ce0df7b5ecfecbc8d8b5e3eeaee92391c
@@ -6504,16 +6504,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.24.0":
-  version: 0.24.0
-  resolution: "axios@npm:0.24.0"
-  dependencies:
-    follow-redirects: ^1.14.4
-  checksum: 468cf496c08a6aadfb7e699bebdac02851e3043d4e7d282350804ea8900e30d368daa6e3cd4ab83b8ddb5a3b1e17a5a21ada13fc9cebd27b74828f47a4236316
-  languageName: node
-  linkType: hard
-
-"axios@npm:^0.27.2, axios@npm:^0.x":
+"axios@npm:^0.x":
   version: 0.27.2
   resolution: "axios@npm:0.27.2"
   dependencies:
@@ -7262,9 +7253,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromedriver@npm:112.0.0":
-  version: 112.0.0
-  resolution: "chromedriver@npm:112.0.0"
+"chromedriver@npm:^114.0.1":
+  version: 114.0.1
+  resolution: "chromedriver@npm:114.0.1"
   dependencies:
     "@testim/chrome-version": ^1.1.3
     axios: ^1.2.1
@@ -7275,93 +7266,7 @@ __metadata:
     tcp-port-used: ^1.0.1
   bin:
     chromedriver: bin/chromedriver
-  checksum: 6cd254c50326ca1775adac54cac1dc1b96a32fd9af1dfb7c44e812c619286ec96c727f74adbbece50a1f3efd463b895f05aadbce95cec9e23525b8bdf379de7f
-  languageName: node
-  linkType: hard
-
-"chromedriver@npm:^101.0.0":
-  version: 101.0.0
-  resolution: "chromedriver@npm:101.0.0"
-  dependencies:
-    "@testim/chrome-version": ^1.1.2
-    axios: ^0.24.0
-    del: ^6.0.0
-    extract-zip: ^2.0.1
-    https-proxy-agent: ^5.0.0
-    proxy-from-env: ^1.1.0
-    tcp-port-used: ^1.0.1
-  bin:
-    chromedriver: bin/chromedriver
-  checksum: 1382a7a0d7d02a810faa2842527fedd85180e73c0bf08512575e710f3e86d9f65cf82a29125244e9329853a6d5790a61068912fdc656455d2f2a314e97e190d6
-  languageName: node
-  linkType: hard
-
-"chromedriver@npm:^106.0.0":
-  version: 106.0.1
-  resolution: "chromedriver@npm:106.0.1"
-  dependencies:
-    "@testim/chrome-version": ^1.1.3
-    axios: ^0.27.2
-    compare-versions: ^5.0.1
-    del: ^6.1.1
-    extract-zip: ^2.0.1
-    https-proxy-agent: ^5.0.1
-    proxy-from-env: ^1.1.0
-    tcp-port-used: ^1.0.1
-  bin:
-    chromedriver: bin/chromedriver
-  checksum: 3e7fa191ef95ab6bc9b4700192cd50149cd45e34d5cd22149d381c8dfbf4a4221fc64581111d072d5904c008bcee451afd66067a64e43412c21b3aae9c3b8f84
-  languageName: node
-  linkType: hard
-
-"chromedriver@npm:^109.0.0":
-  version: 109.0.0
-  resolution: "chromedriver@npm:109.0.0"
-  dependencies:
-    "@testim/chrome-version": ^1.1.3
-    axios: ^1.2.1
-    compare-versions: ^5.0.1
-    extract-zip: ^2.0.1
-    https-proxy-agent: ^5.0.1
-    proxy-from-env: ^1.1.0
-    tcp-port-used: ^1.0.1
-  bin:
-    chromedriver: bin/chromedriver
-  checksum: a81347eb8c7dab021f8d94ce6962d1b9eaf5134230dfc589bab01b8db5e97e0120abd0b5df2a6f68c5e0126f9b5c7ae361874c26215d65ba673f6c3b33da8d0b
-  languageName: node
-  linkType: hard
-
-"chromedriver@npm:^110.0.0":
-  version: 110.0.0
-  resolution: "chromedriver@npm:110.0.0"
-  dependencies:
-    "@testim/chrome-version": ^1.1.3
-    axios: ^1.2.1
-    compare-versions: ^5.0.1
-    extract-zip: ^2.0.1
-    https-proxy-agent: ^5.0.1
-    proxy-from-env: ^1.1.0
-    tcp-port-used: ^1.0.1
-  bin:
-    chromedriver: bin/chromedriver
-  checksum: 52c51f21ef523865af6496736e92689bf8a16d477653cb096ff22ad3bbf16495935b6f42f860a3cdea3123e2d8a4084688acc07a06da4924b7c0e2d2bc646ae4
-  languageName: node
-  linkType: hard
-
-"chromedriver@npm:^111.0.0":
-  version: 111.0.0
-  resolution: "chromedriver@npm:111.0.0"
-  dependencies:
-    "@testim/chrome-version": ^1.1.3
-    axios: ^1.2.1
-    compare-versions: ^5.0.1
-    extract-zip: ^2.0.1
-    https-proxy-agent: ^5.0.1
-    proxy-from-env: ^1.1.0
-    tcp-port-used: ^1.0.1
-  bin:
-    chromedriver: bin/chromedriver
-  checksum: 3331d0d2c84aa90c9cfb6945067b4634806e823452d345feedc20cd1c940a9179eb7f2b5067e1bdbceba47c9acc719fd876235ba972d3987f73d95550897fbed
+  checksum: 568e3383db1e6c5c1918170e128a72946a58afba4fb303e8b8fa46290390955d7304045ad0e10066c29941e3092fcba1d9716a375c90b4fbac7bb22d260d09d8
   languageName: node
   linkType: hard
 
@@ -8470,22 +8375,6 @@ __metadata:
     esprima: ^4.0.0
     vm2: ^3.9.17
   checksum: d1d8de82f0449800b6252fc9ed23fa38c39410b47576b057c593671d7e3206e516926836de3bc151f42843e78fd7bd1dfaaf588b04e7b8de4b60f88830a359b1
-  languageName: node
-  linkType: hard
-
-"del@npm:^6.0.0, del@npm:^6.1.1":
-  version: 6.1.1
-  resolution: "del@npm:6.1.1"
-  dependencies:
-    globby: ^11.0.1
-    graceful-fs: ^4.2.4
-    is-glob: ^4.0.1
-    is-path-cwd: ^2.2.0
-    is-path-inside: ^3.0.2
-    p-map: ^4.0.0
-    rimraf: ^3.0.2
-    slash: ^3.0.0
-  checksum: 563288b73b8b19a7261c47fd21a330eeab6e2acd7c6208c49790dfd369127120dd7836cdf0c1eca216b77c94782a81507eac6b4734252d3bef2795cb366996b6
   languageName: node
   linkType: hard
 
@@ -10405,7 +10294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.14.4, follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0":
+"follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0":
   version: 1.15.2
   resolution: "follow-redirects@npm:1.15.2"
   peerDependenciesMeta:
@@ -11079,7 +10968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globby@npm:^11.0.1, globby@npm:^11.1.0":
+"globby@npm:^11.1.0":
   version: 11.1.0
   resolution: "globby@npm:11.1.0"
   dependencies:
@@ -11194,7 +11083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.1.9, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
+"graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.1.9, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: ac85f94da92d8eb6b7f5a8b20ce65e43d66761c55ce85ac96df6865308390da45a8d3f0296dd3a663de65d30ba497bd46c696cc1e248c72b13d6d567138a4fc7
@@ -12060,14 +11949,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-path-cwd@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "is-path-cwd@npm:2.2.0"
-  checksum: 46a840921bb8cc0dc7b5b423a14220e7db338072a4495743a8230533ce78812dc152548c86f4b828411fe98c5451959f07cf841c6a19f611e46600bd699e8048
-  languageName: node
-  linkType: hard
-
-"is-path-inside@npm:^3.0.2, is-path-inside@npm:^3.0.3":
+"is-path-inside@npm:^3.0.3":
   version: 3.0.3
   resolution: "is-path-inside@npm:3.0.3"
   checksum: abd50f06186a052b349c15e55b182326f1936c89a78bf6c8f2b707412517c097ce04bc49a0ca221787bc44e1049f51f09a2ffb63d22899051988d3a618ba13e9
