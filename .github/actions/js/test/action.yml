@@ -43,16 +43,15 @@ runs:
         if [ -f "/etc/alpine-release" ]; then apk add --no-cache curl jq; fi
         yarn set version stable
         yarn -v
-        WORKSPACE_NAME=$(jq -r .name ./package.json)
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        yarn workspaces focus {root,$WORKSPACE_NAME}
+        yarn install
         if [ ! -z "${{inputs.framework-version}}" ]
         then
           export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}
           export APPLITOOLS_FRAMEWORK_MAJOR_VERSION=${{inputs.framework-version}}
-          yarn workspace $WORKSPACE_NAME run up:framework
+          yarn run up:framework
         fi
         echo "::endgroup::"
 
@@ -75,8 +74,8 @@ runs:
         if [ "${{inputs.build-type}}" != "none" ]
         then
           echo "::group::Building package"
-          yarn workspaces foreach --topological-dev --recursive --parallel --from $WORKSPACE_NAME run build
-          yarn workspace $WORKSPACE_NAME run build:${{inputs.build-type}}
+          yarn workspaces foreach --topological-dev --recursive --parallel --from $(jq -r .name ./package.json) run build
+          yarn run build:${{inputs.build-type}}
           echo "::endgroup::"
         fi
 
