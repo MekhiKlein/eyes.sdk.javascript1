@@ -61,8 +61,6 @@ jobs:
           node-version: ${{matrix.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
-          cache: yarn
-          cache-dependency-path: ./js/yarn.lock
       - name: Build
         uses: ./.github/actions/js/build
         with:
@@ -95,8 +93,6 @@ jobs:
           node-version: ${{matrix.node-version || 'lts/*'}}
           registry-url: https://registry.npmjs.org/
           always-auth: true
-          cache: yarn
-          cache-dependency-path: ./js/yarn.lock
       - name: Restore build artifacts
         if: ${{matrix.cache}}
         uses: ./.github/actions/cache/restore
