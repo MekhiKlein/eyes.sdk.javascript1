@@ -291,10 +291,10 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     },
     "js/packages/eyes-images": {
@@ -304,10 +304,10 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     },
     "js/packages/eyes-selenium": {
@@ -317,10 +317,10 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"framework-version": 4.4, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"framework-version": 4.4, "node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 4.4, "node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 4.4, "node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 4.4, "node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     },
     "js/packages/eyes-webdriverio-5": {
@@ -330,11 +330,11 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"framework-version": 5, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 6, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 7, "node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 8, "node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 8, "node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"framework-version": 5, "node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 6, "node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 7, "node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 8, "node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"framework-version": 8, "node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     },
     "js/packages/eyes-nightwatch": {
@@ -344,10 +344,10 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     },
     "js/packages/eyes-playwright": {
@@ -357,10 +357,10 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     },
     "js/packages/eyes-puppeteer": {
@@ -370,10 +370,10 @@
         {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 16, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 18, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}},
+        {"node-version": 20, "build-type": "none", "artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}
       ]
     }
   }

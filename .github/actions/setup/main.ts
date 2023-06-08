@@ -181,7 +181,7 @@ async function main() {
           path: job.save.cache.path.map(cachePath => path.join(job['working-directory'], cachePath))
         }
         job.save.artifact &&= {
-          key: populateString(job.save.artifact.key),
+          key: populateString(job.save.artifact.key, {filenamify: true}),
           path: job.save.artifact.path.map(artifactPath => path.join(job['working-directory'], artifactPath))
         }
       }
@@ -196,9 +196,9 @@ async function main() {
         })
         job.restore.artifact &&= job.restore.artifact.map(artifact => {
           return typeof artifact === 'string'
-            ? populateString(artifact)
+            ? populateString(artifact, {filenamify: true})
             : {
-              key: populateString(artifact.key),
+              key: populateString(artifact.key, {filenamify: true}),
               path: artifact.path.map(artifactPath => path.join(job['working-directory'], artifactPath))
             }
         })
@@ -207,12 +207,17 @@ async function main() {
 
       return job
 
-      function populateString(string: string): string {
-        return string.replace(/\{\{([^}]+)\}\}/g, (_, name) => {
-          if (name === 'hash') return process.env.GITHUB_SHA ?? 'unknown'
-          else if (name === 'component') return job.name
-          else return job[name as keyof Job] as string
-        })
+      function populateString(string: string, options?: {filenamify: boolean}): string {
+        let result = string
+          .replace(/\{\{([^}]+)\}\}/g, (_, name) => {
+            if (name === 'hash') return process.env.GITHUB_SHA ?? 'unknown'
+            else if (name === 'component') return job.name
+            else return job[name as keyof Job] as string
+          })
+        if (options?.filenamify) {
+          result = result.replace(/\//g, '-')
+        }
+        return result
       }
     }
   }

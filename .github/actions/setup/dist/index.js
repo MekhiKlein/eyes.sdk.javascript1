@@ -2972,7 +2972,7 @@ async function main() {
                     path: job.save.cache.path.map(cachePath => external_node_path_namespaceObject.join(job['working-directory'], cachePath))
                 };
                 job.save.artifact &&= {
-                    key: populateString(job.save.artifact.key),
+                    key: populateString(job.save.artifact.key, { filenamify: true }),
                     path: job.save.artifact.path.map(artifactPath => external_node_path_namespaceObject.join(job['working-directory'], artifactPath))
                 };
             }
@@ -2987,16 +2987,17 @@ async function main() {
                 });
                 job.restore.artifact &&= job.restore.artifact.map(artifact => {
                     return typeof artifact === 'string'
-                        ? populateString(artifact)
+                        ? populateString(artifact, { filenamify: true })
                         : {
-                            key: populateString(artifact.key),
+                            key: populateString(artifact.key, { filenamify: true }),
                             path: artifact.path.map(artifactPath => external_node_path_namespaceObject.join(job['working-directory'], artifactPath))
                         };
                 });
             }
             return job;
-            function populateString(string) {
-                return string.replace(/\{\{([^}]+)\}\}/g, (_, name) => {
+            function populateString(string, options) {
+                let result = string
+                    .replace(/\{\{([^}]+)\}\}/g, (_, name) => {
                     if (name === 'hash')
                         return process.env.GITHUB_SHA ?? 'unknown';
                     else if (name === 'component')
@@ -3004,6 +3005,10 @@ async function main() {
                     else
                         return job[name];
                 });
+                if (options?.filenamify) {
+                    result = result.replace(/\//g, '-');
+                }
+                return result;
             }
         }
     }
