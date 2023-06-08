@@ -1,6 +1,6 @@
 {
-  "last-release-sha": "d827f8b9d1706e8d4a875ed6291d6213ebc57228",
-  "bootstrap-sha": "d827f8b9d1706e8d4a875ed6291d6213ebc57228",
+  "last-release-sha": "1d97eb0db563794cf7ea3215074533214fd3ff85",
+  "bootstrap-sha": "1d97eb0db563794cf7ea3215074533214fd3ff85",
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
