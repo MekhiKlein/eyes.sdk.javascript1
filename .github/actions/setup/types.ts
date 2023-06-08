@@ -3,7 +3,6 @@ export interface Job {
   description?: string
   'display-name': string
   'package-name': string
-  'artifact-name': string
   'working-directory': string
   runner?: string
   container?: string
@@ -17,10 +16,11 @@ export interface Job {
   'setup-type'?: string
   links?: string
   env?: Record<string, string>
-  cache?: Cache | Cache[]
+  save?: {cache?: Artifact, artifact?: Artifact}
+  restore?: {cache?: (Artifact | string)[], artifact?: (Artifact | string)[]}
 }
 
-export interface Cache {
+export interface Artifact {
   key: string
   path: string[]
 }

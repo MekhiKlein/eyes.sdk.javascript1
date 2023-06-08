@@ -2919,9 +2919,34 @@ async function main() {
         }, { builds: [], tests: [], releases: [] });
         if (useCI) {
             jobs.tests.forEach(testJob => {
-                testJob.cache ??= jobs.builds
-                    .filter((buildJob) => buildJob.name === testJob.name && buildJob.cache)
-                    .flatMap(buildJob => buildJob.cache);
+                const defaultRestore = jobs.builds.reduce((restore, buildJob) => {
+                    if (buildJob.name === testJob.name && buildJob.save) {
+                        if (buildJob.save.cache)
+                            (restore.cache ??= []).push(buildJob.save.cache);
+                        if (buildJob.save.artifact)
+                            (restore.artifact ??= []).push(buildJob.save.artifact);
+                    }
+                    return restore;
+                }, {});
+                if (testJob.restore) {
+                    if (testJob.restore.cache) {
+                        testJob.restore.cache?.flatMap(cache => {
+                            return typeof cache === 'string'
+                                ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
+                                : cache;
+                        });
+                    }
+                    if (testJob.restore.artifact) {
+                        testJob.restore.artifact?.flatMap(artifact => {
+                            return typeof artifact === 'string'
+                                ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
+                                : artifact;
+                        });
+                    }
+                }
+                else {
+                    testJob.restore = defaultRestore;
+                }
             });
         }
         return jobs;
@@ -2945,11 +2970,45 @@ async function main() {
                 .flatMap(([key, value]) => value ? `${key}: ${value}` : [])
                 .join(', ');
             job['display-name'] = `${job['display-name'] ?? job.name} ${description ? `(${description})` : ''}`.trim();
-            job.cache &&= [].concat(job.cache).map(cache => ({
-                key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA ?? 'unknown').replace('{{component}}', job.name),
-                path: cache.path.map(cachePath => external_node_path_namespaceObject.join(job['working-directory'], cachePath))
-            }));
+            if (job.save) {
+                job.save.cache &&= {
+                    key: populateString(job.save.cache.key),
+                    path: job.save.cache.path.map(cachePath => external_node_path_namespaceObject.join(job['working-directory'], cachePath))
+                };
+                job.save.artifact &&= {
+                    key: populateString(job.save.artifact.key),
+                    path: job.save.artifact.path.map(artifactPath => external_node_path_namespaceObject.join(job['working-directory'], artifactPath))
+                };
+            }
+            if (job.restore) {
+                job.restore.cache &&= job.restore.cache.map(cache => {
+                    return typeof cache === 'string'
+                        ? populateString(cache)
+                        : {
+                            key: populateString(cache.key),
+                            path: cache.path.map(cachePath => external_node_path_namespaceObject.join(job['working-directory'], cachePath))
+                        };
+                });
+                job.restore.artifact &&= job.restore.artifact.map(artifact => {
+                    return typeof artifact === 'string'
+                        ? populateString(artifact)
+                        : {
+                            key: populateString(artifact.key),
+                            path: artifact.path.map(artifactPath => external_node_path_namespaceObject.join(job['working-directory'], artifactPath))
+                        };
+                });
+            }
             return job;
+            function populateString(string) {
+                return string.replace(/\{\{([^}]+)\}\}/g, (_, name) => {
+                    if (name === 'hash')
+                        return process.env.GITHUB_SHA ?? 'unknown';
+                    else if (name === 'component')
+                        return job.name;
+                    else
+                        return job[name];
+                });
+            }
         }
     }
     function getChangedPackagesInput() {

@@ -1,4 +1,4 @@
-import type {Job, Cache, Package} from './types.js'
+import type {Job, Artifact, Package} from './types.js'
 import {execSync} from 'node:child_process'
 import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
@@ -127,9 +127,31 @@ async function main() {
 
     if (useCI) {
       jobs.tests.forEach(testJob => {
-        testJob.cache ??= jobs.builds
-          .filter((buildJob) => buildJob.name === testJob.name && buildJob.cache)
-          .flatMap(buildJob => buildJob.cache!)
+        const defaultRestore = jobs.builds.reduce((restore, buildJob) => {
+          if (buildJob.name === testJob.name && buildJob.save) {
+            if (buildJob.save.cache) (restore.cache ??= []).push(buildJob.save.cache)
+            if (buildJob.save.artifact) (restore.artifact ??= []).push(buildJob.save.artifact)
+          }
+          return restore
+        }, {} as {cache?: Artifact[], artifact?: Artifact[]})
+        if (testJob.restore) {
+          if (testJob.restore.cache) {
+            testJob.restore.cache?.flatMap(cache => {
+              return typeof cache === 'string'
+                ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
+                : cache
+            })
+          }
+          if (testJob.restore.artifact) {
+            testJob.restore.artifact?.flatMap(artifact => {
+              return typeof artifact === 'string'
+                ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
+                : artifact
+            })
+          }
+        } else {
+          testJob.restore = defaultRestore
+        }
       })
     }
 
@@ -157,12 +179,45 @@ async function main() {
         .join(', ')
       job['display-name'] = `${job['display-name'] ?? job.name} ${description ? `(${description})` : ''}`.trim()
 
-      job.cache &&= ([] as Cache[]).concat(job.cache).map(cache => ({
-        key: cache.key.replace('{{hash}}', process.env.GITHUB_SHA ?? 'unknown').replace('{{component}}', job.name),
-        path: cache.path.map(cachePath => path.join(job['working-directory'], cachePath))
-      }))
+      if (job.save) {
+        job.save.cache &&= {
+          key: populateString(job.save.cache.key),
+          path: job.save.cache.path.map(cachePath => path.join(job['working-directory'], cachePath))
+        }
+        job.save.artifact &&= {
+          key: populateString(job.save.artifact.key),
+          path: job.save.artifact.path.map(artifactPath => path.join(job['working-directory'], artifactPath))
+        }
+      }
+      if (job.restore) {
+        job.restore.cache &&= job.restore.cache.map(cache => {
+          return typeof cache === 'string'
+            ? populateString(cache)
+            : {
+              key: populateString(cache.key),
+              path: cache.path.map(cachePath => path.join(job['working-directory'], cachePath))
+            }
+        })
+        job.restore.artifact &&= job.restore.artifact.map(artifact => {
+          return typeof artifact === 'string'
+            ? populateString(artifact)
+            : {
+              key: populateString(artifact.key),
+              path: artifact.path.map(artifactPath => path.join(job['working-directory'], artifactPath))
+            }
+        })
+      }
+
 
       return job
+
+      function populateString(string: string): string {
+        return string.replace(/\{\{([^}]+)\}\}/g, (_, name) => {
+          if (name === 'hash') return process.env.GITHUB_SHA ?? 'unknown'
+          else if (name === 'component') return job.name
+          else return job[name as keyof Job] as string
+        })
+      }
     }
   }
 
