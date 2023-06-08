@@ -2929,20 +2929,16 @@ async function main() {
                     return restore;
                 }, {});
                 if (testJob.restore) {
-                    if (testJob.restore.cache) {
-                        testJob.restore.cache?.flatMap(cache => {
-                            return typeof cache === 'string'
-                                ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
-                                : cache;
-                        });
-                    }
-                    if (testJob.restore.artifact) {
-                        testJob.restore.artifact?.flatMap(artifact => {
-                            return typeof artifact === 'string'
-                                ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
-                                : artifact;
-                        });
-                    }
+                    testJob.restore.cache &&= testJob.restore.cache.flatMap(cache => {
+                        return typeof cache === 'string'
+                            ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
+                            : cache;
+                    });
+                    testJob.restore.artifact &&= testJob.restore.artifact.flatMap(artifact => {
+                        return typeof artifact === 'string'
+                            ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
+                            : artifact;
+                    });
                 }
                 else {
                     testJob.restore = defaultRestore;
