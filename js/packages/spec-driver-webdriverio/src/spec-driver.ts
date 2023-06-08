@@ -85,9 +85,9 @@ function scriptRunner(script: string, arg: any, ...elements: Element[]) {
 function loadCommand() {
   let commandPath
   try {
-    commandPath = require.resolve('webdriverio/build/command', {paths: [`${process.cwd()}/node_modules`]})
+    commandPath = require.resolve('webdriver/build/command', {paths: [`${process.cwd()}/node_modules`]})
   } catch {
-    commandPath = 'webdriverio/build/command'
+    commandPath = 'webdriver/build/command'
   }
   return Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 8
     ? require(commandPath).default
