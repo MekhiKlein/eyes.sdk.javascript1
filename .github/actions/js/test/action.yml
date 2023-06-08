@@ -46,7 +46,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Installing dependencies"
-        yarn install
+        yarn install --no-immutable
         if [ ! -z "${{inputs.framework-version}}" ]
         then
           export APPLITOOLS_FRAMEWORK_VERSION=${{inputs.framework-version}}
