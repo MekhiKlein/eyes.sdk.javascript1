@@ -1,5 +1,7 @@
 name: CI
 
+run-name: CI (${{github.event.pull_request.title}})
+
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -41,7 +43,7 @@ jobs:
           packages: changed
           ci: true
   
-  build:
+  js-build:
     needs: [setup]
     strategy:
       fail-fast: false
@@ -79,8 +81,8 @@ jobs:
         with: 
           cache: ${{toJSON(matrix.save.cache)}}
 
-  test:
-    needs: [setup, build]
+  js-test:
+    needs: [setup, js-build]
     strategy:
       fail-fast: false
       matrix: 
@@ -130,7 +132,8 @@ jobs:
           path: ${{join(matrix.save.artifact.path, '\n')}}
 
   report:
-    needs: [setup, test]
+    needs: [setup, js-test]
+    if: always() && !cancelled()
     name: Report
     runs-on: ubuntu-latest
     steps:

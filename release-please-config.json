@@ -263,6 +263,9 @@
         {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
         {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
         {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+      ],
+      "releases": [
+        {"registry": "https://registry.npmjs.org"}
       ]
     },
     "js/packages/core": {
