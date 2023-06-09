@@ -2826,20 +2826,26 @@ main()
     core.setFailed(err.message);
 });
 async function main() {
-    let input = core.getInput('packages', { required: true });
-    const useCI = core.getBooleanInput('ci');
-    const env = core.getInput('env');
     const packages = await getPackages();
-    if (input === 'changed') {
+    const envs = core.getInput('env').split(/[;\s]+/).reduce((envs, env) => {
+        const [key, value] = env.split('=');
+        return { ...envs, [key]: value };
+    }, {});
+    const ci = core.getBooleanInput('ci');
+    const tags = core.getMultilineInput('tag').flatMap(artifact => artifact.split(','));
+    const release = tags.length > 0;
+    let input;
+    if (ci) {
         input = getChangedPackagesInput();
         core.notice(`Changed packages: "${input}"`);
     }
-    else if (input === 'all') {
-        input = getAllPackagesInput();
-        core.notice(`All packages: "${input}"`);
+    else if (release) {
+        input = getPackagesInputFromTags(tags);
+        input = getChangedPackagesInput();
     }
     else {
-        core.notice(`Input provided: "${input}"`);
+        input = core.getInput('packages');
+        core.notice(`Requested packages: "${input}"`);
     }
     let jobs = createJobs(input);
     core.debug(JSON.stringify(jobs, null, 2));
@@ -2896,15 +2902,17 @@ async function main() {
                 runner: Runner[runner],
                 [`${langName}-version`]: langVersion,
                 [`framework-version`]: frameworkVersion,
-                env: env.split(/[;\s]+/).reduce((envs, env) => {
-                    const [key, value] = env.split('=');
-                    return { ...envs, [key]: value };
-                }, {})
+                env: envs
             };
-            if (useCI) {
+            if (ci) {
+                packageInfo.builds.forEach(extension => {
+                    jobs.builds.push(makeJob(baseJob, { type: 'build', extension }));
+                });
                 packageInfo.tests.forEach(extension => {
                     jobs.tests.push(makeJob(baseJob, { type: 'test', extension }));
                 });
+            }
+            if (release) {
                 packageInfo.builds.forEach(extension => {
                     jobs.builds.push(makeJob(baseJob, { type: 'build', extension }));
                 });
@@ -2912,38 +2920,16 @@ async function main() {
                     jobs.releases.push(makeJob(baseJob, { type: 'release', extension }));
                 });
             }
-            if (!useCI || packageInfo.tests.length === 0) {
+            if (!release && (!ci || packageInfo.tests.length === 0)) {
                 jobs.tests.push(makeJob(baseJob, { type: 'test' }));
             }
             return jobs;
         }, { builds: [], tests: [], releases: [] });
-        if (useCI) {
-            jobs.tests.forEach(testJob => {
-                const defaultRestore = jobs.builds.reduce((restore, buildJob) => {
-                    if (buildJob.name === testJob.name && buildJob.save) {
-                        if (buildJob.save.cache)
-                            (restore.cache ??= []).push(buildJob.save.cache);
-                        if (buildJob.save.artifact)
-                            (restore.artifact ??= []).push(buildJob.save.artifact);
-                    }
-                    return restore;
-                }, {});
-                if (testJob.restore) {
-                    testJob.restore.cache &&= testJob.restore.cache.flatMap(cache => {
-                        return typeof cache === 'string'
-                            ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
-                            : cache;
-                    });
-                    testJob.restore.artifact &&= testJob.restore.artifact.flatMap(artifact => {
-                        return typeof artifact === 'string'
-                            ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
-                            : artifact;
-                    });
-                }
-                else {
-                    testJob.restore = defaultRestore;
-                }
-            });
+        if (ci) {
+            jobs.tests.forEach(populateRestore);
+        }
+        else if (release) {
+            jobs.releases.forEach(populateRestore);
         }
         return jobs;
         function makeJob(baseJob, { type, extension }) {
@@ -3011,6 +2997,32 @@ async function main() {
                 return result;
             }
         }
+        function populateRestore(job) {
+            const defaultRestore = jobs.builds.reduce((restore, buildJob) => {
+                if (buildJob.name === job.name && buildJob.save) {
+                    if (buildJob.save.cache)
+                        (restore.cache ??= []).push(buildJob.save.cache);
+                    if (buildJob.save.artifact)
+                        (restore.artifact ??= []).push(buildJob.save.artifact);
+                }
+                return restore;
+            }, {});
+            if (job.restore) {
+                job.restore.cache &&= job.restore.cache.flatMap(cache => {
+                    return typeof cache === 'string'
+                        ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
+                        : cache;
+                });
+                job.restore.artifact &&= job.restore.artifact.flatMap(artifact => {
+                    return typeof artifact === 'string'
+                        ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
+                        : artifact;
+                });
+            }
+            else {
+                job.restore = defaultRestore;
+            }
+        }
     }
     function getChangedPackagesInput() {
         const changedFiles = (0,external_node_child_process_namespaceObject.execSync)(`git --no-pager diff --name-only origin/${process.env.GITHUB_BASE_REF || 'master'}`, { encoding: 'utf8' });
@@ -3025,6 +3037,9 @@ async function main() {
             return changedPackageNames;
         }, new Set());
         return Array.from(changedPackageNames.values()).join(' ');
+    }
+    function getPackagesInputFromTags(tags) {
+        return tags.map(tag => tag.replace(/@[^@]+$/, '')).join(' ');
     }
     function getAllPackagesInput() {
         return Object.values(packages).map(({ component }) => component).join(' ');

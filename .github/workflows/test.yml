@@ -40,7 +40,6 @@ jobs:
         uses: ./.github/actions/setup
         id: setup
         with:
-          packages: changed
           ci: true
   
   js-build:

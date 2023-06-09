@@ -22,20 +22,26 @@ main()
   })
 
 async function main() {
-  let input = core.getInput('packages', {required: true}) 
-  const useCI = core.getBooleanInput('ci')
-  const env = core.getInput('env')
-
   const packages = await getPackages()
+  const envs = core.getInput('env').split(/[;\s]+/).reduce((envs, env) => {
+    const [key, value] = env.split('=')
+    return {...envs, [key]: value}
+  }, {})
 
-  if (input === 'changed') {
+  const ci = core.getBooleanInput('ci')
+  const tags = core.getMultilineInput('tag').flatMap(artifact => artifact.split(','))
+  const release = tags.length > 0
+
+  let input: string
+  if (ci) {
     input = getChangedPackagesInput()
     core.notice(`Changed packages: "${input}"`)
-  } else if (input === 'all') {
-    input = getAllPackagesInput()
-    core.notice(`All packages: "${input}"`)
+  } else if (release) {
+    input = getPackagesInputFromTags(tags)
+    input = getChangedPackagesInput()
   } else {
-    core.notice(`Input provided: "${input}"`)
+    input = core.getInput('packages') 
+    core.notice(`Requested packages: "${input}"`)
   }
 
   let jobs = createJobs(input)
@@ -100,16 +106,19 @@ async function main() {
         runner: Runner[runner as keyof typeof Runner],
         [`${langName}-version`]: langVersion,
         [`framework-version`]: frameworkVersion,
-        env: env.split(/[;\s]+/).reduce((envs, env) => {
-          const [key, value] = env.split('=')
-          return {...envs, [key]: value}
-        }, {})
+        env: envs
       }
 
-      if (useCI) {
+      if (ci) {
+        packageInfo.builds.forEach(extension => {
+          jobs.builds.push(makeJob(baseJob, {type: 'build', extension}))
+        })
         packageInfo.tests.forEach(extension => {
           jobs.tests.push(makeJob(baseJob, {type: 'test', extension}))
         })
+      }
+
+      if (release) {
         packageInfo.builds.forEach(extension => {
           jobs.builds.push(makeJob(baseJob, {type: 'build', extension}))
         })
@@ -118,37 +127,17 @@ async function main() {
         })
       }
 
-      if (!useCI || packageInfo.tests.length === 0) {
+      if (!release && (!ci || packageInfo.tests.length === 0)) {
         jobs.tests.push(makeJob(baseJob, {type: 'test'}))
       }
 
       return jobs
     }, {builds: [] as Job[], tests: [] as Job[], releases: [] as Job[]})
 
-    if (useCI) {
-      jobs.tests.forEach(testJob => {
-        const defaultRestore = jobs.builds.reduce((restore, buildJob) => {
-          if (buildJob.name === testJob.name && buildJob.save) {
-            if (buildJob.save.cache) (restore.cache ??= []).push(buildJob.save.cache)
-            if (buildJob.save.artifact) (restore.artifact ??= []).push(buildJob.save.artifact)
-          }
-          return restore
-        }, {} as {cache?: Artifact[], artifact?: Artifact[]})
-        if (testJob.restore) {
-            testJob.restore.cache &&= testJob.restore.cache.flatMap(cache => {
-              return typeof cache === 'string'
-                ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
-                : cache
-            })
-            testJob.restore.artifact &&= testJob.restore.artifact.flatMap(artifact => {
-              return typeof artifact === 'string'
-                ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
-                : artifact
-            })
-        } else {
-          testJob.restore = defaultRestore
-        }
-      })
+    if (ci) {
+      jobs.tests.forEach(populateRestore)
+    } else if (release) {
+      jobs.releases.forEach(populateRestore)
     }
 
     return jobs
@@ -220,6 +209,30 @@ async function main() {
         return result
       }
     }
+
+    function populateRestore(job: Job) {
+      const defaultRestore = jobs.builds.reduce((restore, buildJob) => {
+        if (buildJob.name === job.name && buildJob.save) {
+          if (buildJob.save.cache) (restore.cache ??= []).push(buildJob.save.cache)
+          if (buildJob.save.artifact) (restore.artifact ??= []).push(buildJob.save.artifact)
+        }
+        return restore
+      }, {} as {cache?: Artifact[], artifact?: Artifact[]})
+      if (job.restore) {
+          job.restore.cache &&= job.restore.cache.flatMap(cache => {
+            return typeof cache === 'string'
+              ? defaultRestore.cache?.find(defaultCache => defaultCache.key === cache) ?? []
+              : cache
+          })
+          job.restore.artifact &&= job.restore.artifact.flatMap(artifact => {
+            return typeof artifact === 'string'
+              ? defaultRestore.artifact?.find(defaultArtifact => defaultArtifact.key === artifact) ?? []
+              : artifact
+          })
+      } else {
+        job.restore = defaultRestore
+      }
+    }
   }
 
   function getChangedPackagesInput(): string {
@@ -234,6 +247,10 @@ async function main() {
       return changedPackageNames
     }, new Set())
     return Array.from(changedPackageNames.values()).join(' ')
+  }
+
+  function getPackagesInputFromTags(tags: string[]): string {
+    return tags.map(tag => tag.replace(/@[^@]+$/, '')).join(' ')
   }
 
   function getAllPackagesInput(): string {

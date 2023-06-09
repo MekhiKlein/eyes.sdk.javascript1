@@ -10,17 +10,43 @@ jobs:
   setup:
     name: Setup
     runs-on: ubuntu-latest
-    # outputs:
-    #   releases: ${{steps.setup.outputs.releases}}
+    outputs:
+      releases: ${{steps.setup.outputs.releases}}
     steps:
-      - run: echo ${{toJSON(github.event.release)}}
-      # - name: Check-out repository
-      #   uses: actions/checkout@v3
-      #   with:
-      #     fetch-depth: 0
-      # - name: Setup
-      #   uses: ./.github/actions/setup
-      #   id: setup
-      #   with:
-      #     packages: changed
-      #     ci: true
+      - name: Check-out repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup
+        uses: ./.github/actions/setup
+        id: setup
+        with:
+          tag: ${{github.event.release.tag_name}}
+
+  js-release:
+    needs: [setup]
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{fromJSON(needs.setup.outputs.releases)}}
+    name: Release / ${{matrix.display-name}}
+    runs-on: ${{matrix.runner || 'ubuntu-latest'}}
+    env: ${{matrix.env}}
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version || 'lts/*'}}
+          registry-url: ${{matrix.registry || 'https://registry.npmjs.org'}}
+          always-auth: true
+      - working-directory: ${{matrix.working-directory}}
+        run: ls -la
+      - name: Restore build artifacts
+        if: ${{matrix.restore.cache}}
+        uses: ./.github/actions/cache/restore
+        with: 
+          cache: ${{toJSON(matrix.restore.cache)}}
+      - working-directory: ${{matrix.working-directory}}
+        run: ls -la
