@@ -2865,12 +2865,13 @@ async function main() {
         const releaseConfigPath = external_node_path_namespaceObject.resolve(process.cwd(), './release-please-config.json');
         const releaseConfig = JSON.parse(await promises_namespaceObject.readFile(releaseConfigPath, { encoding: 'utf8' }));
         const packages = await Object.entries(releaseConfig.packages).reduce(async (packages, [packagePath, packageConfig]) => {
-            if (packagePath.startsWith('js/')) {
+            if (packageConfig.component.startsWith('js/')) {
                 const packageManifestPath = external_node_path_namespaceObject.resolve(packagePath, 'package.json');
                 const manifest = JSON.parse(await promises_namespaceObject.readFile(packageManifestPath, { encoding: 'utf8' }));
                 return packages.then(packages => {
                     packages[manifest.name] = {
                         name: manifest.name,
+                        version: manifest.version,
                         component: packageConfig.component,
                         path: packagePath,
                         tests: packageConfig.tests ?? [],
@@ -2897,7 +2898,7 @@ async function main() {
                 name: packageInfo.component,
                 'display-name': packageInfo.component,
                 'package-name': packageInfo.name,
-                'artifact-name': `artifact-${packageInfo.component.replace(/\//g, '-')}`,
+                'package-version': packageInfo.version,
                 'working-directory': packageInfo.path,
                 runner: Runner[runner],
                 [`${langName}-version`]: langVersion,
@@ -2909,6 +2910,8 @@ async function main() {
                     jobs.builds.push(makeJob(baseJob, { type: 'build', extension }));
                 });
                 packageInfo.tests.forEach(extension => {
+                    if (packageInfo.builds.length > 0)
+                        extension['build-type'] ??= 'none';
                     jobs.tests.push(makeJob(baseJob, { type: 'test', extension }));
                 });
             }

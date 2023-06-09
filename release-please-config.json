@@ -26,173 +26,173 @@
   "packages": {
     "js/packages/utils": {
       "release-type": "node",
-      "component": "utils",
+      "component": "js/utils",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/logger": {
       "release-type": "node",
-      "component": "logger",
+      "component": "js/logger",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/socket": {
       "release-type": "node",
-      "component": "socket",
+      "component": "js/socket",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/req": {
       "release-type": "node",
-      "component": "req",
+      "component": "js/req",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/image": {
       "release-type": "node",
-      "component": "image",
+      "component": "js/image",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/snippets": {
       "release-type": "node",
-      "component": "snippets",
+      "component": "js/snippets",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}"}}}
+        {"save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}"}}}
       ]
     },
     "js/packages/spec-driver-browser-extension": {
       "release-type": "node",
-      "component": "spec-driver-browser-extension",
+      "component": "js/spec-driver-browser-extension",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}"}}}
+        {"save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}"}}}
       ]
     },
     "js/packages/spec-driver-selenium": {
       "release-type": "node",
-      "component": "spec-driver-selenium",
+      "component": "js/spec-driver-selenium",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"framework-version": 4.4, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"framework-version": 4.4, "node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 4.4, "node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 4.4, "node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 4.4, "node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/spec-driver-webdriverio": {
       "release-type": "node",
-      "component": "spec-driver-webdriverio",
+      "component": "js/spec-driver-webdriverio",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"framework-version": 5, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
-        {"framework-version": 6, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
-        {"framework-version": 7, "node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
-        {"framework-version": 8, "node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
-        {"framework-version": 8, "node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}}
+        {"framework-version": 5, "node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
+        {"framework-version": 6, "node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
+        {"framework-version": 7, "node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
+        {"framework-version": 8, "node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}},
+        {"framework-version": 8, "node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/spec-driver-webdriver": {
       "release-type": "node",
-      "component": "spec-driver-webdriver",
+      "component": "js/spec-driver-webdriver",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/spec-driver-puppeteer": {
       "release-type": "node",
-      "component": "spec-driver-puppeteer",
+      "component": "js/spec-driver-puppeteer",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/spec-driver-playwright": {
       "release-type": "node",
-      "component": "spec-driver-playwright",
+      "component": "js/spec-driver-playwright",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/driver": {
       "release-type": "node",
-      "component": "driver",
+      "component": "js/driver",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/screenshoter": {
       "release-type": "node",
-      "component": "screenshoter",
+      "component": "js/screenshoter",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
         {"test-type": "it", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/it"}}},
@@ -203,66 +203,66 @@
     },
     "js/packages/nml-client": {
       "release-type": "node",
-      "component": "nml-client",
+      "component": "js/nml-client",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/tunnel-client": {
       "release-type": "node",
-      "component": "tunnel-client",
+      "component": "js/tunnel-client",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/ufg-client": {
       "release-type": "node",
-      "component": "ufg-client",
+      "component": "js/ufg-client",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/execution-grid-client": {
       "release-type": "node",
-      "component": "ec-client",
+      "component": "js/ec-client",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/core-base": {
       "release-type": "node",
-      "component": "core-base",
+      "component": "js/core-base",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ],
       "releases": [
         {"registry": "https://registry.npmjs.org"}
@@ -270,113 +270,113 @@
     },
     "js/packages/core": {
       "release-type": "node",
-      "component": "core",
+      "component": "js/core",
       "builds": [
-        {"runner": "linux", "build-type": "x64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "save": {"cache": {"path": ["../*/dist", "../*/types", "./bin"], "key": "{{component}}/{{build-type}}/{{hash}}"}}},
-        {"runner": "linuxarm", "build-type": "arm64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "save": {"cache": {"path": ["../*/dist", "../*/types", "./bin"], "key": "{{component}}/{{build-type}}/{{hash}}"}}}
+        {"runner": "linux", "build-type": "x64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "save": {"cache": {"path": ["../*/dist", "../*/types", "./bin"], "key": "{{component}}/{{build-type}}/{{package-version}}"}}},
+        {"runner": "linuxarm", "build-type": "arm64", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "save": {"cache": {"path": ["../*/dist", "../*/types", "./bin"], "key": "{{component}}/{{build-type}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"runner": "linux", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/linux"}}},
-        {"runner": "linuxarm", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/arm64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/linuxarm"}}},
-        {"runner": "linux", "container": "node:lts-alpine", "shell": "ash -eo pipefail {0}", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/alpine"}}},
-        {"runner": "windows", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/windows"}}},
-        {"runner": "macos", "test-type": "bin", "build-type": "none", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{hash}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/macos"}}}
+        {"node-version": 14, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"runner": "linux", "test-type": "bin", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/linux"}}},
+        {"runner": "linuxarm", "test-type": "bin", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/arm64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/linuxarm"}}},
+        {"runner": "linux", "container": "node:lts-alpine", "shell": "ash -eo pipefail {0}", "test-type": "bin", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/alpine"}}},
+        {"runner": "windows", "test-type": "bin", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/windows"}}},
+        {"runner": "macos", "test-type": "bin", "setup-type": "none", "env": {"PUPPETEER_SKIP_DOWNLOAD": true}, "restore": {"cache": ["{{component}}/x64/{{package-version}}"]}, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/macos"}}}
       ]
     },
     "js/packages/eyes-api": {
       "release-type": "node",
       "component": "js/eyes",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/eyes-images": {
       "release-type": "node",
       "component": "js/eyes-images",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/eyes-selenium": {
       "release-type": "node",
       "component": "js/eyes-selenium",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"framework-version": 4.4, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 4.4, "node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"framework-version": 4.4, "node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 4.4, "node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 4.4, "node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 4.4, "node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/eyes-webdriverio-5": {
       "release-type": "node",
       "component": "js/eyes-webdriverio",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"framework-version": 5, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 6, "node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 7, "node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 8, "node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"framework-version": 8, "node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"framework-version": 5, "node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 6, "node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 7, "node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 8, "node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"framework-version": 8, "node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/eyes-nightwatch": {
       "release-type": "node",
       "component": "js/eyes-nightwatch",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/eyes-playwright": {
       "release-type": "node",
       "component": "js/eyes-playwright",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     },
     "js/packages/eyes-puppeteer": {
       "release-type": "node",
       "component": "js/eyes-puppeteer",
       "builds": [
-        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{hash}}"}}}
+        {"save": {"cache": {"path": ["../*/dist", "../*/types"], "key": "{{component}}/{{package-version}}"}}}
       ],
       "tests": [
-        {"node-version": 14, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 16, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 18, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
-        {"node-version": 20, "build-type": "none", "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
+        {"node-version": 14, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 16, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 18, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}},
+        {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ]
     }
   }

@@ -3,6 +3,7 @@ export interface Job {
   description?: string
   'display-name': string
   'package-name': string
+  'package-version': string
   'working-directory': string
   runner?: string
   container?: string
@@ -27,6 +28,7 @@ export interface Artifact {
 
 export interface Package {
   name: string
+  version: string
   component: string
   path: string
   builds: Record<string, any>[]
