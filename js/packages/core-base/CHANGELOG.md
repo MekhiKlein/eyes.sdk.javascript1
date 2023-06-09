@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.57](https://github.com/applitools/eyes.sdk.javascript1/compare/core-base@1.1.56...core-base@1.1.57) (2023-06-09)
+
+
+### Bug Fixes
+
+* **core-base:** some fix ([55f0d1c](https://github.com/applitools/eyes.sdk.javascript1/commit/55f0d1c8dc431e36a2149ab198c00e97b468fdc8))
+
 ## [1.1.56](https://github.com/applitools/eyes.sdk.javascript1/compare/core-base-v1.1.55...core-base@1.1.56) (2023-06-09)
 
 
