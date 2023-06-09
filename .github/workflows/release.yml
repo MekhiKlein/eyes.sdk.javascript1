@@ -4,7 +4,7 @@ run-name: Release (${{github.event.release.name}})
 
 on:
   release:
-    types: [published]
+    types: [published, edited]
 
 jobs:
   setup:
@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup
         id: setup
         with:
-          tag: ${{github.event.release.}}
+          tag: ${{github.event.release.tag_name}}
 
   js-release:
     needs: [setup]
