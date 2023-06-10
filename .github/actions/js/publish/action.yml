@@ -17,9 +17,8 @@ runs:
       shell: ${{inputs.shell}}
       working-directory: ${{inputs.working-directory}}
       run: |
-        echo "::group::Configure Yarn"
+        echo "::group::Install global tools"
         if [ -f "/etc/alpine-release" ]; then apk add --no-cache curl jq; fi
-        yarn -v
         echo "::endgroup::"
 
         echo "::group::Publish to NPM"

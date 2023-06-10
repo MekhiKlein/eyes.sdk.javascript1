@@ -14,7 +14,7 @@ concurrency:
 env:
   FORCE_COLOR: 3
   DISPLAY: ':99'
-  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+  NPM_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
   APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
   APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
@@ -63,8 +63,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{matrix.node-version || 'lts/*'}}
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
       - name: Yarn cache
         uses: actions/cache@v3
         with:
@@ -103,8 +101,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{matrix.node-version || 'lts/*'}}
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
       - name: Yarn cache
         uses: actions/cache@v3
         with:
