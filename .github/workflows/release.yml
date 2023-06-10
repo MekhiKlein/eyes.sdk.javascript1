@@ -51,5 +51,13 @@ jobs:
         uses: ./.github/actions/cache/restore
         with: 
           cache: ${{toJSON(matrix.restore.cache)}}
-      - working-directory: ${{matrix.working-directory}}
-        run: ls -la
+      - name: Publish to NPM
+        uses: ./.github/actions/js/test
+        with:
+          working-directory: ${{matrix.working-directory}}
+          shell: ${{matrix.shell || 'bash'}}
+      - name: Update GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{github.event.release.tag_name}}
+          files: ${{join(matrix.assets, '\n')}}

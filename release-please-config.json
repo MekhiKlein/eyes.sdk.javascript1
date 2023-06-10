@@ -265,7 +265,7 @@
         {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ],
       "releases": [
-        {"registry": "https://npm.pkg.github.com"}
+        {"registry": "https://npm.pkg.github.com", "assets": ["./package.json"]}
       ]
     },
     "js/packages/core": {

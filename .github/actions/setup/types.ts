@@ -19,6 +19,7 @@ export interface Job {
   env?: Record<string, string>
   save?: {cache?: Artifact, artifact?: Artifact}
   restore?: {cache?: (Artifact | string)[], artifact?: (Artifact | string)[]}
+  assets?: string[]
 }
 
 export interface Artifact {

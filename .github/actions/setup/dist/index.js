@@ -2841,7 +2841,7 @@ async function main() {
     }
     else if (release) {
         input = getPackagesInputFromTags(tags);
-        input = getChangedPackagesInput();
+        core.notice(`Release packages: "${input}"`);
     }
     else {
         input = core.getInput('packages');
@@ -2982,6 +2982,9 @@ async function main() {
                             path: artifact.path.map(artifactPath => external_node_path_namespaceObject.join(job['working-directory'], artifactPath))
                         };
                 });
+            }
+            if (job.assets) {
+                job.assets &&= job.assets.map(assetPath => external_node_path_namespaceObject.join(job['working-directory'], assetPath));
             }
             return job;
             function populateString(string, options) {

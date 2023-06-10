@@ -38,7 +38,7 @@ async function main() {
     core.notice(`Changed packages: "${input}"`)
   } else if (release) {
     input = getPackagesInputFromTags(tags)
-    input = getChangedPackagesInput()
+    core.notice(`Release packages: "${input}"`)
   } else {
     input = core.getInput('packages') 
     core.notice(`Requested packages: "${input}"`)
@@ -194,7 +194,9 @@ async function main() {
             }
         })
       }
-
+      if (job.assets) {
+        job.assets &&= job.assets.map(assetPath => path.join(job['working-directory'], assetPath))
+      }
 
       return job
 
