@@ -32,6 +32,7 @@ jobs:
       builds: ${{steps.setup.outputs.builds}}
       tests: ${{steps.setup.outputs.tests}}
     steps:
+      - run: echo ${{toJson(github)}}
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
@@ -47,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{fromJSON(needs.setup.outputs.builds)}}
+        include: ${{fromJson(needs.setup.outputs.builds)}}
     name: Build / ${{matrix.display-name}}
     timeout-minutes: 20
     runs-on: ${{matrix.runner || 'ubuntu-latest'}}
