@@ -4,7 +4,7 @@
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
-  "sequential-calls": true,
+  "prerelease": true,
   "plugins": [
     "rich-commits",
     {"type": "rich-workspace", "workspace": "node"}
@@ -265,7 +265,7 @@
         {"node-version": 20, "save": {"artifact": {"path": ["./logs/**/*"], "key": "{{component}}/node-{{node-version}}"}}}
       ],
       "releases": [
-        {"registry": "https://npm.pkg.github.com", "assets": ["./package.json"]}
+        {"registry-url": "https://npm.pkg.github.com", "assets": ["./package.json"]}
       ]
     },
     "js/packages/core": {
