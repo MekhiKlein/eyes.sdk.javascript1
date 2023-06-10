@@ -52,7 +52,7 @@ jobs:
         with: 
           cache: ${{toJSON(matrix.restore.cache)}}
       - name: Publish to NPM
-        uses: ./.github/actions/js/test
+        uses: ./.github/actions/js/publish
         with:
           working-directory: ${{matrix.working-directory}}
           shell: ${{matrix.shell || 'bash'}}
