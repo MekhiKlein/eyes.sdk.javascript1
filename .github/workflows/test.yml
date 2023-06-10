@@ -8,7 +8,7 @@ on:
     branches: [chore/release-please]
 
 concurrency:
-  group: ${{github.ref}}
+  group: ci-${{github.ref}}
   cancel-in-progress: true
 
 env:

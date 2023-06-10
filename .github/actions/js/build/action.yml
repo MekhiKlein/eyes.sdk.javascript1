@@ -8,9 +8,6 @@ inputs:
   build-type:
     description: type of the build script
     type: string
-  links:
-    description: names of package directories to link before building
-    type: string
   shell:
     description: shell to use
     type: string

@@ -6,6 +6,11 @@ on:
   release:
     types: [published, edited]
 
+env:
+  FORCE_COLOR: 3
+  # NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+  NODE_AUTH_TOKEN: ${{secrets.REGISTRY_GITHUB_TOKEN}}
+
 jobs:
   setup:
     name: Setup

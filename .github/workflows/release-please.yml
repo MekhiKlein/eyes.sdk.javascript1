@@ -6,7 +6,7 @@ on:
       - chore/release-please
 
 concurrency:
-  group: ${{github.ref}}
+  group: release-please-${{github.ref}}
   cancel-in-progress: true
 
 permissions:
