@@ -1,7 +1,7 @@
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
 const processResults = require('../../src/processResults');
-const snap = () => {}; //require('@applitools/snaptdout');
+const snap = require('@applitools/snaptdout');
 process.env.FORCE_COLOR = 2;
 
 describe('processResults', () => {
