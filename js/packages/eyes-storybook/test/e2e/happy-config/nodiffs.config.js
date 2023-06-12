@@ -11,4 +11,6 @@ module.exports = {
     height: 1000,
   },
   exitcode: 'nodiffs',
+  saveNewTests: false,
+  testConcurrency: 100, // to avoid the default message in the output. Not that it causes any issue, just cleaner
 };
