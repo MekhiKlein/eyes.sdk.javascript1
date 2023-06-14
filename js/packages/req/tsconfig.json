@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "module": "nodenext",
-    "types": ["node", "mocha"],
-  },
-  "ts-node": {"transpileOnly": true},
-}
