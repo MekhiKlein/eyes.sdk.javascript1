@@ -141,13 +141,13 @@ function __runRunAfterScript(...args) {
   }
 
   function getFrameWindow() {
-    if (/iframe.html/.test(window.location.href)) {
+    if (/iframe/.test(window.location.href)) {
       return window;
     }
 
     const innerFrameWindow = Array.prototype.find.call(window.frames, frame => {
       try {
-        return /\/iframe.html/.test(frame.location.href);
+        return /\/iframe/.test(frame.location.href);
       } catch (e) {}
     });
 
