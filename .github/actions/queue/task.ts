@@ -8,7 +8,7 @@ export async function makeTask(options: {name: string, branch?: string, maxParal
 
   await exec(`git config --global user.email "action-queue@applitools.com" && git config --global user.name "queue-bot"`)
   await exec(`git checkout -B ${options.branch}`)
-  await exec(`git branch --set-upstream origin/${options.branch} ${options.branch}`)
+  await exec(`git branch ${options.branch} --set-upstream-to=origin/${options.branch}`)
   await exec(`git fetch`)
   await exec(`git pull`)
   await exec(`git push`)
