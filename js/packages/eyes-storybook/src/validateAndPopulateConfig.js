@@ -26,7 +26,11 @@ async function validateAndPopulateConfig({config, packagePath = '', logger = mak
 
   const packageJsonPath = `${packagePath}/package.json`;
   const packageJson = fs.existsSync(packageJsonPath) ? require(packageJsonPath) : undefined;
-  const {storybookPath, isVersion7, sbArg} = await determineStorybookVersion(packagePath);
+  const {storybookPath, isVersion7, sbArg} = await determineStorybookVersion(
+    config.storybookInstallationDir
+      ? resolve(packagePath, config.storybookInstallationDir)
+      : packagePath,
+  );
   logger.log(
     `[validateAndPopulateConfig] storybookPath=${storybookPath} isVersion7=${isVersion7} sbArg=${sbArg}`,
   );
