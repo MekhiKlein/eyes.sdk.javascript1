@@ -74,13 +74,13 @@ runs:
         then
           echo "::group::Building package"
           yarn workspaces foreach --topological-dev --recursive --parallel --from $(jq -r .name ./package.json) run build
-          yarn run build:${{inputs.build-type}}
+          if [ ! -z "${{inputs.build-type}}" ]; then yarn run build:${{inputs.build-type}}; fi
           echo "::endgroup::"
         fi
 
         echo "::group::Running tests"
         if [ ! -z "${{inputs.grep}}" ]; then export MOCHA_GREP=${{inputs.grep}}; fi
-        if [ ! -z "${{inputs.parallel}}" ]; then export MOCHA_GREP=${{inputs.parallel}}; fi
+        if [ ! -z "${{inputs.parallel}}" ]; then export MOCHA_JOBS=${{inputs.parallel}}; fi
 
         if [ ! -z "${{inputs.test-type}}" ]; then yarn test:${{inputs.test-type}}; elif [ "$(jq -r .scripts.test ./package.json)" != "null" ]; then yarn test; fi
         echo "::endgroup::"
@@ -88,6 +88,6 @@ runs:
         if [ "$(jq -r .scripts.report ./package.json)" != "null" ]
         then
           echo "::group::Sending reports"
-          if [ "${{inputs.report}}" = "sandbox" ]; then yarn report --sandbox; else yarn report; fi
+          if [ "${{inputs.report}}" = "sandbox" ]; then yarn report --sandbox; else yarn report --report-id=$(jq -r '"\(.name)@\(.version)"' ./package.json); fi
           echo "::endgroup::"
         fi

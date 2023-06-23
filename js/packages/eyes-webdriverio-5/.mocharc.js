@@ -9,7 +9,7 @@ const tags = {
     'emulator',
     'mobile',
     'native',
-    'native-selectors',
+    'sauce',
     'cached-selectors',
     'chrome',
     'firefox',
@@ -31,6 +31,6 @@ module.exports = {
   timeout: 0,
   require: ['ts-node/register'],
   reporter: 'mocha-multi',
-  reporterOptions: [`spec=-,json=./logs/report${group ? `-${group}` : ''}.json,xunit=coverage-test-report.xml`],
-  grep: mochaGrep({tags: Array.from(tags[protocol])}),
+  reporterOptions: [`spec=-,json=./logs/report${group ? `-${group}` : ''}.json,xunit=./logs/coverage-test-report.xml`],
+  grep: mochaGrep({tags: {allow: Array.from(tags[protocol])}}),
 }

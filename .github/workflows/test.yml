@@ -55,13 +55,15 @@ jobs:
         id: setup
         with:
           packages: ${{inputs.packages}}
+          env: ${{inputs.env}}
 
   js-test:
     needs: [setup]
+    if: ${{fromJSON(needs.setup.outputs.tests).js}}
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{fromJSON(needs.setup.outputs.tests)}}
+        include: ${{fromJSON(needs.setup.outputs.tests).js}}
     name: Test / ${{matrix.display-name}}
     timeout-minutes: 60
     runs-on: ${{matrix.runner || 'ubuntu-latest'}}
@@ -86,22 +88,23 @@ jobs:
           working-directory: ${{matrix.working-directory}}
           shell: ${{matrix.shell || 'bash'}}
           framework-version: ${{matrix.framework-version}}
-          test-type: ${{matrix.test-type}}
-          build-type: ${{matrix.build-type}}
-          setup-type: ${{matrix.setup-type}}
+          test-type: ${{matrix.test-type || inputs.test-type}}
+          build-type: ${{matrix.build-type || inputs.build-type}}
+          setup-type: ${{matrix.setup-type || inputs.setup-type}}
           parallel: ${{matrix.parallel}}
+          grep: ${{inputs.grep}}
       - name: Save testing artifacts
-        if: always()
+        if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{matrix.save.artifact.key}}
-          path: ${{join(matrix.save.artifact.path)}}
+          name: ${{matrix.name}}
+          path: ./logs
           retention-days: 2
           if-no-files-found: ignore
 
   report:
     needs: [setup, js-test]
-    if: always() && !cancelled()
+    if: (success() || failure()) && fromJSON(needs.setup.outputs.tests).*
     name: Report
     runs-on: ubuntu-latest
     steps:
@@ -111,6 +114,6 @@ jobs:
         id: report
         uses: ./.github/actions/report
         with:
-          artifact: ${{join(fromJSON(needs.setup.outputs.tests).*.save.artifact.key)}}
+          artifact: ${{join(fromJSON(needs.setup.outputs.tests).*.*.key)}}
           path: |
             ./report*.json
