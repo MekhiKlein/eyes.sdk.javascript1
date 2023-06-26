@@ -15,7 +15,6 @@ const {resolve} = require('path');
 const {exec} = require('child_process');
 const {promisify: p} = require('util');
 const pexec = p(exec);
-// eslint-disable-next-line
 const semver = require('semver');
 const {makeLogger} = require('@applitools/logger');
 
