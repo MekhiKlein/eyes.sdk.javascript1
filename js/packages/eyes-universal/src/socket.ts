@@ -16,12 +16,14 @@ export interface Socket {
   unref(): () => void
 }
 
-export function makeSocket(ws: WebSocket, {logger}: {logger?: Logger} = {}): Socket {
+export function makeSocket(ws?: WebSocket, {logger}: {logger?: Logger} = {}): Socket {
   let socket: WebSocket = null
   const listeners = new Map<string, Set<(...args: any[]) => any>>()
   const queue = new Set<() => any>()
 
-  attach(ws)
+  if (ws) {
+    attach(ws)
+  }
 
   return {
     connect,
@@ -132,9 +134,24 @@ export function makeSocket(ws: WebSocket, {logger}: {logger?: Logger} = {}): Soc
       logger?.log('[COMMAND]', name, JSON.stringify(payload, null, 4))
       try {
         const result = await fn(payload)
+        logger?.log(
+          `[COMMAND] ${name} finished successfully with result`,
+          result && JSON.stringify(result, null, 4).slice(0, 3000),
+        )
         emit({name, key}, {result})
       } catch (error) {
-        emit({name, key}, {error: {message: error.message, stack: error.stack, reason: error.reason}})
+        logger?.log(`[COMMAND] ${name} failed with an error`, error)
+        emit(
+          {name, key},
+          {
+            error: {
+              message: error.message,
+              stack: error.stack,
+              reason: error.reason ?? 'internal',
+              ...error.toJSON?.(),
+            },
+          },
+        )
       }
     })
   }

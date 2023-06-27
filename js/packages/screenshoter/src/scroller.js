@@ -37,8 +37,8 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
     if (scrollingMode === 'mixed+') return getShiftOffset(element)
   }
 
-  async function getContentSize() {
-    const size = await element.getContentSize()
+  async function getContentSize(options) {
+    const size = await element.getContentSize(options)
     return size
   }
 
@@ -111,7 +111,8 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
       if (utils.geometry.equals(scrollOffset, offset) && !formerlyCssScrollingMode) return scrollOffset
 
       // there is a "bug" in iOS that will not move a root element if it already scrolled, so it should be translated all the way
-      if (element.driver.isIOS && (await element.isRoot())) {
+      const environment = await element.driver.getEnvironment()
+      if (environment.isIOS && (await element.isRoot())) {
         const translateOffset = await element.translateTo(offset)
         return translateOffset
       }

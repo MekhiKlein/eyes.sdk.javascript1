@@ -16,8 +16,6 @@ describe('screenshoter ios app', () => {
     await button.click()
     await sleep(3000)
 
-    await driver.init()
-
     await test({
       type: 'ios',
       tag: 'app-fully-scroll',
@@ -26,6 +24,14 @@ describe('screenshoter ios app', () => {
       scrollingMode: 'scroll',
       wait: 1500,
       overlap: {top: 10, bottom: 50},
+      driver,
+      logger,
+    })
+
+    await test({
+      type: 'ios',
+      tag: 'app-fully-scroll-after',
+      wait: 1500,
       driver,
       logger,
     })

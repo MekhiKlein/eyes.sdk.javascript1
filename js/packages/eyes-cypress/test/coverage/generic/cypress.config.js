@@ -1,6 +1,14 @@
 const {defineConfig} = require('cypress');
+const group = process.env.MOCHA_GROUP
 
 module.exports = defineConfig({
+  reporterEnabled: 'spec, json',
+  reporter: 'mocha-multi',
+  reporterOptions: {
+    spec:'-',
+    json: `../../../logs/report${group ? `-${group}` : ''}.json`,
+    xunit: 'coverage-test-report.xml'
+  },
   chromeWebSecurity: true,
   video: false,
   screenshotOnRunFailure: false,
@@ -8,8 +16,6 @@ module.exports = defineConfig({
   eyesIsGlobalHooksSupported: false,
   eyesPort: 51664,
   e2e: {
-    // We've imported your old cypress plugins here.
-    // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
     },
     specPattern: '../generic/cypress/e2e/',

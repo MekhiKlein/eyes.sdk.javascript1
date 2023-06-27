@@ -1,6 +1,8 @@
-import type {Size, Cookie} from '@applitools/types'
+import type {Size} from '@applitools/utils'
+import {type Cookie} from '@applitools/driver'
 import assert from 'assert'
 import * as spec from '../../src'
+import * as utils from '@applitools/utils'
 
 function extractElementId(element: any) {
   return element.elementId || element['element-6066-11e4-a52e-4f735466cecf'] || element.ELEMENT
@@ -16,7 +18,7 @@ describe('spec driver', async () => {
 
   describe('headless desktop (@puppeteer)', async () => {
     before(function () {
-      if (Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) < 7) this.skip()
+      if (Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 7) this.skip()
     })
 
     before(async () => {
@@ -48,7 +50,7 @@ describe('spec driver', async () => {
       await isSelector({input: 'div', expected: true})
     })
     it('isSelector(function)', async () => {
-      await isSelector({input: () => void 0, expected: true})
+      await isSelector({input: () => null as any, expected: true})
     })
     it('isSelector(by)', async () => {
       await isSelector({input: {using: 'xpath', value: '//div'}, expected: true})
@@ -85,15 +87,15 @@ describe('spec driver', async () => {
     it('untransformSelector(direct-string)', async () => {
       await untransformSelector({input: 'css selector:.element', expected: {type: 'css', selector: '.element'}})
     })
-    it('untransformSelector(by)', async () => {
-      await untransformSelector({input: () => null, expected: null})
+    it('untransformSelector(function)', async () => {
+      await untransformSelector({input: () => null as any, expected: null})
     })
     it('untransformSelector(by)', async () => {
       await untransformSelector({input: {using: 'xpath', value: '//div'}, expected: {type: 'xpath', selector: '//div'}})
     })
     it('untransformSelector(common-selector)', async () => {
       const selector = {selector: '.element', type: 'css'}
-      await untransformSelector({input: selector, expected: selector})
+      await untransformSelector({input: selector as any, expected: selector})
     })
     it('extractSelector(element)', async () => {
       await extractSelector({
@@ -120,8 +122,8 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(function)', async () => {
-      const selector = function () {
-        return this.document.getElementById('overflowing-div')
+      const selector = function (this: Window) {
+        return this.document.getElementById('overflowing-div')!
       }
       await findElement({input: {selector}})
     })
@@ -135,8 +137,8 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(function)', async () => {
-      const selector = function () {
-        return this.document.querySelectorAll('div')
+      const selector = function (this: Window) {
+        return Array.from(this.document.querySelectorAll('div'))
       }
       await findElements({input: {selector}})
     })
@@ -144,7 +146,13 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'non-existent'}, expected: []})
     })
     it('findElements(within-element)', async () => {
-      findElements({input: {selector: 'div', parent: await browser.$('#stretched')}})
+      await findElements({input: {selector: 'div', parent: await browser.$('#stretched')}})
+    })
+    it('setElementText(element, text)', async () => {
+      await setElementText({input: {element: await browser.$('input'), text: 'Ad multos annos'}})
+    })
+    it('takeScreenshot()', async () => {
+      await takeScreenshot()
     })
     it('getWindowSize()', async () => {
       await getWindowSize()
@@ -200,7 +208,7 @@ describe('spec driver', async () => {
       await isSelector({input: 'div', expected: true})
     })
     it('isSelector(function)', async () => {
-      await isSelector({input: () => null, expected: true})
+      await isSelector({input: () => null as any, expected: true})
     })
     it('isSelector(by)', async () => {
       await isSelector({input: {using: 'xpath', value: '//div'}, expected: true})
@@ -238,14 +246,14 @@ describe('spec driver', async () => {
       await untransformSelector({input: 'css selector:.element', expected: {type: 'css', selector: '.element'}})
     })
     it('untransformSelector(by)', async () => {
-      await untransformSelector({input: () => null, expected: null})
+      await untransformSelector({input: () => null as any, expected: null})
     })
     it('untransformSelector(by)', async () => {
       await untransformSelector({input: {using: 'xpath', value: '//div'}, expected: {type: 'xpath', selector: '//div'}})
     })
     it('untransformSelector(common-selector)', async () => {
       const selector = {selector: '.element', type: 'css'}
-      await untransformSelector({input: selector, expected: selector})
+      await untransformSelector({input: selector as any, expected: selector})
     })
     it('extractSelector(element)', async () => {
       await extractSelector({
@@ -284,8 +292,8 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(function)', async () => {
-      const selector = function () {
-        return this.document.getElementById('overflowing-div')
+      const selector = function (this: Window) {
+        return this.document.getElementById('overflowing-div')!
       }
       await findElement({input: {selector}})
     })
@@ -299,16 +307,22 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(function)', async () => {
-      const selector = function () {
-        return this.document.getElementById('overflowing-div')
+      const selector = function (this: Window) {
+        return this.document.getElementById('overflowing-div')!
       }
       await findElements({input: {selector}})
     })
     it('findElements(within-element)', async () => {
-      findElements({input: {selector: 'div', parent: await browser.$('#stretched')}})
+      await findElements({input: {selector: 'div', parent: await browser.$('#stretched')}})
     })
     it('findElements(non-existent)', async () => {
-      findElements({input: {selector: 'non-existent'}, expected: []})
+      await findElements({input: {selector: 'non-existent'}, expected: []})
+    })
+    it('takeScreenshot()', async () => {
+      await takeScreenshot()
+    })
+    it('setElementText(element, text)', async () => {
+      await setElementText({input: {element: await browser.$('input'), text: 'Ad multos annos'}})
     })
     it('getWindowSize()', async () => {
       await getWindowSize()
@@ -361,7 +375,11 @@ describe('spec driver', async () => {
     })
 
     before(async () => {
-      ;[browser, destroyBrowser] = await spec.build({browser: 'chrome', device: 'Pixel 3a XL'})
+      ;[browser, destroyBrowser] = await spec.build({
+        browser: 'chrome',
+        device: 'Pixel 3a XL',
+        orientation: 'landscape',
+      })
       await browser.url(url)
     })
 
@@ -377,7 +395,7 @@ describe('spec driver', async () => {
       await getCookies({input: {context: true}})
     })
     it('getOrientation()', async () => {
-      await getOrientation({expected: 'portrait'})
+      await getOrientation({expected: 'landscape'})
     })
   })
 
@@ -390,8 +408,9 @@ describe('spec driver', async () => {
       ;[browser, destroyBrowser] = await spec.build({
         app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
         device: 'Pixel 3a XL',
-        orientation: 'landscape',
       })
+      await spec.click(browser, {using: 'id', value: 'com.applitools.eyes.android:id/btn_web_view'})
+      await utils.general.sleep(5000)
     })
 
     after(async () => {
@@ -403,7 +422,22 @@ describe('spec driver', async () => {
       await getWindowSize()
     })
     it('getOrientation()', async () => {
-      await getOrientation({expected: 'landscape'})
+      await getOrientation({expected: 'portrait'})
+    })
+    it('getCurrentWorld()', async () => {
+      await getCurrentWorld()
+    })
+    it('getWorlds()', async () => {
+      await getWorlds()
+    })
+    it('switchWorld(name)', async () => {
+      await switchWorld({input: {name: 'WEBVIEW_com.applitools.eyes.android'}})
+    })
+    it('extractHostName()', async () => {
+      ;[browser, destroyBrowser] = await spec.build({browser: 'chrome-mac', protocol: 'wd'})
+      await browser.url(url)
+
+      extractHostName({expected: 'ondemand.us-west-1.saucelabs.com'})
     })
   })
 
@@ -445,12 +479,12 @@ describe('spec driver', async () => {
     input,
     expected,
   }: {
-    input: spec.Selector | {selector: spec.Selector} | {type: string; selector: string} | string
+    input: spec.Selector
     expected: {type?: string; selector: string} | string | null
   }) {
     assert.deepStrictEqual(spec.untransformSelector(input), expected)
   }
-  async function extractSelector({input, expected}: {input: spec.Element; expected: spec.Selector}) {
+  async function extractSelector({input, expected}: {input: spec.Element; expected: spec.Selector | undefined}) {
     const selector = spec.extractSelector(input)
     assert.deepStrictEqual(selector, expected)
   }
@@ -502,17 +536,33 @@ describe('spec driver', async () => {
       await browser.switchToFrame(null).catch(() => null)
     }
   }
+  async function getCurrentWorld() {
+    const actual = await spec.getCurrentWorld(browser)
+    const expected = 'NATIVE_APP'
+    assert.deepStrictEqual(actual, expected)
+  }
+  async function getWorlds() {
+    const actual = await spec.getWorlds(browser)
+    const expected = ['NATIVE_APP', 'WEBVIEW_com.applitools.eyes.android']
+    assert.deepStrictEqual(actual, expected)
+  }
+  async function switchWorld({input}: {input: {name: string}}) {
+    await spec.switchWorld(browser, input.name)
+    const actual = await browser.getContext()
+    const expected = input.name
+    assert.deepStrictEqual(actual, expected)
+  }
   async function findElement({
     input,
     expected,
   }: {
-    input: {selector: spec.Selector; parent?: spec.Element}
-    expected?: spec.Element
+    input: {selector: Applitools.WebdriverIO.Selector; parent?: Applitools.WebdriverIO.Element}
+    expected?: spec.Element | null
   }) {
-    const root = (input.parent as any) ?? browser
+    const root = input.parent ?? browser
     expected = expected === undefined ? await root.$(input.selector) : expected
     const element = await spec.findElement(browser, input.selector, input.parent)
-    if (element !== expected) {
+    if (element && expected) {
       assert.ok(await equalElements(browser, element, expected))
     }
   }
@@ -520,16 +570,27 @@ describe('spec driver', async () => {
     input,
     expected,
   }: {
-    input: {selector: spec.Selector; parent?: spec.Element}
+    input: {selector: Applitools.WebdriverIO.Selector; parent?: Applitools.WebdriverIO.Element}
     expected?: spec.Element[]
   }) {
-    const root = (input.parent as any) ?? browser
+    const root = input.parent ?? browser
     expected = expected === undefined ? await root.$$(input.selector) : expected
     const elements = await spec.findElements(browser, input.selector, input.parent)
-    assert.strictEqual(elements.length, expected.length)
+    assert.strictEqual(elements.length, (expected as any).length)
     for (const [index, element] of elements.entries()) {
-      assert.ok(await equalElements(browser, element, expected[index]))
+      assert.ok(await equalElements(browser, element, (expected as any)[index]))
     }
+  }
+  async function takeScreenshot() {
+    const screenshot = await spec.takeScreenshot(browser)
+    assert.ok(Buffer.isBuffer(screenshot) || utils.types.isArray)
+  }
+  async function setElementText({input}: {input: {element: Applitools.WebdriverIO.Element; text: string}}) {
+    const element = await browser.$(input.element)
+    await element.setValue('bla bla')
+    await spec.setElementText(browser, input.element, input.text)
+    const text = await element.getValue()
+    assert.strictEqual(text, input.text)
   }
   async function getWindowSize({legacy = false} = {}) {
     let size
@@ -560,7 +621,8 @@ describe('spec driver', async () => {
       value: 'world',
       domain: input?.context ? '.applitools.github.io' : 'google.com',
       path: '/',
-      expiry: 4025208067,
+      expiry: Math.floor((Date.now() + 60000) / 1000),
+      sameSite: 'Lax',
       httpOnly: true,
       secure: true,
     }
@@ -599,5 +661,9 @@ describe('spec driver', async () => {
     const actual = await browser.getUrl()
     assert.deepStrictEqual(actual, blank)
     await browser.url(url)
+  }
+  function extractHostName({expected}: {expected: string}) {
+    const driverUrl = spec.extractHostName(browser)
+    assert.strictEqual(driverUrl, expected)
   }
 })

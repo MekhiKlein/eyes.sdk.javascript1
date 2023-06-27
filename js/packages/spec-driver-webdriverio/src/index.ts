@@ -1,11 +1,11 @@
-import type {SpecDriver} from '@applitools/types'
+import type {SpecDriver} from '@applitools/driver'
 import * as spec from './spec-driver'
 
-if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
+if (!process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) {
   try {
-    const {version} = require('webdriverio/package.json')
+    const version = process.env.APPLITOOLS_FRAMEWORK_VERSION ?? require('webdriverio/package.json').version
     const [major] = version.split('.', 1)
-    process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION = major
+    process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION = major
   } catch {
     // NOTE: ignore error
   }
@@ -13,5 +13,5 @@ if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
 
 export * from './spec-driver'
 
-const typedSpec: SpecDriver<spec.Driver, spec.Driver, spec.Element, spec.Selector> = spec
+const typedSpec: SpecDriver<spec.SpecType> = spec
 export default typedSpec

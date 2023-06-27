@@ -1,5 +1,6 @@
-import type * as types from '@applitools/types'
-import * as utils from '@applitools/utils'
+import type * as Core from '@applitools/core'
+import {initSDK, type SDK} from './SDK'
+import {EyesSelector} from './input/EyesSelector'
 import {SessionType, SessionTypeEnum} from './enums/SessionType'
 import {StitchMode, StitchModeEnum} from './enums/StitchMode'
 import {MatchLevel, MatchLevelEnum} from './enums/MatchLevel'
@@ -7,64 +8,91 @@ import {EyesError} from './errors/EyesError'
 import {NewTestError} from './errors/NewTestError'
 import {DiffsFoundError} from './errors/DiffsFoundError'
 import {TestFailedError} from './errors/TestFailedError'
-import {CheckSettings, CheckSettingsFluent} from './input/CheckSettings'
+import {
+  CheckSettingsAutomation,
+  CheckSettingsAutomationFluent,
+  CheckSettingsImage,
+  CheckSettingsImageFluent,
+} from './input/CheckSettings'
+import {Image} from './input/Image'
 import {OCRSettings} from './input/OCRSettings'
 import {VisualLocatorSettings} from './input/VisualLocatorSettings'
 import {ProxySettings, ProxySettingsData} from './input/ProxySettings'
 import {Configuration, ConfigurationData} from './input/Configuration'
 import {BatchInfo, BatchInfoData} from './input/BatchInfo'
 import {RectangleSize, RectangleSizeData} from './input/RectangleSize'
-import {Region} from './input/Region'
+import {Region, RegionData} from './input/Region'
 import {OCRRegion} from './input/OCRRegion'
 import {ImageRotation, ImageRotationData} from './input/ImageRotation'
 import {CutProviderData} from './input/CutProvider'
-import {LogHandlerData, FileLogHandlerData, ConsoleLogHandlerData, NullLogHandlerData} from './input/LogHandler'
+import {
+  LogHandlerData,
+  FileLogHandlerData,
+  ConsoleLogHandlerData,
+  NullLogHandlerData,
+  LogHandler,
+} from './input/LogHandler'
 import {TextRegion} from './output/TextRegion'
 import {MatchResultData} from './output/MatchResult'
 import {TestResults, TestResultsData} from './output/TestResults'
 import {ValidationInfo} from './output/ValidationInfo'
 import {ValidationResult} from './output/ValidationResult'
-import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './SessionEventHandlers'
+import {SessionEventHandler, SessionEventHandlers} from './SessionEventHandlers'
 import {EyesRunner, ClassicRunner} from './Runners'
 import {Logger} from './Logger'
+import * as utils from '@applitools/utils'
 
-type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = types.Core<TDriver, TElement, TSelector>
-
-export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
-  protected static readonly _spec: EyesSpec
-  protected get _spec(): EyesSpec<TDriver, TElement, TSelector> {
-    return (this.constructor as typeof Eyes)._spec as EyesSpec<TDriver, TElement, TSelector>
+export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
+  protected static readonly _sdk: SDK<Core.SpecType>
+  protected get _sdk(): SDK<TSpec> {
+    return (this.constructor as typeof Eyes)._sdk as SDK<TSpec>
   }
 
   private _logger: Logger
-  private _config: ConfigurationData<TElement, TSelector>
+  private _config: ConfigurationData<TSpec>
+  private _state: {appName?: string} = {}
   private _runner: EyesRunner
-  private _driver: TDriver
-  private _eyes: types.Eyes<TDriver, TElement, TSelector>
+  private _driver?: TSpec['driver']
+  private _core: Core.Core<TSpec, 'classic' | 'ufg'>
+  private _eyes?: Core.Eyes<TSpec, 'classic' | 'ufg'>
+  private _spec?: Core.SpecDriver<TSpec>
   private _events: Map<string, Set<(...args: any[]) => any>> = new Map()
   private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
-  static async setViewportSize(driver: unknown, size: RectangleSize) {
-    await this._spec.setViewportSize({driver, size})
+  static async getExecutionCloudUrl(config?: Configuration): Promise<string> {
+    const {core} = initSDK(this._sdk)
+    const client = await core.getECClient({
+      settings: {
+        proxy: config?.proxy,
+        options: {eyesServerUrl: config?.serverUrl, apiKey: config?.apiKey},
+      },
+    })
+    client.unref()
+    return client.url
   }
 
-  constructor(runner?: EyesRunner, config?: Configuration<TElement, TSelector>)
-  constructor(config?: Configuration<TElement, TSelector>)
-  constructor(
-    runnerOrConfig?: EyesRunner | Configuration<TElement, TSelector>,
-    config?: Configuration<TElement, TSelector>,
-  ) {
+  static async setViewportSize(driver: unknown, size: RectangleSize) {
+    const {core} = initSDK(this._sdk)
+    await core.setViewportSize?.({target: driver, size})
+  }
+
+  constructor(runner?: EyesRunner, config?: Configuration<TSpec>)
+  constructor(config?: Configuration<TSpec>)
+  constructor(runnerOrConfig?: EyesRunner | Configuration<TSpec>, config?: Configuration<TSpec>) {
+    const sdk = initSDK(this._sdk)
+    this._spec = sdk.spec
+    this._core = sdk.core
     if (utils.types.instanceOf(runnerOrConfig, EyesRunner)) {
       this._runner = runnerOrConfig
-      this._config = new ConfigurationData(config)
+      this._config = new ConfigurationData(config, this._spec)
     } else {
       this._runner = new ClassicRunner()
-      this._config = new ConfigurationData(runnerOrConfig ?? config)
+      this._config = new ConfigurationData(runnerOrConfig ?? config, this._spec)
     }
 
-    this._runner.attach(this, this._spec)
+    this._runner.attach(this, this._core)
     this._handlers.attach(this)
-    this._logger = new Logger({...this._config.logs, label: 'Eyes API'})
+    this._logger = new Logger({label: 'Eyes API'})
   }
 
   get logger() {
@@ -78,27 +106,27 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this._runner
   }
   getRunner(): EyesRunner {
-    return this._runner
+    return this.runner
   }
 
-  get driver(): TDriver {
-    return this._driver
+  get driver(): TSpec['driver'] {
+    return this._driver!
   }
-  getDriver(): TDriver {
-    return this._driver
+  getDriver(): TSpec['driver'] {
+    return this.driver
   }
 
-  get configuration(): Configuration<TElement, TSelector> {
+  get configuration(): Configuration<TSpec> {
     return this._config
   }
-  set configuration(config: Configuration<TElement, TSelector>) {
-    this._config = new ConfigurationData(config)
+  set configuration(config: Configuration<TSpec>) {
+    this._config = new ConfigurationData(config, this._spec)
   }
-  getConfiguration(): ConfigurationData<TElement, TSelector> {
+  getConfiguration(): ConfigurationData<TSpec> {
     return this._config
   }
-  setConfiguration(config: Configuration<TElement, TSelector>) {
-    this._config = new ConfigurationData(config)
+  setConfiguration(config: Configuration<TSpec>) {
+    this._config = new ConfigurationData(config, this._spec)
   }
 
   get isOpen(): boolean {
@@ -140,8 +168,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
       handlers = new Set()
       this._events.set(event, handlers)
     }
-    handlers.add(handler)
-    return () => handlers.delete(handler)
+    handlers.add(handler!)
+    return () => handlers!.delete(handler!)
   }
 
   /** @undocumented */
@@ -156,45 +184,75 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
   }
 
-  async open(driver: TDriver, config?: Configuration): Promise<TDriver>
+  async getExecutionCloudUrl(): Promise<string> {
+    return (this.constructor as typeof Eyes).getExecutionCloudUrl(this._config)
+  }
+
+  async open(driver: TSpec['driver'], config?: Configuration<TSpec>): Promise<TSpec['driver']>
   async open(
-    driver: TDriver,
+    driver: TSpec['driver'],
     appName?: string,
     testName?: string,
     viewportSize?: RectangleSize,
     sessionType?: SessionType,
-  ): Promise<TDriver>
+  ): Promise<TSpec['driver']>
+  async open(config?: Configuration<TSpec>): Promise<void>
   async open(
-    driver: TDriver,
-    configOrAppName?: Configuration | string,
+    appName?: string,
     testName?: string,
     viewportSize?: RectangleSize,
     sessionType?: SessionType,
-  ): Promise<TDriver> {
-    this._driver = driver
-
-    if (this._config.isDisabled) return driver
-
-    const config: types.EyesConfig<TElement, TSelector> = this._config.toJSON()
-    if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
-      Object.assign(config, configOrAppName.toJSON())
-    } else if (utils.types.isObject(configOrAppName)) {
-      Object.assign(config, configOrAppName)
-    } else if (utils.types.isString(configOrAppName)) {
-      config.appName = configOrAppName
+  ): Promise<void>
+  async open(
+    driverOrConfigOrAppName?: TSpec['driver'] | Configuration<TSpec> | string,
+    configOrAppNameOrTestName?: Configuration<TSpec> | string,
+    testNameOrViewportSize?: string | RectangleSize,
+    viewportSizeOrSessionType?: RectangleSize | SessionType,
+    sessionType?: SessionType,
+  ): Promise<TSpec['driver'] | void> {
+    if (this._spec?.isDriver?.(driverOrConfigOrAppName)) {
+      this._driver = driverOrConfigOrAppName
+    } else {
+      sessionType = viewportSizeOrSessionType as SessionType
+      viewportSizeOrSessionType = testNameOrViewportSize as RectangleSize
+      testNameOrViewportSize = configOrAppNameOrTestName as string
+      configOrAppNameOrTestName = driverOrConfigOrAppName as Configuration<TSpec> | string
     }
-    if (utils.types.isString(testName)) config.testName = testName
-    if (utils.types.has(viewportSize, ['width', 'height'])) config.viewportSize = viewportSize
-    if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.sessionType = sessionType
 
-    // TODO remove when major version of sdk should be released
-    config.keepPlatformNameAsIs = true
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
+    if (this._config.isDisabled) return this._driver
+
+    const config = this._config.toJSON()
+
+    if (utils.types.instanceOf(configOrAppNameOrTestName, ConfigurationData)) {
+      const transformedConfig = configOrAppNameOrTestName.toJSON()
+      config.open = {...config.open, ...transformedConfig.open}
+      config.screenshot = {...config.screenshot, ...transformedConfig.screenshot}
+      config.check = {...config.check, ...transformedConfig.check}
+      config.close = {...config.close, ...transformedConfig.close}
+    } else if (utils.types.isObject(configOrAppNameOrTestName)) {
+      const transformedConfig = new ConfigurationData(configOrAppNameOrTestName, this._spec).toJSON()
+      config.open = {...config.open, ...transformedConfig.open}
+      config.screenshot = {...config.screenshot, ...transformedConfig.screenshot}
+      config.check = {...config.check, ...transformedConfig.check}
+      config.close = {...config.close, ...transformedConfig.close}
+    } else if (utils.types.isString(configOrAppNameOrTestName)) {
+      config.open.appName = configOrAppNameOrTestName
+    }
+    if (utils.types.isString(testNameOrViewportSize)) config.open.testName = testNameOrViewportSize
+    if (utils.types.has(viewportSizeOrSessionType, ['width', 'height'])) {
+      config.open.environment ??= {}
+      config.open.environment.viewportSize = viewportSizeOrSessionType
+    }
+    if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.open.sessionType = sessionType
+
+    config.open.keepPlatformNameAsIs = true
+
+    this._state.appName = config.open?.appName
 
     this._eyes = await this._runner.openEyes({
-      driver,
+      target: this._driver,
       config,
+      logger: this._logger.getLogger(),
       on: (name: string, data?: Record<string, any>) => {
         const globalHandlers = this._events.get('*')
         if (globalHandlers) globalHandlers.forEach(async handler => handler(name, data))
@@ -202,12 +260,63 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
         if (namedHandlers) namedHandlers.forEach(async handler => handler(data))
       },
     })
-    return new Proxy(this._driver as any, {
-      get(target, key) {
-        if (key === 'then') return
-        return Reflect.get(target, key)
-      },
-    }) as any
+    return (
+      this._driver &&
+      (new Proxy(this._driver as any, {
+        get(target, key) {
+          if (key === 'then') return
+          return Reflect.get(target, key)
+        },
+      }) as any)
+    )
+  }
+
+  async check(
+    name: string,
+    checkSettings: CheckSettingsImageFluent | CheckSettingsAutomationFluent<TSpec>,
+  ): Promise<MatchResultData>
+  async check(target: Image, checkSettings?: CheckSettingsImage): Promise<MatchResultData>
+  async check(checkSettings?: CheckSettingsAutomation<TSpec>): Promise<MatchResultData>
+  async check(
+    checkSettingsOrTargetOrName?: CheckSettingsAutomation<TSpec> | Image | string,
+    checkSettings?: CheckSettingsImage | CheckSettingsImageFluent | CheckSettingsAutomationFluent<TSpec>,
+  ): Promise<MatchResultData> {
+    if (this._config.isDisabled) return null as never
+    if (!this.isOpen) throw new EyesError('Eyes not open')
+
+    let serialized: {target?: Image; settings: any}
+    if (utils.types.isString(checkSettingsOrTargetOrName)) {
+      serialized = this._driver
+        ? new CheckSettingsAutomationFluent(checkSettings as CheckSettingsAutomationFluent<TSpec>, this._spec)
+            .name(checkSettingsOrTargetOrName)
+            .toJSON()
+        : new CheckSettingsImageFluent(checkSettings as CheckSettingsImageFluent)
+            .name(checkSettingsOrTargetOrName)
+            .toJSON()
+    } else if (utils.types.has(checkSettingsOrTargetOrName, 'image')) {
+      serialized = new CheckSettingsImageFluent(
+        checkSettings as CheckSettingsImage,
+        checkSettingsOrTargetOrName,
+      ).toJSON()
+    } else {
+      serialized = new CheckSettingsAutomationFluent(
+        checkSettingsOrTargetOrName as CheckSettingsAutomation<TSpec>,
+        this._spec,
+      ).toJSON()
+    }
+    const {target, settings} = serialized
+    const config = this._config.toJSON()
+    // TODO remove when major version of sdk should be released
+    config.screenshot.fully ??= false
+
+    let type: 'classic' | 'ufg' | undefined
+    if (settings?.nmgOptions?.nonNMGCheck === 'addToAllDevices') {
+      type = this._runner.type === 'ufg' ? 'classic' : 'ufg'
+    }
+
+    const [result] = await this._eyes!.check({type, target, settings, config})
+
+    return new MatchResultData(result)
   }
 
   /** @deprecated */
@@ -215,161 +324,237 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.check({name, timeout, fully})
   }
   /** @deprecated */
-  async checkFrame(element: TElement | types.Selector<TSelector> | string | number, timeout?: number, name?: string) {
+  async checkFrame(
+    element: TSpec['element'] | EyesSelector<TSpec['selector']> | string | number,
+    timeout?: number,
+    name?: string,
+  ) {
     return this.check({name, frames: [element], timeout, fully: true})
   }
   /** @deprecated */
-  async checkElement(element: TElement, timeout?: number, name?: string) {
+  async checkElement(element: TSpec['element'], timeout?: number, name?: string) {
     return this.check({name, region: element, timeout, fully: true})
   }
   /** @deprecated */
-  async checkElementBy(selector: types.Selector<TSelector>, timeout?: number, name?: string) {
+  async checkElementBy(selector: EyesSelector<TSpec['selector']>, timeout?: number, name?: string) {
     return this.check({name, region: selector, timeout, fully: true})
   }
   /** @deprecated */
-  async checkRegion(region?: Region, name?: string, timeout?: number) {
-    return this.check({name, region, timeout})
+  async checkRegion(region: Region, name?: string, timeout?: number): Promise<MatchResultData>
+  /** @deprecated */
+  async checkRegion(
+    image: Buffer | URL | string,
+    region: Region,
+    name?: string,
+    ignoreMismatch?: boolean,
+  ): Promise<MatchResultData>
+  async checkRegion(
+    imageOrRegion: Buffer | URL | string | Region,
+    regionOrName?: Region | string,
+    nameOrTimeout?: string | number,
+    ignoreMismatch = false,
+  ) {
+    return utils.types.has(imageOrRegion, ['x', 'y', 'width', 'height'])
+      ? this.check({region: imageOrRegion, name: regionOrName as string, timeout: nameOrTimeout as number})
+      : this.check(
+          {image: imageOrRegion},
+          {region: regionOrName as Region, name: nameOrTimeout as string, ignoreMismatch},
+        )
   }
   /** @deprecated */
-  async checkRegionByElement(element: TElement, name?: string, timeout?: number) {
+  async checkRegionByElement(element: TSpec['element'], name?: string, timeout?: number) {
     return this.check({name, region: element, timeout})
   }
   /** @deprecated */
-  async checkRegionBy(selector: types.Selector<TSelector>, name?: string, timeout?: number, fully = false) {
+  async checkRegionBy(selector: EyesSelector<TSpec['selector']>, name?: string, timeout?: number, fully = false) {
     return this.check({name, region: selector, timeout, fully})
   }
   /** @deprecated */
   async checkRegionInFrame(
-    frame: TElement | types.Selector<TSelector> | string | number,
-    selector: types.Selector<TSelector>,
+    frame: TSpec['element'] | EyesSelector<TSpec['selector']> | string | number,
+    selector: EyesSelector<TSpec['selector']>,
     timeout?: number,
     name?: string,
     fully = false,
   ) {
     return this.check({name, region: selector, frames: [frame], timeout, fully})
   }
-  async check(name: string, checkSettings: CheckSettingsFluent<TElement, TSelector>): Promise<MatchResultData>
-  async check(checkSettings?: CheckSettings<TElement, TSelector>): Promise<MatchResultData>
-  async check(
-    checkSettingsOrName?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector> | string,
-    checkSettings?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector>,
-  ): Promise<MatchResultData> {
-    if (this._config.isDisabled) return null
-    if (!this.isOpen) throw new EyesError('Eyes not open')
-
-    let settings: CheckSettings<TElement, TSelector>
-    if (utils.types.isString(checkSettingsOrName)) {
-      utils.guard.notNull(checkSettings, {name: 'checkSettings'})
-      settings = utils.types.instanceOf(checkSettings, CheckSettingsFluent)
-        ? checkSettings.name(checkSettingsOrName).toJSON()
-        : {...checkSettings, name: checkSettingsOrName}
-    } else {
-      settings = utils.types.instanceOf(checkSettingsOrName, CheckSettingsFluent)
-        ? checkSettingsOrName.toJSON()
-        : {...checkSettingsOrName}
-    }
-
-    const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
-    // TODO remove when major version of sdk should be released
-    config.forceFullPageScreenshot ??= false
-
-    const result = await this._eyes.check({settings, config})
-
-    return new MatchResultData(result)
+  /** @deprecated */
+  async checkImage(image: Buffer | URL | string, name?: string, ignoreMismatch = false) {
+    return this.check({image}, {name, ignoreMismatch})
   }
 
   async locate<TLocator extends string>(
+    target: Core.ImageTarget,
     settings: VisualLocatorSettings<TLocator>,
+  ): Promise<Record<TLocator, Region[]>>
+  async locate<TLocator extends string>(settings: VisualLocatorSettings<TLocator>): Promise<Record<TLocator, Region[]>>
+  async locate<TLocator extends string>(
+    targetOrSettings: Core.ImageTarget | VisualLocatorSettings<TLocator>,
+    settings?: VisualLocatorSettings<TLocator>,
   ): Promise<Record<TLocator, Region[]>> {
-    if (this._config.isDisabled) return null
+    if (this._config.isDisabled) return null as never
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
+    let target: Core.ImageTarget | TSpec['driver']
+    if (utils.types.has(targetOrSettings, 'locatorNames')) {
+      settings = targetOrSettings
+      target = this._driver
+    } else {
+      target = targetOrSettings
+    }
 
-    return this._eyes.locate({settings, config})
+    const config = this._config.toJSON()
+
+    const results = await this._core.locate({target, settings: {...this._state, ...settings}, config})
+    return Object.entries<Region[]>(results).reduce((results, [key, regions]) => {
+      results[key as TLocator] = regions.map(region => new RegionData(region))
+      return results
+    }, {} as Record<TLocator, Region[]>)
   }
 
   async extractTextRegions<TPattern extends string>(
+    target: Core.ImageTarget,
     settings: OCRSettings<TPattern>,
+  ): Promise<Record<TPattern, TextRegion[]>>
+  /** @deprecated */
+  async extractTextRegions<TPattern extends string>(
+    settingsWithImage: OCRSettings<TPattern> & {image: Core.ImageTarget['image']},
+  ): Promise<Record<TPattern, TextRegion[]>>
+  async extractTextRegions<TPattern extends string>(
+    settings: OCRSettings<TPattern>,
+  ): Promise<Record<TPattern, TextRegion[]>>
+  async extractTextRegions<TPattern extends string>(
+    targetOrSettings: Core.ImageTarget | (OCRSettings<TPattern> & {image?: Core.ImageTarget['image']}),
+    settings?: OCRSettings<TPattern>,
   ): Promise<Record<TPattern, TextRegion[]>> {
-    if (this._config.isDisabled) return null
+    if (this._config.isDisabled) return null as never
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
+    let target: Core.ImageTarget | TSpec['driver']
+    if (utils.types.has(targetOrSettings, 'patterns')) {
+      settings = targetOrSettings
+      if (utils.types.has(targetOrSettings, 'image')) {
+        target = {image: targetOrSettings.image!}
+      } else {
+        target = this._driver
+      }
+    } else {
+      target = targetOrSettings
+    }
 
-    return this._eyes.extractTextRegions({settings, config})
+    const config = this._config.toJSON()
+
+    return this._core.locateText({target, settings: settings!, config})
   }
 
-  async extractText(regions: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
-    if (this._config.isDisabled) return null
+  async extractText(target: Core.ImageTarget, settings: OCRRegion<TSpec>[]): Promise<string[]>
+  /** @deprecated */
+  async extractText(settingsWithImage: (OCRRegion<never> & {image: Core.ImageTarget['image']})[]): Promise<string[]>
+  async extractText(settings: OCRRegion<TSpec>[]): Promise<string[]>
+  async extractText(
+    targetOrSettings:
+      | Core.ImageTarget
+      | (OCRRegion<never> & {image?: Core.ImageTarget['image']})[]
+      | OCRRegion<TSpec>[],
+    settings?: OCRRegion<TSpec>[],
+  ): Promise<string[]> {
+    if (this._config.isDisabled) return null as never
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
-    const config = this._config.toJSON()
-    // TODO remove when major version of sdk should be released
-    if (config.proxy) config.proxy.isHttpOnly ??= false
+    let targets: (Core.ImageTarget | TSpec['driver'])[]
+    if (utils.types.isArray(targetOrSettings)) {
+      settings = targetOrSettings
+      targets = targetOrSettings.map(settings => {
+        return utils.types.has(settings, 'image') ? {image: settings.image as Core.ImageTarget['image']} : this._driver
+      })
+    } else {
+      targets = Array(settings!.length).fill(targetOrSettings)
+    }
 
-    return this._eyes.extractText({regions, config})
+    settings = settings!.map(settings => ({
+      ...settings,
+      region:
+        utils.types.isPlainObject(settings.target) && utils.types.has(settings.target, ['left', 'top'])
+          ? {...settings.target, x: settings.target.left, y: settings.target.top}
+          : settings.target,
+    }))
+
+    const config = this._config.toJSON()
+
+    return await settings.reduce((results, settings, index) => {
+      return results.then(async results => {
+        return results.concat(await this._core.extractText({target: targets[index], settings: settings!, config}))
+      })
+    }, Promise.resolve([] as string[]))
   }
 
   async close(throwErr = true): Promise<TestResultsData> {
-    if (this._config.isDisabled) return null
+    if (this._config.isDisabled) return null as never
     if (!this.isOpen) throw new EyesError('Eyes not open')
     const deleteTest = (options: any) =>
-      this._spec.deleteTest({
+      this._core.deleteTest({
         ...options,
-        serverUrl: this._config.serverUrl,
-        apiKey: this._config.apiKey,
-        proxy: this._config.proxy,
+        settings: {
+          ...options.settings,
+          serverUrl: this._config.serverUrl,
+          apiKey: this._config.apiKey,
+          proxy: this._config.proxy,
+        },
       })
     try {
-      const [result] = await this._eyes.close({throwErr})
-      return new TestResultsData(result, deleteTest)
-    } catch (err) {
-      if (!err.info?.testResult) throw err
-      const testResult = new TestResultsData(err.info.testResult, deleteTest)
-      if (err.reason === 'test failed') {
-        throw new TestFailedError(err.message, testResult)
-      } else if (err.reason === 'test different') {
-        throw new DiffsFoundError(err.message, testResult)
-      } else if (err.reason === 'test new') {
-        throw new NewTestError(err.message, testResult)
+      const config = this._config.toJSON()
+
+      await this._eyes!.close({config})
+      const [result] = await this._eyes!.getResults({settings: {throwErr}})
+      return new TestResultsData({result, deleteTest})
+    } catch (err: any) {
+      if (err.info?.result) {
+        const result = new TestResultsData({result: err.info.result, deleteTest})
+        if (err.reason === 'test failed') {
+          throw new TestFailedError(err.message, result)
+        } else if (err.reason === 'test different') {
+          throw new DiffsFoundError(err.message, result)
+        } else if (err.reason === 'test new') {
+          throw new NewTestError(err.message, result)
+        }
       }
+      throw err
     } finally {
-      this._eyes = null
+      this._eyes = undefined
     }
   }
-  /** @deprecated */
   async closeAsync(): Promise<void> {
-    await this.close(false)
+    if (this._config.isDisabled) return null as never
+    const config = this._config.toJSON()
+    await this._eyes?.close({config})
   }
 
   async abort(): Promise<TestResultsData> {
-    if (!this.isOpen || this._config.isDisabled) return null
-    return this._eyes
-      .abort()
-      .then(([result]) => {
-        return new TestResultsData(result, settings =>
-          this._spec.deleteTest({
+    if (!this.isOpen || this._config.isDisabled) return null as never
+    try {
+      await this._eyes!.abort()
+      const [result] = await this._eyes!.getResults()
+      return new TestResultsData({
+        result,
+        deleteTest: options =>
+          this._core.deleteTest({
+            ...options,
             settings: {
-              ...settings,
+              ...options.settings,
               serverUrl: this._config.serverUrl,
               apiKey: this._config.apiKey,
               proxy: this._config.proxy,
             },
           }),
-        )
       })
-      .finally(() => (this._eyes = null))
+    } finally {
+      this._eyes = undefined
+    }
   }
-  /** @deprecated */
   async abortAsync(): Promise<void> {
-    await this.abort()
+    if (!this.isOpen || this._config.isDisabled) return null as never
+    await this._eyes?.abort()
   }
   /** @deprecated */
   async abortIfNotClosed(): Promise<TestResults> {
@@ -380,7 +565,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
   async getViewportSize(): Promise<RectangleSizeData> {
     return (
-      this._config.getViewportSize() || new RectangleSizeData(await this._spec.getViewportSize({driver: this._driver}))
+      this._config.getViewportSize() ??
+      (this._core.getViewportSize
+        ? new RectangleSizeData(await this._core.getViewportSize({target: this._driver!}))
+        : (undefined as never))
     )
   }
   async setViewportSize(size: RectangleSize): Promise<void> {
@@ -390,36 +578,38 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
       this._config.setViewportSize(size)
     } else {
       try {
-        await this._spec.setViewportSize({driver: this._driver, size})
+        await this._core.setViewportSize?.({target: this._driver, size})
         this._config.setViewportSize(size)
       } catch (err) {
-        this._config.setViewportSize(await this._spec.getViewportSize({driver: this._driver}))
-        throw new TestFailedError('Failed to set the viewport size')
+        if (this._core.getViewportSize)
+          this._config.setViewportSize(await this._core.getViewportSize({target: this._driver}))
+        throw new EyesError('Failed to set the viewport size')
       }
     }
   }
 
-  getScrollRootElement(): TElement | types.Selector<TSelector> {
+  getScrollRootElement(): TSpec['element'] | EyesSelector<TSpec['selector']> {
     return this._config.getScrollRootElement()
   }
-  setScrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>) {
+  setScrollRootElement(scrollRootElement: TSpec['element'] | EyesSelector<TSpec['selector']>) {
     this._config.setScrollRootElement(scrollRootElement)
   }
 
-  setLogHandler(handler: LogHandlerData) {
-    this._config.setLogHandler(handler)
+  setLogHandler(handler: LogHandlerData | LogHandler) {
+    this._logger.setLogHandler(handler)
   }
   getLogHandler(): LogHandlerData {
-    const handler = this._config.getLogHandler()
-    if (!handler) {
-      return new NullLogHandlerData()
-    } else if (!utils.types.has(handler, 'type')) {
-      return handler as LogHandlerData
-    } else if (handler.type === 'file') {
-      return new FileLogHandlerData(true, handler.filename, handler.append)
-    } else if (handler.type === 'console') {
-      return new ConsoleLogHandlerData(true)
+    const handler = this._logger.getLogHandler()
+    if (handler) {
+      if (!utils.types.has(handler, 'type')) {
+        return handler as LogHandlerData
+      } else if (handler.type === 'file') {
+        return new FileLogHandlerData(true, handler.filename, handler.append)
+      } else if (handler.type === 'console') {
+        return new ConsoleLogHandlerData(true)
+      }
     }
+    return new NullLogHandlerData()
   }
 
   setCutProvider(cutProvider: CutProviderData) {
@@ -479,7 +669,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   setBatch(name: string, id?: string, startedAt?: Date | string): void
   setBatch(batchOrName: BatchInfo | string, id?: string, startedAt?: Date | string) {
     if (utils.types.isString(batchOrName)) {
-      this._config.setBatch({name: batchOrName, id, startedAt: new Date(startedAt)})
+      this._config.setBatch({name: batchOrName, id, startedAt: new Date(startedAt!)})
     } else {
       this._config.setBatch(batchOrName)
     }
@@ -703,22 +893,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
    * @deprecated
    */
   addSessionEventHandler(handler: SessionEventHandler) {
-    if (handler instanceof RemoteSessionEventHandler) {
-      this._config.setRemoteEvents(handler.toJSON())
-    } else {
-      this._handlers.addEventHandler(handler)
-    }
+    this._handlers.addEventHandler(handler)
   }
   /**
    * @undocumented
    * @deprecated
    */
   removeSessionEventHandler(handler: SessionEventHandler) {
-    if (handler instanceof RemoteSessionEventHandler) {
-      this._config.setRemoteEvents(null)
-    } else {
-      this._handlers.removeEventHandler(handler)
-    }
+    this._handlers.removeEventHandler(handler)
   }
   /**
    * @undocumented

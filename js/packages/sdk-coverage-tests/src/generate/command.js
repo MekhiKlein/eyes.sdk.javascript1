@@ -1,10 +1,12 @@
 const chalk = require('chalk')
 const {configLoader} = require('../loaders/config-loader')
+const {fixturesLoader} = require('../loaders/fixtures-loader')
 const {testsLoader} = require('../loaders/tests-loader')
 const {templateLoader} = require('../loaders/template-loader')
 const {specEmitterLoader} = require('../loaders/spec-emitter-loader')
 const {emitTests} = require('./emit')
 const {createTestFiles, createTestMetaData} = require('./save')
+const {isUrl} = require('../common-util')
 
 const DEFAULT_CONFIG = {
   tests: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/coverage-tests.js',
@@ -14,8 +16,12 @@ async function generate(options) {
   try {
     const config = {
       ...DEFAULT_CONFIG,
-      ...configLoader(options),
+      ...(await configLoader(options)),
       ...options,
+    }
+
+    if (config.fixtures && isUrl(config.fixtures)) {
+      config.fixtures = await fixturesLoader(config)
     }
 
     if (config.env) {
@@ -56,12 +62,8 @@ async function generate(options) {
     await createTestMetaData(tests, config)
 
     console.log(chalk.green(`${chalk.bold(`${emittedTests.length}`.padEnd(3))} test(s) generated`))
-    console.log(
-      chalk.cyan(`${chalk.bold(`${skippedTestCount}`.padEnd(3))} test(s) skipped execution`),
-    )
-    console.log(
-      chalk.cyan(`${chalk.bold(`${skippedEmitTestCount}`.padEnd(3))} test(s) skipped emit`),
-    )
+    console.log(chalk.cyan(`${chalk.bold(`${skippedTestCount}`.padEnd(3))} test(s) skipped execution`))
+    console.log(chalk.cyan(`${chalk.bold(`${skippedEmitTestCount}`.padEnd(3))} test(s) skipped emit`))
     console.log(chalk.red(`${chalk.bold(`${errors.length}`.padEnd(3))} error(s) occurred`))
   } catch (err) {
     console.log(chalk.red(err.stack))

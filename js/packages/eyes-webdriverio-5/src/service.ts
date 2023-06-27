@@ -1,26 +1,20 @@
-import {makeSDK} from '@applitools/eyes-sdk-core'
-import * as spec from './spec-driver'
 import {Driver, Element, Eyes, VisualGridRunner, ClassicRunner, ConfigurationPlain, TestResults} from './api'
 
-if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
+if (!process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) {
   try {
-    const {version} = require('webdriverio/package.json')
+    const version = process.env.APPLITOOLS_FRAMEWORK_VERSION ?? require('webdriverio/package.json').version
     const [major] = version.split('.', 1)
-    process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION = major
+    process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION = major
   } catch {
     // NOTE: ignore error
   }
 }
 
-// TODO have to be removed
-const sdk = makeSDK({
-  name: 'eyes-webdriverio-service',
-  version: require('../package.json').version,
-  spec,
-  VisualGridClient: require('@applitools/visual-grid-client'),
-})
 class EyesOverride extends Eyes {
-  protected static readonly _spec = sdk
+  protected static readonly _sdk = {
+    ...Eyes._sdk,
+    agentId: `eyes-webdriverio-service/${require('../package.json').version}`,
+  }
 }
 
 interface EyesServiceOptions extends ConfigurationPlain {
@@ -31,11 +25,11 @@ interface EyesServiceOptions extends ConfigurationPlain {
 
 class EyesService {
   private _eyes: Eyes
-  private _appName: string
-  private _testResults: TestResults
+  private _appName?: string
+  private _testResults?: TestResults
 
   constructor({useVisualGrid, concurrency, eyes, ...config}: EyesServiceOptions) {
-    const wdioMajorVersion = Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION)
+    const wdioMajorVersion = Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION)
     config = wdioMajorVersion < 6 ? {...eyes} : config
 
     if (!useVisualGrid) config.hideScrollbars = true
@@ -48,8 +42,8 @@ class EyesService {
 
   private async _eyesOpen() {
     if (!this._eyes.isOpen) {
-      this._testResults = null
-      await this._eyes.open(browser as Driver)
+      this._testResults = undefined
+      await this._eyes.open(browser as unknown as Driver)
     }
   }
 
@@ -62,7 +56,7 @@ class EyesService {
   beforeSession(config: Record<string, unknown>) {
     this._appName = this._eyes.configuration.appName
     if (config.enableEyesLogs) {
-      this._eyes.configuration.logs = {type: 'console'}
+      this._eyes.setLogHandler({type: 'console'})
     }
   }
   before() {
@@ -130,7 +124,7 @@ class EyesService {
   async afterTest() {
     // the next line is required because if we set an element in one test, then the following test
     // will say that the element is not attached to the page (because different browsers are used)
-    this._eyes.getConfiguration().setScrollRootElement(null)
+    this._eyes.getConfiguration().setScrollRootElement(null as any)
     await this._eyesClose()
   }
   async after() {

@@ -16,8 +16,6 @@ describe('screenshoter android app', () => {
     await button.click()
     await sleep(3000)
 
-    await driver.init()
-
     await test({
       type: 'android',
       tag: 'app-fully-scroll',
@@ -25,6 +23,14 @@ describe('screenshoter android app', () => {
       framed: true,
       wait: 1500,
       scrollingMode: 'scroll',
+      driver,
+      logger,
+    })
+
+    await test({
+      type: 'android',
+      tag: 'app-fully-scroll-after',
+      wait: 1500,
       driver,
       logger,
     })

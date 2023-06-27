@@ -33,37 +33,10 @@ const DEVICES = {
     type: 'sauce',
     url: SAUCE_SERVER_URL,
     capabilities: {
-      w3c: {
-        platformName: 'iOS',
-        'appium:platformVersion': '14.5',
-        'appium:deviceName': 'iPhone 12 Simulator',
-      },
-      legacy: {
-        platformName: 'iOS',
-        platformVersion: '14.5',
-        deviceName: 'iPhone 12 Simulator',
-      },
-    },
-    options: {
-      appiumVersion: '1.20.0',
-      ...SAUCE_CREDENTIALS,
-    },
-  },
-  'iPhone 12 UFG native': {
-    type: 'sauce',
-    url: SAUCE_SERVER_URL,
-    capabilities: {
       deviceName: 'iPhone 12 Pro Simulator',
       platformName: 'iOS',
       platformVersion: '15.2',
       deviceOrientation: 'portrait',
-      processArguments: {
-        args: [],
-        env: {
-          DYLD_INSERT_LIBRARIES:
-            '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
-        },
-      },
       ...SAUCE_CREDENTIALS,
     },
   },
@@ -133,10 +106,19 @@ const DEVICES = {
     type: 'sauce',
     url: SAUCE_SERVER_URL,
     capabilities: {
-      platformName: 'iOS',
-      platformVersion: '13.0',
+      w3c: {
+        platformName: 'iOS',
+        'appium:platformVersion': '13.0',
+        'appium:deviceName': 'iPhone XS Simulator',
+      },
+      legacy: {
+        platformName: 'iOS',
+        platformVersion: '13.0',
+        deviceName: 'iPhone XS Simulator',
+      },
+    },
+    options: {
       appiumVersion: '1.19.2',
-      deviceName: 'iPhone XS Simulator',
       ...SAUCE_CREDENTIALS,
     },
   },
@@ -189,6 +171,23 @@ const DEVICES = {
       deviceName: 'iPad Air Simulator',
       platformVersion: '12.4',
       platformName: 'iOS',
+      ...SAUCE_CREDENTIALS,
+    },
+  },
+  'Pixel 4 XL': {
+    type: 'sauce',
+    url: SAUCE_SERVER_URL,
+    capabilities: {
+      platformName: 'Android',
+      'appium:deviceName': 'Google Pixel 4 GoogleAPI Emulator',
+      'appium:platformVersion': '12.0',
+      'appium:automationName': 'UiAutomator2',
+      'appium:deviceOrientation': 'portrait',
+      'appium:autoGrantPermissions': true,
+      'appium:autoAcceptAlerts': true,
+    },
+    options: {
+      appiumVersion: '1.22.1',
       ...SAUCE_CREDENTIALS,
     },
   },
@@ -299,22 +298,6 @@ const DEVICES = {
       ...SAUCE_CREDENTIALS,
     },
   },
-
-  'Android 8.0 Chrome Emulator': {
-    type: 'local',
-    url: 'http://localhost:4444/wd/hub',
-    capabilities: {
-      browserName: 'chrome',
-      'goog:chromeOptions': {
-        mobileEmulation: {
-          deviceMetrics: {width: 384, height: 512, pixelRatio: 2},
-          userAgent:
-            'Mozilla/5.0 (Linux; Android 8.0.0; Android SDK built for x86_64 Build/OSR1.180418.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36',
-        },
-        args: ['hide-scrollbars'],
-      },
-    },
-  },
   'Perfecto Android native': {
     url: PERFECTO_SERVER_URL,
     capabilities: {
@@ -362,6 +345,14 @@ const DEVICES = {
       userName: process.env.BROWSERSTACK_USERNAME,
       accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
     },
+  },
+}
+
+const EMULATIONS = {
+  'Android 8.0': {
+    deviceMetrics: {width: 384, height: 512, pixelRatio: 2},
+    userAgent:
+      'Mozilla/5.0 (Linux; Android 8.0.0; Android SDK built for x86_64 Build/OSR1.180418.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36',
   },
 }
 
@@ -600,10 +591,21 @@ const BROWSERS = {
 }
 
 function parseEnv(
-  {browser, app, device, url, headless = !process.env.NO_HEADLESS, legacy, eg, injectUFGLib, ...options} = {},
+  {
+    browser,
+    app,
+    device,
+    emulation,
+    url,
+    headless = !process.env.NO_HEADLESS,
+    legacy,
+    injectUFGLib,
+    withNML,
+    ...options
+  } = {},
   protocol = 'wd',
 ) {
-  const env = {browser, device, headless, protocol, ...options}
+  const env = {browser, device, emulation, headless, protocol, ...options}
   if (protocol === 'wd') {
     env.url = url && new URL(url)
     if (env.desiredCapabilities) env.desiredCapabilities = {...env.desiredCapabilities}
@@ -611,7 +613,7 @@ function parseEnv(
     env.capabilities.browserName = browser || env.capabilities.browserName || ''
     const preset = DEVICES[device] || BROWSERS[browser]
     if (preset) {
-      env.url = preset.url ? new URL(preset.url) : env.url
+      if (!env.url && preset.url) env.url = new URL(preset.url)
       env.capabilities = {
         ...env.capabilities,
         ...((legacy ? preset.capabilities.legacy : preset.capabilities.w3c) || preset.capabilities),
@@ -635,16 +637,28 @@ function parseEnv(
     if (app) {
       env.capabilities[legacy ? 'app' : 'appium:app'] = app
     }
-    if (eg && (!preset || preset.type === 'local')) {
-      env.url = new URL(process.env.CVG_TESTS_EG_REMOTE)
+    if (emulation && /chrome/i.test(env.capabilities.browserName)) {
+      env.capabilities['goog:chromeOptions'] = {...env.capabilities['goog:chromeOptions']}
+      env.capabilities['goog:chromeOptions'].mobileEmulation = EMULATIONS[emulation]
     }
     if (injectUFGLib) {
-      env.capabilities['appium:processArguments'] = {
-        args: [],
-        env: {
-          DYLD_INSERT_LIBRARIES:
-            '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
-        },
+      if (env.capabilities.platformName.toLowerCase() === 'ios') {
+        env.capabilities[legacy ? 'processArguments' : 'appium:processArguments'] = {
+          args: [],
+          env: {
+            DYLD_INSERT_LIBRARIES:
+              '@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib',
+            NML_API_KEY: withNML ? process.env.APPLITOOLS_API_KEY : undefined,
+          },
+        }
+      } else if (env.capabilities.platformName.toLowerCase() === 'android') {
+        env.capabilities[
+          legacy ? 'optionalIntentArguments' : 'appium:optionalIntentArguments'
+        ] = `--es APPLITOOLS '${JSON.stringify({
+          NML_API_KEY: process.env.APPLITOOLS_API_KEY,
+          NML_SERVER_URL: 'https://eyesapi.applitools.com',
+          NML_PROXY_URL: process.env.HTTP_PROXY ? process.env.HTTP_PROXY : undefined,
+        })}'`
       }
     }
   } else if (protocol === 'cdp') {

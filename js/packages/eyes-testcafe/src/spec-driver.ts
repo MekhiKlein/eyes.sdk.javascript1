@@ -128,7 +128,7 @@ export function isElement(element: any): element is Element {
   )
 }
 export function isSelector(selector: any): selector is Selector {
-  if (!selector) return
+  if (!selector) return false
   return Boolean(selector.addCustomMethods && selector.find && selector.parent)
 }
 export function transformElement(element: Element): TestCafe.Selector {
@@ -251,15 +251,6 @@ export async function hover(t: Driver, element: Element | Selector): Promise<voi
   if (isSelector(element)) element = await findElement(t, element)
   await t.hover(element)
 }
-export async function scrollIntoView(t: Driver, element: Element | Selector, align = false): Promise<void> {
-  if (isSelector(element)) element = await findElement(t, element)
-  // @ts-ignore
-  const scrollIntoView = testcafe.ClientFunction(() => element().scrollIntoView(align), {
-    boundTestRun: t,
-    dependencies: {element, align},
-  })
-  await scrollIntoView()
-}
 export async function waitUntilDisplayed(t: Driver, selector: Selector): Promise<void> {
   await selector.with({boundTestRun: t, visibilityCheck: true})
 }
@@ -270,7 +261,7 @@ export async function waitUntilDisplayed(t: Driver, selector: Selector): Promise
 
 export function build(): [Driver, () => Promise<void>] {
   // no-op for coverage-tests
-  return [undefined, () => void 0]
+  return [undefined as any, async () => undefined]
 }
 
 // #endregion

@@ -9,7 +9,7 @@ import type {
   TestResults,
   TestResultsSummary,
 } from './index'
-
+  
 declare global {
   namespace WebdriverIO {
     interface ServiceOption extends ConfigurationPlain {

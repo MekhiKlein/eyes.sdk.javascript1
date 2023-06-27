@@ -10,6 +10,175 @@
 
 
 
+
+
+## 3.33.1 - 2023/5/31
+
+### Features
+### Bug fixes
+- Increase timeout for rendering results polling
+- Fixed issue when logs are not show up
+
+## 3.33.0 - 2023/5/23
+
+### Features
+- Add support for reloading the page when using layoutBreakpoints
+- Internal improvements
+- Start universal core in the plugin process
+### Bug fixes
+
+## 3.32.2 - 2023/5/3
+
+### Features
+### Bug fixes
+- Update internal dependencies
+- Fix coded regions by coordinates
+
+## 3.32.1 - 2023/4/24
+
+### Features
+### Bug fixes
+- Fix fetchConcurrency mapping
+
+## 3.32.0 - 2023/4/21
+
+### Features
+- Add a timeout and max concurrency for fetching resources
+### Bug fixes
+
+## 3.31.1 - 2023/4/14
+
+### Features
+### Bug fixes
+- Map values from open and global config
+
+## 3.31.0 - 2023/4/4
+
+### Features
+- Added `removeDuplicateTests` configuration to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+- disableBrowserFetching change from open to check
+
+## 3.30.2 - 2023/3/28
+
+### Features
+### Bug fixes
+- map visualGridOptions to ufgOptions
+
+## 3.30.1 - 2023/3/22
+
+### Features
+### Bug fixes
+- Fixed cypress 8 not working with core v2
+- Fixed closeBatch issue
+
+## 3.30.0 - 2023/3/19
+
+### Features
+- Crop screenshot image base on account info
+### Bug fixes
+- Fixed slowness during ufg tests
+- Upgrade to core@v2
+
+## 3.29.1 - 2023/2/2
+
+### Features
+### Bug fixes
+- update readme and add types folder to publish artifacts
+
+## 3.29.0 - 2023/2/1
+
+### Features
+- Support ESM and TypeScript in Applitools' config file
+### Bug fixes
+
+## 3.28.3 - 2023/1/20
+
+### Features
+### Bug fixes
+- Update internal dependencies
+
+## 3.28.2 - 2023/1/17
+
+### Features
+### Bug fixes
+- Fix types to include region options when passing an element
+- Add support for region options for coded floating and accessibility when using elements
+
+## 3.28.1 - 2023/1/5
+
+### Features
+### Bug fixes
+- Wrong url when running `cypress run`
+
+## 3.28.0 - 2022/12/28
+
+### Features
+- Support `strictNullChecks` in TypeScript configuration, by wrapping relevant types with NonNullable
+### Bug fixes
+
+## 3.27.9 - 2022/12/21
+
+### Features
+- Additional internal event logs
+### Bug fixes
+- Handle fake shadowRoot with UFG
+- Handed error during polling in long requests to eyes server
+
+## 3.27.8 - 2022/11/19
+
+### Features
+### Bug fixes
+- Handle cases where cypress report showed tests pass when differences were found
+
+## 3.27.7 - 2022/11/17
+
+### Features
+- Added new selector extensions `child` and `fallback`
+- Use user agent metadata to improve browser environment detection logic
+- Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
+### Bug fixes
+- Support parallel run of multiple `Cypress` instances
+- Add support for regionId and padding for accessibility and floating regions
+
+## 3.27.6 - 2022/10/28
+
+### Features
+- Add support for componenet testing and cypress config ts file
+### Bug fixes
+- Fixed issue with universal not working in cypress@6
+
+## 3.27.5 - 2022/10/20
+
+### Features
+### Bug fixes
+- Fix dontCloseBatches mapping
+
+## 3.27.4 - 2022/10/19
+
+### Features
+### Bug fixes
+- Fix support for chrome emulation when passing browser name
+
+## 3.27.3 - 2022/10/19
+
+### Features
+- Changed default value of `sendDom` from `true` to dynamically calculated
+### Bug fixes
+- Fix chrome emulation environment structure
+- Fixed issue with ufg renders failing intermittently
+- Fixed issue with universal process spawning is failing due to a timeout
+
+## 3.27.2 - 2022/10/9
+
+### Features
+- Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
+- Using `lazyLoad.waitingTime` as a delay between stitches by default
+- Deprecated "Content" match level value in favor of "IgnoreColors"
+### Bug fixes
+- Internal Infrastructure update
+- Fixed bug when error was thrown when coded region wasn't found using selector
+
 ## 3.27.1 - 2022/8/1
 
 ### Features

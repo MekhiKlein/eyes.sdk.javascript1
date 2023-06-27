@@ -1,4 +1,3 @@
-const VisualGridClient = require('@applitools/visual-grid-client')
 const spec = require('@applitools/spec-driver-selenium')
 const {makeSDK} = require('../../index')
 
@@ -9,7 +8,6 @@ describe('lazyLoad', () => {
     name: 'eyes-core',
     version: require('../../package.json').version,
     spec,
-    VisualGridClient,
   })
 
   beforeEach(async () => {
@@ -17,15 +15,15 @@ describe('lazyLoad', () => {
   })
 
   afterEach(async () => {
-    if (destroyDriver) await destroyDriver()
     if (eyes) await eyes.abort()
     await manager.closeManager()
+    if (destroyDriver) await destroyDriver()
   })
 
   it('test lazyLoad with layoutBreakpoints - checkSettings', async () => {
     manager = await sdk.makeManager({type: 'vg', concurrency: 5})
     const config = {
-      appName: 'core app',
+      appName: 'core legacy app',
       testName: 'lazyLoad with layoutbreakpoints - checkSettings',
       layoutBreakpoints: true,
       matchTimeout: 0,
@@ -46,7 +44,7 @@ describe('lazyLoad', () => {
   it('test lazyLoad with classic - checkSettings', async () => {
     manager = await sdk.makeManager()
     const config = {
-      appName: 'core app',
+      appName: 'core legacy app',
       testName: 'lazyLoad with classic - checkSettings',
       matchTimeout: 0,
       saveNewTests: false,

@@ -9,6 +9,262 @@
 
 
 
+
+
+## 2.18.0 - 2022/12/27
+
+### Features
+- add support for "node14-linux-arm64"
+### Bug fixes
+
+## 2.17.4 - 2022/12/21
+
+### Features
+- Additional internal event logs
+### Bug fixes
+- Fixed issue when helper lib inputs were not cleaned up before calling new command
+- Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
+- Handle fake shadowRoot with UFG
+- Handed error during polling in long requests to eyes server
+
+## 2.17.3 - 2022/11/29
+
+### Features
+### Bug fixes
+- Fixed OCR functionality with latest Eyes server
+
+## 2.17.2 - 2022/11/16
+
+### Features
+### Bug fixes
+- Fixed issue when current context is not being preserved in ufg mode for webdriver frameworks
+
+## 2.17.1 - 2022/11/16
+
+### Features
+- Use user agent metadata to improve browser environment detection logic
+- Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
+### Bug fixes
+
+## 2.17.0 - 2022/11/2
+
+### Features
+- Added new selector extensions `child` and `fallback`
+### Bug fixes
+- Fix bug that caused native apps to be classified as web when the app contains web views
+
+## 2.16.9 - 2022/10/28
+
+### Features
+### Bug fixes
+- Fix calculation for determining coded region positions when they are inside of a check region
+
+## 2.16.8 - 2022/10/26
+
+### Features
+### Bug fixes
+- Fixed error during command response logging
+
+## 2.16.7 - 2022/10/22
+
+### Features
+- Added logs for command responses
+### Bug fixes
+- Fixed proxy issue with resource (screenshot/dom) uploading
+
+## 2.16.6 - 2022/10/20
+
+### Features
+- Drop support for Android 9 and Android 10 specific devices
+- Mark target element with `data-applitools-scroll` attribute before capture dom
+### Bug fixes
+- Fix dontCloseBatches mapping
+- Fixed bug that caused `extractText` to throw, due to fractional size of the target region
+
+## 2.16.5 - 2022/10/18
+
+### Features
+### Bug fixes
+- Fixed default values for server url and api key while executing `Core.closeBatch` and `Core.deleteTest` commands
+
+## 2.16.4 - 2022/10/13
+
+### Features
+- Changed default value of `sendDom` from `true` to dynamically calculated
+- Increased time to spawn server process programmatically
+### Bug fixes
+- Fixed issue with ufg renders failing intermittently
+
+## 2.16.3 - 2022/10/8
+
+### Features
+- Applied client's user-agent by default to resource requests in ufg mode
+### Bug fixes
+- Fixed node 12 support
+
+## 2.16.2 - 2022/10/7
+
+### Features
+### Bug fixes
+- Blank missed frames src in ufg
+- Fix an issue when ufg related requests were not sent through the proxy
+
+## 2.16.1 - 2022/10/4
+
+### Features
+### Bug fixes
+- Fixed the issue with screenshots being taken on chrome-emulated devices
+
+## 2.16.0 - 2022/9/29
+
+### Features
+- Deprecated "Content" match level value in favor of "IgnoreColors"
+- Added support for webview switching in classic execution
+### Bug fixes
+
+## 2.15.0 - 2022/9/26
+
+### Features
+### Bug fixes
+- Fixed issue with missed offsets when floating region was provided in legacy format
+- Fixed issue with missed `userTestId` in manager's summary
+
+## 2.14.0 - 2022/9/25
+
+### Features
+### Bug fixes
+- Respond with dummy TestResult object on `Eyes.close` even if no session were actually started
+
+## 2.13.5 - 2022/9/25
+
+### Features
+### Bug fixes
+- Fixed the wrong naming of the error info field `testResults` renamed to `testResult`
+
+## 2.13.4 - 2022/9/25
+
+### Features
+### Bug fixes
+- Fixed propagation of the provided `userTestId` property
+- Return error object in manager's summary in common format
+
+## 2.13.3 - 2022/9/23
+
+### Features
+### Bug fixes
+- Fixed `lazyLoad` property propagation to helper lib
+
+## 2.13.2 - 2022/9/23
+
+### Features
+### Bug fixes
+- Fixed `Eyes.check` command response regression
+
+## 2.13.1 - 2022/9/23
+
+### Features
+### Bug fixes
+- Fixed issue when lazy loading script being executed on native app
+
+## 2.13.0 - 2022/9/23
+
+### Features
+- Added `--shutdown-mode` argument, which accepts `stdin` value to kill the process when its stdin stream ends. The default value is `lazy`, which preserves the current behavior
+- Prevented any writes to stdout after port is reported
+### Bug fixes
+- Avoided unexpected touch actions during `check` on Android apps
+
+## 2.12.3 - 2022/9/16
+
+### Features
+- Dummy changelog entry
+### Bug fixes
+
+## 2.12.2 - 2022/9/16
+
+### Features
+- Dummy changelog entry
+### Bug fixes
+
+## 2.12.1 - 2022/9/16
+
+### Features
+- Created testing client for eyes-universal
+- Using `lazyLoad.waitingTime` as a delay between stitches by default
+- Using proxy while polling for the result of the nml command
+### Bug fixes
+
+## 2.12.0 - 2022/9/15
+
+### Features
+- Add proxy support when using NML for NMG
+### Bug fixes
+
+## 2.11.3 - 2022/9/13
+
+### Features
+### Bug fixes
+- Fixed issue that prevented NMG from working when NML was enabled
+
+## 2.11.2 - 2022/9/12
+
+### Features
+### Bug fixes
+- Sending correct commands with android helper lib
+
+## 2.11.1 - 2022/9/7
+
+### Features
+- Dynamically include changelog entries in a release description and publish notifications to Slack
+- Added support for lazy loading views in android native apps
+- Add NML NMG support for iOS
+### Bug fixes
+
+## 2.11.0 - 2022/9/7
+
+### Features
+- Dynamically include changelog entries in a release description and publish notifications to Slack
+- Added support for lazy loading views in android native apps
+### Bug fixes
+
+## 2.10.9 - 2022/9/5
+
+### Features
+- Add NML NMG support for iOS
+### Bug fixes
+
+## 2.10.8 - 2022/8/29
+
+### Features
+- disable the usage of `HelperAndroid` and `HelperIOS` once using `UFG`
+### Bug fixes
+
+## 2.10.7 - 2022/8/24
+
+### Features
+- Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
+### Bug fixes
+
+## 2.10.6 - 2022/8/23
+
+### Features
+### Bug fixes
+- Avoided implicit set of the `allowInvisibleElements` appium setting on Android
+
+## 2.10.5 - 2022/8/12
+
+### Features
+- Added `--shutdown-mode` argument, which accepts `stdin` value to kill the process when its stdin stream ends. The default value is `lazy`, which preserves the current behavior
+- Prevented any writes to stdout after port is reported
+### Bug fixes
+- Fixed error object serialization
+
+## 2.10.4 - 2022/8/5
+
+### Features
+### Bug fixes
+- Suppress error of log file creation when another process already created the same file
+
 ## 2.10.3 - 2022/8/1
 
 ### Features

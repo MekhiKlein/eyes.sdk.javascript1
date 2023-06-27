@@ -1,5 +1,5 @@
 const utils = require('@applitools/utils')
-const makeImage = require('./image')
+const {makeImage} = require('@applitools/image')
 const makeTakeViewportScreenshot = require('./take-viewport-screenshot')
 const calculateScreenshotRegion = require('./calculate-screenshot-region')
 
@@ -14,13 +14,17 @@ async function takeStitchedScreenshot({
   wait,
   stabilization,
   debug,
+  lazyLoad,
 }) {
   logger.verbose('Taking full image of...')
 
   if (await scroller.element.isPager()) overlap = {top: 0, bottom: 0}
 
   const driver = context.driver
-  const takeViewportScreenshot = makeTakeViewportScreenshot({logger, driver, stabilization, debug})
+  const environment = await driver.getEnvironment()
+  const viewport = await driver.getViewport()
+
+  const takeViewportScreenshot = await makeTakeViewportScreenshot({logger, driver, stabilization, debug})
   const scrollerState = await scroller.preserveState()
 
   const initialOffset = region ? utils.geometry.location(region) : {x: 0, y: 0}
@@ -30,7 +34,7 @@ async function takeStitchedScreenshot({
 
   await utils.general.sleep(wait)
 
-  const contentSize = await scroller.getContentSize()
+  const contentSize = await scroller.getContentSize({lazyLoad})
 
   logger.verbose(
     'preMoveOffset',
@@ -57,7 +61,7 @@ async function takeStitchedScreenshot({
   logger.log('Crop region calculated: ', cropRegion)
   if (utils.geometry.isEmpty(cropRegion)) throw new Error('Screenshot region is out of viewport')
 
-  image.crop(withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: driver.statusBarSize}) : cropRegion)
+  image.crop(withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: viewport.statusBarSize}) : cropRegion)
   await image.debug({...debug, name: 'initial', suffix: 'region'})
 
   const contentRegion = utils.geometry.region({x: 0, y: 0}, contentSize)
@@ -79,7 +83,9 @@ async function takeStitchedScreenshot({
   }
   region = utils.geometry.floor(region)
 
-  const [initialRegion, ...partRegions] = utils.geometry.divide(region, image.size, overlap)
+  const partSize =
+    lazyLoad && environment.isNative ? {width: image.size.width, height: image.size.height / 2} : image.size
+  const [initialRegion, ...partRegions] = utils.geometry.divide(region, partSize, overlap)
   logger.verbose('Part regions', partRegions)
 
   logger.verbose('Creating stitched image composition container')
@@ -90,7 +96,7 @@ async function takeStitchedScreenshot({
 
   logger.verbose('Getting the rest of the image parts...')
 
-  let lastImage = firstImage
+  let lastImage = framed ? makeImage(firstImage) : null
   let scrollerRegionShift = {x: 0, y: 0}
   for (const partRegion of partRegions) {
     const partName = `${partRegion.x}_${partRegion.y}_${partRegion.width}x${partRegion.height}`
@@ -107,7 +113,7 @@ async function takeStitchedScreenshot({
     let actualOffset = await scroller.moveTo(requiredOffset)
     // actual scroll position after scrolling might be not equal to required position due to
     // scrollable region shift during scrolling so actual scroll position should be corrected
-    if (!utils.geometry.equals(actualOffset, requiredOffset) && driver.isNative) {
+    if (!utils.geometry.equals(actualOffset, requiredOffset) && environment.isNative) {
       const actualScrollerRegion = await scroller.getClientRegion()
       scrollerRegionShift = {x: scrollerRegion.x - actualScrollerRegion.x, y: scrollerRegion.y - actualScrollerRegion.y}
     }
@@ -143,6 +149,7 @@ async function takeStitchedScreenshot({
     stitchedImage.copy(image, pasteOffset)
   }
 
+  logger.verbose('restoring scroller state', scrollerState)
   await scroller.restoreState(scrollerState)
 
   await stitchedImage.debug({...debug, name: 'stitched'})
@@ -151,7 +158,7 @@ async function takeStitchedScreenshot({
     stitchedImage.frame(
       firstImage,
       lastImage,
-      withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: driver.statusBarSize}) : cropRegion,
+      withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: viewport.statusBarSize}) : cropRegion,
     )
     await stitchedImage.debug({...debug, name: 'framed'})
 

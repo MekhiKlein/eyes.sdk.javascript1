@@ -11,12 +11,14 @@ from six import raise_from
 from applitools.common import (
     AndroidDeviceInfo,
     AndroidDeviceName,
+    AndroidVersion,
     ChromeEmulationInfo,
     DesktopBrowserInfo,
     DeviceName,
     IosDeviceInfo,
     IosDeviceName,
     IosVersion,
+    LayoutBreakpointsOptions,
     ProxySettings,
     RectangleSize,
     ScreenOrientation,
@@ -91,6 +93,7 @@ class BatchInfoTrafaret(trf.Trafaret):
         {
             trf.Key("id", optional=True): trf.String,
             trf.Key("name", optional=True): trf.String,
+            trf.Key("notify_on_completion", optional=True): trf.Bool,
             trf.Key("batch_sequence_name", optional=True)
             >> "sequence_name": trf.String,
             trf.Key("started_at", optional=True): trf.DateTime,
@@ -169,7 +172,7 @@ class AndroidDeviceInfoTrafaret(trf.Trafaret):
                     ScreenOrientation
                 ),
                 trf.Key("android_version", optional=True): UpperTextToEnumTrafaret(
-                    IosVersion
+                    AndroidVersion
                 ),
             }
         )
@@ -195,6 +198,19 @@ class ChromeEmulationInfoTrafaret(trf.Trafaret):
     def check_and_return(self, value, context=None):
         sanitized = self.scheme.check(value, context)
         return [ChromeEmulationInfo(**dct) for dct in sanitized]
+
+
+class LayoutBreakpointsTrafaret(trf.Trafaret):
+    scheme = trf.Dict(
+        {
+            "breakpoints": trf.Bool | trf.List(trf.Int),
+            trf.Key("reload", optional=True): trf.Bool,
+        }
+    )
+
+    def check_and_return(self, value, context=None):
+        sanitized = self.scheme.check(value, context)
+        return LayoutBreakpointsOptions(**sanitized)
 
 
 class RunnerOptionsTrafaret(trf.Trafaret):
@@ -265,6 +281,7 @@ class ConfigurationTrafaret(trf.Trafaret):  # typedef
             trf.Key("parent_branch_name", optional=True): trf.String,
             trf.Key("baseline_branch_name", optional=True): trf.String,
             trf.Key("baseline_env_name", optional=True): trf.String,
+            trf.Key("dont_close_batches", optional=True): trf.Bool,
             trf.Key("save_diffs", optional=True): trf.Bool,
             trf.Key("app_name", optional=True): trf.String,
             trf.Key("viewport_size", optional=True): ViewPortTrafaret,
@@ -296,7 +313,9 @@ class ConfigurationTrafaret(trf.Trafaret):  # typedef
             trf.Key("disable_browser_fetching", optional=True): trf.Bool,
             trf.Key("enable_cross_origin_rendering", optional=True): trf.Bool,
             trf.Key("dont_use_cookies", optional=True): trf.Bool,
-            trf.Key("layout_breakpoints", optional=True): trf.Bool | trf.List(trf.Int),
+            trf.Key("layout_breakpoints", optional=True): trf.Bool
+            | trf.List(trf.Int)
+            | LayoutBreakpointsTrafaret,
             trf.Key("browsers", optional=True) >> "browsers_info": BrowsersTrafaret,
         },
     )
@@ -328,14 +347,20 @@ class ConfigurationTrafaret(trf.Trafaret):  # typedef
 
     def check_and_return(self, value, context=None):
         sanitized = self.scheme.check(value, context)
+        if self._selected_runner.value not in sanitized:
+            raise KeyError(
+                "The `{}` runner option is not present in configuration file".format(
+                    self._selected_runner.value
+                )
+            )
         selected_sdk_conf = sanitized[self._selected_runner.value]
 
         combined_raw_config = sanitized.copy()
         # we need only shared data here  TODO: make it nicer
-        combined_raw_config.pop(SelectedRunner.web.value)
-        combined_raw_config.pop(SelectedRunner.web_ufg.value)
-        combined_raw_config.pop(SelectedRunner.mobile_native.value)
-        combined_raw_config.pop(SelectedRunner.native_mobile_grid.value)
+        combined_raw_config.pop(SelectedRunner.web.value, None)
+        combined_raw_config.pop(SelectedRunner.web_ufg.value, None)
+        combined_raw_config.pop(SelectedRunner.mobile_native.value, None)
+        combined_raw_config.pop(SelectedRunner.native_mobile_grid.value, None)
 
         # add config for selected runner
         combined_raw_config.update(selected_sdk_conf)

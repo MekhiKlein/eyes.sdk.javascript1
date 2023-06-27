@@ -1,18 +1,29 @@
 /* eslint @typescript-eslint/ban-types: ["error", {"types": {"Function": false}}] */
-import type {Size, Region, Cookie, DriverInfo, WaitOptions, ScreenOrientation} from '@applitools/types'
+import type {Size, Region} from '@applitools/utils'
+import type {
+  SpecType as BaseSpecType,
+  CommonSelector,
+  Cookie,
+  DriverInfo,
+  WaitOptions,
+  ScreenOrientation,
+} from '@applitools/driver'
+import {Command} from 'selenium-webdriver/lib/command'
 import * as Selenium from 'selenium-webdriver'
 import * as utils from '@applitools/utils'
 
-export type Driver = Selenium.WebDriver & {__applitoolsBrand?: never}
-export type Element = Selenium.WebElement & {__applitoolsBrand?: never}
+type ApplitoolsBrand = {__applitoolsBrand?: never}
+
+export type Driver = Selenium.WebDriver & ApplitoolsBrand
+export type Element = Selenium.WebElement & ApplitoolsBrand
+export type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
 export type Selector = (
   | Exclude<Selenium.Locator, Function>
   | ((webdriver: Selenium.WebDriver) => Promise<any>)
   | {using: string; value: string}
-) & {__applitoolsBrand?: never}
-
-type ShadowRoot = {'shadow-6066-11e4-a52e-4f735466cecf': string}
-type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}
+) &
+  ApplitoolsBrand
+export type SpecType = BaseSpecType<Driver, Driver, Element, Selector>
 
 // #region HELPERS
 
@@ -27,7 +38,12 @@ function transformShadowRoot(driver: Driver, shadowRoot: ShadowRoot | Element): 
     : shadowRoot
 }
 function isByHashSelector(selector: any): selector is Selenium.ByHash {
-  return byHash.includes(Object.keys(selector)[0] as typeof byHash[number])
+  return byHash.includes(Object.keys(selector)[0] as (typeof byHash)[number])
+}
+async function executeCustomCommand(driver: Driver, command: Command) {
+  return process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3'
+    ? (driver as any).schedule(command)
+    : driver.execute(command)
 }
 
 // #endregion
@@ -58,9 +74,12 @@ export function transformDriver(driver: Driver): Driver {
   driver.getExecutor().defineCommand('setWindowPosition', 'POST', '/session/:sessionId/window/current/position')
   driver.getExecutor().defineCommand('performTouch', 'POST', '/session/:sessionId/touch/perform')
   driver.getExecutor().defineCommand('executeCdp', 'POST', '/session/:sessionId/chromium/send_command_and_get_result')
-  driver.getExecutor().defineCommand('setOrientation', 'POST', '/session/:sessionId/orientation/')
+  driver.getExecutor().defineCommand('setOrientation', 'POST', '/session/:sessionId/orientation')
+  driver.getExecutor().defineCommand('getCurrentContext', 'GET', '/session/:sessionId/context')
+  driver.getExecutor().defineCommand('getContexts', 'GET', '/session/:sessionId/contexts')
+  driver.getExecutor().defineCommand('switchToContext', 'POST', '/session/:sessionId/context')
 
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
     driver.getExecutor().defineCommand('switchToParentFrame', 'POST', '/session/:sessionId/frame/parent')
   }
   return driver
@@ -70,18 +89,18 @@ export function transformSelector(selector: CommonSelector<Selector>): Selector 
     return {css: selector}
   } else if (utils.types.has(selector, 'selector')) {
     if (!utils.types.isString(selector.selector)) return selector.selector
-    if (!utils.types.has(selector, 'type')) return {css: selector.selector}
+    if (!utils.types.has(selector, 'type') || !selector.type) return {css: selector.selector}
     if (selector.type === 'css') return {css: selector.selector}
     else return {using: selector.type, value: selector.selector}
   }
   return selector
 }
 
-export function untransformSelector(selector: Selector): CommonSelector {
+export function untransformSelector(selector: Selector): CommonSelector | null {
   if (utils.types.instanceOf<Selenium.RelativeBy>(selector, 'RelativeBy') || utils.types.isFunction(selector)) {
     return null
   } else if (isByHashSelector(selector)) {
-    const [[how, what]] = Object.entries(selector) as [[typeof byHash[number], string]]
+    const [[how, what]] = Object.entries(selector) as [[(typeof byHash)[number], string]]
     if (how === 'js') return null
     selector = Selenium.By[how](what)
   }
@@ -114,9 +133,8 @@ export async function mainContext(driver: Driver): Promise<Driver> {
   return driver
 }
 export async function parentContext(driver: Driver): Promise<Driver> {
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
-    const {Command} = require('selenium-webdriver/lib/command')
-    await (driver as any).schedule(new Command('switchToParentFrame'))
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
+    await executeCustomCommand(driver, new Command('switchToParentFrame'))
     return driver
   }
   await driver.switchTo().parentFrame()
@@ -131,7 +149,7 @@ export async function findElement(driver: Driver, selector: Selector, parent?: E
   try {
     const root = parent ? transformShadowRoot(driver, parent) : driver
     return await root.findElement(selector as Selenium.Locator)
-  } catch (err) {
+  } catch (err: any) {
     if (err.name === 'NoSuchElementError') return null
     else throw err
   }
@@ -146,23 +164,29 @@ export async function waitForSelector(
   _parent?: Element,
   options?: WaitOptions,
 ): Promise<Element | null> {
-  if ((options?.state ?? 'exists') === 'exist') {
-    return driver.wait(Selenium.until.elementLocated(selector as Selenium.Locator), options?.timeout)
-  } else if (options?.state === 'visible') {
-    const element = await findElement(driver, selector)
+  if (options?.state === 'visible') {
+    const element = await driver.findElement(selector as Selenium.Locator)
     return driver.wait(Selenium.until.elementIsVisible(element), options?.timeout)
+  } else {
+    return driver.wait(Selenium.until.elementLocated(selector as Selenium.Locator), options?.timeout)
   }
+}
+export async function setElementText(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
+  const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
+  await resolvedElement?.clear()
+  await resolvedElement?.sendKeys(keys)
+}
+export async function getElementText(_driver: Driver, element: Element): Promise<string> {
+  return element.getText()
 }
 export async function getWindowSize(driver: Driver): Promise<Size> {
   try {
     const rect = await driver.manage().window().getRect()
     return {width: rect.width, height: rect.height}
   } catch {
-    const {Command} = require('selenium-webdriver/lib/command')
-    const getWindowSizeCommand = new Command('getWindowSize')
     const size: any = driver.manage().window().getSize
       ? await driver.manage().window().getSize()
-      : await driver.execute(getWindowSizeCommand)
+      : await executeCustomCommand(driver, new Command('getWindowSize'))
     return {width: size.width, height: size.height}
   }
 }
@@ -170,13 +194,10 @@ export async function setWindowSize(driver: Driver, size: Size) {
   try {
     await driver.manage().window().setRect({x: 0, y: 0, width: size.width, height: size.height})
   } catch {
-    const {Command} = require('selenium-webdriver/lib/command')
-    const setWindowPositionCommand = new Command('setWindowPosition').setParameters({x: 0, y: 0})
     if (driver.manage().window().setPosition) await driver.manage().window().setPosition(0, 0)
-    else await driver.execute(setWindowPositionCommand)
-    const setWindowSizeCommand = new Command('setWindowSize').setParameters({...size})
+    else await executeCustomCommand(driver, new Command('setWindowPosition').setParameters({x: 0, y: 0}))
     if (driver.manage().window().setSize) await driver.manage().window().setSize(size.width, size.height)
-    else await driver.execute(setWindowSizeCommand)
+    else await executeCustomCommand(driver, new Command('setWindowSize').setParameters({...size}))
   }
 }
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
@@ -187,14 +208,10 @@ export async function getCookies(driver: Driver, context?: boolean): Promise<Coo
     const response = await driver.sendAndGetDevToolsCommand('Network.getAllCookies')
     cookies = response.cookies
   } else {
-    const {Command} = require('selenium-webdriver/lib/command')
-    const executeCdpCommand = new Command('executeCdp')
-      .setParameter('cmd', 'Network.getAllCookies')
-      .setParameter('params', {})
-    const response =
-      process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
-        ? await (driver as any).schedule(executeCdpCommand)
-        : await (driver as any).execute(executeCdpCommand)
+    const response = await executeCustomCommand(
+      driver,
+      new Command('executeCdp').setParameter('cmd', 'Network.getAllCookies').setParameter('params', {}),
+    )
     cookies = response.cookies
   }
 
@@ -215,16 +232,14 @@ export async function getDriverInfo(driver: Driver): Promise<DriverInfo> {
   return {sessionId: session.getId()}
 }
 export async function getCapabilities(driver: Driver): Promise<Record<string, any>> {
-  try {
-    const {Command} = require('selenium-webdriver/lib/command')
-    const getSessionDetailsCommand = new Command('getSessionDetails')
-    return process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
-      ? await (driver as any).schedule(getSessionDetailsCommand)
-      : await driver.execute(getSessionDetailsCommand)
-  } catch {
-    const capabilities = await driver.getCapabilities()
-    return Array.from(capabilities.keys()).reduce((obj, key) => Object.assign(obj, {key: capabilities.get(key)}), {})
-  }
+  return (
+    (await executeCustomCommand(driver, new Command('getSessionDetails')).catch(() => null)) ??
+    (await driver
+      .getCapabilities()
+      .then(capabilities =>
+        Array.from(capabilities.keys()).reduce((obj, key) => Object.assign(obj, {[key]: capabilities.get(key)}), {}),
+      ))
+  )
 }
 export async function getTitle(driver: Driver): Promise<string> {
   return driver.getTitle()
@@ -239,30 +254,22 @@ export async function takeScreenshot(driver: Driver): Promise<string> {
   return driver.takeScreenshot()
 }
 export async function click(driver: Driver, element: Element | Selector): Promise<void> {
-  if (isSelector(element)) element = await findElement(driver, element)
-  await element.click()
+  const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
+  await resolvedElement?.click()
 }
 export async function hover(driver: Driver, element: Element | Selector) {
-  if (isSelector(element)) element = await findElement(driver, element)
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+  const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
     const {ActionSequence} = require('selenium-webdriver')
     const action = new ActionSequence(driver)
-    await action.mouseMove(element).perform()
+    await action.mouseMove(resolvedElement).perform()
   } else {
-    await driver.actions().move({origin: element}).perform()
+    await driver.actions().move({origin: resolvedElement!}).perform()
   }
-}
-export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
-  if (isSelector(element)) element = await findElement(driver, element)
-  await element.sendKeys(keys)
-}
-export async function scrollIntoView(driver: Driver, element: Element | Selector, align = false): Promise<void> {
-  if (isSelector(element)) element = await findElement(driver, element)
-  await driver.executeScript('arguments[0].scrollIntoView(arguments[1])', element, align)
 }
 export async function waitUntilDisplayed(driver: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(driver, selector)
-  await driver.wait(Selenium.until.elementIsVisible(element), timeout)
+  await driver.wait(Selenium.until.elementIsVisible(element!), timeout)
 }
 
 // #endregion
@@ -272,29 +279,15 @@ export async function getSystemBars(driver: Driver): Promise<{
   statusBar: {visible: boolean; x: number; y: number; height: number; width: number}
   navigationBar: {visible: boolean; x: number; y: number; height: number; width: number}
 }> {
-  const {Command} = require('selenium-webdriver/lib/command')
-
-  const getSystemBarsCommand = new Command('getSystemBars')
-  return process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
-    ? await (driver as any).schedule(getSystemBarsCommand)
-    : await driver.execute(getSystemBarsCommand)
+  return executeCustomCommand(driver, new Command('getSystemBars'))
 }
 
 export async function setOrientation(driver: Driver, orientation: ScreenOrientation) {
-  const {Command} = require('selenium-webdriver/lib/command')
-  const setOrientationCommand = new Command('setOrientation').setParameters({orientation})
-  process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
-    ? await (driver as any).schedule(setOrientationCommand)
-    : await driver.execute(setOrientationCommand)
+  await executeCustomCommand(driver, new Command('setOrientation').setParameters({orientation}))
 }
 
 export async function getOrientation(driver: Driver): Promise<'portrait' | 'landscape'> {
-  const {Command} = require('selenium-webdriver/lib/command')
-  const getOrientationCommand = new Command('getOrientation')
-  const orientation =
-    process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
-      ? await (driver as any).schedule(getOrientationCommand)
-      : await driver.execute(getOrientationCommand)
+  const orientation = await executeCustomCommand(driver, new Command('getOrientation'))
   return orientation.toLowerCase() as 'portrait' | 'landscape'
 }
 export async function getElementRegion(_driver: Driver, element: Element): Promise<Region> {
@@ -309,19 +302,22 @@ export async function getElementRegion(_driver: Driver, element: Element): Promi
 export async function getElementAttribute(_driver: Driver, element: Element, attr: string): Promise<string> {
   return element.getAttribute(attr)
 }
-export async function getElementText(_driver: Driver, element: Element): Promise<string> {
-  return element.getText()
-}
 export async function performAction(driver: Driver, steps: any[]): Promise<void> {
-  const {Command} = require('selenium-webdriver/lib/command')
-  const performTouchCommand = new Command('performTouch').setParameters({
-    actions: steps.map(({action, ...options}) => ({action, options})),
-  })
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
-    await (driver as any).schedule(performTouchCommand)
-  } else {
-    await driver.execute(performTouchCommand)
-  }
+  await executeCustomCommand(
+    driver,
+    new Command('performTouch').setParameters({
+      actions: steps.map(({action, ...options}) => ({action, options})),
+    }),
+  )
+}
+export async function getCurrentWorld(driver: Driver): Promise<string> {
+  return executeCustomCommand(driver, new Command('getCurrentContext'))
+}
+export async function getWorlds(driver: Driver): Promise<string[]> {
+  return executeCustomCommand(driver, new Command('getContexts'))
+}
+export async function switchWorld(driver: Driver, name: string): Promise<void> {
+  return executeCustomCommand(driver, new Command('switchToContext').setParameters({name}))
 }
 
 // #endregion
@@ -332,8 +328,22 @@ const browserOptionsNames: Record<string, string> = {
   chrome: 'goog:chromeOptions',
   firefox: 'moz:firefoxOptions',
 }
-export async function build({selenium, ...env}: any): Promise<[Driver, () => Promise<void>]> {
-  const {Builder} = (selenium ?? require('selenium-webdriver')) as typeof Selenium
+/*
+ * Spawn a browser with a given configuration (INTERNAL USE ONLY)
+ *
+ * NOTE:
+ * This function is intended for internal use only. As a result it relies on some dev dependencies.
+ * When wiring the spec-driver up to an SDK and calling this function, if you don't have the same dev deps
+ * installed in the SDK, then this function will error.
+ */
+export async function build(env: any): Promise<[Driver & {__serverUrl?: string}, () => Promise<void>]> {
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('selenium-webdriver', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'selenium-webdriver'
+  }
+  const {Builder} = require(frameworkPath) as typeof Selenium
   const parseEnv = require('@applitools/test-utils/src/parse-env')
 
   const {
@@ -346,7 +356,7 @@ export async function build({selenium, ...env}: any): Promise<[Driver, () => Pro
     appium = false,
     args = [],
     headless,
-  } = parseEnv({...env, legacy: env.legacy ?? process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'})
+  } = parseEnv({...env, legacy: env.legacy ?? process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3'})
   const desiredCapabilities = {...capabilities}
   if (configurable) {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
@@ -364,7 +374,7 @@ export async function build({selenium, ...env}: any): Promise<[Driver, () => Pro
   if (browser === 'chrome') {
     if (appium) {
       desiredCapabilities['appium:chromeOptions'] = {w3c: false, ...desiredCapabilities['appium:chromeOptions']}
-    } else if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+    } else if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
       desiredCapabilities['goog:chromeOptions'] = {w3c: false, ...desiredCapabilities['goog:chromeOptions']}
     }
   }
@@ -379,7 +389,8 @@ export async function build({selenium, ...env}: any): Promise<[Driver, () => Pro
       noProxy: proxy.bypass,
     })
   }
-  const driver = await builder.build()
+  const driver: Driver & {__serverUrl?: string} = await builder.build()
+  driver.__serverUrl = url
   return [driver, () => driver.quit()]
 }
 

@@ -65,6 +65,9 @@ export enum DeviceNameEnum {
   Pixel_4 = 'Pixel 4',
   Pixel_4_XL = 'Pixel 4 XL',
   Pixel_5 = 'Pixel 5',
+  Sony_Xperia_10_II = 'Sony Xperia 10 II',
+  Huawei_Mate_50_Pro = 'Huawei Mate 50 Pro',
+  Huawei_Matepad_11 = 'Huawei Matepad 11',
 }
 
 export type DeviceName = `${DeviceNameEnum}`

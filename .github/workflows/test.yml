@@ -1,17 +1,16 @@
-name: Test packages
+name: Test
+
+run-name: Test (${{inputs.packages}})
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
-    branches-ignore: ['dependabot/**', 'draft/**', 'play/**']
   workflow_dispatch:
     inputs:
       packages:
-        description: package names (aliases and variations)
+        description: package names
         type: string
         required: true
       test-type:
-        description: testing type (unit, it, e2e, coverage, sanity)
+        description: testing type (unit, it, e2e)
         type: string
         required: false
       build-type:
@@ -22,48 +21,53 @@ on:
         description: setup type
         type: string
         required: false
-      links:
-        description: package names to link
+      env:
+        description: environment variables
+        type: string
         required: false
       grep:
-        description: grep pattern
+        description: test name pattern
         required: false
-
-concurrency: 
-  group: ${{github.event_name == 'pull_request' && github.ref || github.run_id }}
-  cancel-in-progress: true
 
 env:
   FORCE_COLOR: 3
-  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
   DISPLAY: ':99'
+  NPM_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
+  APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
+  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+  BROWSERSTACK_USERNAME: applitools
+  BROWSERSTACK_ACCESS_KEY: ${{secrets.BROWSERSTACK_ACCESS_KEY}}
+  AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
 
 jobs:
   setup:
     name: Setup
-    if: ${{github.event_name == 'workflow_dispatch' || (github.actor != 'dependabot[bot]' && !github.event.pull_request.draft)}}
     runs-on: ubuntu-latest
     outputs:
-      packages: ${{steps.setup.outputs.packages}}
+      tests: ${{steps.setup.outputs.tests}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       - name: Setup
-        uses: ./.github/actions/parser
+        uses: ./.github/actions/setup
         id: setup
         with:
-          packages: ${{github.event.inputs.packages}}
-          allow-variations: true
-  test:
-    needs: setup
+          packages: ${{inputs.packages}}
+          env: ${{inputs.env}}
+
+  js-test:
+    needs: [setup]
+    if: ${{fromJSON(needs.setup.outputs.tests).js}}
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{fromJSON(needs.setup.outputs.packages)}}
-    runs-on: ${{matrix.os}}
-    name: ${{matrix.displayName}}
+        include: ${{fromJSON(needs.setup.outputs.tests).js}}
+    name: Test / ${{matrix.display-name}}
+    timeout-minutes: 60
+    runs-on: ${{matrix.runner || 'ubuntu-latest'}}
+    container: ${{matrix.container}}
     env: ${{matrix.env}}
     steps:
       - name: Check-out repository
@@ -71,35 +75,45 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{matrix.node}}
-          registry-url: https://registry.npmjs.org/
-          always-auth: true
-      - name: Setup xvfb
-        if: ${{matrix.xvfb}}
-        run: |
-          sudo apt-get install -y xvfb
-          Xvfb -ac $DISPLAY -screen 0 1280x1024x16 &
+          node-version: ${{matrix.node-version || 'lts/*'}}
+      - name: Yarn cache
+        uses: actions/cache@v3
+        with:
+          path: ./js/.yarn/cache
+          key: yarn-cache-${{hashFiles('./js/yarn.lock', '.yarnrc.yml')}}
+          restore-keys: yarn-cache-
       - name: Run tests
-        uses: ./.github/actions/tests
+        uses: ./.github/actions/js/test
         with:
-          working-directory: ${{matrix.path}}
-          test-type: ${{(github.event_name == 'pull_request' && 'sanity') || github.event.inputs.test-type}}
-          build-type: ${{github.event.inputs.build-type}}
-          setup-type: ${{github.event.inputs.setup-type}}
-          links: ${{matrix.links || github.event.inputs.links}}
-          grep: ${{github.event.inputs.grep}}
-        env:
-          APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
-          APPLITOOLS_API_KEY_JSSDK: ${{secrets.APPLITOOLS_API_KEY_JSSDK}}
-          APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
-          SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-          SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
-          AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
+          working-directory: ${{matrix.working-directory}}
+          shell: ${{matrix.shell || 'bash'}}
+          framework-version: ${{matrix.framework-version}}
+          test-type: ${{matrix.test-type || inputs.test-type}}
+          build-type: ${{matrix.build-type || inputs.build-type}}
+          setup-type: ${{matrix.setup-type || inputs.setup-type}}
+          parallel: ${{matrix.parallel}}
+          grep: ${{inputs.grep}}
       - name: Save testing artifacts
-        uses: actions/upload-artifact@v2
+        if: success() || failure()
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-tests-report-${{matrix.name}}
+          name: ${{matrix.name}}
+          path: ./logs
           retention-days: 2
+          if-no-files-found: ignore
+
+  report:
+    needs: [setup, js-test]
+    if: (success() || failure()) && fromJSON(needs.setup.outputs.tests).*
+    name: Report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+      - name: Report
+        id: report
+        uses: ./.github/actions/report
+        with:
+          artifact: ${{join(fromJSON(needs.setup.outputs.tests).*.*.key)}}
           path: |
-            ${{matrix.path}}/coverage-tests-metadata.json
-            ${{matrix.path}}/coverage-test-report.xml
+            ./report*.json

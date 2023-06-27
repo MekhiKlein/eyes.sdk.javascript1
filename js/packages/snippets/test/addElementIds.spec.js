@@ -7,7 +7,7 @@ describe('addElementIds', () => {
   describe('chrome', () => {
     let page
 
-    before(async function() {
+    before(async function () {
       page = await global.getDriver('chrome')
       if (!page) {
         this.skip()
@@ -57,13 +57,32 @@ describe('addElementIds', () => {
       )
       assert.deepStrictEqual(results, Array(elements.length).fill(true))
     })
+
+    it('fake shadow dom', async () => {
+      await page.goto(url)
+      const elements = await page.$$('#fake-shadow-dom')
+      const ids = ['1']
+      const selectors = await page.evaluate(addElementIds, [elements, ids])
+      assert.deepStrictEqual(selectors.length, elements.length)
+      const results = await page.evaluate(
+        ([elements, selectors]) => {
+          return selectors.map(([selector], index) => {
+            const requiredElement = elements[index]
+            const element = document.querySelector(selector)
+            return element === requiredElement
+          })
+        },
+        [elements, selectors],
+      )
+      assert.deepStrictEqual(results, Array(elements.length).fill(true))
+    })
   })
 
   for (const name of ['internet explorer', 'ios safari']) {
     describe(name, () => {
       let driver
 
-      before(async function() {
+      before(async function () {
         driver = await global.getDriver(name)
         if (!driver) {
           this.skip()
@@ -77,8 +96,8 @@ describe('addElementIds', () => {
         const selectors = await driver.execute(addElementIds, [elements, ids])
         assert.deepStrictEqual(selectors.length, elements.length)
         const results = await driver.execute(
-          function(elements, selectors) {
-            return selectors.map(function(selectors, index) {
+          function (elements, selectors) {
+            return selectors.map(function (selectors, index) {
               const requiredElement = elements[index]
               const element = document.querySelector(selectors[0])
               return element === requiredElement

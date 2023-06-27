@@ -1,4 +1,5 @@
-import type {Size, Cookie} from '@applitools/types'
+import type {Size} from '@applitools/utils'
+import {type Cookie} from '@applitools/driver'
 import assert from 'assert'
 import * as spec from '../../src'
 
@@ -27,7 +28,7 @@ describe('spec driver', async () => {
       await isDriver({input: {} as spec.Driver, expected: false})
     })
     it('isElement(element)', async () => {
-      await isElement({input: await page.$('div'), expected: true})
+      await isElement({input: (await page.$('div'))!, expected: true})
     })
     it('isElement(wrong)', async () => {
       await isElement({input: {} as spec.Element, expected: false})
@@ -66,7 +67,7 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(selector, parent-element)', async () => {
-      await findElement({input: {selector: 'div', parent: await page.$('#stretched')}})
+      await findElement({input: {selector: 'div', parent: (await page.$('#stretched'))!}})
     })
     it('findElement(non-existent)', async () => {
       await findElement({input: {selector: 'non-existent'}, expected: null})
@@ -75,10 +76,13 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(string, parent-element)', async () => {
-      await findElements({input: {selector: 'div', parent: await page.$('#stretched')}})
+      await findElements({input: {selector: 'div', parent: (await page.$('#stretched'))!}})
     })
     it('findElements(non-existent)', async () => {
       await findElements({input: {selector: 'non-existent'}, expected: []})
+    })
+    it('setElementText(element, text)', async () => {
+      await setElementText({input: {element: (await page.$('input'))!, text: 'Ad multos annos'}})
     })
     it('getViewportSize()', async () => {
       await getViewportSize()
@@ -117,7 +121,7 @@ describe('spec driver', async () => {
       await isDriver({input: {} as spec.Driver, expected: false})
     })
     it('isElement(element)', async () => {
-      await isElement({input: await page.$('div'), expected: true})
+      await isElement({input: (await page.$('div'))!, expected: true})
     })
     it('isElement(wrong)', async () => {
       await isElement({input: {} as spec.Element, expected: false})
@@ -156,7 +160,7 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(selector, parent-element)', async () => {
-      await findElement({input: {selector: 'div', parent: await page.$('#stretched')}})
+      await findElement({input: {selector: 'div', parent: (await page.$('#stretched'))!}})
     })
     it('findElement(non-existent)', async () => {
       await findElement({input: {selector: 'non-existent'}, expected: null})
@@ -165,10 +169,13 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(string, parent-element)', async () => {
-      await findElements({input: {selector: 'div', parent: await page.$('#stretched')}})
+      await findElements({input: {selector: 'div', parent: (await page.$('#stretched'))!}})
     })
     it('findElements(non-existent)', async () => {
       await findElements({input: {selector: 'non-existent'}, expected: []})
+    })
+    it('setElementText(element, text)', async () => {
+      await setElementText({input: {element: (await page.$('input'))!, text: 'Ad multos annos'}})
     })
     it('getViewportSize()', async () => {
       await getViewportSize()
@@ -190,8 +197,7 @@ describe('spec driver', async () => {
     })
   })
 
-  // TODO unskip once playwright 1.17 released https://github.com/microsoft/playwright/issues/9811
-  describe.skip('headless desktop (@webkit)', async () => {
+  describe('headless desktop (@webkit)', async () => {
     before(async () => {
       ;[page, destroyPage] = await spec.build({browser: 'webkit', headless: true})
       await page.goto(url)
@@ -208,7 +214,7 @@ describe('spec driver', async () => {
       await isDriver({input: {} as spec.Driver, expected: false})
     })
     it('isElement(element)', async () => {
-      await isElement({input: await page.$('div'), expected: true})
+      await isElement({input: (await page.$('div'))!, expected: true})
     })
     it('isElement(wrong)', async () => {
       await isElement({input: {} as spec.Element, expected: false})
@@ -247,7 +253,7 @@ describe('spec driver', async () => {
       await findElement({input: {selector: '#overflowing-div'}})
     })
     it('findElement(selector, parent-element)', async () => {
-      await findElement({input: {selector: 'div', parent: await page.$('#stretched')}})
+      await findElement({input: {selector: 'div', parent: (await page.$('#stretched'))!}})
     })
     it('findElement(non-existent)', async () => {
       await findElement({input: {selector: 'non-existent'}, expected: null})
@@ -256,10 +262,13 @@ describe('spec driver', async () => {
       await findElements({input: {selector: 'div'}})
     })
     it('findElements(string, parent-element)', async () => {
-      await findElements({input: {selector: 'div', parent: await page.$('#stretched')}})
+      await findElements({input: {selector: 'div', parent: (await page.$('#stretched'))!}})
     })
     it('findElements(non-existent)', async () => {
       await findElements({input: {selector: 'non-existent'}, expected: []})
+    })
+    it('setElementText(element, text)', async () => {
+      await setElementText({input: {element: (await page.$('input'))!, text: 'Ad multos annos'}})
     })
     it('getViewportSize()', async () => {
       await getViewportSize()
@@ -301,7 +310,7 @@ describe('spec driver', async () => {
     const element = await page.$('#overflowing-div')
     await page.reload()
     try {
-      await element.click()
+      await element!.click()
     } catch (err) {
       return assert.ok(spec.isStaleElementError(err))
     }
@@ -314,7 +323,7 @@ describe('spec driver', async () => {
     const str = 'string'
     const obj = {key: 'value', obj: {key: ''}}
     const arr = [0, 1, 2, {key: 3}]
-    const el = await page.$('div')
+    const el = (await page.$('div'))!
     const result = await spec.executeScript(page.mainFrame(), arg => arg, {num, str, obj, arr, el, nil, undef})
     assert.strictEqual(result.num, num)
     assert.strictEqual(result.str, str)
@@ -323,37 +332,37 @@ describe('spec driver', async () => {
     assert.ok(await isEqualElements(page, result.el, el))
   }
   async function mainContext() {
-    const mainDocument = await page.$('html')
-    const frame1 = await page
+    const mainDocument = (await page.$('html'))!
+    const frame1 = page
       .mainFrame()
       .childFrames()
-      .find(frame => frame.name() === 'frame1')
-    const frame2 = await frame1.childFrames().find(frame => frame.name() === 'frame1-1')
-    const frameDocument = await frame2.$('html')
+      .find(frame => frame.name() === 'frame1')!
+    const frame2 = frame1.childFrames().find(frame => frame.name() === 'frame1-1')!
+    const frameDocument = (await frame2.$('html'))!
     assert.ok(!(await isEqualElements(frame2, mainDocument, frameDocument)))
     const mainFrame = await spec.mainContext(frame2)
-    const resultDocument = await mainFrame.$('html')
+    const resultDocument = (await mainFrame.$('html'))!
     assert.ok(await isEqualElements(mainFrame, resultDocument, mainDocument))
   }
   async function parentContext() {
-    const frame1 = await page
+    const frame1 = page
       .mainFrame()
       .childFrames()
-      .find(frame => frame.name() === 'frame1')
-    const parentDocument = await frame1.$('html')
-    const frame2 = await frame1.childFrames().find(frame => frame.name() === 'frame1-1')
-    const frameDocument = await frame2.$('html')
+      .find(frame => frame.name() === 'frame1')!
+    const parentDocument = (await frame1.$('html'))!
+    const frame2 = frame1.childFrames().find(frame => frame.name() === 'frame1-1')!
+    const frameDocument = (await frame2.$('html'))!
     assert.ok(!(await isEqualElements(frame2, parentDocument, frameDocument)))
     const parentFrame = await spec.parentContext(frame2)
-    const resultDocument = await parentFrame.$('html')
+    const resultDocument = (await parentFrame.$('html'))!
     assert.ok(await isEqualElements(parentFrame, resultDocument, parentDocument))
   }
   async function childContext() {
-    const element = await page.$('[name="frame1"]')
-    const expectedFrame = await element.contentFrame()
-    const expectedDocument = await expectedFrame.$('html')
+    const element = (await page.$('[name="frame1"]'))!
+    const expectedFrame = (await element.contentFrame())!
+    const expectedDocument = (await expectedFrame.$('html'))!
     const resultFrame = await spec.childContext(page.mainFrame(), element)
-    const resultDocument = await resultFrame.$('html')
+    const resultDocument = (await resultFrame.$('html'))!
     assert.ok(await isEqualElements(resultFrame, resultDocument, expectedDocument))
   }
   async function findElement({
@@ -361,13 +370,13 @@ describe('spec driver', async () => {
     expected,
   }: {
     input: {selector: spec.Selector; parent?: spec.Element}
-    expected?: spec.Element
+    expected?: spec.Element | null
   }) {
     const root = input.parent ?? page
     expected = expected === undefined ? await root.$(input.selector as string) : expected
     const element = await spec.findElement(page.mainFrame(), input.selector, input.parent)
     if (element !== expected) {
-      assert.ok(await isEqualElements(page, element, expected))
+      assert.ok(await isEqualElements(page, element!, expected!))
     }
   }
   async function findElements({
@@ -385,6 +394,12 @@ describe('spec driver', async () => {
       assert.ok(await isEqualElements(page, element, expected[index]))
     }
   }
+  async function setElementText({input}: {input: {element: spec.Element; text: string}}) {
+    await input.element.type('bla bla')
+    await spec.setElementText(page.mainFrame(), input.element, input.text)
+    const text = await page.evaluate(element => element.value, input.element as spec.Element<HTMLInputElement>)
+    assert.strictEqual(text, input.text)
+  }
   async function getViewportSize() {
     const expected = await page.viewportSize()
     const result = await spec.getViewportSize(page)
@@ -401,10 +416,10 @@ describe('spec driver', async () => {
       value: 'world',
       domain: 'google.com',
       path: '/',
-      expiry: 4025208067,
+      expiry: Math.floor((Date.now() + 60000) / 1000),
+      sameSite: 'Lax',
       httpOnly: true,
       secure: true,
-      sameSite: 'Lax',
     }
     await page.context().addCookies([{...cookie, expires: cookie.expiry}])
     const cookies = await spec.getCookies(page)

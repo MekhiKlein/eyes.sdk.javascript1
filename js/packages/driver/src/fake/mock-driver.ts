@@ -121,18 +121,17 @@ export class MockDriver {
       }
       return {x: scrollingElement.scrollPosition.x, y: scrollingElement.scrollPosition.y}
     })
-    this.mockScript(snippets.getPixelRatio, () => {
-      return 1
-    })
     this.mockScript(snippets.getShadowRoot, ([element]) => {
       return element
     })
     this.mockScript(snippets.getUserAgent, () => {
-      if (this._ua !== undefined) return this._ua
-      return this.info.isMobile ? DEFAULT_MOBILE_UA : DEFAULT_DESKTOP_UA
+      return JSON.stringify({
+        status: 'SUCCESS',
+        value: this._ua !== undefined ? this._ua : this.environment.isMobile ? DEFAULT_MOBILE_UA : DEFAULT_DESKTOP_UA,
+      })
     })
-    this.mockScript(snippets.getViewportSize, () => {
-      return {width: this._window.rect.width, height: this._window.rect.height}
+    this.mockScript(snippets.getViewport, () => {
+      return {viewportSize: {width: this._window.rect.width, height: this._window.rect.height}, pixelRation: 1}
     })
     this.mockScript(snippets.getElementXpath, ([element]) => {
       if (element.xpath) return element.xpath
@@ -210,6 +209,9 @@ export class MockDriver {
     this.mockSelector(selector, element)
     return element
   }
+  unmockElement(element) {
+    this.unmockSelector(element.selector, element)
+  }
   mockElements(nodes, {parentId = null, parentContextId = null, parentRootId = null} = {}) {
     for (const node of nodes) {
       const element = this.mockElement(node.selector, {...node, parentId, parentContextId, parentRootId})
@@ -230,7 +232,21 @@ export class MockDriver {
     }
     elements.push(element)
   }
-  wrapMethod(name, wrapper) {
+  unmockSelector(selector, element) {
+    const elements = this._elements.get(selector)
+    if (!elements) return
+    const index = elements.indexOf(element)
+    if (index < 0) return
+    elements.splice(index, 1)
+  }
+  wrapMethod<
+    TName extends {
+      [K in keyof MockDriver]: MockDriver[K] extends (...args: any[]) => any ? K : never
+    }[keyof MockDriver],
+  >(
+    name: TName,
+    wrapper: (method: this[TName], thisArg: this, args: Parameters<this[TName]>) => ReturnType<this[TName]>,
+  ) {
     if (!this[name] || name.startsWith('_') || !utils.types.isFunction(this[name])) return
     if (this._methods.has(name)) this.unwrapMethod(name)
     this._methods.set(name, this[name])
@@ -244,7 +260,7 @@ export class MockDriver {
     this[name] = method
   }
 
-  get info() {
+  get environment() {
     return {
       isMobile: this._device ? Boolean(this._device.isMobile) : false,
       isNative: this._device ? Boolean(this._device.isNative) : false,
@@ -256,7 +272,7 @@ export class MockDriver {
     }
   }
   async executeScript(script, args = []) {
-    if (this.info.isNative) throw new Error("Native context doesn't support this method")
+    if (this.environment.isNative) throw new Error("Native context doesn't support this method")
     let result = this._scripts.get(String(script))
     if (!result) {
       const name = Object.keys(WELL_KNOWN_SCRIPTS).find(name => WELL_KNOWN_SCRIPTS[name](script))
@@ -276,8 +292,8 @@ export class MockDriver {
         )
       : null
   }
-  async findElements(selector, rootElement) {
-    const elements = this._elements.get(selector)
+  async findElements(selector, rootElement?: any) {
+    const elements = this._elements.get(typeof selector === 'string' ? selector : selector.id)
     return elements
       ? elements.filter(
           element =>
@@ -320,18 +336,18 @@ export class MockDriver {
     Object.assign(this._window.rect, rect)
   }
   async getUrl() {
-    if (this.info.isNative) throw new Error("Native context doesn't support this method")
+    if (this.environment.isNative) throw new Error("Native context doesn't support this method")
     return this._window.url
   }
   async getTitle() {
-    if (this.info.isNative) throw new Error("Native context doesn't support this method")
+    if (this.environment.isNative) throw new Error("Native context doesn't support this method")
     return this._window.title
   }
   async visit(url) {
-    if (this.info.isNative) throw new Error("Native context doesn't support this method")
+    if (this.environment.isNative) throw new Error("Native context doesn't support this method")
     this._window.url = url
   }
-  async takeScreenshot() {
+  async takeScreenshot(): Promise<unknown> {
     // const image = new png.Image({
     //   width: this._window.rect.width,
     //   height: this._window.rect.height,

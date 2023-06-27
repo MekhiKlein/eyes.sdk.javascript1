@@ -1,7 +1,8 @@
-import type {Size, Region, Cookie, DriverInfo} from '@applitools/types'
+import type {Size, Region} from '@applitools/utils'
 import type * as WD from 'webdriver'
-import * as utils from '@applitools/utils'
+import {type Cookie, DriverInfo} from '@applitools/driver'
 import {parse as parseUrl} from 'url'
+import * as utils from '@applitools/utils'
 import WebDriver, {command} from 'webdriver'
 import ProxyAgent from 'proxy-agent'
 import http from 'http'
@@ -157,12 +158,7 @@ export function transformDriver(driver: Driver | StaticDriver): Driver {
     },
   }
 
-  const modifiedDriver = WebDriver.attachToSession(options, undefined, additionalCommands)
-  if (environment.isAndroid) {
-    modifiedDriver?.updateSettings({allowInvisibleElements: true})
-  }
-  // console.log('transformDriver attach completed, returning modified driver', modifiedDriver)
-  return modifiedDriver
+  return WebDriver.attachToSession(options, undefined, additionalCommands)
 }
 export function transformElement(element: Element | StaticElement): Element {
   const elementId = extractElementId(element)
@@ -190,6 +186,10 @@ export function isStaleElementError(error: any): boolean {
   if (!error) return false
   const errOrResult = error.originalError || error
   return errOrResult instanceof Error && errOrResult.name === 'stale element reference'
+}
+
+export function extractHostName(driver: Driver): string {
+  return driver.options?.hostname
 }
 
 // #endregion
@@ -230,6 +230,13 @@ export async function findElements(driver: Driver, selector: Selector, parent?: 
   return parentElement
     ? await driver.findElementsFromElement(extractElementId(parentElement), selector.using, selector.value)
     : await driver.findElements(selector.using, selector.value)
+}
+export async function setElementText(driver: Driver, element: Element, text: string): Promise<void> {
+  await driver.elementClear(extractElementId(element))
+  await driver.elementSendKeys(extractElementId(element), text)
+}
+export async function getElementText(driver: Driver, element: Element): Promise<string> {
+  return driver.getElementText(extractElementId(element))
 }
 export async function getWindowSize(driver: Driver): Promise<Size> {
   try {
@@ -295,9 +302,6 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await driver.elementClick(extractElementId(element))
 }
-export async function type(driver: Driver, element: Element, value: string): Promise<void> {
-  await driver.elementSendKeys(extractElementId(element), value)
-}
 
 // #endregion
 
@@ -322,11 +326,19 @@ export async function getElementRegion(driver: Driver, element: Element): Promis
 export async function getElementAttribute(driver: Driver, element: Element, attr: string): Promise<string> {
   return driver.getElementAttribute(extractElementId(element), attr)
 }
-export async function getElementText(driver: Driver, element: Element): Promise<string> {
-  return driver.getElementText(extractElementId(element))
-}
 export async function performAction(driver: Driver, steps: any[]): Promise<void> {
   return driver.touchPerform(steps.map(({action, ...options}) => ({action, options})))
+}
+export async function getCurrentWorld(driver: Driver): Promise<string> {
+  const world = await driver.getContext()
+  return utils.types.isString(world) ? world : world.id
+}
+export async function getWorlds(driver: Driver): Promise<string[]> {
+  const worlds = await driver.getContexts()
+  return worlds.map(world => (utils.types.isString(world) ? world : world.id))
+}
+export async function switchWorld(driver: Driver, id: string): Promise<void> {
+  await driver.switchContext(id)
 }
 
 // #endregion

@@ -6,12 +6,12 @@ on:
       package:
         description: package name
         type: choice
-        options: [eyes_universal, eyes_selenium, eyes_robotframework]
+        options: [core_universal, eyes_selenium, eyes_robotframework]
         required: true
       version:
         description: version increment type
         type: choice
-        options: [patch, minor, major]
+        options: [patch, minor, major, post]
         required: true
 
 jobs:
@@ -30,8 +30,8 @@ jobs:
           RELEASE_BRANCH=release-python-$PACKAGE-$new_version
           git checkout -b $RELEASE_BRANCH
           git push -u origin $RELEASE_BRANCH
-          echo "::set-output name=release_branch::$RELEASE_BRANCH"
-          echo "::set-output name=release_version::$new_version"
+          echo "release_branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
+          echo "release_version=$new_version" >> $GITHUB_OUTPUT
         working-directory: python
         env:
           GIT_AUTHOR_NAME: ${{github.actor}}
@@ -44,7 +44,7 @@ jobs:
     secrets: inherit
     with:
       ref: ${{needs.make_release_branch.outputs.release_branch}}
-      test_report_prod: true
+      releasing_package: ${{ github.event.inputs.package }}
 
   upload_to_pypi_merge_and_tag:
     needs: [make_release_branch, test]

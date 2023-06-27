@@ -1,13 +1,15 @@
+import type {Size} from '@applitools/utils'
+import type {SpecType as BaseSpecType, CommonSelector, Cookie, DriverInfo} from '@applitools/driver'
 import type * as Puppeteer from 'puppeteer'
-import type {Size, Cookie, DriverInfo} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
-export type Driver = Puppeteer.Page & {__applitoolsBrand?: never}
-export type Context = Puppeteer.Frame & {__applitoolsBrand?: never}
-export type Element = Puppeteer.ElementHandle & {__applitoolsBrand?: never}
-export type Selector = string & {__applitoolsBrand?: never}
+type ApplitoolsBrand = {__applitoolsBrand?: never}
 
-type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}
+export type Driver = Puppeteer.Page & ApplitoolsBrand
+export type Context = Puppeteer.Frame & ApplitoolsBrand
+export type Element<T extends globalThis.Element = globalThis.Element> = Puppeteer.ElementHandle<T> & ApplitoolsBrand
+export type Selector = string & ApplitoolsBrand
+export type SpecType = BaseSpecType<Driver, Context, Element, Selector>
 
 // #region HELPERS
 
@@ -134,18 +136,19 @@ export async function mainContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
   let mainFrame = frame
   while (mainFrame.parentFrame()) {
-    mainFrame = mainFrame.parentFrame()
+    mainFrame = mainFrame.parentFrame()!
   }
   return mainFrame
 }
 export async function parentContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
-  return frame.parentFrame()
+  return frame.parentFrame() ?? frame
 }
 export async function childContext(_frame: Context, element: Element): Promise<Context> {
-  return element.contentFrame()
+  const frame = (await element.contentFrame())!
+  return frame
 }
-export async function findElement(frame: Context, selector: Selector, parent?: Element): Promise<Element> {
+export async function findElement(frame: Context, selector: Selector, parent?: Element): Promise<Element | null> {
   const root = parent ?? frame
   return (
     isXpathSelector(selector) ? root.$x(selector).then(elements => elements[0]) : root.$(selector)
@@ -155,8 +158,13 @@ export async function findElements(frame: Context, selector: Selector, parent?: 
   const root = parent ?? frame
   return (isXpathSelector(selector) ? root.$x(selector) : root.$$(selector)) as Promise<Element[]>
 }
+export async function setElementText(frame: Context, element: Element | Selector, text: string): Promise<void> {
+  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
+  await resolvedElement?.evaluate(element => ((element as HTMLInputElement).value = ''))
+  await resolvedElement?.type(text)
+}
 export async function getViewportSize(page: Driver): Promise<Size> {
-  return page.viewport()
+  return page.viewport()!
 }
 export async function setViewportSize(page: Driver, size: Size): Promise<void> {
   await page.setViewport(size)
@@ -167,7 +175,7 @@ export async function getCookies(page: Driver): Promise<Cookie[]> {
   const {cookies} = await cdpSession.send('Network.getAllCookies')
 
   return cookies.map(cookie => {
-    const copy = {...cookie, expiry: cookie.expires}
+    const copy = {...cookie, expiry: cookie.expires} as Record<keyof typeof cookie, any> & Cookie
     delete copy.expires
     delete copy.size
     delete copy.priority
@@ -195,20 +203,12 @@ export async function takeScreenshot(page: Driver): Promise<Buffer> {
   return result as Buffer
 }
 export async function click(frame: Context, element: Element | Selector): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  await element.click()
-}
-export async function type(frame: Context, element: Element | Selector, keys: string): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  return element.type(keys)
+  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
+  await resolvedElement?.click()
 }
 export async function hover(frame: Context, element: Element | Selector): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  await element.hover()
-}
-export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  await frame.evaluate((element, align) => element.scrollIntoView(align), element, align)
+  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
+  await resolvedElement?.hover()
 }
 export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
   await frame.waitForSelector(selector)
@@ -218,8 +218,22 @@ export async function waitUntilDisplayed(frame: Context, selector: Selector): Pr
 
 // #region BUILD
 const browserNames = ['chrome', 'firefox']
+/*
+ * Spawn a browser with a given configuration (INTERNAL USE ONLY)
+ *
+ * NOTE:
+ * This function is intended for internal use only. As a result it relies on some dev dependencies.
+ * When wiring the spec-driver up to an SDK and calling this function, if you don't have the same dev deps
+ * installed in the SDK, then this function will error.
+ */
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const puppeteer = require('puppeteer')
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('puppeteer', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'puppeteer'
+  }
+  const puppeteer = require(frameworkPath)
   const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {browser, attach, proxy, args = [], headless} = parseEnv(env, 'cdp')
   if (!browserNames.includes(browser)) throw new Error(`Browser "${browser}" is not supported.`)

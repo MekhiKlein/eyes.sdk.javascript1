@@ -9,6 +9,8 @@ const {delay} = require('@applitools/functional-commons');
 const logger = require('../util/testLogger');
 const puppeteer = require('puppeteer');
 const snap = require('@applitools/snaptdout');
+const getStoryTitle = require('../../src/getStoryTitle');
+const makeGetStoriesWithConfig = require('../../src/getStoriesWithConfig');
 
 const waitForQueuedRenders = () => {};
 
@@ -26,7 +28,7 @@ describe('renderStories', () => {
       logger,
     });
 
-    const results = await renderStories([], {});
+    const results = await renderStories([]);
 
     expect(results).to.eql([]);
     await snap(getEvents().join(''), 'empty');
@@ -59,14 +61,19 @@ describe('renderStories', () => {
       pagePool,
     });
 
-    const stories = [{name: 's1', kind: 'k1'}];
+    const stories = [
+      {
+        name: 's1',
+        kind: 'k1',
+        config: {
+          bla: true,
+          fakeIE: true,
+          renderers: [{name: 'ie'}],
+        },
+      },
+    ];
 
-    await renderStories(stories, {
-      bla: true,
-      fakeIE: true,
-      browser: [{name: 'ie'}],
-    });
-
+    await renderStories(stories, true);
     await snap(getEvents().join(''), 'IE rendering msg');
   });
 
@@ -97,13 +104,18 @@ describe('renderStories', () => {
       pagePool,
     });
 
-    const stories = [{name: 's1', kind: 'k1'}];
+    const stories = [
+      {
+        name: 's1',
+        kind: 'k1',
+        config: {
+          bla: true,
+          renderers: [{name: 'chrome'}, {name: 'ie'}],
+        },
+      },
+    ];
 
-    await renderStories(stories, {
-      bla: true,
-      browser: [{name: 'chrome'}, {name: 'ie'}],
-    });
-
+    await renderStories(stories);
     await snap(getEvents().join(''), 'rendering msg');
   });
 
@@ -131,7 +143,6 @@ describe('renderStories', () => {
 
     const renderStories = makeRenderStories({
       getStoryData,
-      waitForQueuedRenders,
       renderStory,
       storybookUrl,
       logger,
@@ -147,18 +158,17 @@ describe('renderStories', () => {
       {name: 's5', kind: 'k5'},
       {name: 's6', kind: 'k6'},
       {name: 's7', kind: 'k7'},
-    ];
-
-    const results = await renderStories(stories, {bla: true});
-
+    ].map(story => ({...story, config: {bla: true}}));
+    const results = await renderStories(stories);
     const expectedResults = await Promise.all(
       stories.map(async (story, i) => {
         const storyUrl = `http://something/iframe.html?eyes-storybook=true&selectedKind=${story.kind}&selectedStory=${story.name}`;
         const page = i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 3;
         return {
-          config: {bla: true},
-          snapshot: `snapshot_${story.name}_${story.kind}_${storyUrl}_${page}`,
-          cookies: [],
+          snapshots: {
+            snapshots: `snapshot_${story.name}_${story.kind}_${storyUrl}_${page}`,
+            cookies: [],
+          },
           story,
           url: storyUrl,
         };
@@ -170,13 +180,14 @@ describe('renderStories', () => {
     expect(
       results
         .map(({resultsOrErr}) => resultsOrErr[0].arg)
-        .sort((a, b) => a.snapshot.localeCompare(b.snapshot)),
+        .sort((a, b) => a.snapshots.snapshots.localeCompare(b.snapshots.snapshots)),
     ).to.eql(expectedResults);
 
     await snap(getEvents().join(''), 'results');
   });
 
   it('passes waitBeforeCapture to getStoryData', async () => {
+    const getStoriesWithConfig = makeGetStoriesWithConfig({config: {}});
     const pagePool = createPagePool({
       logger,
       initPage: async ({pageId}) => ({evaluate: async () => pageId + 1}),
@@ -184,8 +195,8 @@ describe('renderStories', () => {
     pagePool.addToPool((await pagePool.createPage()).pageId);
 
     let _waitBeforeCapture;
-    const getStoryData = async ({waitBeforeStory}) => {
-      _waitBeforeCapture = waitBeforeStory;
+    const getStoryData = async ({story}) => {
+      _waitBeforeCapture = story.config.waitBeforeCapture;
       return {};
     };
 
@@ -203,11 +214,14 @@ describe('renderStories', () => {
       stream,
       pagePool,
     });
-
-    const results = await renderStories(
-      [{name: 's1', kind: 'k1', parameters: {eyes: {waitBeforeCapture: 'wait_some_value'}}}],
-      {},
-    );
+    const story = {
+      name: 's1',
+      kind: 'k1',
+      parameters: {eyes: {waitBeforeCapture: 'wait_some_value'}},
+      config: {},
+    };
+    const storiesWithConfig = getStoriesWithConfig({stories: [story]});
+    const results = await renderStories(storiesWithConfig.stories);
 
     expect(_waitBeforeCapture).to.eql('wait_some_value');
     expect(results[0].title).to.eql('k1: s1');
@@ -216,6 +230,9 @@ describe('renderStories', () => {
         name: 's1',
         kind: 'k1',
         parameters: {eyes: {waitBeforeCapture: 'wait_some_value'}},
+        config: {waitBeforeCapture: 'wait_some_value', properties: []},
+        storyTitle: 'k1: s1',
+        baselineName: 'k1: s1',
       }),
     );
   });
@@ -245,14 +262,54 @@ describe('renderStories', () => {
       stream,
     });
 
-    const story = {name: 's1', kind: 'k1'};
-    const results = await renderStories([story], {});
+    const story = {name: 's1', kind: 'k1', config: {}};
+    const results = await renderStories([story]);
 
     expect(results[0].title).to.eql('k1: s1');
     expect(results[0].resultsOrErr).to.be.an.instanceOf(Error);
 
     await snap(results[0].resultsOrErr.message, 'err message');
     await snap(getEvents().join(''), 'getStoryData err');
+  });
+
+  it('return Error in results with retry when reached to timeout on takeDomeSnapshots', async () => {
+    const browser = await puppeteer.launch();
+    try {
+      const page = await browser.newPage();
+      const pagePool = createPagePool({
+        logger,
+        initPage: async ({pageId}) => (pageId === 0 ? page : browser.newPage()),
+      });
+      const story = {name: 's1', kind: 'k1', config: {hello: 'world'}};
+      pagePool.addToPool((await pagePool.createPage()).pageId);
+      const title = getStoryTitle(story);
+      const getStoryData = async () => {
+        throw new Error(`timeout reached when trying to take DOM for story ${title}`);
+      };
+
+      const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
+
+      const storybookUrl = 'http://something';
+      const {stream} = testStream();
+
+      const renderStories = makeRenderStories({
+        getStoryData,
+        waitForQueuedRenders,
+        pagePool,
+        renderStory,
+        storybookUrl,
+        logger,
+        stream,
+        getClientAPI: () => {},
+      });
+
+      const results = await renderStories([story]);
+      expect(results[0].resultsOrErr.message).to.equal(
+        `[page 0] Failed to get story data for \"k1: s1\". Error: timeout reached when trying to take DOM for story ${title}`,
+      );
+    } finally {
+      await browser.close();
+    }
   });
 
   it('returns errors from renderStory', async () => {
@@ -280,8 +337,8 @@ describe('renderStories', () => {
       stream,
     });
 
-    const story = {name: 's1', kind: 'k1'};
-    const results = await renderStories([story], {});
+    const story = {name: 's1', kind: 'k1', config: {}};
+    const results = await renderStories([story]);
     expect(results[0].title).to.eql('k1: s1');
     expect(results[0].resultsOrErr).to.be.an.instanceOf(Error);
     expect(results[0].resultsOrErr.message).to.equal('bla');
@@ -328,19 +385,20 @@ describe('renderStories', () => {
           getClientAPI: () => {},
         });
 
-        const story = {name: 's1', kind: 'k1'};
-        const results = await renderStories([story], {hello: 'world'});
+        const story = {name: 's1', kind: 'k1', config: {hello: 'world'}};
+        const results = await renderStories([story]);
 
         const storyUrl = `http://something/iframe.html?eyes-storybook=true&selectedKind=${story.kind}&selectedStory=${story.name}`;
         expect(results[0].title).to.eql('k1: s1');
         expect(results.map(({resultsOrErr}) => resultsOrErr[0].arg)).to.eql([
           {
-            config: {hello: 'world'},
             story,
             url: storyUrl,
-            snapshot:
-              'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
-            cookies: [],
+            snapshots: {
+              snapshots:
+                'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
+              cookies: [],
+            },
           },
         ]);
 
@@ -406,17 +464,18 @@ describe('renderStories', () => {
           maxPageTTL: 10,
         });
 
-        const story = {name: 's1', kind: 'k1'};
-        const results = await renderStories([story, story], {});
+        const story = {name: 's1', kind: 'k1', config: {}};
+        const results = await renderStories([story, story]);
 
         const storyUrl = `http://something/iframe.html?eyes-storybook=true&selectedKind=${story.kind}&selectedStory=${story.name}`;
         const expectedStory = {
-          config: {},
           story,
           url: storyUrl,
-          snapshot:
-            'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
-          cookies: [],
+          snapshots: {
+            snapshots:
+              'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
+            cookies: [],
+          },
         };
 
         const resultsOrErr0 = results[0].resultsOrErr;

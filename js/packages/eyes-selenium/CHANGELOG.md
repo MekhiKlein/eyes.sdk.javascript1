@@ -1,12 +1,203 @@
-# Change Log
+# Changelog
 
-## Unreleased
-
-
+## [4.66.4](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-selenium@4.66.3...js/eyes-selenium@4.66.4) (2023-06-21)
 
 
+### Bug Fixes
+
+* fix coverage tests ([f5067d8](https://github.com/applitools/eyes.sdk.javascript1/commit/f5067d8693502c3f6c9dbdf8adafbe513d86a9ad))
 
 
+### Dependencies
+
+* @applitools/eyes bumped from 1.2.17 to 1.3.0
+  #### Features
+
+  * added overload for locate method, to call it with custom target ([5d5914a](https://github.com/applitools/eyes.sdk.javascript1/commit/5d5914a5dae6822cde0086d6b9f4d6f9ac7cc4f2))
+
+
+
+* @applitools/spec-driver-selenium bumped from 1.5.47 to 1.5.49
+
+
+## [4.66.3](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-selenium-v4.66.2...js/eyes-selenium@4.66.3) (2023-06-15)
+
+
+### Dependencies
+
+* update some dependencies
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.2.14 to 1.2.17
+
+## 4.66.2 - 2023/5/31
+
+### Features
+### Bug fixes
+- Increase timeout for rendering results polling
+
+## 4.66.1 - 2023/5/19
+
+### Features
+### Bug fixes
+- Fixed issue with Safari mobile screenshots
+
+## 4.66.0 - 2023/5/13
+
+### Features
+- Add support for reloading the page when using layoutBreakpoints
+### Bug fixes
+- Fixed issue with viewport information extraction when switched to webview
+
+## 4.65.6 - 2023/5/3
+
+### Features
+### Bug fixes
+- Fixed issue with failed find element responses in EC
+- Fixed issue when on certain browser versions test didn't target a previously created baseline
+
+## 4.65.5 - 2023/5/1
+
+### Features
+### Bug fixes
+- Remove "Execution Cloud" custom property
+
+## 4.65.4 - 2023/4/28
+
+### Features
+### Bug fixes
+- Fixed detection of emulated mobile drivers
+
+## 4.65.3 - 2023/4/26
+
+### Features
+- No features
+### Bug fixes
+
+## 4.65.2 - 2023/4/11
+
+### Features
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+
+## 4.65.1 - 2023/4/5
+
+### Features
+### Bug fixes
+- Fixed screenshot framing
+- Fixed issue with css fetching for dom capture
+
+## 4.65.0 - 2023/4/5
+
+### Features
+- Added `removeDuplicateTests` property to the `RunnerOptions` to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+
+## 4.64.1 - 2023/3/22
+
+### Features
+- Added `Resize` value to `StitchMode` enum
+- Improved extraction of nml element
+### Bug fixes
+- Avoid handing process when using execution cloud
+- Fixed slowness during ufg tests
+- Optimized number of requests during polling
+
+## 4.64.0 - 2023/2/23
+
+### Features
+- Added new android devices Sony Xperia 1 II, Sony Xperia Ace II, Huawei P30 Lite, Xiaomi Redmi Note 10 JE
+- Add NML support for Android
+- Crop screenshot image base on account info
+### Bug fixes
+
+## 4.63.1 - 2023/1/23
+
+### Features
+### Bug fixes
+- Fixed issue with sessionId on ufg
+
+## 4.63.0 - 2023/1/23
+
+### Features
+- No new features
+### Bug fixes
+
+## 4.62.1 - 2022/12/31
+
+### Features
+### Bug fixes
+- Additional internal event logs
+
+## 4.62.0 - 2022/12/21
+
+### Features
+- Added new selector extensions `child` and `fallback`
+- Mark target element with `data-applitools-scroll` attribute before capture dom
+- Added new iOS device - 'iPad Pro (11-inch) (4th generation)'
+- Use user agent metadata to improve browser environment detection logic
+- Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
+- Added `ignoreColors` method to `CheckSettings` to set a match level
+- Added `nmgOptions` to `CheckSettings`
+### Bug fixes
+- Fixed bug that caused `extractText` to throw, due to fractional size of the target region
+- Fix dontCloseBatches mapping
+- Fixed issue when current context is not being preserved in ufg mode
+- Fixed issue when helper lib inputs were not cleaned up before calling new command
+- Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
+- Handle fake shadowRoot with UFG
+- Handed error during polling in long requests to eyes server
+
+## 4.61.0 - 2022/10/18
+
+### Features
+- Drop support for Android 9 and Android 10 specific devices
+### Bug fixes
+- Fixed error that was happening when test results were deleted
+
+## 4.60.2 - 2022/10/13
+
+### Features
+- Changed default value of `sendDom` from `true` to dynamically calculated
+- Added new android device `Sony Xperia 10 II`
+### Bug fixes
+- Fixed issue with ufg renders failing intermittently
+
+## 4.60.1 - 2022/10/9
+
+### Features
+- Applied client's user-agent by default to resource requests in ufg mode
+### Bug fixes
+- Fixed wrong signature of `closeBatch` function
+- Blank missed frames src in ufg
+- Fix an issue when ufg related requests were not sent through the proxy
+- Fixed issue with logs not being saved/written
+
+## 4.60.0 - 2022/10/4
+
+### Features
+- Deprecated "Content" match level value in favor of "IgnoreColors"
+- Added support for webview switching in classic execution
+### Bug fixes
+- Fixed the issue with screenshots being taken on chrome-emulated devices
+- Fixed bug when error was thrown when coded region wasn't found using selector
+
+## 4.59.6 - 2022/9/26
+
+### Features
+### Bug fixes
+- Fixed minor issues
+
+## 4.59.5 - 2022/9/22
+
+### Features
+- Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
+- Added support for lazy loading views in android native apps
+- Using `lazyLoad.waitingTime` as a delay between stitches by default
+- Added `Sony Xperia 10 II` emulation device
+- Added `iPhone 14`  and `iPhone 14 Pro Max` ios devices
+### Bug fixes
+- Fixed incorrect calculation of the target element position.
 
 ## 4.59.4 - 2022/7/28
 

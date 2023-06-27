@@ -4,7 +4,6 @@ const findNpmModuleCommandPath = require('./findNpmModuleCommandPath');
 const StorybookConnector = require('./storybookConnector');
 
 async function startStorybookServer({
-  packagePath,
   storybookPort,
   storybookHost,
   storybookConfigDir,
@@ -12,15 +11,10 @@ async function startStorybookServer({
   showStorybookOutput,
   logger,
   startStorybookServerTimeout,
+  storybookPath,
+  sbArg,
 }) {
   const isWindows = process.platform.startsWith('win');
-  const npmModuleCommand = 'start-storybook';
-  const storybookPath = await findNpmModuleCommandPath(npmModuleCommand, packagePath);
-
-  if (storybookPath == null) {
-    console.error(`Command '${npmModuleCommand}' was not found`);
-    process.exit(1);
-  }
 
   const storybookConnector = new StorybookConnector({
     storybookPath,
@@ -30,6 +24,7 @@ async function startStorybookServer({
     storybookStaticDir,
     isWindows,
     logger,
+    sbArg,
   });
 
   if (showStorybookOutput) {

@@ -49,8 +49,6 @@ describe('screenshoter android app', () => {
     await loginButton2.click()
     await sleep(15000)
 
-    await driver.init()
-
     await driver.mainContext.setScrollingElement({type: 'id', selector: 'insuranceTabNestedScrollView'})
 
     await test({
@@ -81,8 +79,6 @@ describe('screenshoter android app', () => {
     const cardElement = await driver.element({type: 'id', selector: 'card_view'})
     await cardElement.click()
     await sleep(5000)
-
-    await driver.init()
 
     await driver.mainContext.setScrollingElement({type: 'id', selector: 'policyDetailsScrollView'})
 
@@ -115,8 +111,6 @@ describe('screenshoter android app', () => {
     await profileButton.click()
     await sleep(10000)
 
-    await driver.init()
-
     await driver.mainContext.setScrollingElement({type: 'class name', selector: 'android.widget.ScrollView'})
 
     await test({
@@ -148,8 +142,6 @@ describe('screenshoter android app', () => {
     await benefitsButton.click()
     await sleep(5000)
 
-    await driver.init()
-
     await test({
       type: 'android',
       tag: 'app-fully-suncorp3',
@@ -179,8 +171,6 @@ describe('screenshoter android app', () => {
     await activeClaimsButton.click()
     await sleep(3000)
 
-    await driver.init()
-
     await test({
       type: 'android',
       tag: 'app-fully-suncorp4',
@@ -199,8 +189,15 @@ describe('screenshoter android ios', () => {
 
   before(async () => {
     ;[driver, destroyDriver] = await makeDriver({
-      type: 'ios-bs',
-      app: 'bs://9fa51ee3c516d1fa44942a63b55150849162f057',
+      type: 'ios',
+      app: '/Users/kyrylo/Downloads/aami-3.4.0-2582-fe8983426f-QA.ipa',
+      udid: '00008101-001018180113001E',
+      bundleId: 'au.com.suncorp.sg.aami',
+      platformVersion: '15.4',
+      fullReset: false,
+      noReset: true,
+      // showIOSLog: true,
+      // showXcodeLog: true,
       logger,
     })
 
@@ -212,19 +209,7 @@ describe('screenshoter android ios', () => {
   })
 
   it('take full app screenshot', async () => {
-    // await sleep(10000)
-
-    // const loginButton = await driver.element({type: 'id', selector: 'loginButton'})
-    // await loginButton.click()
-    // await sleep(3000)
-
-    // const passwordField = await driver.element({type: 'id', selector: 'passwordField'})
-    // await passwordField.type('a')
-    // const loginButton2 = await driver.element({type: 'id', selector: 'loginButton'})
-    // await loginButton2.click()
-    // await sleep(15000)
-
-    // await driver.init()
+    await sleep(20000)
 
     await driver.mainContext.setScrollingElement({
       type: '-ios predicate string',

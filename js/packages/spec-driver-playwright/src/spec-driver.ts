@@ -1,16 +1,18 @@
+import type {Size} from '@applitools/utils'
+import type {SpecType as BaseSpecType, CommonSelector, Cookie, DriverInfo} from '@applitools/driver'
 import type * as Playwright from 'playwright'
-import type {Size, Cookie, DriverInfo} from '@applitools/types'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import * as utils from '@applitools/utils'
 
-export type Driver = Playwright.Page & {__applitoolsBrand?: never}
-export type Context = Playwright.Frame & {__applitoolsBrand?: never}
-export type Element = Playwright.ElementHandle & {__applitoolsBrand?: never}
-export type Selector = (string | Playwright.Locator) & {__applitoolsBrand?: never}
+type ApplitoolsBrand = {__applitoolsBrand?: never}
 
-type CommonSelector<TSelector = never> = string | {selector: TSelector | string; type?: string}
+export type Driver = Playwright.Page & ApplitoolsBrand
+export type Context = Playwright.Frame & ApplitoolsBrand
+export type Element<T = Node> = Playwright.ElementHandle<T> & ApplitoolsBrand
+export type Selector = (string | Playwright.Locator) & ApplitoolsBrand
+export type SpecType = BaseSpecType<Driver, Context, Element, Selector>
 
 // #region HELPERS
 
@@ -60,7 +62,7 @@ export function transformSelector(selector: CommonSelector<Selector>): Selector 
 }
 export function untransformSelector(selector: Selector): CommonSelector {
   if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) {
-    ;[, selector] = selector.toString().match(/Locator@(.+)/)
+    ;[, selector] = selector.toString().match(/Locator@(.+)/)!
   }
   if (utils.types.isString(selector)) return {selector}
   return selector
@@ -90,29 +92,46 @@ export async function mainContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
   let mainFrame = frame
   while (mainFrame.parentFrame()) {
-    mainFrame = mainFrame.parentFrame()
+    mainFrame = mainFrame.parentFrame()!
   }
   return mainFrame
 }
 export async function parentContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
-  return frame.parentFrame()
+  return frame.parentFrame() ?? frame
 }
 export async function childContext(_frame: Context, element: Element): Promise<Context> {
-  return element.contentFrame()
+  const frame = (await element.contentFrame())!
+  return frame
 }
-export async function findElement(frame: Context, selector: Selector, parent?: Element): Promise<Element> {
-  if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) return selector.elementHandle()
+export async function findElement(
+  frame: Context,
+  selector: Selector,
+  parent?: Element,
+): Promise<Element<SVGElement | HTMLElement> | null> {
+  if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) {
+    return selector.elementHandle()
+  }
   const root = parent ?? frame
   return root.$(selector)
 }
-export async function findElements(frame: Context, selector: Selector, parent?: Element): Promise<Element[]> {
-  if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) return selector.elementHandles()
+export async function findElements(
+  frame: Context,
+  selector: Selector,
+  parent?: Element,
+): Promise<Element<SVGElement | HTMLElement>[]> {
+  if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) {
+    return (await selector.elementHandles()) as Element<SVGElement | HTMLElement>[]
+  }
   const root = parent ?? frame
   return root.$$(selector)
 }
+export async function setElementText(frame: Context, element: Element | Selector, text: string): Promise<void> {
+  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
+  await resolvedElement?.fill(text)
+}
 export async function getViewportSize(page: Driver): Promise<Size> {
-  return page.viewportSize()
+  return page.viewportSize()!
 }
 export async function setViewportSize(page: Driver, size: Size): Promise<void> {
   return page.setViewportSize(size)
@@ -120,7 +139,7 @@ export async function setViewportSize(page: Driver, size: Size): Promise<void> {
 export async function getCookies(page: Driver): Promise<Cookie[]> {
   const cookies = await page.context().cookies()
   return cookies.map(cookie => {
-    const copy = {...cookie, expiry: cookie.expires}
+    const copy = {...cookie, expiry: cookie.expires} as Record<keyof typeof cookie, any> & Cookie
     delete copy.expires
     return copy
   })
@@ -141,21 +160,12 @@ export async function takeScreenshot(page: Driver): Promise<Buffer> {
   return page.screenshot()
 }
 export async function click(frame: Context, element: Element | Selector): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  await element.click()
-}
-export async function type(frame: Context, element: Element | Selector, keys: string): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  await element.type(keys)
+  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
+  await resolvedElement?.click()
 }
 export async function hover(frame: Context, element: Element | Selector): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  await element.hover()
-}
-export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
-  if (isSelector(element)) element = await findElement(frame, element)
-  // @ts-ignore
-  await frame.evaluate(([element, align]) => element.scrollIntoView(align), [element, align])
+  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
+  await resolvedElement?.hover()
 }
 export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
   if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) return selector.waitFor()
@@ -171,8 +181,22 @@ const browserNames: Record<string, string> = {
   safari: 'webkit',
   firefox: 'firefox',
 }
+/*
+ * Spawn a browser with a given configuration (INTERNAL USE ONLY)
+ *
+ * NOTE:
+ * This function is intended for internal use only. As a result it relies on some dev dependencies.
+ * When wiring the spec-driver up to an SDK and calling this function, if you don't have the same dev deps
+ * installed in the SDK, then this function will error.
+ */
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const playwright = require('playwright')
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('playwright', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'playwright'
+  }
+  const playwright = require(frameworkPath)
   const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {browser, device, url, attach, proxy, args = [], headless, extension} = parseEnv(env, 'cdp')
   const launcher = playwright[browserNames[browser] || browser]

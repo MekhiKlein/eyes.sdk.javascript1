@@ -5,7 +5,7 @@ const path = require('path')
 const {makePackagesList} = require('../versions/versions-utils')
 const compareVersions = require('compare-versions')
 const packages = makePackagesList()
-const isAutoCommit = entry => /[auto commit].*upgrade deps/.test(entry)
+const isAutoCommit = entry => /(auto-commit).*upgrade deps/.test(entry)
 const isReleaseCommit = entry => /@applitools\/.*@\d+\.\d+\.\d+$/.test(entry)
 const isInternalPackage = packageName => !!packages.find(pkg => pkg.name === packageName)
 const isInvalidPackageName = dep => !dep.match(/"(.*)":/)
@@ -56,12 +56,8 @@ async function expandAutoCommitLogEntry(logEntry) {
     const index = deps.findIndex(dep => dep.packageName === packageName)
     deps[index].lowerVersion = lowerVersion
   })
-  const internalDeps = deps.filter(
-    dep => dep.packageName in dependencies && isInternalPackage(dep.packageName),
-  )
-  const externalDeps = deps.filter(
-    dep => dep.packageName in dependencies && !isInternalPackage(dep.packageName),
-  )
+  const internalDeps = deps.filter(dep => dep.packageName in dependencies && isInternalPackage(dep.packageName))
+  const externalDeps = deps.filter(dep => dep.packageName in dependencies && !isInternalPackage(dep.packageName))
   let entries = []
   for (const dep of internalDeps) {
     let results = await gitLog(dep)
@@ -118,13 +114,7 @@ async function gitCommit(message = 'Committed with bongo') {
   await pexec(`git commit -m "${message}"`)
 }
 
-async function gitLog({
-  cwd,
-  packageName,
-  lowerVersion,
-  upperVersion,
-  expandAutoCommitLogEntries,
-} = {}) {
+async function gitLog({cwd, packageName, lowerVersion, upperVersion, expandAutoCommitLogEntries} = {}) {
   const pkgName = packageName || require(path.join(cwd, 'package.json')).name
   const packagePath = getPackagePath(pkgName)
   const legacyPackagePath = getLegacyPackagePath(packagePath)
@@ -142,9 +132,7 @@ async function gitLog({
     if (!expandAutoCommitLogEntries) return entries
     let results = []
     for (const entry of entries) {
-      isAutoCommit(entry)
-        ? results.push(...(await expandAutoCommitLogEntry(entry)))
-        : results.push(entry)
+      isAutoCommit(entry) ? results.push(...(await expandAutoCommitLogEntry(entry))) : results.push(entry)
     }
     // remove release commits & duplicates
     return [...new Set(results.filter(entry => !isReleaseCommit(entry)))]

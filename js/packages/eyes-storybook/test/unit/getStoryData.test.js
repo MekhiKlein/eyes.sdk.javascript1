@@ -5,7 +5,7 @@ const {presult} = require('@applitools/functional-commons');
 const makeGetStoryData = require('../../src/getStoryData');
 const renderStoryWithClientAPI = require('../../dist/renderStoryWithClientAPI');
 const logger = require('../util/testLogger');
-const {deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core');
+const {deserializeDomSnapshotResult} = require('../fixtures/deserializeDomSnapshotResult');
 
 describe('getStoryData', () => {
   const pageFunctions = {
@@ -23,7 +23,7 @@ describe('getStoryData', () => {
     const valueBuffer = Buffer.from('value');
     const blobs = [{url: 'url2', type: 'type', value: valueBuffer.toString('base64')}];
     const expectedResourceContents = {url2: {url: 'url2', type: 'type', value: valueBuffer}};
-    const takeDomSnapshots = () => [
+    const takeDomSnapshots = async () => [
       deserializeDomSnapshotResult({
         resourceUrls: ['url1'],
         blobs,
@@ -38,7 +38,7 @@ describe('getStoryData', () => {
       waitBeforeCapture: 50,
     });
     const [{resourceUrls, resourceContents, cdt}] = await getStoryData({
-      story: {},
+      story: {config: {}},
       storyUrl: 'url',
       page,
     });
@@ -63,7 +63,7 @@ describe('getStoryData', () => {
     const valueBuffer = Buffer.from('value');
     const blobs = [{url: 'url2', type: 'type', value: valueBuffer.toString('base64')}];
     const expectedResourceContents = {url2: {url: 'url2', type: 'type', value: valueBuffer}};
-    const takeDomSnapshots = () => [
+    const takeDomSnapshots = async () => [
       deserializeDomSnapshotResult({
         resourceUrls: ['url1'],
         blobs,
@@ -78,7 +78,7 @@ describe('getStoryData', () => {
     });
 
     const [{resourceUrls, resourceContents, cdt}] = await getStoryData({
-      story: {},
+      story: {config: {}},
       storyUrl: 'url',
       page,
     });
@@ -103,7 +103,7 @@ describe('getStoryData', () => {
     const valueBuffer = Buffer.from('value');
     const blobs = [{url: 'url2', type: 'type', value: valueBuffer.toString('base64')}];
     const expectedResourceContents = {url2: {url: 'url2', type: 'type', value: valueBuffer}};
-    const takeDomSnapshots = () => [
+    const takeDomSnapshots = async () => [
       deserializeDomSnapshotResult({
         resourceUrls: ['url1'],
         blobs,
@@ -118,10 +118,9 @@ describe('getStoryData', () => {
     });
 
     const [{resourceUrls, resourceContents, cdt}] = await getStoryData({
-      story: {},
+      story: {config: {waitBeforeCapture}},
       storyUrl: 'url',
       page,
-      waitBeforeStory: waitBeforeCapture,
     });
 
     expect(resourceUrls).to.eql(['url1']);
@@ -147,15 +146,14 @@ describe('getStoryData', () => {
     const getStoryData = makeGetStoryData({
       logger,
       takeDomSnapshot,
-      waitBeforeCapture: 50,
     });
     let err;
     try {
-      await getStoryData({story: {}, storyUrl: 'url', page, waitBeforeStory: -5});
+      await getStoryData({story: {config: {waitBeforeCapture: -5}}, storyUrl: 'url', page});
     } catch (e) {
       err = e;
     }
-    expect(err.message).to.eql('IllegalArgument: waitBeforeCapture < 0');
+    expect(err.message).to.eql('IllegalArgument: waitBeforeCapture must be >= 0. Received -5');
   });
 
   it('throws when getting a negative waitBeforeCapture', async () => {
@@ -176,15 +174,14 @@ describe('getStoryData', () => {
     const getStoryData = makeGetStoryData({
       logger,
       takeDomSnapshot,
-      waitBeforeCapture: -50,
     });
     let err;
     try {
-      await getStoryData({story: {}, storyUrl: 'url', page});
+      await getStoryData({story: {config: {waitBeforeCapture: -50}}, storyUrl: 'url', page});
     } catch (e) {
       err = e;
     }
-    expect(err.message).to.eql('IllegalArgument: waitBeforeCapture < 0');
+    expect(err.message).to.eql('IllegalArgument: waitBeforeCapture must be >= 0. Received -50');
   });
 
   it('throws when fails to render a story with api', async () => {
@@ -204,7 +201,7 @@ describe('getStoryData', () => {
     });
     const [err] = await presult(
       getStoryData({
-        story: {isApi: true},
+        story: {isApi: true, config: {}},
         storyUrl: 'url',
         page,
       }),
@@ -233,7 +230,7 @@ describe('getStoryData', () => {
     };
     const getStoryData = makeGetStoryData({
       logger,
-      takeDomSnapshots: () => [
+      takeDomSnapshots: async () => [
         deserializeDomSnapshotResult({
           resourceUrls: [],
           blobs: [],
@@ -244,7 +241,7 @@ describe('getStoryData', () => {
       reloadPagePerStory: true,
     });
     const data = await getStoryData({
-      story: {isApi: true},
+      story: {isApi: true, config: {}},
       storyUrl: 'url',
       page,
     });

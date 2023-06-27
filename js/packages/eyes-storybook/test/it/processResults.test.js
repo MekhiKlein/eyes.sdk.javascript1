@@ -1,7 +1,6 @@
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
 const processResults = require('../../src/processResults');
-const {TestResults} = require('@applitools/eyes-sdk-core');
 const snap = require('@applitools/snaptdout');
 process.env.FORCE_COLOR = 2;
 
@@ -11,47 +10,75 @@ describe('processResults', () => {
       {
         title: 'My Component | Button1',
         resultsOrErr: [
-          new TestResults({
+          {
             name: 'someName1',
             appName: 'My Component | Button1',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             name: 'someName2',
             appName: 'My Component | Button2',
             hostDisplaySize: {width: 100, height: 200},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
-    const processResult = processResults({results, totalTime: 10000, concurrency: 1});
-    expect(JSON.stringify(processResult.formatter)).to.equal(
-      JSON.stringify({
-        _resultsList: [
-          {
+    const summary = {
+      results: [
+        {
+          result: {
             name: 'someName1',
             appName: 'My Component | Button1',
-            hostDisplaySize: {
-              width: 10,
-              height: 20,
-            },
+            hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
           },
-          {
+        },
+        {
+          result: {
             name: 'someName2',
             appName: 'My Component | Button2',
-            hostDisplaySize: {
-              width: 100,
-              height: 200,
-            },
+            hostDisplaySize: {width: 100, height: 200},
             appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
+    const processResult = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+    });
+    expect(JSON.stringify(processResult.summary)).to.equal(
+      JSON.stringify({
+        results: [
+          {
+            result: {
+              name: 'someName1',
+              appName: 'My Component | Button1',
+              hostDisplaySize: {
+                width: 10,
+                height: 20,
+              },
+              appUrls: {batch: 'https://eyes.com/results'},
+            },
+          },
+          {
+            result: {
+              name: 'someName2',
+              appName: 'My Component | Button2',
+              hostDisplaySize: {
+                width: 100,
+                height: 200,
+              },
+              appUrls: {batch: 'https://eyes.com/results'},
+            },
           },
         ],
       }),
@@ -63,35 +90,77 @@ describe('processResults', () => {
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Passed',
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
       {
         title: 'My Component | Button1',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             isDifferent: true,
             name: 'My Component | Button1',
             hostApp: 'Firefox',
             hostDisplaySize: {width: 100, height: 200},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Passed',
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+        {
+          result: {
+            status: 'Unresolved',
+            isDifferent: true,
+            name: 'My Component | Button1',
+            hostApp: 'Firefox',
+            hostDisplaySize: {width: 100, height: 200},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
     await snap(
       outputStr.replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds'),
       'single diff',
     );
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 
   it('works with multiple diffs', async () => {
@@ -99,36 +168,79 @@ describe('processResults', () => {
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             isDifferent: true,
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
       {
         title: 'My Component | Button1',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             isDifferent: true,
             name: 'My Component | Button1',
             hostApp: 'Firefox',
             hostDisplaySize: {width: 100, height: 200},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Unresolved',
+            isDifferent: true,
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+        {
+          result: {
+            status: 'Unresolved',
+            isDifferent: true,
+            name: 'My Component | Button1',
+            hostApp: 'Firefox',
+            hostDisplaySize: {width: 100, height: 200},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
     await snap(
       outputStr.replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds'),
       'multi diff',
     );
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 
   it('works with 1 error', async () => {
@@ -136,24 +248,66 @@ describe('processResults', () => {
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Passed',
             isDifferent: false,
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
       {
         title: 'My Component | Button1',
-        resultsOrErr: [new Error('some error messgae !')],
+        resultsOrErr: [new Error('some error message !')],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Passed',
+            isDifferent: false,
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+        {
+          error: {message: 'some error message !'},
+          result: {
+            name: 'My Component | Button1',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
     await snap(outputStr, 'single err');
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(1);
   });
 
   it('works with multiple errors', async () => {
@@ -161,14 +315,14 @@ describe('processResults', () => {
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Passed',
             isDifferent: false,
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
           new Error('another error messgae !'),
         ],
       },
@@ -177,9 +331,52 @@ describe('processResults', () => {
         resultsOrErr: [new Error('some error messgae !')],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Passed',
+            isDifferent: false,
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+          error: {message: 'another error messgae !'},
+        },
+        {
+          result: {
+            name: 'My Component | Button1',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+          error: {message: 'some error messgae !'},
+        },
+      ],
+    };
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
     await snap(outputStr, 'multi err');
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(1);
   });
 
   it('works with diffs and errors', async () => {
@@ -187,14 +384,14 @@ describe('processResults', () => {
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             isDifferent: true,
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
       {
@@ -206,12 +403,57 @@ describe('processResults', () => {
         resultsOrErr: [new Error('some error messgae !')],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Unresolved',
+            isDifferent: true,
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+        {
+          result: {
+            name: 'My Component | Button1',
+          },
+          error: {message: 'some error messgae !'},
+        },
+        {
+          result: {
+            name: 'My Component | Button3',
+          },
+          error: {message: 'some error messgae !'},
+        },
+      ],
+    };
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
     await snap(
       outputStr.replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds'),
       'diffs and errors',
     );
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(1);
   });
 
   it('works with no diifs and no errors', async () => {
@@ -219,20 +461,53 @@ describe('processResults', () => {
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Passed',
             isDifferent: false,
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Passed',
+            isDifferent: false,
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
     await snap(outputStr, 'no diff no errors');
     expect(exitCode).to.eql(0);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 
   it('works with no diffs no errors and no succeeses', async () => {
@@ -242,9 +517,39 @@ describe('processResults', () => {
         resultsOrErr: [],
       },
     ];
-    const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
+    const summary = {
+      results: [
+        {
+          result: {
+            name: 'My Component | Button2',
+          },
+        },
+      ],
+    };
+
+    const {outputStr, exitCode} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+      configExitCode: true,
+    });
+    // console.log(outputStr);
     await snap(outputStr, 'empty');
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 
   it('passes errors to the formatter correctly', async () => {
@@ -254,11 +559,25 @@ describe('processResults', () => {
         resultsOrErr: [new Error('some error message')],
       },
     ];
-    const {formatter} = processResults({results, totalTime: 10000, concurrency: 1});
-    const storedResults = formatter.getResultsList();
+    const summary = {
+      results: [
+        {
+          result: {
+            name: 'My Component | Button1',
+          },
+          error: {message: 'some error message'},
+        },
+      ],
+    };
+    const pr = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+    });
+    const storedResults = pr.summary.results;
     expect(storedResults.length).to.eql(1);
-    expect(storedResults[0].getName()).to.eql('My Component | Button1');
-    expect(storedResults[0].error).to.eql(results[0].resultsOrErr[0]);
+    expect(storedResults[0].result.name).to.eql('My Component | Button1');
+    expect(storedResults[0].error.message).to.eql(results[0].resultsOrErr[0].message);
   });
 
   it('passes errors at the story level (not the rendering in vgc) to the formatter correctly', async () => {
@@ -268,11 +587,25 @@ describe('processResults', () => {
         resultsOrErr: new Error('some error message thrown e.g. inside getStoryData'),
       },
     ];
-    const {formatter} = processResults({results, totalTime: 10000, concurrency: 1});
-    const storedResults = formatter.getResultsList();
+    const summary = {
+      results: [
+        {
+          result: {
+            name: 'My Component | Button1',
+          },
+          error: {message: 'some error message thrown e.g. inside getStoryData'},
+        },
+      ],
+    };
+    const {summary: processResultsSummary} = processResults({
+      results: {summary, results},
+      totalTime: 10000,
+      concurrency: 1,
+    });
+    const storedResults = processResultsSummary.results;
     expect(storedResults.length).to.eql(1);
-    expect(storedResults[0].getName()).to.eql('My Component | Button1');
-    expect(storedResults[0].error).to.eql(results[0].resultsOrErr);
+    expect(storedResults[0].result.name).to.eql('My Component | Button1');
+    expect(storedResults[0].error.message).to.eql(results[0].resultsOrErr.message);
   });
 
   it('works with new test while saveNewTests set to false', async () => {
@@ -280,25 +613,54 @@ describe('processResults', () => {
       {
         title: 'My Component | Button1',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             name: 'My Component | Button1',
             hostApp: 'Chrome',
             isNew: true,
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Unresolved',
+            name: 'My Component | Button1',
+            hostApp: 'Chrome',
+            isNew: true,
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
     const {outputStr, exitCode} = processResults({
-      results,
+      results: {summary, results},
       totalTime: 10000,
       concurrency: 1,
       saveNewTests: false,
+      configExitCode: true,
     });
     await snap(outputStr, 'new without saving');
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 
   it('works with two new tests while saveNewTests set to false', async () => {
@@ -306,36 +668,76 @@ describe('processResults', () => {
       {
         title: 'My Component | Button1',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             name: 'My Component | Button1',
             hostApp: 'Chrome',
             isNew: true,
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
       {
         title: 'My Component | Button2',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             name: 'My Component | Button2',
             hostApp: 'Chrome',
             isNew: true,
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Unresolved',
+            name: 'My Component | Button1',
+            hostApp: 'Chrome',
+            isNew: true,
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+        {
+          result: {
+            status: 'Unresolved',
+            name: 'My Component | Button2',
+            hostApp: 'Chrome',
+            isNew: true,
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
     const {outputStr, exitCode} = processResults({
-      results,
+      results: {summary, results},
       saveNewTests: false,
+      configExitCode: true,
     });
+    // console.log(outputStr);
     await snap(outputStr, 'two new without saving');
     expect(exitCode).to.eql(1);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 
   it('works with new test while saveNewTests unset or set to true', async () => {
@@ -343,21 +745,50 @@ describe('processResults', () => {
       {
         title: 'My Component | Button1',
         resultsOrErr: [
-          new TestResults({
+          {
             status: 'Unresolved',
             name: 'My Component | Button1',
             hostApp: 'Chrome',
             isNew: true,
             hostDisplaySize: {width: 10, height: 20},
             appUrls: {batch: 'https://eyes.com/results'},
-          }),
+          },
         ],
       },
     ];
+    const summary = {
+      results: [
+        {
+          result: {
+            status: 'Unresolved',
+            name: 'My Component | Button1',
+            hostApp: 'Chrome',
+            isNew: true,
+            hostDisplaySize: {width: 10, height: 20},
+            appUrls: {batch: 'https://eyes.com/results'},
+          },
+        },
+      ],
+    };
     const {outputStr, exitCode} = processResults({
-      results,
+      results: {summary, results},
     });
+    // console.log(outputStr);
     await snap(outputStr, 'new with saving');
     expect(exitCode).to.eql(0);
+
+    // test exitcode false
+    const {exitCode: exitCodeFalse} = processResults({
+      results: {summary, results},
+      configExitCode: false,
+    });
+    expect(exitCodeFalse).to.eql(0);
+
+    // test exitcode 'nodiffs'
+    const {exitCode: exitCodeNoDiffs} = processResults({
+      results: {summary, results},
+      configExitCode: 'nodiffs',
+    });
+    expect(exitCodeNoDiffs).to.eql(0);
   });
 });

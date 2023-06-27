@@ -3,7 +3,6 @@ const getStoryUrl = require('./getStoryUrl');
 const getStoryBaselineName = require('./getStoryBaselineName');
 const ora = require('ora');
 const {presult} = require('@applitools/functional-commons');
-const {shouldRenderIE} = require('./shouldRenderIE');
 
 function makeRenderStories({
   getStoryData,
@@ -12,14 +11,13 @@ function makeRenderStories({
   storybookUrl,
   logger,
   stream,
-  waitForQueuedRenders,
-  storyDataGap,
   getClientAPI,
   maxPageTTL = 60000,
+  isVersion7,
 }) {
   let newPageIdToAdd;
 
-  return async function renderStories(stories, config) {
+  return async function renderStories(stories, isIE) {
     let doneStories = 0;
     const allTestResults = [];
     let allStoriesPromise = Promise.resolve();
@@ -39,7 +37,6 @@ function makeRenderStories({
 
     async function processStoryLoop() {
       if (currIndex === stories.length) return;
-
       const {page, pageId, markPageAsFree, removePage, getCreatedAt} = await pagePool.getFreePage();
       const livedTime = Date.now() - getCreatedAt();
       logger.log(`[prepareNewPage] got free page: ${pageId}, lived time: ${livedTime}`);
@@ -52,7 +49,7 @@ function makeRenderStories({
         return processStoryLoop();
       }
       logger.log(`[page ${pageId}] waiting for queued renders`);
-      await waitForQueuedRenders(storyDataGap);
+      // await waitForQueuedRenders(storyDataGap);
       logger.log(`[page ${pageId}] done waiting for queued renders`);
       const storyPromise = processStory();
       allStoriesPromise = allStoriesPromise.then(() => storyPromise);
@@ -60,22 +57,23 @@ function makeRenderStories({
 
       async function processStory() {
         const story = stories[currIndex++];
-        const storyUrl = getStoryUrl(story, storybookUrl);
+        const storyUrl = getStoryUrl(story, storybookUrl, isVersion7);
         const title = getStoryBaselineName(story);
-        const {waitBeforeCapture} = (story.parameters && story.parameters.eyes) || {};
-
         try {
           let [error, storyData] = await presult(
             getStoryData({
               story,
               storyUrl,
-              browser: config.browser,
               page,
-              waitBeforeStory: waitBeforeCapture,
             }),
           );
 
-          if (error && /(Protocol error|Execution context was destroyed)/.test(error.message)) {
+          if (
+            error &&
+            /(Protocol error|Execution context was destroyed|timeout reached when trying to take DOM for story)/.test(
+              error.message,
+            )
+          ) {
             logger.log(
               `Puppeteer error from [page ${pageId}] while getting story data. Replacing page. ${error.message}`,
             );
@@ -90,9 +88,7 @@ function makeRenderStories({
               getStoryData({
                 story,
                 storyUrl,
-                browser: config.browser,
                 page: newPageObj.page,
-                waitBeforeStory: waitBeforeCapture,
               }),
             );
             error = newError;
@@ -107,17 +103,14 @@ function makeRenderStories({
             logger.log(errMsg);
             throw new Error(errMsg);
           }
-
           const testResults = await renderStory({
-            snapshot: storyData.snapshots,
-            cookies: storyData.cookies,
+            snapshots: storyData,
             url: storyUrl,
             story,
-            config,
           });
-
           return onDoneStory(testResults, story);
         } catch (ex) {
+          logger.log(`[page ${pageId}] error while processing story "${title}". ${ex}`);
           return onDoneStory(ex, story);
         }
       }
@@ -125,10 +118,8 @@ function makeRenderStories({
 
     function didTestPass({resultsOrErr}) {
       return (
-        resultsOrErr.constructor.name !== 'Error' &&
-        resultsOrErr.every(
-          r => r.constructor.name !== 'Error' && r.getStatus && r.getStatus() === 'Passed',
-        )
+        Array.isArray(resultsOrErr) &&
+        resultsOrErr.every(r => !r.isDifferent && !r.isAborted && !r.isNew)
       );
     }
 
@@ -137,11 +128,11 @@ function makeRenderStories({
     }
 
     function updateSpinnerText(number, length) {
-      return `Done ${number} stories out of ${length} ${shouldRenderIE(config) ? '(IE)' : ''}`;
+      return `Done ${number} stories out of ${length} ${isIE ? '(IE)' : ''}`;
     }
 
     function onDoneStory(resultsOrErr, story) {
-      spinner.text = updateSpinnerText(++doneStories, stories.length);
+      spinner.text = updateSpinnerText(++doneStories, stories.length, story.config);
       const title = getStoryBaselineName(story);
       allTestResults.push({title, resultsOrErr});
       return {title, resultsOrErr};

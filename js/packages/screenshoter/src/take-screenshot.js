@@ -3,11 +3,13 @@ const getTarget = require('./get-target')
 const scrollIntoViewport = require('./scroll-into-viewport')
 const takeStitchedScreenshot = require('./take-stitched-screenshot')
 const takeSimpleScreenshot = require('./take-simple-screenshot')
+const extractCoordinatesForSelectorsAndElements = require('./extract-coordinates-for-selectors-and-elements')
 
 async function takeScreenshot({
   driver,
   frames = [],
   region,
+  regionsToCalculate = [],
   fully,
   scrollingMode,
   hideScrollbars,
@@ -20,18 +22,35 @@ async function takeScreenshot({
   hooks,
   debug,
   logger,
+  lazyLoad,
+  webview,
 }) {
   debug =
     debug ||
     (process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR ? {path: process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR} : debug)
   logger = logger ? logger.extend({label: 'screenshoter'}) : makeLogger({label: 'screenshoter'})
+
   // screenshot of a window/app was requested (fully or viewport)
   const window = !region && (!frames || frames.length === 0)
+
+  const environment = await driver.getEnvironment()
+
+  // switch worlds as needed
+  let activeWorld
+  if (environment.isNative && (webview || (window && environment.isWeb))) {
+    if (webview === true) {
+      const worlds = await driver.getWorlds()
+      webview = worlds && worlds.find(name => name.includes('WEBVIEW'))
+    }
+    activeWorld = await driver.getCurrentWorld()
+    await driver.switchWorld(webview)
+  }
+
   // framed screenshots could be taken only when screenshot of window/app fully was requested
   framed = framed && fully && window
   // screenshots with status bar could be taken only when screenshot of app or framed app fully was requested
-  withStatusBar = withStatusBar && driver.isNative && window && (!fully || framed)
-  scrollingMode = driver.isNative ? 'scroll' : scrollingMode
+  withStatusBar = withStatusBar && environment.isNative && window && (!fully || framed)
+  scrollingMode = environment.isNative ? 'scroll' : scrollingMode
 
   const activeContext = driver.currentContext
   const context =
@@ -44,69 +63,86 @@ async function takeScreenshot({
     const scrollingElement = await nextContext.getScrollingElement()
     // unlike web apps, native apps do not always have scrolling element
     if (scrollingElement) {
-      if (driver.isWeb && hideScrollbars) await scrollingElement.hideScrollbars()
+      if (environment.isWeb && hideScrollbars) await scrollingElement.hideScrollbars()
       // this is unwanted but necessary side effect, because it is not possible to extract initial scroll position
-      if (driver.isNative && !window) await scrollingElement.scrollTo({x: 0, y: 0}, {force: true})
+      if (environment.isNative && !window) await scrollingElement.scrollTo({x: 0, y: 0}, {force: true})
       await scrollingElement.preserveState()
     }
   }
 
   // blur active element in target context
-  const activeElement = driver.isWeb && hideCaret ? await context.blurElement() : null
+  const activeElement = environment.isWeb && hideCaret ? await context.blurElement() : null
 
   const target = await getTarget({window, context, region, fully, scrollingMode, logger})
 
   if (target.scroller) {
     await target.scroller.preserveState()
-    if (driver.isWeb && hideScrollbars) await target.scroller.hideScrollbars()
+    if (environment.isWeb && hideScrollbars) await target.scroller.hideScrollbars()
   }
 
-  try {
-    if (!window && !driver.isNative) await scrollIntoViewport({...target, logger})
+  if (!window && !environment.isNative) await scrollIntoViewport({...target, logger})
 
-    if (fully && !target.region && target.scroller) await target.scroller.moveTo({x: 0, y: 0})
+  if (fully && !target.region && target.scroller) await target.scroller.moveTo({x: 0, y: 0})
 
-    const screenshot =
-      fully && target.scroller
-        ? await takeStitchedScreenshot({
-            ...target,
-            withStatusBar,
-            overlap,
-            framed,
-            wait,
-            stabilization,
-            debug,
-            logger,
-          })
-        : await takeSimpleScreenshot({...target, withStatusBar, wait, stabilization, debug, logger})
+  const screenshot =
+    fully && target.scroller
+      ? await takeStitchedScreenshot({
+          ...target,
+          withStatusBar,
+          overlap,
+          framed,
+          wait,
+          stabilization,
+          debug,
+          logger,
+          lazyLoad,
+        })
+      : await takeSimpleScreenshot({...target, withStatusBar, wait, stabilization, debug, logger})
 
-    screenshot.image.scale(driver.viewportScale)
+  const viewport = await driver.getViewport()
 
-    if (hooks && hooks.afterScreenshot) {
-      await hooks.afterScreenshot({driver, scroller: target.scroller, screenshot})
-    }
+  screenshot.image.scale(viewport.viewportScale)
 
-    return screenshot
-  } finally {
-    if (target.scroller) {
-      await target.scroller.restoreScrollbars()
-      await target.scroller.restoreState()
-    }
+  const calculatedRegions = await extractCoordinatesForSelectorsAndElements({
+    regionsToCalculate,
+    screenshot,
+    context,
+    logger,
+  })
 
-    // if there was active element and we have blurred it, then restore focus
-    if (activeElement) await context.focusElement(activeElement)
+  if (hooks && hooks.afterScreenshot) {
+    await hooks.afterScreenshot({driver, scroller: target.scroller, screenshot})
+  }
 
-    // traverse from target context to the main context to restore scrollbars and context states
-    for (const prevContext of context.path.reverse()) {
-      const scrollingElement = await prevContext.getScrollingElement()
-      if (scrollingElement) {
-        if (driver.isWeb && hideScrollbars) await scrollingElement.restoreScrollbars()
-        await scrollingElement.restoreState()
+  return {
+    ...screenshot,
+    element: target.element,
+    scrollingElement: target.scroller && target.scroller.element,
+    calculatedRegions,
+    async restoreState() {
+      if (target.scroller) {
+        await target.scroller.restoreScrollbars()
+        await target.scroller.restoreState()
       }
-    }
 
-    // restore focus on original active context
-    await activeContext.focus()
+      // if there was active element and we have blurred it, then restore focus
+      if (activeElement) await context.focusElement(activeElement)
+
+      // traverse from target context to the main context to restore scrollbars and context states
+      for (const prevContext of context.path.reverse()) {
+        const scrollingElement = await prevContext.getScrollingElement()
+        if (scrollingElement) {
+          if (environment.isWeb && hideScrollbars) await scrollingElement.restoreScrollbars()
+          await scrollingElement.restoreState()
+        }
+      }
+
+      // restore focus on original active context
+      await activeContext.focus()
+
+      // return driver to previous app world if switched
+      if (activeWorld) await driver.switchWorld(activeWorld)
+    },
   }
 }
 

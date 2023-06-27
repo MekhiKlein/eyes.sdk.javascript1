@@ -5,14 +5,30 @@ const drivers = new Map()
 
 exports.mochaHooks = {
   async beforeAll() {
-    global.getDriver = async function(name) {
+    global.getDriver = async function (name) {
       let {driver} = drivers.get(name) || {}
       if (!driver) {
         if (name === 'chrome') {
-          const browser = await playwright.chromium.launch()
+          const browser = await playwright.chromium.launch({
+            // headless: false,
+            // args: ['--reduce-user-agent-platform-oscpu'],
+          })
           const context = await browser.newContext()
           driver = await context.newPage()
           await driver.setViewportSize({width: 800, height: 600})
+          const session = await driver.context().newCDPSession(driver)
+          await session.send('Emulation.setUserAgentOverride', {
+            userAgent:
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+            userAgentMetadata: {
+              architecture: 'arm',
+              brands: [{brand: 'browser', version: '1'}],
+              platform: 'macOS',
+              platformVersion: 'Monterey',
+              model: 'Laptop',
+              mobile: false,
+            },
+          })
           drivers.set('chrome', {driver, cleanup: () => browser.close()})
         } else if (name === 'firefox') {
           driver = await remote({

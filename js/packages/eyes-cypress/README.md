@@ -31,7 +31,27 @@ The above command will add the necessary imports to your cypress `pluginsFile` a
  
 Eyes-Cypress acts as a [Cypress plugin](https://docs.cypress.io/guides/tooling/plugins-guide.html), so it should be configured as such.
 Unfortunately there's no easy way to do this automatically, so you need to manually:
- #### Cypress version < 10:
+
+#### Cypress version >= 10:
+
+ Add the following code to your:
+
+ ##### `cypress.config.js`
+
+```js
+const { defineConfig } = require('cypress')
+const eyesPlugin = require('@applitools/eyes-cypress')
+module.exports = eyesPlugin(defineConfig({
+  // the e2e or component configuration
+  e2e: {
+    setupNodeEvents(on, config) {
+    }
+  }
+}))
+```
+<br>
+
+#### Cypress version < 10:
 Add the following code to your `pluginsFile`:
 
 **Important**: add this code **after** the definition of `module.exports`:
@@ -43,14 +63,22 @@ require('@applitools/eyes-cypress')(module)
 Normally, this is `cypress/plugins/index.js`. You can read more about it in Cypress' docs [here](https://docs.cypress.io/guides/references/configuration.html#Folders-Files).
 <br>
 
- #### Cypress version >= 10:
+##### `cypress.config.ts`
 
- Add the following code to your `cypress.config.js` file after `module.exports`:
-
-```js
-require('@applitools/eyes-cypress')(module)
+```typescript
+import { defineConfig } from 'cypress'
+import eyesPlugin from '@applitools/eyes-cypress'
+export default eyesPlugin(defineConfig({
+  // the e2e or component configuration
+  e2e: {
+    setupNodeEvents(on, config) {
+    }
+  }
+}))
 ```
+
 This file is normally at the root of the project
+
 ##### 2. Configure custom commands
 
 Eyes-Cypress exposes new commands to your tests. This means that more methods will be available on the `cy` object. To enable this, it's required to configure these custom commands.
@@ -64,20 +92,40 @@ Normally, this is `cypress/support/index.js` for cypress version < 10 and `cypre
 
 ##### 3. (Optional) TypeScript configuration
 
+For `typescript` use you must add the following code to your `tsconfig.json`:
+
+```json
+{
+  ...
+  "compilerOptions": {
+    ...
+    "types": ["@applitools/eyes-cypress", "cypress", "node"]
+    "moduleResolution": "node" // or "node16"
+    ...
+  }
+}
+```
+
 Eyes-Cypress ships with official type declarations for TypeScript. This allows you to add eyes commands to your TypeScript tests.
 
-Add this file to your project with either: 
+Add this file to your project using one of the following two options:
 1. Adding the path to your [tsconfig](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) file:
+
+```json
+{
+  ...
+  "compilerOptions": {
+    ...
+    "types": ["@applitools/eyes-cypress", "cypress", "node"]
+    ...
+  }
+}
+```
+
+2. Create `index.d.ts` file under `cypress/support` folder that contains:
     ```
-    {
-      "files": ["./node_modules/@applitools/eyes-cypress/eyes-index.d.ts"],
-      ...
-    }
+      import "@applitools/eyes-cypress"
     ```
-  2. Copying the file to to your [cypress/support/](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests.html#Folder-Structure) dir:
-      ```
-      cp node_modules/@applitools/eyes-cypress/eyes-index.d.ts ./cypress/support/    
-      ```
 ### Applitools API key
 
 In order to authenticate via the Applitools server, you need to supply the Eyes-Cypress SDK with the API key you got from Applitools. Read more about how to obtain the API key [here](https://applitools.com/docs/topics/overview/obtain-api-key.html).
@@ -227,6 +275,7 @@ Applitools will take screenshots and perform the visual comparisons in the backg
         - [`visualGridOptions`](#visualgridoptions)
         - [`coded regions-regionId`](#regionId)
         - [`lazy loading`](#lazy-loading)
+        - [Density metrics](#density-metrics-densitymetrics)
       - [Close](#close)
       - [GetAllTestResults](#getalltestresults)
       - [deleteTestResults](#deletetestresults)
@@ -437,7 +486,7 @@ cy.get('.some-div-to-float').then($el => {
 
 ##### `layout`
 
-(optional): A single or an array of regions to match as [layout level.](https://help.applitools.com/hc/en-us/articles/360007188591-Match-Levels) For example:
+(optional): A single or an array of regions to match as [layout level.](https://applitools.com/docs/common/cmn-eyes-match-levels.html) For example:
 
   ```js
   cy.eyesCheckWindow({
@@ -457,7 +506,7 @@ cy.get('.some-div-to-float').then($el => {
 
 ##### `strict`
 
-(optional): A single or an array of regions to match as [strict level.](https://help.applitools.com/hc/en-us/articles/360007188591-Match-Levels) For example:
+(optional): A single or an array of regions to match as [strict level.](https://applitools.com/docs/common/cmn-eyes-match-levels.html) For example:
 
   ```js
   cy.eyesCheckWindow({
@@ -477,7 +526,7 @@ cy.get('.some-div-to-float').then($el => {
 
 ##### `content`
 
-(optional): A single or an array of regions to match as [content level.](https://help.applitools.com/hc/en-us/articles/360007188591-Match-Levels) For example:
+(optional): A single or an array of regions to match as [content level.](https://applitools.com/docs/common/cmn-eyes-match-levels.html) For example:
 
   ```js
   cy.eyesCheckWindow({
@@ -505,7 +554,24 @@ cy.get('some-region').then(el => {
      // will add padding of 20px to all JQuery elements at the top, button, right and left of the region
     ignore: {element: el, padding: 20},
     // will add padding for a DOM element on the top of the region
-    content: {element: el[0], padding: {top:10}}
+    content: {element: el[0], padding: {top:10}},
+    accessibility: {
+          region: {
+            accessibilityType: 'LargeText',
+            selector: 'accessibilityRegion',
+          },
+          padding: {left: 5},
+    },
+  floating:{
+          region: {
+            selector: 'floatingRegion',
+          },
+          maxDownOffset: 3,
+          maxLeftOffset: 20,
+          maxRightOffset: 30,
+          maxUpOffset: 3,
+          padding: {top: 20},
+        },
   })
 
 })
@@ -662,10 +728,27 @@ cy.get('.region.two:nth-child(2)').then(el => {
       cy.eyesCheckWindow({
         fully: false,
         ignore: [
-          {type: 'css', selector: '.region.three:nth-child(3n)'},
-          {type: 'xpath', selector: '//div[@class="region one"][3]'},
+          {region: {type: 'css', selector: 'ignore1'}, regionId: 'region3'},
+          {type: 'xpath', selector: 'ignore2'},
           {element: el, regionId: 'my-region-id'},
         ],
+        accessibility: [{
+            region: {
+              accessibilityType: 'LargeText',
+              selector: 'accessibilityRegion',
+            },
+            regionId: 'accesibility-regionId',
+        },],
+        floating: [{
+          region: {
+            selector: 'floatingRegion',
+          },
+          maxDownOffset: 3,
+          maxLeftOffset: 20,
+          maxRightOffset: 30,
+          maxUpOffset: 3,
+          regionId: 'floating-regionId',
+        }]
       });
 })
 ```
@@ -675,7 +758,7 @@ It's possible to have the SDK scroll the entire page (or a specific length of th
 
 ```js
 // lazy loads with sensible defaults
-cy.eyesCheckWindow(lazyload:{})
+cy.eyesCheckWindow({lazyload:{}})
 
 // lazy loads with options specified
 cy.eyesCheckWindow({lazyLoad: {
@@ -685,6 +768,23 @@ cy.eyesCheckWindow({lazyLoad: {
 }})
 ```
 
+##### Density metrics (`densityMetrics`)
+
+In order to set the density metrics for the screenshot, use the `densityMetrics` method. This method accepts a object value with the following properties:
+
+- `xdpi` - The exact physical pixels per inch of the screen in the X dimension.
+- `ydpi` - The exact physical pixels per inch of the screen in the Y dimension.
+- `scaleRatio` - The scale ratio.
+
+```js
+// set density metrics
+cy.eyesCheckWindow({
+  densityMetrics:
+    xdpi: 100,
+    ydpi: 100,
+    scaleRatio: 1
+})
+```
 
 #### Close
 
@@ -716,7 +816,7 @@ after(() => {
 
 ```js
 after(() => {
-  cy.eyesGetAllTestResults().then(summary => {
+  cy.eyesGetAllTestResults().then(async summary => {
     for(const result of summary.getAllResults()) {
       await result.getTestResults().delete()
     }

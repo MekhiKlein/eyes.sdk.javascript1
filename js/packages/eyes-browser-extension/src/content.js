@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import {makeRefer} from './refer'
+import {makeRefer} from '@applitools/spec-driver-browser-extension'
 import {makeMessenger} from './messenger'
 import {makeUnmark} from './marker'
 
@@ -15,6 +15,18 @@ window.refer = makeRefer({
     }
   },
 })
+
+Node.toJSON = function () {
+  return window.refer.ref(this)
+}
+
+const originalParse = JSON.parse.bind(JSON)
+JSON.parse = function (string, reviver) {
+  return originalParse(string, (key, value) => {
+    if (window.refer.isRef(value)) return window.refer.deref(value)
+    return reviver ? reviver(key, value) : value
+  })
+}
 
 const unmark = makeUnmark({refer: window.refer})
 

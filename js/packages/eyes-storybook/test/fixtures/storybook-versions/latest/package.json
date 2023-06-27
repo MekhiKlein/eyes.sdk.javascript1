@@ -1,13 +1,13 @@
 {
-  "name": "storybook-6.5.3-config",
-  "version": "6.5.3",
+  "name": "storybook-latest-config",
+  "version": "latest",
   "private": true,
   "scripts": {
     "build": "react-scripts build",
     "build-storybook": "build-storybook",
     "eject": "react-scripts eject",
     "start": "react-scripts start",
-    "storybook": "STORYBOOK_VERSION=latest start-storybook -p 9010 --no-manager-cache",
+    "storybook": "APPLITOOLS_FRAMEWORK_VERSION=latest start-storybook -p 9010 --no-manager-cache",
     "test": "npx eyes-storybook"
   },
   "dependencies": {
@@ -20,12 +20,12 @@
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
-    "@storybook/addon-actions": "6.5.3",
-    "@storybook/addon-storyshots": "6.5.3",
-    "@storybook/addons": "6.5.3",
-    "@storybook/builder-webpack4": "6.5.3",
+    "@storybook/addon-actions": "latest",
+    "@storybook/addon-storyshots": "latest",
+    "@storybook/addons": "latest",
+    "@storybook/builder-webpack4": "latest",
     "@storybook/preset-create-react-app": "^3.1.6",
-    "@storybook/react": "6.5.3",
+    "@storybook/react": "latest",
     "webpack": "4"
   },
   "snaptdout":{

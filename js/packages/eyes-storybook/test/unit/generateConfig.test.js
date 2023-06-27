@@ -1,9 +1,18 @@
 'use strict';
 const {describe, it, beforeEach, afterEach} = require('mocha');
 const {expect} = require('chai');
-const generateConfig = require('../../src/generateConfig');
+const {generateConfig} = require('../../src/generateConfig');
 
-const sideEffectConfig = {testConcurrency: 5, storyDataGap: 5};
+const sideEffectConfig = {
+  testConcurrency: 5,
+  storyDataGap: 10,
+  serverUrl: 'https://eyesapi.applitools.com',
+  viewportSize: {width: 1024, height: 600},
+  renderers: [{name: 'chrome', width: 1024, height: 768}],
+  saveNewTests: true,
+  keepBatchOpen: undefined,
+  fully: true,
+};
 
 describe('generateConfig', function() {
   let env;
@@ -20,8 +29,7 @@ describe('generateConfig', function() {
     const config = generateConfig({
       defaultConfig: {bla: 1},
     });
-
-    expect(config).to.eql({bla: 1, ...sideEffectConfig});
+    expect(config).to.deep.eql({bla: 1, ...sideEffectConfig});
   });
 
   it('handles argv', () => {
@@ -90,5 +98,16 @@ describe('generateConfig', function() {
     const defaultConfig = {waitBeforeCapture: 50, waitBeforeScreenshot: 50};
     const config = generateConfig({defaultConfig});
     expect(config.waitBeforeCapture).to.eql('.someClass');
+  });
+
+  it('populates showLogs if APPLITOOLS_SHOW_LOGS env var is defined', () => {
+    process.env.APPLITOOLS_SHOW_LOGS = 'true';
+    const config = generateConfig({});
+    expect(config.showLogs).to.be.true;
+  });
+
+  it('populate default renderers in not provided', () => {
+    const config = generateConfig({argv: {}});
+    expect(config.renderers).to.eql([{name: 'chrome', width: 1024, height: 768}]);
   });
 });

@@ -18,6 +18,15 @@ describe('context', () => {
         scrollPosition: {x: 21, y: 22},
         children: [
           {
+            selector: 'element1',
+            children: [
+              {
+                selector: 'element1-1',
+                children: [{selector: 'element1-1-1', name: 'element within element'}],
+              },
+            ],
+          },
+          {
             selector: 'frame1',
             frame: true,
             children: [
@@ -46,6 +55,10 @@ describe('context', () => {
               },
             ],
           },
+          {
+            selector: 'fallback1',
+            name: 'fallback element',
+          },
         ],
       },
     ])
@@ -71,8 +84,8 @@ describe('context', () => {
     const childContext11 = await childContext1.context('frame1-1')
     await childContext11.init()
 
-    assert.strictEqual((await childContext1.getContextElement()).target.selector, 'frame1')
-    assert.strictEqual((await childContext11.getContextElement()).target.selector, 'frame1-1')
+    assert.strictEqual((await childContext1.getContextElement())?.target.selector, 'frame1')
+    assert.strictEqual((await childContext11.getContextElement())?.target.selector, 'frame1-1')
     assert.strictEqual(driver.currentContext, childContext1)
   })
 
@@ -90,7 +103,15 @@ describe('context', () => {
     await childContext11.focus()
     const element = await childContext11.element('frame1-1--element1')
 
-    assert.strictEqual(element.target.name, 'element within frame')
+    assert.strictEqual(element?.target.name, 'element within frame')
+  })
+
+  it('element(child-selector)', async () => {
+    const element = await context.element({
+      selector: 'element1',
+      child: {selector: 'element1-1', child: {selector: 'element1-1-1'}},
+    })
+    assert.deepStrictEqual(element?.target.name, 'element within element')
   })
 
   it('element(shadow-selector)', async () => {
@@ -98,7 +119,7 @@ describe('context', () => {
       selector: 'shadow1',
       shadow: {selector: 'shadow1-1', shadow: {selector: 'shadow1-1--element1'}},
     })
-    assert.deepStrictEqual(element.target.name, 'element within shadow')
+    assert.deepStrictEqual(element?.target.name, 'element within shadow')
   })
 
   it('element(frame-selector)', async () => {
@@ -106,11 +127,28 @@ describe('context', () => {
       selector: 'frame1',
       frame: {selector: 'frame1-1', frame: {selector: 'frame1-1--element1'}},
     })
-    assert.deepStrictEqual(element.target.name, 'element within frame')
+    assert.deepStrictEqual(element?.target.name, 'element within frame')
+  })
+
+  it('element(fallback-selector)', async () => {
+    const element = await context.element({
+      selector: 'not-an-element',
+      fallback: 'fallback1',
+    })
+    assert.deepStrictEqual(element?.target.name, 'fallback element')
   })
 
   it('element(non-existent)', async () => {
     const element = await context.element('non-existent')
+
+    assert.strictEqual(element, null)
+  })
+
+  it('element(non-existent-child)', async () => {
+    const element = await context.element({
+      selector: 'element1',
+      child: {selector: 'element1-1', child: {selector: 'not-an-element'}},
+    })
 
     assert.strictEqual(element, null)
   })
@@ -133,6 +171,14 @@ describe('context', () => {
     assert.strictEqual(element, null)
   })
 
+  it('element(non-existent-fallback)', async () => {
+    const element = await context.element({
+      selector: 'not-an-element',
+      fallback: 'not-a-fallback',
+    })
+    assert.strictEqual(element, null)
+  })
+
   it('elements(selector)', async () => {
     const childContext1 = await context.context('frame1')
     const childContext11 = await childContext1.context('frame1-1')
@@ -142,6 +188,17 @@ describe('context', () => {
     assert.ok(Array.isArray(elements))
     assert.strictEqual(elements.length, 1)
     assert.strictEqual(elements[0].target.name, 'element within frame')
+  })
+
+  it('elements(child-selector)', async () => {
+    const elements = await context.elements({
+      selector: 'element1',
+      child: {selector: 'element1-1', child: {selector: 'element1-1-1'}},
+    })
+
+    assert.ok(Array.isArray(elements))
+    assert.strictEqual(elements.length, 1)
+    assert.strictEqual(elements[0].target.name, 'element within element')
   })
 
   it('elements(shadow-selector)', async () => {
@@ -155,7 +212,7 @@ describe('context', () => {
     assert.strictEqual(elements[0].target.name, 'element within shadow')
   })
 
-  it('elements(shadow-selector)', async () => {
+  it('elements(frame-selector)', async () => {
     const elements = await context.elements({
       selector: 'frame1',
       frame: {selector: 'frame1-1', frame: {selector: 'frame1-1--element1'}},
@@ -166,8 +223,29 @@ describe('context', () => {
     assert.strictEqual(elements[0].target.name, 'element within frame')
   })
 
+  it('elements(fallback-selector)', async () => {
+    const elements = await context.elements({
+      selector: 'not-an-element',
+      fallback: 'fallback1',
+    })
+
+    assert.ok(Array.isArray(elements))
+    assert.strictEqual(elements.length, 1)
+    assert.strictEqual(elements[0].target.name, 'fallback element')
+  })
+
   it('elements(non-existent)', async () => {
     const elements = await context.elements('non-existent')
+
+    assert.ok(Array.isArray(elements))
+    assert.strictEqual(elements.length, 0)
+  })
+
+  it('elements(non-existent-child)', async () => {
+    const elements = await context.elements({
+      selector: 'element1',
+      child: {selector: 'element1-1', child: {selector: 'not-an-element'}},
+    })
 
     assert.ok(Array.isArray(elements))
     assert.strictEqual(elements.length, 0)
@@ -193,12 +271,22 @@ describe('context', () => {
     assert.strictEqual(elements.length, 0)
   })
 
+  it('elements(non-fallback-selector)', async () => {
+    const elements = await context.elements({
+      selector: 'not-an-element',
+      fallback: 'not-a-fallback',
+    })
+
+    assert.ok(Array.isArray(elements))
+    assert.strictEqual(elements.length, 0)
+  })
+
   it('getContextElement()', async () => {
     const mainContext = context
     const childContext = await context.context('frame1')
 
     assert.strictEqual(await mainContext.getContextElement(), null)
-    assert.strictEqual((await childContext.getContextElement()).target.selector, 'frame1')
+    assert.strictEqual((await childContext.getContextElement())?.target.selector, 'frame1')
   })
 
   it('getScrollingElement()', async () => {
@@ -206,8 +294,8 @@ describe('context', () => {
     await mainContext.setScrollingElement(await mock.findElement('element-scroll'))
     const childContext = await context.context('frame1')
 
-    assert.strictEqual((await mainContext.getScrollingElement()).target.selector, 'element-scroll')
-    assert.strictEqual((await childContext.getScrollingElement()).target.selector, 'html')
+    assert.strictEqual((await mainContext.getScrollingElement())?.target.selector, 'element-scroll')
+    assert.strictEqual((await childContext.getScrollingElement())?.target.selector, 'html')
   })
 
   it('getClientRect()', async () => {
@@ -242,5 +330,68 @@ describe('context', () => {
 
     const locationContext11 = await childContext11.getLocationInViewport()
     assert.deepStrictEqual(locationContext11, {x: -20, y: -20})
+  })
+
+  describe('selecotrOrElement', () => {
+    const selector = 'frame10'
+    const randomLengthOfElements = Array.from({length: parseInt(Math.random() * 8 + '') + 2}, () => ({
+      selector,
+      frame: true,
+    }))
+
+    beforeEach(async () => {
+      mock = new MockDriver()
+      mock.mockElements(randomLengthOfElements)
+      driver = new Driver({
+        logger,
+        spec,
+        driver: mock,
+      })
+    })
+
+    afterEach(async () => {
+      await driver.switchToMainContext()
+    })
+
+    it('should return single element if the `isElement` return `true` and `isSelector` return `false`', async () => {
+      const selectorOrElement = {id: selector}
+      assert.strictEqual(spec.isElement(selectorOrElement), true, `the selectorOrElement isn't a element`)
+      assert.strictEqual(spec.isSelector(selectorOrElement), false, `the selectorOrElement isn't a selector`)
+      const frameElement = await driver.mainContext.elements(selectorOrElement)
+      assert.strictEqual(frameElement.length, 1, `the length of frameElement should be 1`)
+    })
+    it('should return all of the elements if the `isElement` return `false` and `isSelector` return `true`', async () => {
+      const selectorOrElement = selector
+      assert.strictEqual(spec.isElement(selectorOrElement), false, `the selectorOrElement isn't a element`)
+      assert.strictEqual(spec.isSelector(selectorOrElement), true, `the selectorOrElement isn't a selector`)
+      const frameElement = await driver.mainContext.elements(selectorOrElement)
+      assert.strictEqual(
+        frameElement.length,
+        randomLengthOfElements.length,
+        `the length of frameElement isn't equal to the length of randomLengthOfElements`,
+      )
+    })
+    it('should return all of the elements if the `isElement` and `isSelector` both return `true`', async () => {
+      const selectorOrElement = {id: selector, forceSelector: true}
+      assert.strictEqual(spec.isElement(selectorOrElement), true, `the selectorOrElement isn't a element`)
+      assert.strictEqual(spec.isSelector(selectorOrElement), true, `the selectorOrElement isn't a selector`)
+      const frameElement = await driver.mainContext.elements(selectorOrElement)
+      assert.strictEqual(
+        frameElement.length,
+        randomLengthOfElements.length,
+        `the length of frameElement isn't equal to the length of randomLengthOfElements`,
+      )
+    })
+    it('should throw an error if both `isElement` and `isSelector` return `false`', async () => {
+      const selectorOrElement = {id: selector, notting: true}
+      assert.strictEqual(spec.isElement(selectorOrElement), false, `the selectorOrElement isn't a element`)
+      assert.strictEqual(spec.isSelector(selectorOrElement), false, `the selectorOrElement isn't a selector`)
+      try {
+        await driver.mainContext.elements(selectorOrElement)
+        assert.strictEqual(true, false, 'should thrown error and skip this')
+      } catch {
+        assert.strictEqual(true, true, 'should thrown error and get here')
+      }
+    })
   })
 })

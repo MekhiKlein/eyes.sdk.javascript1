@@ -1,58 +1,56 @@
-import type * as types from '@applitools/types'
-import {type Logger} from '@applitools/logger'
-import type {Driver} from './driver'
-import type {Element} from './element'
+import type {Region} from '@applitools/utils'
+import {type SpecType, type SpecDriver} from './spec-driver'
+import {type Driver} from './driver'
+import {type Element} from './element'
 
-export class HelperIOS<TDriver, TContext, TElement, TSelector> {
-  static async make<TDriver, TContext, TElement, TSelector>(options: {
-    spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
-    driver: Driver<TDriver, TContext, TElement, TSelector>
-    logger: Logger
-  }): Promise<HelperIOS<TDriver, TContext, TElement, TSelector> | null> {
-    const {spec, driver, logger} = options
+export class HelperIOS<T extends SpecType> {
+  static async make<T extends SpecType>(options: {
+    spec: SpecDriver<T>
+    driver: Driver<T>
+  }): Promise<HelperIOS<T> | null> {
+    const {spec, driver} = options
     const element = await driver.element({type: 'name', selector: 'applitools_grab_scrollable_data_button'})
-    return element ? new HelperIOS<TDriver, TContext, TElement, TSelector>({driver, element, spec, logger}) : null
+    return element ? new HelperIOS<T>({driver, element, spec}) : null
   }
 
-  private readonly _driver: Driver<TDriver, TContext, TElement, TSelector>
-  private readonly _element: Element<TDriver, TContext, TElement, TSelector>
-  private readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
-  private _logger: Logger
+  private readonly _element: Element<T>
+  private readonly _driver: Driver<T>
+  private readonly _spec: SpecDriver<T>
 
   readonly name: 'ios'
 
-  constructor(options: {
-    driver: Driver<TDriver, TContext, TElement, TSelector>
-    element: Element<TDriver, TContext, TElement, TSelector>
-    spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
-    logger?: Logger
-  }) {
+  constructor(options: {driver: Driver<T>; element: Element<T>; spec: SpecDriver<T>}) {
     this._driver = options.driver
     this._element = options.element
     this._spec = options.spec
-    this._logger = options.logger
     this.name = 'ios'
   }
 
-  async getContentRegion(element: Element<TDriver, TContext, TElement, TSelector>): Promise<types.Region> {
-    await this._element.click()
+  get logger() {
+    return this._driver.logger
+  }
 
-    const region = await this._spec.getElementRegion(this._driver.target, element.target)
+  async getContentRegion(element: Element<T>): Promise<Region | null> {
+    await this._element.click()
 
     const sizeLabel = await this._driver.element({type: 'name', selector: 'applitools_content_size_label'})
     const sizeString = await sizeLabel?.getText()
     if (!sizeString) return null
-    const [, width, height] = sizeString.match(/\{(-?\d+(?:\.\d+)?),\s?(-?\d+(?:\.\d+)?)\}/)
+    const [, width, height] = sizeString.match(/\{(-?\d+(?:\.\d+)?),\s?(-?\d+(?:\.\d+)?)\}/)!
     const contentSize = {width: Number(width), height: Number(height)}
     if (Number.isNaN(contentSize.width + contentSize.height)) return null
     const paddingLabel = await this._driver.element({type: 'name', selector: 'applitools_content_offset_label'})
     const paddingString = await paddingLabel?.getText()
     if (paddingString) {
-      const [, x, y] = paddingString.match(/\{(-?\d+(?:\.\d+)?),\s?(-?\d+(?:\.\d+)?)\}/)
+      const [, x, y] = paddingString.match(/\{(-?\d+(?:\.\d+)?),\s?(-?\d+(?:\.\d+)?)\}/)!
       const contentOffset = {x: Number(x), y: Number(y)}
       if (!Number.isNaN(contentOffset.x)) contentSize.width -= contentOffset.x
       if (!Number.isNaN(contentOffset.y)) contentSize.height -= contentOffset.y
     }
+
+    const region = await this._spec.getElementRegion?.(this._driver.target, element.target)
+    if (!region || contentSize.height < region.height) return null
+
     return contentSize.height >= region.height ? {x: region.x, y: region.y, ...contentSize} : null
   }
 }

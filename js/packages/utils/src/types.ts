@@ -24,7 +24,16 @@ export function isString(value: any): value is string {
 }
 
 export function isBase64(value: any): value is string {
-  return isString(value) && /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/.test(value)
+  return isString(value) && /^[A-Za-z0-9+/]*={0,2}$/.test(value)
+}
+
+export function isHttpUrl(value: any): value is string {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 export function isNumber(value: any): value is number {
@@ -43,13 +52,13 @@ export function isObject(value: any): value is Record<PropertyKey, any> {
   return typeof value === 'object' && value !== null
 }
 
-export function isPlainObject(value: any): value is Record<PropertyKey, any> {
+export function isPlainObject(value: any): value is Record<string, any> {
   return isObject(value) && (!value.constructor || value.constructor.name === 'Object')
 }
 
-export function isEmpty(value: Record<PropertyKey, unknown>): value is Record<PropertyKey, never>
-export function isEmpty(value: any[]): value is []
-export function isEmpty(value: string): value is ''
+export function isEmpty(value: Record<PropertyKey, unknown> | undefined | null): value is Record<PropertyKey, never>
+export function isEmpty(value: any[] | undefined | null): value is []
+export function isEmpty(value: string | undefined | null): value is ''
 export function isEmpty(value: any): boolean {
   if (!value) return true
   if (isObject(value)) return Object.keys(value).length === 0

@@ -1,20 +1,20 @@
 import {type ServerOptions} from './universal-server'
-import {fork} from 'child_process'
+import {fork, type ForkOptions} from 'child_process'
 import path from 'path'
 
 export function makeServerProcess(
-  options: ServerOptions & {detached?: boolean},
+  options: ServerOptions & {forkOptions?: ForkOptions},
 ): Promise<{port: number; close: () => void}> {
   return new Promise((resolve, reject) => {
     const server = fork(path.resolve(__dirname, '../dist/cli.js'), [`--config=${JSON.stringify(options)}`], {
-      detached: options.detached ?? true,
-      stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
+      stdio: [options.shutdownMode === 'stdin' ? 'inherit' : 'ignore', 'ignore', 'ignore', 'ipc'],
+      ...(options.forkOptions ?? {}),
     })
 
     const timeout = setTimeout(() => {
       reject(new Error(`Server didn't respond for 10s after being started`))
       server.kill()
-    }, 10000)
+    }, 60000)
 
     server.on('error', reject)
 

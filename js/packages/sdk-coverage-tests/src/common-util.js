@@ -5,9 +5,7 @@ const chalk = require('chalk')
 const fetchSync = require('sync-fetch')
 
 function findDifferencesBetweenCollections(hostCollection = [], guestCollection = []) {
-  const _hostCollection = Array.isArray(hostCollection)
-    ? hostCollection
-    : Object.keys(hostCollection)
+  const _hostCollection = Array.isArray(hostCollection) ? hostCollection : Object.keys(hostCollection)
   const _guestCollection = Array.isArray(guestCollection)
     ? new Set(guestCollection)
     : new Set(Object.keys(guestCollection))
@@ -61,7 +59,7 @@ function toPascalCase(string) {
 }
 
 function loadFile(path) {
-  return isUrl(path) ? fetchSync(path).text() : fs.readFileSync(path).toString()
+  return isUrl(path) ? fetchSync(path).buffer() : fs.readFileSync(path)
 }
 
 function runCode(code, context) {
@@ -80,7 +78,7 @@ function runCode(code, context) {
 }
 
 function requireUrl(url, cache = {}) {
-  const code = loadFile(url)
+  const code = loadFile(url).toString()
   const module = {exports: {}}
   cache[url] = module
   runCode(code, {

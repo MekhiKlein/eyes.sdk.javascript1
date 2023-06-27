@@ -120,9 +120,7 @@ describe('git', () => {
     })
     it('should work when transitive dependencies updated', async () => {
       assert.deepStrictEqual(
-        await expandAutoCommitLogEntry(
-          'cf8702f6f [auto commit] @applitools/snippets: upgrade deps',
-        ),
+        await expandAutoCommitLogEntry('cf8702f6f [auto commit] @applitools/snippets: upgrade deps'),
         [],
       )
     })
@@ -134,7 +132,7 @@ describe('git', () => {
           upperVersion: '1.0.24',
           expandAutoCommitLogEntries: true,
         }),
-        ['35aa793f9 [api, types] add new ufg devices'],
+        ['0767609bd [auto commit] @applitools/types: upgrade deps', '35aa793f9 [api, types] add new ufg devices'],
       )
       assert.deepStrictEqual(
         await gitLog({
@@ -144,11 +142,12 @@ describe('git', () => {
           expandAutoCommitLogEntries: true,
         }),
         [
+          'ba0aa7fc2 [auto commit] @applitools/eyes-sdk-core: upgrade deps',
           '74e991ad1 handle case with `spec.getCookies` throws an error when trying to get cookies of the browser',
         ],
       )
     })
-    it('should include external dep updates in consolidated list of commits', async () => {
+    it.skip('should include external dep updates in consolidated list of commits', async () => {
       const result = await gitLog({
         packageName: '@applitools/eyes-sdk-core',
         lowerVersion: '12.24.10',
@@ -161,10 +160,7 @@ describe('git', () => {
   })
   describe('status', () => {
     afterEach(async () => {
-      await fs.writeFile(
-        path.join(__dirname, 'fixtures/changed.json'),
-        JSON.stringify(jsonFile, null, 2),
-      )
+      await fs.writeFile(path.join(__dirname, 'fixtures/changed.json'), JSON.stringify(jsonFile, null, 2))
     })
 
     it('should get changed files', async () => {

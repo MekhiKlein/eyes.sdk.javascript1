@@ -1,4 +1,3 @@
-import type * as types from '@applitools/types'
 import type {
   Driver as CustomDriver,
   Context as CustomContext,
@@ -11,24 +10,26 @@ import path from 'path'
 import {makeSDK, checkSpecDriver} from '@applitools/eyes-sdk-core'
 import {makeLogger} from '@applitools/logger'
 import {makeHandler, type HandlerOptions} from './handler'
-import {makeSocket, type Socket} from './socket'
+import {makeSocket} from './socket'
 import {makeRefer} from './refer'
 import {withTracker} from './debug/tracker'
 import {makeSpec} from './spec-driver/custom'
 import * as webdriverSpec from './spec-driver/webdriver'
-import {abort} from './universal-server-eyes-commands'
 
-const IDLE_TIMEOUT = 900000 // 15min
 const LOG_DIRNAME = process.env.APPLITOOLS_LOG_DIR ?? path.resolve(os.tmpdir(), `applitools-logs`)
 
 export type ServerOptions = HandlerOptions & {
   debug?: boolean
+  shutdownMode?: 'lazy' | 'stdin'
   idleTimeout?: number
+  printStdout?: boolean
 }
 
 export async function makeServer({
   debug = false,
-  idleTimeout = IDLE_TIMEOUT,
+  shutdownMode = 'lazy',
+  idleTimeout = 900000, // 15min
+  printStdout = false,
   ...handlerOptions
 }: ServerOptions = {}): Promise<{port: number; close: () => void}> {
   const {server, port} = await makeHandler({...handlerOptions, debug})
@@ -38,6 +39,7 @@ export async function makeServer({
     console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
     return
   }
+  if (!printStdout) process.stdout.write = () => true // NOTE: prevent any write to stdout
 
   const baseLogger = makeLogger({
     handler: {type: 'rolling file', name: 'eyes', dirname: LOG_DIRNAME},
@@ -50,10 +52,17 @@ export async function makeServer({
   baseLogger.log('Server is started')
 
   let idle: any
-  if (idleTimeout) {
-    idle = setTimeout(() => server.close(), idleTimeout)
-  }
   let serverClosed = false
+  if (shutdownMode === 'stdin') {
+    process.stdin.resume()
+    process.stdin.on('end', () => {
+      server.close()
+    })
+  } else if (shutdownMode === 'lazy') {
+    if (idleTimeout) {
+      idle = setTimeout(() => server.close(), idleTimeout)
+    }
+  }
 
   server.on('close', () => {
     clearTimeout(idle)
@@ -64,15 +73,10 @@ export async function makeServer({
     const refer = makeRefer()
     const socket = withTracker({
       debug,
-      socket: makeSocket(client, {logger: baseLogger}) as types.ServerSocket<
-        CustomDriver,
-        CustomContext,
-        CustomElement,
-        CustomSelector
-      > &
-        Omit<Socket, 'command' | 'request'>,
+      socket: makeSocket(client, {logger: baseLogger}),
     })
-    if (idleTimeout) {
+
+    if (shutdownMode === 'lazy' && idleTimeout) {
       clearTimeout(idle)
       socket.on('close', () => {
         if (server.clients.size > 0 || serverClosed) return
@@ -107,8 +111,7 @@ export async function makeServer({
         version: `${require('../package.json').version}/${version}`,
         cwd,
         spec,
-        VisualGridClient: require('@applitools/visual-grid-client'),
-      })
+      }) as any
     })
 
     socket.command('Core.makeManager', async config => {
@@ -134,33 +137,35 @@ export async function makeServer({
     })
 
     socket.command('EyesManager.openEyes', async ({manager, driver, config}) => {
-      const eyes = await refer.deref(manager).openEyes({logger, driver, config})
+      const eyes = await refer.deref<any>(manager).openEyes({logger, driver, config})
       const eyesRef = refer.ref(eyes, manager)
       return eyesRef
     })
     socket.command('EyesManager.closeManager', async ({manager, throwErr}) => {
-      return refer.deref(manager).closeManager({throwErr})
+      return refer.deref<any>(manager).closeManager({throwErr})
     })
 
     socket.command('Eyes.check', async ({eyes, settings, config, driver}) => {
-      return refer.deref(eyes).check({settings, config, driver})
+      return refer.deref<any>(eyes).check({settings, config, driver})
     })
     socket.command('Eyes.locate', async ({eyes, settings, config}) => {
-      return refer.deref(eyes).locate({settings, config})
+      return refer.deref<any>(eyes).locate({settings, config})
     })
     socket.command('Eyes.extractTextRegions', async ({eyes, settings, config}) => {
-      return refer.deref(eyes).extractTextRegions({settings, config})
+      return refer.deref<any>(eyes).extractTextRegions({settings, config})
     })
     socket.command('Eyes.extractText', async ({eyes, regions, config}) => {
-      return refer.deref(eyes).extractText({regions, config})
+      return refer.deref<any>(eyes).extractText({regions, config})
     })
     socket.command('Eyes.close', async ({eyes, throwErr}) => {
-      const results = await refer.deref(eyes).close({throwErr})
+      const results = await refer.deref<any>(eyes).close({throwErr})
       refer.destroy(eyes)
       return results
     })
     socket.command('Eyes.abort', async ({eyes}) => {
-      return await abort({eyes, refer})
+      const results = refer.deref<any>(eyes)?.abort()
+      refer.destroy(eyes)
+      return results
     })
 
     socket.command('Debug.checkSpecDriver', async ({driver, commands}) => {

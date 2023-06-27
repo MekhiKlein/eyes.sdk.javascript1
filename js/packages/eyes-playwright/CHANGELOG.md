@@ -1,15 +1,169 @@
-# Change Log
+# Changelog
 
-## Unreleased
-
-
+## [1.17.5](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-playwright@1.17.4...js/eyes-playwright@1.17.5) (2023-06-21)
 
 
+### Dependencies
+
+* @applitools/eyes bumped from 1.2.17 to 1.3.0
+  #### Features
+
+  * added overload for locate method, to call it with custom target ([5d5914a](https://github.com/applitools/eyes.sdk.javascript1/commit/5d5914a5dae6822cde0086d6b9f4d6f9ac7cc4f2))
 
 
 
+* @applitools/spec-driver-playwright bumped from 1.3.14 to 1.3.15
 
 
+## [1.17.4](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-playwright@1.17.3...js/eyes-playwright@1.17.4) (2023-06-15)
+
+
+### Dependencies
+
+* update some dependencies
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.2.16 to 1.2.17
+
+## [1.17.3](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-playwright@1.17.2...js/eyes-playwright@1.17.3) (2023-06-14)
+
+
+### Dependencies
+
+* update some dependencies
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.2.15 to 1.2.16
+
+## [1.17.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-playwright-v1.17.1...js/eyes-playwright@1.17.2) (2023-06-13)
+
+
+### Dependencies
+
+* update some dependencies
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.2.14 to 1.2.15
+    * @applitools/spec-driver-playwright bumped from 1.3.13 to 1.3.14
+
+## 1.17.1 - 2023/5/31
+
+### Features
+### Bug fixes
+- Increase timeout for rendering results polling
+
+## 1.17.0 - 2023/5/13
+
+### Features
+- Add support for reloading the page when using layoutBreakpoints
+### Bug fixes
+
+## 1.16.1 - 2023/5/3
+
+### Features
+### Bug fixes
+- Fixed detection of emulated mobile drivers
+- Fixed issue when on certain browser versions test didn't target a previously created baseline
+
+## 1.16.0 - 2023/4/26
+
+### Features
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+
+## 1.15.1 - 2023/4/6
+
+### Features
+### Bug fixes
+- Fixed issue with css fetching for dom capture
+
+## 1.15.0 - 2023/4/5
+
+### Features
+- Added `removeDuplicateTests` property to the `RunnerOptions` to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+
+## 1.14.1 - 2023/3/22
+
+### Features
+### Bug fixes
+- Fixed slowness during ufg tests
+- Optimized number of requests during polling
+
+## 1.14.0 - 2023/2/21
+
+### Features
+- Crop screenshot image base on account info
+### Bug fixes
+
+## 1.13.2 - 2023/1/20
+
+### Features
+### Bug fixes
+- Fixed dependency issue on windows
+
+## 1.13.1 - 2023/1/17
+
+### Features
+### Bug fixes
+- Handle fake shadowRoot with UFG
+- Handed error during polling in long requests to eyes server
+- Additional internal event logs
+
+## 1.13.0 - 2022/11/29
+
+### Features
+- Added new selector extensions `child` and `fallback`
+- Changed default value of `sendDom` from `true` to dynamically calculated
+- Mark target element with `data-applitools-scroll` attribute before capture dom
+- Added new iOS device - 'iPad Pro (11-inch) (4th generation)'
+- Use user agent metadata to improve browser environment detection logic
+- Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
+- Added `ignoreColors` method to `CheckSettings` to set a match level
+### Bug fixes
+- Fixed issue with ufg renders failing intermittently
+- Fixed error that was happening when test results were deleted
+- Fixed bug that caused `extractText` to throw, due to fractional size of the target region
+- Fix dontCloseBatches mapping
+
+## 1.12.7 - 2022/10/11
+
+### Features
+- Applied client's user-agent by default to resource requests in ufg mode
+### Bug fixes
+- Fixed wrong signature of `closeBatch` function
+- Blank missed frames src in ufg
+- Fix an issue when ufg related requests were not sent through the proxy
+- Fixed issue with logs not being saved/written
+
+## 1.12.6 - 2022/10/4
+
+### Features
+### Bug fixes
+- Fixed bug when error was thrown when coded region wasn't found using selector
+
+## 1.12.5 - 2022/10/4
+
+### Features
+- Deprecated "Content" match level value in favor of "IgnoreColors"
+### Bug fixes
+- Fixed the issue with screenshots being taken on chrome-emulated devices
+
+## 1.12.4 - 2022/9/26
+
+### Features
+### Bug fixes
+- Fixed minor issues
+
+## 1.12.3 - 2022/9/23
+
+### Features
+- Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
+- Using `lazyLoad.waitingTime` as a delay between stitches by default
+- Added `Sony Xperia 10 II` emulation device
+- Added `iPhone 14`  and `iPhone 14 Pro Max` ios devices
+### Bug fixes
+- Fixed incorrect calculation of the target element position.
 
 ## 1.12.2 - 2022/7/28
 

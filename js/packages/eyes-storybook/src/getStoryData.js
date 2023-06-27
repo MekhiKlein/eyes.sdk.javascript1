@@ -1,6 +1,5 @@
 'use strict';
 const {presult, ptimeoutWithError} = require('@applitools/functional-commons');
-const {ArgumentGuard} = require('@applitools/eyes-sdk-core');
 const renderStoryWithClientAPI = require('../dist/renderStoryWithClientAPI');
 const runRunBeforeScript = require('../dist/runRunBeforeScript');
 const getStoryBaselineName = require('./getStoryBaselineName');
@@ -8,9 +7,11 @@ const {URL} = require('url');
 const runRunAfterScript = require('../dist/runRunAfterScript');
 const waitFor = require('./waitFor');
 const PAGE_EVALUATE_TIMEOUT = 120000;
+const DOM_SNAPSHOTS_TIMEOUT = 5 * 60 * 1000;
+const utils = require('@applitools/utils');
 
-function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPagePerStory}) {
-  return async function getStoryData({story, storyUrl, page, browser, waitBeforeStory}) {
+function makeGetStoryData({logger, takeDomSnapshots, reloadPagePerStory}) {
+  return async function getStoryData({story, storyUrl, page}) {
     const title = getStoryBaselineName(story);
     logger.log(`getting data from story`, title);
 
@@ -21,17 +22,18 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
       if (urlQueryParamsEquals(currentUrl, expectedQueryParams)) {
         try {
           const err = await ptimeoutWithError(
-            page.evaluate(renderStoryWithClientAPI, story.index),
+            page.evaluate(renderStoryWithClientAPI, story.index, story.id),
             PAGE_EVALUATE_TIMEOUT,
-            'page evaluate timed out!',
+            new Error('page evaluate timed out!'),
           );
-          logger.log(`[story data] done with page evaluate for story index: ${story.index}`);
+          logger.log(`[story data] done with page evaluate for story ${title}`);
           err && handleRenderStoryError(err);
         } catch (ex) {
-          if (!ex.message.includes('Eyes could not render stories properly'))
+          if (ex.message && !ex.message.includes('Eyes could not render stories properly'))
             handleRenderStoryError(ex);
           else {
-            throw ex;
+            const errMsg = ex.message || ex;
+            throw new Error(errMsg);
           }
         }
       } else {
@@ -41,13 +43,9 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
       await renderStoryLegacy();
     }
 
-    const wait = waitBeforeStory || waitBeforeCapture;
+    const wait = story.config.waitBeforeCapture;
     if (typeof wait === 'number') {
-      ArgumentGuard.greaterThanOrEqualToZero(wait, 'waitBeforeCapture', true);
-    }
-    if (wait) {
-      logger.log(`waiting before screenshot of ${title} ${wait}`);
-      await waitFor(page, wait);
+      utils.guard.isGreaterThenOrEqual(wait, 0, {name: 'waitBeforeCapture'});
     }
 
     if (eyesParameters && eyesParameters.runBefore) {
@@ -57,18 +55,26 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeCapture, reloadPa
     }
 
     logger.log(`running takeDomSnapshot(s) for story ${title}`);
-
-    const result = await takeDomSnapshots({
+    const domSnapshotsPromise = takeDomSnapshots({
       page,
-      browser,
-      layoutBreakpoints: eyesParameters ? eyesParameters.layoutBreakpoints : undefined,
+      renderers: story.config.renderers,
+      layoutBreakpoints: story.config.layoutBreakpoints,
       waitBeforeCapture: wait
         ? async () => {
             logger.log(`waiting before screenshot of ${title} ${wait}`);
             await waitFor(page, wait);
           }
         : undefined,
+      disableBrowserFetching: story.config.disableBrowserFetching,
     });
+
+    const result = await ptimeoutWithError(
+      domSnapshotsPromise,
+      DOM_SNAPSHOTS_TIMEOUT,
+      new Error(`timeout reached when trying to take DOM for story ${title}`),
+    );
+
+    logger.log(`done getting DOM for story ${title}`);
 
     if (eyesParameters && eyesParameters.runAfter) {
       await page.evaluate(runRunAfterScript, story.index).catch(err => {

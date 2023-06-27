@@ -1,99 +1,144 @@
+import type {UserAgent, Environment} from './types'
 import * as utils from '@applitools/utils'
 
-type PlatformInfo = {platformName: string; platformVersion?: string}
-type BrowserInfo = {browserName: string; browserVersion?: string}
+const majorMinorRegexpString = '(?<majorVersion>[^ .;_)]+)[_.;](?<minorVersion>[^ .;_)]*)'
+const platformRegexpMapping = [
+  ['Windows', new RegExp(`Windows(?:(?: NT)? ${majorMinorRegexpString}?)?`)],
+  ['iOS', new RegExp(`CPU(?: i[a-zA-Z]+)? OS ${majorMinorRegexpString}`)],
+  ['Mac OS X', new RegExp(`Mac OS X(?: ${majorMinorRegexpString})?`)],
+  ['Android', new RegExp(`Android ${majorMinorRegexpString}`)],
+  ['Macintosh', new RegExp(`Mac_PowerPC`)],
+  ['Linux', new RegExp(`Linux`)],
+  ['Chrome OS', new RegExp(`CrOS`)],
+  ['SymbOS', new RegExp(`SymbOS`)],
+] as [string, RegExp][]
+const browserRegexpMapping = [
+  ['IE', new RegExp(`rv:${majorMinorRegexpString}\\) like Gecko`)],
+  ['IE', new RegExp(`MSIE ${majorMinorRegexpString}`)],
+  ['Electron', new RegExp(`Electron/${majorMinorRegexpString}`)],
+  ['Opera', new RegExp(`Opera/${majorMinorRegexpString}`)],
+  ['Edge', new RegExp(`(?:Edg|Edge)/${majorMinorRegexpString}`)],
+  ['Chrome', new RegExp(`Chrome/${majorMinorRegexpString}`)],
+  ['Safari', new RegExp(`Safari/${majorMinorRegexpString}`)],
+  ['Firefox', new RegExp(`Firefox/${majorMinorRegexpString}`)],
+] as [string, RegExp][]
+const browserVersionRegexp = new RegExp(`(?:Version/${majorMinorRegexpString})`)
 
-const MAJOR_MINOR = '(\\d+)(?:[_.](\\d+))?'
-
-const PLATFORM_REGEXES = [
-  new RegExp(`(?:(Windows NT) ${MAJOR_MINOR})`),
-  new RegExp('(?:(Windows XP))'),
-  new RegExp('(?:(Windows 2000))'),
-  new RegExp('(?:(Windows NT))'),
-  new RegExp('(?:(Windows))'),
-  new RegExp(`(?:(Mac OS X) ${MAJOR_MINOR})`),
-  new RegExp(`(?:(Android) ${MAJOR_MINOR})`),
-  new RegExp(`(?:(CPU(?: i[a-zA-Z]+)? OS) ${MAJOR_MINOR})`),
-  new RegExp('(?:(Mac OS X))'),
-  new RegExp('(?:(Mac_PowerPC))'),
-  new RegExp('(?:(Linux))'),
-  new RegExp('(?:(CrOS))'),
-  new RegExp('(?:(SymbOS))'),
-]
-
-const BROWSER_REGEXPES = [
-  new RegExp(`(?:(Opera)/${MAJOR_MINOR})`),
-  new RegExp(`(?:(Edg)/${MAJOR_MINOR})`),
-  new RegExp(`(?:(Edge)/${MAJOR_MINOR})`),
-  new RegExp(`(?:(Chrome)/${MAJOR_MINOR})`),
-  new RegExp(`(?:(Safari)/${MAJOR_MINOR})`),
-  new RegExp(`(?:(Firefox)/${MAJOR_MINOR})`),
-  new RegExp(`(?:MS(IE) ${MAJOR_MINOR})`),
-]
-
-const HIDDEN_IE_REGEX = new RegExp(`(?:rv:${MAJOR_MINOR}\\) like Gecko)`)
-
-const BROWSER_VERSION_REGEX = new RegExp(`(?:Version/${MAJOR_MINOR})`)
-
-export function parseUserAgent(userAgent: string): PlatformInfo & BrowserInfo {
-  utils.guard.notNull(userAgent, {name: 'userAgent'})
-
-  userAgent = userAgent.trim()
-  return {
-    ...parsePlatform(userAgent),
-    ...parseBrowser(userAgent),
-  }
+const windowsVersionsMapping = {
+  '0.1.0': '7',
+  '0.2.0': '8',
+  '0.3.0': '8.1',
+  '10.0.0': '10',
+  '15.0.0': '11',
 }
 
-export function parsePlatform(userAgent: string): PlatformInfo {
-  const platformRegExp = PLATFORM_REGEXES.find(regexp => regexp.test(userAgent))
-
-  if (!platformRegExp) return {platformName: 'Unknown'}
-
-  const [_, platformName, platformMajorVersion, platformMinorVersion] = platformRegExp.exec(userAgent)
-
-  if (platformName.startsWith('CPU')) {
-    return {platformName: 'iOS', platformVersion: platformMajorVersion}
-  } else if (platformName === 'Windows 2000' || platformName === 'Windows XP') {
-    return {platformName: 'Windows', platformVersion: '5'}
-  } else if (platformName === 'Windows NT') {
-    const result = {platformName: 'Windows', platformVersion: platformMajorVersion}
-    if (!platformMajorVersion) {
-      result.platformVersion = '4'
-    } else if (platformMajorVersion === '6' && platformMinorVersion === '1') {
-      result.platformVersion = '7'
-    } else if (platformMajorVersion === '6' && (platformMinorVersion === '2' || platformMinorVersion === '3')) {
-      result.platformVersion = '8'
-    }
-    return result
-  } else if (platformName === 'Mac_PowerPC') {
-    return {platformName: 'Macintosh', platformVersion: platformMajorVersion}
-  } else if (platformName === 'CrOS') {
-    return {platformName: 'Chrome OS', platformVersion: platformMajorVersion}
+export function extractUserAgentEnvironment(userAgent: UserAgent): Environment {
+  let userAgentLegacy: string, userAgentObject: Exclude<UserAgent, string> | undefined
+  if (utils.types.isString(userAgent)) {
+    userAgentLegacy = userAgent.trim()
   } else {
-    return {platformName, platformVersion: platformMajorVersion}
+    userAgentLegacy = userAgent.legacy.trim()
+    userAgentObject = userAgent
+  }
+  const userAgentLegacyEnvironment = {
+    ...extractUserAgentLegacyPlatform(userAgentLegacy),
+    ...extractUserAgentLegacyBrowser(userAgentLegacy),
+  }
+  const userAgentEnvironment = userAgentObject && extractUserAgentObjectEnvironment(userAgentObject)
+
+  return {
+    ...userAgentEnvironment,
+    platformName: userAgentEnvironment?.platformName ?? userAgentLegacyEnvironment.platformName,
+    platformVersion: userAgentEnvironment?.platformVersion ?? userAgentLegacyEnvironment.platformVersion,
+    browserName: userAgentLegacyEnvironment.browserName ?? userAgentEnvironment?.browserName,
+    browserVersion: userAgentLegacyEnvironment.browserVersion ?? userAgentEnvironment?.browserVersion,
+    isReliable: !!(userAgentEnvironment?.platformName && userAgentEnvironment?.platformVersion),
   }
 }
 
-export function parseBrowser(userAgent: string): BrowserInfo {
-  const browserRegExp = BROWSER_REGEXPES.find(regexp => regexp.test(userAgent))
-  if (!browserRegExp) {
-    if (HIDDEN_IE_REGEX.test(userAgent)) {
-      const [_, browserVersion] = HIDDEN_IE_REGEX.exec(userAgent)
-      return {browserName: 'IE', browserVersion}
-    } else {
-      return {browserName: 'Unknown'}
+function extractUserAgentLegacyPlatform(userAgent: string): {platformName: string; platformVersion?: string} {
+  let info: {platformName: string; majorVersion?: string; minorVersion?: string} | undefined
+  for (const [platformName, regexp] of platformRegexpMapping) {
+    const match = regexp.exec(userAgent)
+    if (match) {
+      info = {platformName, ...match.groups}
+      break
     }
   }
 
-  const [_, browserName, browserVersion] = browserRegExp.exec(userAgent)
-  const result = {browserName, browserVersion}
+  if (!info) return {platformName: 'Unknown'}
 
-  if (result.browserName === 'Edg') result.browserName = 'Edge'
-  if (BROWSER_VERSION_REGEX.test(userAgent)) {
-    const [_, browserVersion] = BROWSER_VERSION_REGEX.exec(userAgent)
-    result.browserVersion = browserVersion
+  if (info.platformName === 'Macintosh' || info.platformName === 'Chrome OS') {
+    info.minorVersion = undefined
+  } else if (info.platformName === 'Windows') {
+    if (info.majorVersion === 'XP') {
+      info.majorVersion = '5'
+      info.minorVersion = '1'
+    } else if (info.majorVersion === '6' && info.minorVersion === '1') {
+      info.majorVersion = '7'
+      info.minorVersion = undefined
+    } else if (info.majorVersion === '6' && info.minorVersion === '2') {
+      info.majorVersion = '8'
+      info.minorVersion = undefined
+    } else if (info.majorVersion === '6' && info.minorVersion === '3') {
+      info.majorVersion = '8'
+      info.minorVersion = '1'
+    } else if (info.majorVersion === '10') {
+      info.minorVersion = undefined
+    } else {
+      info.majorVersion = undefined
+      info.minorVersion = undefined
+    }
   }
 
-  return result
+  return {
+    platformName: info.platformName,
+    platformVersion: info.minorVersion ? `${info.majorVersion}.${info.minorVersion}` : info.majorVersion,
+  }
+}
+
+function extractUserAgentLegacyBrowser(userAgent: string): {browserName: string; browserVersion?: string} {
+  let info: {browserName: string; majorVersion?: string; minorVersion?: string} | undefined
+  for (const [browserName, browserRegexp] of browserRegexpMapping) {
+    const browserMatch = browserRegexp.exec(userAgent)
+    if (browserMatch) {
+      info = {browserName, ...browserMatch.groups}
+      const versionMatch = browserVersionRegexp.exec(userAgent)
+      if (versionMatch) info = {...info, ...versionMatch.groups}
+      break
+    }
+  }
+
+  if (!info) return {browserName: 'Unknown'}
+
+  return {
+    browserName: info.browserName,
+    browserVersion: info.minorVersion ? `${info.majorVersion}.${info.minorVersion}` : info.majorVersion,
+  }
+}
+
+function extractUserAgentObjectEnvironment(userAgent: Exclude<UserAgent, string>): Environment {
+  const chromiumBrand = userAgent.brands?.find(brand => /Chromium/i.test(brand.brand))
+  const browserBrand =
+    userAgent.brands?.find(brand => brand !== chromiumBrand && !/Not.?A.?Brand/i.test(brand.brand)) ?? chromiumBrand
+
+  const environment: Environment = {
+    browserName: browserBrand?.brand,
+    browserVersion: browserBrand?.version,
+    platformName: userAgent.platform || undefined,
+    platformVersion: userAgent.platformVersion || undefined,
+    deviceName: userAgent.model || undefined,
+    isMobile: userAgent.mobile,
+    isChromium: Boolean(chromiumBrand),
+  }
+
+  if (environment.platformName === 'Windows') {
+    environment.platformVersion =
+      windowsVersionsMapping[environment.platformVersion as keyof typeof windowsVersionsMapping]
+  } else if (environment.platformName === 'macOS') {
+    environment.platformName = 'Mac OS X'
+    environment.platformVersion = environment.platformVersion?.split(/[._]/, 2).join('.')
+  }
+
+  return environment
 }

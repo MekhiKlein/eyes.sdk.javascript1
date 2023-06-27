@@ -1,19 +1,13 @@
+import type {Handler, FileHandler} from './types'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
-import {type Handler} from './handler'
-
-export type FileHandler = {
-  type: 'file'
-  filename?: string
-  append?: boolean
-}
 
 export function makeFileHandler({
   filename = process.env.APPLITOOLS_LOG_FILE ?? 'eyes.log',
   append = true,
 }: Omit<FileHandler, 'type'> = {}): Handler {
-  let writer: fs.WriteStream = null
+  let writer = null as fs.WriteStream | null
 
   return {log, open, close}
 
@@ -29,14 +23,11 @@ export function makeFileHandler({
   }
   function log(message: string) {
     if (!writer) open()
-    writer.write(message + os.EOL)
+    writer!.write(message + os.EOL)
   }
 }
 
 function ensureDirectoryExistence(filename: string) {
   const dirname = path.dirname(filename)
-  if (!fs.existsSync(dirname)) {
-    ensureDirectoryExistence(dirname)
-    fs.mkdirSync(dirname)
-  }
+  fs.mkdirSync(dirname, { recursive: true });
 }

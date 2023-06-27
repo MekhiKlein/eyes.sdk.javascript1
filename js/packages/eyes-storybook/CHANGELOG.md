@@ -3,6 +3,133 @@
 ## Unreleased
 
 
+
+## 3.35.0 - 2023/6/13
+
+### Features
+### Bug fixes
+- Add support for variations in storybook 7
+- Increase timeout for rendering results polling
+- Add the option to not fail on visual differences using exitcode `nodiffs`
+
+## 3.34.2 - 2023/5/16
+
+### Features
+- Add support for reloading the page when using layoutBreakpoints
+### Bug fixes
+
+## 3.34.1 - 2023/5/9
+
+### Features
+### Bug fixes
+- Fix the issue where storybook v6 will not start if storybook cli is being used
+
+## 3.34.0 - 2023/5/4
+
+### Features
+- Add the option to send a list of browsers from the component configuration
+### Bug fixes
+
+## 3.33.1 - 2023/4/26
+
+### Features
+### Bug fixes
+- Make sure to pass LayoutBreakpoints and WaitBeforeCapture from story config to dom snapshot
+- Map UFG config correctly
+
+## 3.33.0 - 2023/4/26
+
+### Features
+### Bug fixes
+- Fixed `disableBrowserFetching` option behavior
+
+## 3.32.1 - 2023/4/16
+
+### Features
+### Bug fixes
+- result output throw error
+
+## 3.32.0 - 2023/3/30
+
+### Features
+- Add support for configuration per subsets of stories
+### Bug fixes
+- Improve performance in DOM snapshot
+
+## 3.31.5 - 2023/3/28
+
+### Features
+### Bug fixes
+- Optimized number of requests during polling
+- Write result files without throwing error
+
+## 3.31.4 - 2023/3/17
+
+### Features
+### Bug fixes
+- Fixed slowness during ufg tests
+
+## 3.31.3 - 2023/3/14
+
+### Features
+### Bug fixes
+- Update internal dependencies
+
+## 3.31.2 - 2023/3/9
+
+### Features
+- Add support for storybook 7
+### Bug fixes
+- Support running Storybook dev server in Node.js v18
+
+## 3.31.1 - 2023/2/21
+
+### Features
+### Bug fixes
+- Make sure to send http headers in the main storybook tab
+
+## 3.31.0 - 2023/2/15
+
+### Features
+- Crop screenshot image base on account info
+- Add the option to send external http headers to Puppeteer Page object
+### Bug fixes
+
+## 3.30.2 - 2023/1/23
+
+### Features
+### Bug fixes
+- Update dependencies
+
+## 3.30.1 - 2023/1/3
+
+### Features
+- Additional internal event logs
+### Bug fixes
+- fixed bug in mobile environment
+
+## 3.30.0 - 2022/12/19
+
+### Features
+- Deprecated "Content" match level value in favor of "IgnoreColors"
+- Add Support for storyStoreV7 flag
+### Bug fixes
+- Handle fake shadowRoot with UFG
+- Handed error during polling in long requests to eyes server
+
+## 3.29.4 - 2022/9/12
+
+### Features
+### Bug fixes
+- Prevent Eyes-Storybook from hanging when there is a failure to take DOM
+
+## 3.29.3 - 2022/8/18
+
+### Features
+### Bug fixes
+- Better support in DOM slot element
+- fix error handling
+
 ## 3.29.2 - 2022/7/14
 
 ### Features

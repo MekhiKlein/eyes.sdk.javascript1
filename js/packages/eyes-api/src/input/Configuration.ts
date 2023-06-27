@@ -1,5 +1,5 @@
-import type * as types from '@applitools/types'
-import * as utils from '@applitools/utils'
+import type * as Core from '@applitools/core'
+import {EyesSelector} from './EyesSelector'
 import {SessionType, SessionTypeEnum} from '../enums/SessionType'
 import {StitchMode, StitchModeEnum} from '../enums/StitchMode'
 import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
@@ -19,14 +19,15 @@ import {
   ChromeEmulationInfoLegacy,
 } from './RenderInfo'
 import {CutProvider} from './CutProvider'
-import {LogHandler} from './LogHandler'
 import {DebugScreenshotProvider} from './DebugScreenshotProvider'
 import {RectangleSize, RectangleSizeData} from './RectangleSize'
 import {ImageRotation, ImageRotationData} from './ImageRotation'
 import {ProxySettings, ProxySettingsData} from './ProxySettings'
+import {AUTProxySettings} from './AUTProxySettings'
 import {BatchInfo, BatchInfoData} from './BatchInfo'
 import {PropertyData, PropertyDataData} from './PropertyData'
 import {ImageMatchSettings, ImageMatchSettingsData} from './ImageMatchSettings'
+import * as utils from '@applitools/utils'
 
 type RenderInfo =
   | DesktopBrowserInfo
@@ -35,31 +36,20 @@ type RenderInfo =
   | AndroidDeviceInfo
   | ChromeEmulationInfoLegacy
 
-type ConfigurationSpec<TElement = unknown, TSelector = unknown> = {
-  isElement(element: any): element is TElement
-  isSelector(selector: any): selector is TSelector
-}
-
-export type GeneralConfiguration = {
-  /** @undocumented */
-  logs?: LogHandler
+export type Configuration<TSpec extends Core.SpecType = Core.SpecType> = {
   /** @undocumented */
   debugScreenshots?: DebugScreenshotProvider
   agentId?: string
   apiKey?: string
   serverUrl?: string
   proxy?: ProxySettings
-  autProxy?: types.AutProxy
+  autProxy?: AUTProxySettings
   isDisabled?: boolean
   /** @undocumented */
   connectionTimeout?: number
   /** @undocumented */
   removeSession?: boolean
-  /** @undocumented */
-  remoteEvents?: {serverUrl: string; accessKey?: string; timeout?: number}
-}
 
-export type OpenConfiguration = {
   appName?: string
   testName?: string
   displayName?: string
@@ -86,103 +76,67 @@ export type OpenConfiguration = {
   saveDiffs?: boolean
   /** @undocumented */
   dontCloseBatches?: boolean
-}
 
-export type CheckConfiguration = {
   sendDom?: boolean
   matchTimeout?: number
   forceFullPageScreenshot?: boolean
-}
 
-export type ClassicConfiguration<TElement = unknown, TSelector = unknown> = {
   waitBeforeScreenshots?: number
   stitchMode?: StitchMode
   hideScrollbars?: boolean
   hideCaret?: boolean
   stitchOverlap?: number
-  scrollRootElement?: TElement | types.Selector<TSelector>
+  scrollRootElement?: TSpec['element'] | EyesSelector<TSpec['selector']>
   cut?: CutProvider
   rotation?: ImageRotation
   scaleRatio?: number
-  waitBeforeCapture?: number
-}
 
-export type VGConfiguration = {
   /** @undocumented */
   concurrentSessions?: number
   browsersInfo?: (DesktopBrowserInfo | ChromeEmulationInfo | IOSDeviceInfo | AndroidDeviceInfo)[]
   visualGridOptions?: Record<string, any>
-  layoutBreakpoints?: boolean | number[]
+  layoutBreakpoints?: boolean | number[] | {breakpoints: number[] | boolean; reload?: boolean}
   disableBrowserFetching?: boolean
+
   waitBeforeCapture?: number
 }
 
-export type Configuration<TElement = unknown, TSelector = unknown> = GeneralConfiguration &
-  OpenConfiguration &
-  CheckConfiguration &
-  ClassicConfiguration<TElement, TSelector> &
-  VGConfiguration
+export class ConfigurationData<TSpec extends Core.SpecType = Core.SpecType> implements Required<Configuration<TSpec>> {
+  protected static readonly _spec: Core.SpecDriver<Core.SpecType>
+  private _spec: Core.SpecDriver<TSpec>
 
-export class ConfigurationData<TElement = unknown, TSelector = unknown>
-  implements Required<Configuration<TElement, TSelector>>
-{
-  protected static readonly _spec: ConfigurationSpec
-  protected get _spec(): ConfigurationSpec<TElement, TSelector> {
-    return (this.constructor as typeof ConfigurationData)._spec as ConfigurationSpec<TElement, TSelector>
+  private _config: Configuration<TSpec> = {}
+
+  private _isElementReference(value: any): value is TSpec['element'] | EyesSelector<TSpec['selector']> {
+    const spec = this._spec ?? ((this.constructor as typeof ConfigurationData)._spec as typeof this._spec)
+    return !!spec.isElement?.(value) || this._isSelectorReference(value)
   }
 
-  private _config: Configuration<TElement, TSelector> = {}
-
-  private _isSelector(selector: any): selector is types.Selector<TSelector> {
+  private _isSelectorReference(selector: any): selector is EyesSelector<TSpec['selector']> {
+    const spec = this._spec ?? ((this.constructor as typeof ConfigurationData)._spec as typeof this._spec)
     return (
-      this._spec.isSelector(selector) ||
+      !!spec.isSelector?.(selector) ||
       utils.types.isString(selector) ||
       (utils.types.isPlainObject(selector) &&
         utils.types.has(selector, 'selector') &&
-        (utils.types.isString(selector.selector) || this._spec.isSelector(selector.selector)))
+        (utils.types.isString(selector.selector) || !!spec.isSelector?.(selector.selector)))
     )
   }
 
-  constructor(config?: Configuration<TElement, TSelector>) {
-    if (!config) return this
-    if (config instanceof ConfigurationData) config = config.toJSON()
-
+  constructor(config?: Configuration<TSpec>)
+  /** @internal */
+  constructor(config?: Configuration<TSpec>, spec?: Core.SpecDriver<TSpec>)
+  constructor(config?: Configuration<TSpec>, spec?: Core.SpecDriver<TSpec>) {
+    config = utils.types.instanceOf(config, ConfigurationData) ? config.toObject() : config ?? {}
+    this._spec = spec!
     for (const [key, value] of Object.entries(config)) {
       ;(this as any)[key] = value
     }
   }
 
   /** @undocumented */
-  get logs(): LogHandler {
-    return this._config.logs
-  }
-  /** @undocumented */
-  set logs(logs: LogHandler) {
-    this._config.logs = logs
-  }
-  /** @undocumented */
-  getShowLogs(): boolean {
-    return Boolean(this.logs)
-  }
-  /** @undocumented */
-  setShowLogs(show: boolean): this {
-    if (show) this.logs ??= {type: 'console'}
-    else this.logs = null
-    return this
-  }
-  /** @undocumented */
-  getLogHandler(): LogHandler {
-    return this.logs
-  }
-  /** @undocumented */
-  setLogHandler(handler: LogHandler): this {
-    this.logs = handler
-    return this
-  }
-
-  /** @undocumented */
   get debugScreenshots(): DebugScreenshotProvider {
-    return this._config.debugScreenshots
+    return this._config.debugScreenshots!
   }
   /** @undocumented */
   set debugScreenshots(debugScreenshots: DebugScreenshotProvider) {
@@ -199,7 +153,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
   /** @undocumented */
   getDebugScreenshotsPath(): string {
-    return this.debugScreenshots?.path
+    return (this.debugScreenshots as NonNullable<typeof this.debugScreenshots>).path!
   }
   /** @undocumented */
   setDebugScreenshotsPath(path: string): this {
@@ -208,7 +162,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
   /** @undocumented */
   getDebugScreenshotsPrefix(): string {
-    return this.debugScreenshots?.prefix
+    return (this.debugScreenshots as NonNullable<typeof this.debugScreenshots>).prefix!
   }
   /** @undocumented */
   setDebugScreenshotsPrefix(prefix: string): this {
@@ -217,7 +171,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get appName(): string {
-    return this._config.appName
+    return this._config.appName!
   }
   set appName(appName: string) {
     utils.guard.isString(appName, {name: 'appName', strict: false})
@@ -232,7 +186,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get testName(): string {
-    return this._config.testName
+    return this._config.testName!
   }
   set testName(testName: string) {
     utils.guard.isString(testName, {name: 'testName', strict: false})
@@ -247,7 +201,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get displayName(): string {
-    return this._config.displayName
+    return this._config.displayName!
   }
   set displayName(displayName: string) {
     utils.guard.isString(displayName, {name: 'displayName', strict: false})
@@ -262,7 +216,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get isDisabled(): boolean {
-    return this._config.isDisabled
+    return this._config.isDisabled!
   }
   set isDisabled(isDisabled: boolean) {
     utils.guard.isBoolean(isDisabled, {name: 'isDisabled', strict: false})
@@ -277,7 +231,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get matchTimeout(): number {
-    return this._config.matchTimeout
+    return this._config.matchTimeout!
   }
   set matchTimeout(matchTimeout: number) {
     utils.guard.isInteger(matchTimeout, {name: 'matchTimeout'})
@@ -292,7 +246,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get sessionType(): SessionType {
-    return this._config.sessionType
+    return this._config.sessionType!
   }
   set sessionType(sessionType: SessionType) {
     this._config.sessionType = sessionType
@@ -306,7 +260,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get viewportSize(): RectangleSize {
-    return this._config.viewportSize
+    return this._config.viewportSize!
   }
   set viewportSize(viewportSize: RectangleSize) {
     this._config.viewportSize = viewportSize
@@ -320,7 +274,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get agentId(): string {
-    return this._config.agentId
+    return this._config.agentId!
   }
   set agentId(agentId: string) {
     utils.guard.isString(agentId, {name: 'agentId'})
@@ -335,14 +289,14 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get apiKey(): string {
-    return this._config.apiKey ?? utils.general.getEnvValue('API_KEY')
+    return this._config.apiKey!
   }
   set apiKey(apiKey: string) {
     utils.guard.isString(apiKey, {name: 'apiKey', alpha: true, numeric: true})
     this._config.apiKey = apiKey
   }
   getApiKey(): string {
-    return this.apiKey
+    return this.apiKey ?? utils.general.getEnvValue('API_KEY')
   }
   setApiKey(apiKey: string): this {
     this.apiKey = apiKey
@@ -350,14 +304,14 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get serverUrl(): string {
-    return this._config.serverUrl ?? utils.general.getEnvValue('SERVER_URL')
+    return this._config.serverUrl!
   }
   set serverUrl(serverUrl: string) {
     utils.guard.isString(serverUrl, {name: 'serverUrl', strict: false})
     this._config.serverUrl = serverUrl
   }
   getServerUrl(): string {
-    return this.serverUrl
+    return this.serverUrl ?? utils.general.getEnvValue('SERVER_URL')
   }
   setServerUrl(serverUrl: string): this {
     this.serverUrl = serverUrl
@@ -365,7 +319,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get proxy(): ProxySettings {
-    return this._config.proxy
+    return this._config.proxy!
   }
   set proxy(proxy: ProxySettings) {
     this._config.proxy = proxy
@@ -374,39 +328,34 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return new ProxySettingsData(this.proxy)
   }
   setProxy(proxy: ProxySettings): this
-  setProxy(url: string, username?: string, password?: string, isHttpOnly?: boolean): this
+  setProxy(url: string, username?: string, password?: string, deprecatedIsHttpOnly?: boolean): this
   setProxy(isEnabled: false): this
-  setProxy(
-    proxyOrUrlOrIsEnabled: ProxySettings | string | false,
-    username?: string,
-    password?: string,
-    isHttpOnly?: boolean,
-  ): this {
+  setProxy(proxyOrUrlOrIsEnabled: ProxySettings | string | false, username?: string, password?: string): this {
     if (proxyOrUrlOrIsEnabled === false) {
-      this.proxy = undefined
+      this.proxy = undefined as never
     } else if (utils.types.isString(proxyOrUrlOrIsEnabled)) {
-      this.proxy = {url: proxyOrUrlOrIsEnabled, username, password, isHttpOnly}
+      this.proxy = {url: proxyOrUrlOrIsEnabled, username, password}
     } else {
       this.proxy = proxyOrUrlOrIsEnabled
     }
     return this
   }
-  get autProxy(): types.AutProxy {
-    return this._config.autProxy
+  get autProxy(): AUTProxySettings {
+    return this._config.autProxy!
   }
-  set autProxy(autProxy: types.AutProxy) {
+  set autProxy(autProxy: AUTProxySettings) {
     this._config.autProxy = autProxy
   }
-  getAutProxy(): types.AutProxy {
+  getAutProxy(): AUTProxySettings {
     return this.autProxy
   }
-  setAutProxy(autProxy: types.AutProxy) {
+  setAutProxy(autProxy: AUTProxySettings) {
     this.autProxy = autProxy
     return this
   }
   /** @undocumented */
   get connectionTimeout(): number {
-    return this._config.connectionTimeout
+    return this._config.connectionTimeout!
   }
   /** @undocumented */
   set connectionTimeout(connectionTimeout: number) {
@@ -425,7 +374,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   /** @undocumented */
   get removeSession(): boolean {
-    return this._config.removeSession
+    return this._config.removeSession!
   }
   /** @undocumented */
   set removeSession(removeSession: boolean) {
@@ -442,34 +391,8 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
-  /** @undocumented */
-  get remoteEvents(): {serverUrl: string; accessKey?: string; timeout?: number} {
-    return this._config.remoteEvents
-  }
-  /** @undocumented */
-  set remoteEvents(remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}) {
-    this._config.remoteEvents = remoteEvents
-  }
-  /** @undocumented */
-  getRemoteEvents(): {serverUrl: string; accessKey?: string; timeout?: number} {
-    return this.remoteEvents
-  }
-  /** @undocumented */
-  setRemoteEvents(remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}): this {
-    this.remoteEvents = remoteEvents
-    return this
-  }
-
   get batch(): BatchInfo {
-    if (!this._config.batch) {
-      return {
-        id: utils.general.getEnvValue('BATCH_ID'),
-        name: utils.general.getEnvValue('BATCH_NAME'),
-        sequenceName: utils.general.getEnvValue('BATCH_SEQUENCE'),
-        notifyOnCompletion: utils.general.getEnvValue('BATCH_NOTIFY', 'boolean'),
-      }
-    }
-    return this._config.batch
+    return this._config.batch!
   }
   set batch(batch: BatchInfo) {
     this._config.batch = batch
@@ -483,7 +406,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get properties(): PropertyData[] {
-    return this._config.properties
+    return this._config.properties!
   }
   set properties(properties: PropertyData[]) {
     utils.guard.isArray(properties, {name: 'properties'})
@@ -499,7 +422,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   addProperty(name: string, value: string): this
   addProperty(prop: PropertyData): this
   addProperty(propOrName: PropertyData | string, value?: string): this {
-    const property = utils.types.isString(propOrName) ? {name: propOrName, value} : propOrName
+    const property = utils.types.isString(propOrName) ? {name: propOrName, value: value!} : propOrName
     if (!this.properties) this.properties = []
     this.properties.push(property)
     return this
@@ -510,7 +433,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get baselineEnvName(): string {
-    return this._config.baselineEnvName
+    return this._config.baselineEnvName!
   }
   set baselineEnvName(baselineEnvName: string) {
     utils.guard.isString(baselineEnvName, {name: 'baselineEnvName', strict: false})
@@ -525,7 +448,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get environmentName(): string {
-    return this._config.environmentName
+    return this._config.environmentName!
   }
   set environmentName(environmentName: string) {
     utils.guard.isString(environmentName, {name: 'environmentName', strict: false})
@@ -540,14 +463,14 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get branchName(): string {
-    return this._config.branchName ?? utils.general.getEnvValue('BRANCH')
+    return this._config.branchName!
   }
   set branchName(branchName: string) {
     utils.guard.isString(branchName, {name: 'branchName'})
     this._config.branchName = branchName
   }
   getBranchName(): string {
-    return this.branchName
+    return this.branchName ?? utils.general.getEnvValue('BRANCH')
   }
   setBranchName(branchName: string): this {
     this.branchName = branchName
@@ -555,14 +478,14 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get parentBranchName(): string {
-    return this._config.parentBranchName ?? utils.general.getEnvValue('PARENT_BRANCH')
+    return this._config.parentBranchName!
   }
   set parentBranchName(parentBranchName: string) {
     utils.guard.isString(parentBranchName, {name: 'parentBranchName'})
     this._config.parentBranchName = parentBranchName
   }
   getParentBranchName(): string {
-    return this.parentBranchName
+    return this.parentBranchName ?? utils.general.getEnvValue('PARENT_BRANCH')
   }
   setParentBranchName(parentBranchName: string): this {
     this.parentBranchName = parentBranchName
@@ -570,14 +493,14 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get baselineBranchName(): string {
-    return this._config.baselineBranchName ?? utils.general.getEnvValue('BASELINE_BRANCH_NAME')
+    return this._config.baselineBranchName!
   }
   set baselineBranchName(baselineBranchName: string) {
     utils.guard.isString(baselineBranchName, {name: 'baselineBranchName'})
     this._config.baselineBranchName = baselineBranchName
   }
   getBaselineBranchName(): string {
-    return this.baselineBranchName
+    return this.baselineBranchName ?? utils.general.getEnvValue('BASELINE_BRANCH_NAME')
   }
   setBaselineBranchName(baselineBranchName: string): this {
     this.baselineBranchName = baselineBranchName
@@ -585,7 +508,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get compareWithParentBranch(): boolean {
-    return this._config.compareWithParentBranch
+    return this._config.compareWithParentBranch!
   }
   set compareWithParentBranch(compareWithParentBranch: boolean) {
     utils.guard.isBoolean(compareWithParentBranch, {name: 'compareWithParentBranch'})
@@ -600,7 +523,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get ignoreGitMergeBase(): boolean {
-    return this._config.ignoreGitMergeBase
+    return this._config.ignoreGitMergeBase!
   }
   set ignoreGitMergeBase(ignoreGitMergeBase: boolean) {
     utils.guard.isBoolean(ignoreGitMergeBase, {name: 'ignoreGitMergeBase'})
@@ -615,7 +538,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get ignoreBaseline(): boolean {
-    return this._config.ignoreBaseline
+    return this._config.ignoreBaseline!
   }
   set ignoreBaseline(ignoreBaseline: boolean) {
     utils.guard.isBoolean(ignoreBaseline, {name: 'ignoreBaseline'})
@@ -630,7 +553,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get saveFailedTests(): boolean {
-    return this._config.saveFailedTests
+    return this._config.saveFailedTests!
   }
   set saveFailedTests(saveFailedTests: boolean) {
     utils.guard.isBoolean(saveFailedTests, {name: 'saveFailedTests'})
@@ -645,7 +568,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get saveNewTests(): boolean {
-    return this._config.saveNewTests
+    return this._config.saveNewTests!
   }
   set saveNewTests(saveNewTests: boolean) {
     utils.guard.isBoolean(saveNewTests, {name: 'saveNewTests'})
@@ -660,7 +583,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get saveDiffs(): boolean {
-    return this._config.saveDiffs
+    return this._config.saveDiffs!
   }
   set saveDiffs(saveDiffs: boolean) {
     utils.guard.isBoolean(saveDiffs, {name: 'saveDiffs'})
@@ -675,7 +598,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get sendDom(): boolean {
-    return this._config.sendDom
+    return this._config.sendDom!
   }
   set sendDom(sendDom: boolean) {
     utils.guard.isBoolean(sendDom, {name: 'sendDom'})
@@ -690,7 +613,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get hostApp(): string {
-    return this._config.hostApp
+    return this._config.hostApp!
   }
   set hostApp(hostApp: string) {
     this._config.hostApp = hostApp ? hostApp.trim() : undefined
@@ -704,7 +627,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get hostOS(): string {
-    return this._config.hostOS
+    return this._config.hostOS!
   }
   set hostOS(hostOS: string) {
     this._config.hostOS = hostOS ? hostOS.trim() : undefined
@@ -718,7 +641,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get hostAppInfo(): string {
-    return this._config.hostAppInfo
+    return this._config.hostAppInfo!
   }
   set hostAppInfo(hostAppInfo: string) {
     this._config.hostAppInfo = hostAppInfo ? hostAppInfo.trim() : undefined
@@ -732,7 +655,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get hostOSInfo(): string {
-    return this._config.hostOSInfo
+    return this._config.hostOSInfo!
   }
   set hostOSInfo(hostOSInfo: string) {
     this._config.hostOSInfo = hostOSInfo ? hostOSInfo.trim() : undefined
@@ -746,13 +669,13 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get deviceInfo(): string {
-    return this._config.deviceInfo
+    return this._config.deviceInfo!
   }
   set deviceInfo(deviceInfo: string) {
     this._config.deviceInfo = deviceInfo ? deviceInfo.trim() : undefined
   }
   getDeviceInfo(): string {
-    return this._config.deviceInfo
+    return this.deviceInfo
   }
   setDeviceInfo(deviceInfo: string): this {
     this.deviceInfo = deviceInfo
@@ -760,7 +683,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get defaultMatchSettings(): ImageMatchSettings {
-    return this._config.defaultMatchSettings
+    return this._config.defaultMatchSettings!
   }
   set defaultMatchSettings(defaultMatchSettings: ImageMatchSettings) {
     utils.guard.notNull(defaultMatchSettings, {name: 'defaultMatchSettings'})
@@ -782,7 +705,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   getAccessibilityValidation(): AccessibilitySettings {
-    return this.defaultMatchSettings?.accessibilitySettings
+    return (this.defaultMatchSettings as NonNullable<typeof this.defaultMatchSettings>).accessibilitySettings!
   }
   setAccessibilityValidation(accessibilityValidation: AccessibilitySettings): this {
     if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
@@ -790,7 +713,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   getUseDom(): boolean {
-    return this.defaultMatchSettings?.useDom
+    return (this.defaultMatchSettings as NonNullable<typeof this.defaultMatchSettings>).useDom!
   }
   setUseDom(useDom: boolean): this {
     if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
@@ -798,7 +721,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   getEnablePatterns(): boolean {
-    return this.defaultMatchSettings?.enablePatterns
+    return (this.defaultMatchSettings as NonNullable<typeof this.defaultMatchSettings>).enablePatterns!
   }
   setEnablePatterns(enablePatterns: boolean): this {
     if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
@@ -806,7 +729,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   getIgnoreDisplacements(): boolean {
-    return this.defaultMatchSettings?.ignoreDisplacements
+    return (this.defaultMatchSettings as NonNullable<typeof this.defaultMatchSettings>).ignoreDisplacements!
   }
   setIgnoreDisplacements(ignoreDisplacements: boolean): this {
     if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
@@ -814,7 +737,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   getIgnoreCaret(): boolean {
-    return this.defaultMatchSettings?.ignoreCaret
+    return (this.defaultMatchSettings as NonNullable<typeof this.defaultMatchSettings>).ignoreCaret!
   }
   setIgnoreCaret(ignoreCaret: boolean): this {
     if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
@@ -823,7 +746,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get forceFullPageScreenshot(): boolean {
-    return this._config.forceFullPageScreenshot
+    return this._config.forceFullPageScreenshot!
   }
   set forceFullPageScreenshot(forceFullPageScreenshot: boolean) {
     this._config.forceFullPageScreenshot = forceFullPageScreenshot
@@ -837,7 +760,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get waitBeforeScreenshots(): number {
-    return this._config.waitBeforeScreenshots
+    return this._config.waitBeforeScreenshots!
   }
   set waitBeforeScreenshots(waitBeforeScreenshots: number) {
     utils.guard.isInteger(waitBeforeScreenshots, {name: 'waitBeforeScreenshots', gt: 0})
@@ -852,7 +775,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get waitBeforeCapture(): number {
-    return this._config.waitBeforeCapture
+    return this._config.waitBeforeCapture!
   }
 
   set waitBeforeCapture(waitBeforeCapture: number) {
@@ -870,7 +793,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get stitchMode(): StitchMode {
-    return this._config.stitchMode
+    return this._config.stitchMode!
   }
   set stitchMode(stitchMode: StitchMode) {
     utils.guard.isEnumValue(stitchMode, StitchModeEnum, {name: 'stitchMode'})
@@ -885,7 +808,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get hideScrollbars(): boolean {
-    return this._config.hideScrollbars
+    return this._config.hideScrollbars!
   }
   set hideScrollbars(hideScrollbars: boolean) {
     this._config.hideScrollbars = hideScrollbars
@@ -899,7 +822,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get hideCaret(): boolean {
-    return this._config.hideCaret
+    return this._config.hideCaret!
   }
   set hideCaret(hideCaret: boolean) {
     this._config.hideCaret = hideCaret
@@ -913,7 +836,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get stitchOverlap(): number {
-    return this._config.stitchOverlap
+    return this._config.stitchOverlap!
   }
   set stitchOverlap(stitchOverlap: number) {
     utils.guard.isInteger(stitchOverlap, {name: 'stitchOverlap', strict: false})
@@ -927,33 +850,33 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
-  get scrollRootElement(): TElement | types.Selector<TSelector> {
-    return this._config.scrollRootElement
+  get scrollRootElement(): TSpec['element'] | EyesSelector<TSpec['selector']> {
+    return this._config.scrollRootElement!
   }
-  set scrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>) {
-    utils.guard.custom(scrollRootElement, value => this._spec.isElement(value) || this._isSelector(value), {
+  set scrollRootElement(scrollRootElement: TSpec['element'] | EyesSelector<TSpec['selector']>) {
+    utils.guard.custom(scrollRootElement, value => this._isElementReference(value), {
       name: 'scrollRootElement',
       message: 'must be element or selector',
       strict: false,
     })
     this._config.scrollRootElement = scrollRootElement
   }
-  getScrollRootElement(): TElement | types.Selector<TSelector> {
+  getScrollRootElement(): TSpec['element'] | EyesSelector<TSpec['selector']> {
     return this.scrollRootElement
   }
-  setScrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>): this {
+  setScrollRootElement(scrollRootElement: TSpec['element'] | EyesSelector<TSpec['selector']>): this {
     this.scrollRootElement = scrollRootElement
     return this
   }
 
   get cut(): CutProvider {
-    return this._config.cut
+    return this._config.cut!
   }
   set cut(cut: CutProvider) {
     this._config.cut = cut
   }
   getCut(): CutProvider {
-    return this._config.cut
+    return this._config.cut!
   }
   setCut(cut: CutProvider): this {
     this.cut = cut
@@ -961,7 +884,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get rotation(): ImageRotation {
-    return this._config.rotation
+    return this._config.rotation!
   }
   set rotation(rotation: ImageRotation) {
     this._config.rotation = rotation
@@ -975,7 +898,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get scaleRatio(): number {
-    return this._config.scaleRatio
+    return this._config.scaleRatio!
   }
   set scaleRatio(scaleRatio: number) {
     utils.guard.isNumber(scaleRatio, {name: 'scaleRatio', strict: false})
@@ -991,7 +914,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   /** @undocumented */
   get concurrentSessions(): number {
-    return this._config.concurrentSessions
+    return this._config.concurrentSessions!
   }
   /** @undocumented */
   set concurrentSessions(concurrentSessions: number) {
@@ -1008,7 +931,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get browsersInfo(): (DesktopBrowserInfo | ChromeEmulationInfo | IOSDeviceInfo | AndroidDeviceInfo)[] {
-    return this._config.browsersInfo
+    return this._config.browsersInfo!
   }
   set browsersInfo(browsersInfo: (DesktopBrowserInfo | ChromeEmulationInfo | IOSDeviceInfo | AndroidDeviceInfo)[]) {
     utils.guard.isArray(browsersInfo, {name: 'browsersInfo'})
@@ -1039,7 +962,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   addBrowser(width: number, height: number, name?: BrowserType): this
   addBrowser(browserInfoOrWidth: RenderInfo | number, height?: number, name: BrowserType = BrowserTypeEnum.CHROME) {
     if (utils.types.isObject(browserInfoOrWidth)) return this.addBrowsers(browserInfoOrWidth)
-    else return this.addBrowsers({width: browserInfoOrWidth, height, name})
+    else return this.addBrowsers({width: browserInfoOrWidth, height: height!, name})
   }
   addDeviceEmulation(deviceName: DeviceName, screenOrientation: ScreenOrientation = ScreenOrientationEnum.PORTRAIT) {
     if (!this.browsersInfo) this.browsersInfo = []
@@ -1076,7 +999,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get visualGridOptions(): {[key: string]: any} {
-    return this._config.visualGridOptions
+    return this._config.visualGridOptions!
   }
   set visualGridOptions(visualGridOptions: {[key: string]: any}) {
     this._config.visualGridOptions = visualGridOptions
@@ -1094,10 +1017,10 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
-  get layoutBreakpoints(): boolean | number[] {
-    return this._config.layoutBreakpoints
+  get layoutBreakpoints(): boolean | number[] | {breakpoints: number[] | boolean; reload?: boolean} {
+    return this._config.layoutBreakpoints!
   }
-  set layoutBreakpoints(layoutBreakpoints: boolean | number[]) {
+  set layoutBreakpoints(layoutBreakpoints: boolean | number[] | {breakpoints: number[] | boolean; reload?: boolean}) {
     utils.guard.notNull(layoutBreakpoints, {name: 'layoutBreakpoints'})
     if (utils.types.isArray(layoutBreakpoints)) {
       this._config.layoutBreakpoints = layoutBreakpoints.length > 0 ? layoutBreakpoints : false
@@ -1105,16 +1028,18 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
       this._config.layoutBreakpoints = layoutBreakpoints
     }
   }
-  getLayoutBreakpoints(): boolean | number[] {
+  getLayoutBreakpoints(): boolean | number[] | {breakpoints: number[] | boolean; reload?: boolean} {
     return this.layoutBreakpoints
   }
-  setLayoutBreakpoints(layoutBreakpoints: boolean | number[]): this {
+  setLayoutBreakpoints(
+    layoutBreakpoints: boolean | number[] | {breakpoints: number[] | boolean; reload?: boolean},
+  ): this {
     this.layoutBreakpoints = layoutBreakpoints
     return this
   }
 
   get disableBrowserFetching(): boolean {
-    return this._config.disableBrowserFetching
+    return this._config.disableBrowserFetching!
   }
   set disableBrowserFetching(disableBrowserFetching: boolean) {
     this._config.disableBrowserFetching = disableBrowserFetching
@@ -1129,7 +1054,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   /** @undocumented */
   get dontCloseBatches(): boolean {
-    return this._config.dontCloseBatches ?? utils.general.getEnvValue('DONT_CLOSE_BATCHES', 'boolean')
+    return this._config.dontCloseBatches!
   }
   /** @undocumented */
   set dontCloseBatches(dontCloseBatches: boolean) {
@@ -1137,7 +1062,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
   /** @undocumented */
   getDontCloseBatches(): boolean {
-    return this.dontCloseBatches
+    return this.dontCloseBatches ?? utils.general.getEnvValue('DONT_CLOSE_BATCHES', 'boolean')
   }
   /** @undocumented */
   setDontCloseBatches(dontCloseBatches: boolean): this {
@@ -1146,13 +1071,103 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   /** @internal */
-  toObject(): Configuration<TElement, TSelector> {
+  toObject(): Configuration<TSpec> {
     return this._config
   }
 
   /** @internal */
-  toJSON(): Configuration<TElement, TSelector> {
-    return utils.general.toJSON(this._config)
+  toJSON(): Core.Config<TSpec, 'classic'> & Core.Config<TSpec, 'ufg'> {
+    return utils.general.toJSON({
+      open: utils.general.removeUndefinedProps({
+        serverUrl: this.serverUrl,
+        apiKey: this.apiKey,
+        agentId: this.agentId,
+        proxy: this.proxy,
+        connectionTimeout: this.connectionTimeout,
+        removeSession: this.removeSession,
+        appName: this.appName,
+        testName: this.testName,
+        displayName: this.displayName,
+        sessionType: this.sessionType,
+        properties: this.properties,
+        batch: this.batch,
+        baselineEnvName: this.baselineEnvName,
+        environmentName: this.environmentName,
+        environment: utils.general.removeUndefinedProps({
+          hostingApp: this.hostApp,
+          hostingAppInfo: this.hostAppInfo,
+          os: this.hostOS,
+          osInfo: this.hostOSInfo,
+          deviceName: this.deviceInfo,
+          viewportSize: this.viewportSize,
+        }),
+        branchName: this.branchName,
+        parentBranchName: this.parentBranchName,
+        baselineBranchName: this.baselineBranchName,
+        compareWithParentBranch: this.compareWithParentBranch,
+        ignoreBaseline: this.ignoreBaseline,
+        ignoreGitBranching: this.ignoreGitMergeBase,
+        saveDiffs: this.saveDiffs,
+        keepBatchOpen: this.dontCloseBatches,
+      }),
+      screenshot: utils.general.removeUndefinedProps({
+        fully: this.forceFullPageScreenshot,
+        scrollRootElement: this.scrollRootElement,
+        stitchMode: this.stitchMode,
+        hideScrollbars: this.hideScrollbars,
+        hideCaret: this.hideCaret,
+        overlap: !utils.types.isNull(this.stitchOverlap) ? {bottom: this.stitchOverlap} : undefined,
+        waitBetweenStitches: this.waitBeforeScreenshots,
+        waitBeforeCapture: this.waitBeforeCapture,
+        normalization: utils.general.removeUndefinedProps({
+          cut: this.cut,
+          rotation: this.rotation,
+          scaleRatio: this.scaleRatio,
+        }),
+        debugImages:
+          this.debugScreenshots?.save && utils.types.has(this.debugScreenshots, 'path')
+            ? this.debugScreenshots
+            : (undefined as any),
+      }),
+      check: utils.general.removeUndefinedProps({
+        renderers: this.browsersInfo?.map(browserInfo => {
+          if (utils.types.has(browserInfo, 'iosDeviceInfo')) {
+            const {iosVersion, ...iosDeviceInfo} = browserInfo.iosDeviceInfo
+            return {iosDeviceInfo: {...iosDeviceInfo, version: iosVersion}}
+          }
+          return browserInfo
+        }),
+        ufgOptions: this.visualGridOptions,
+        layoutBreakpoints: utils.types.isDefined(this.layoutBreakpoints)
+          ? utils.types.has(this.layoutBreakpoints, 'breakpoints')
+            ? this.layoutBreakpoints
+            : {breakpoints: this.layoutBreakpoints ?? false}
+          : undefined,
+        disableBrowserFetching: this.disableBrowserFetching,
+        autProxy: this.autProxy,
+        sendDom: this.sendDom,
+        retryTimeout: this.matchTimeout,
+        matchLevel: this.defaultMatchSettings?.matchLevel,
+        ignoreCaret: this.defaultMatchSettings?.ignoreCaret,
+        ignoreDisplacements: this.defaultMatchSettings?.ignoreDisplacements,
+        enablePatterns: this.defaultMatchSettings?.enablePatterns,
+        accessibilitySettings: this.defaultMatchSettings?.accessibilitySettings && {
+          level: this.defaultMatchSettings.accessibilitySettings.level,
+          version: this.defaultMatchSettings.accessibilitySettings.guidelinesVersion,
+        },
+        useDom: this.defaultMatchSettings?.useDom,
+        ignoreRegions: this.defaultMatchSettings?.ignoreRegions,
+        contentRegions: this.defaultMatchSettings?.contentRegions,
+        layoutRegions: this.defaultMatchSettings?.layoutRegions,
+        strictRegions: this.defaultMatchSettings?.strictRegions,
+        floatingRegions: this.defaultMatchSettings?.floatingRegions,
+        accessibilityRegions: this.defaultMatchSettings?.accessibilityRegions,
+      }),
+      close: utils.general.removeUndefinedProps({
+        updateBaselineIfDifferent: this.saveFailedTests,
+        updateBaselineIfNew: this.saveNewTests,
+      }),
+    })
   }
 
   /** @internal */

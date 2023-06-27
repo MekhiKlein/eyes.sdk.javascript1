@@ -1,15 +1,7 @@
+import type {Handler, RollingFileHandler} from './types'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
-import {type Handler} from './handler'
-
-export type RollingFileHandler = {
-  type: 'rolling file'
-  dirname?: string
-  name?: string
-  maxFileLength?: number
-  maxFileNumber?: number
-}
 
 export function makeRollingFileHandler({
   dirname = process.env.APPLITOOLS_LOG_DIR ?? os.tmpdir(),
@@ -17,7 +9,7 @@ export function makeRollingFileHandler({
   maxFileLength = 52428800 /* 50 MB */,
   maxFileNumber = 4,
 }: Omit<RollingFileHandler, 'type'> = {}): Handler {
-  let writer: fs.WriteStream = null
+  let writer = null as fs.WriteStream | null
   let fileLength = 0
   const logFiles = findLogFiles({dirname, name})
 
@@ -46,7 +38,7 @@ export function makeRollingFileHandler({
     message += os.EOL
     const messageLength = Buffer.byteLength(message, 'utf8')
     if (fileLength + messageLength > maxFileLength) close(), open()
-    writer.write(message)
+    writer!.write(message)
     fileLength += messageLength
   }
 }
@@ -65,6 +57,10 @@ function ensureDirectoryExistence(filename: string) {
   const dirname = path.dirname(filename)
   if (!fs.existsSync(dirname)) {
     ensureDirectoryExistence(dirname)
-    fs.mkdirSync(dirname)
+    try {
+      fs.mkdirSync(dirname)
+    } catch (err: any) {
+      if (!err.message.includes('file already exists')) throw err
+    }
   }
 }

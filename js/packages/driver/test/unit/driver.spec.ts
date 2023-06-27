@@ -6,7 +6,7 @@ import {Driver} from '../../src/index'
 const logger = makeLogger()
 
 describe('driver', () => {
-  let mock: spec.Driver, driver: Driver<spec.Driver, spec.Driver, spec.Element, spec.Selector>
+  let mock: spec.Driver, driver: Driver<any>
 
   before(async () => {
     mock = new MockDriver()
@@ -43,7 +43,6 @@ describe('driver', () => {
       },
     ])
     driver = new Driver({logger, spec, driver: mock})
-    await driver.init()
   })
 
   afterEach(async () => {
@@ -69,7 +68,7 @@ describe('driver', () => {
     const frameElement = await driver.element('frame0')
     await driver.switchToChildContext(frameElement)
     assert.strictEqual(driver.currentContext.path.length, 2)
-    assert.ok(await driver.currentContext.equals(frameElement))
+    assert.ok(await driver.currentContext.equals(frameElement!))
   })
 
   it('switchToMainContext()', async () => {
@@ -78,7 +77,7 @@ describe('driver', () => {
     await driver.switchToMainContext()
     assert.strictEqual(driver.currentContext, driver.mainContext)
     const currentContextDocument = await driver.element('html')
-    assert.ok(await mainContextDocument.equals(currentContextDocument))
+    assert.ok(await mainContextDocument?.equals(currentContextDocument))
   })
 
   it('switchToParentContext()', async () => {
@@ -91,16 +90,16 @@ describe('driver', () => {
     await driver.switchToParentContext()
     assert.strictEqual(driver.currentContext.path.length, 2)
     const parentContextDocument = await driver.element('html')
-    assert.ok(await parentContextDocument.equals(nestedContextDocument))
+    assert.ok(await parentContextDocument?.equals(nestedContextDocument))
 
     await driver.switchToParentContext()
     assert.strictEqual(driver.currentContext, driver.mainContext)
     const grandparentContextDocument = await driver.element('html')
-    assert.ok(await grandparentContextDocument.equals(mainContextDocument))
+    assert.ok(await grandparentContextDocument?.equals(mainContextDocument))
   })
 
   it('switchTo(context)', async () => {
-    const contextDocuments = []
+    const contextDocuments = [] as any[]
     contextDocuments.unshift(await driver.element('html'))
     for (const frameSelector of ['frame2', 'frame2-1', 'frame2-1-0']) {
       await driver.switchToChildContext(frameSelector)
@@ -117,12 +116,12 @@ describe('driver', () => {
 
     for (const contextDocument of contextDocuments) {
       const currentDocument = await driver.element('html')
-      assert.ok(await currentDocument.equals(contextDocument))
+      assert.ok(await currentDocument?.equals(contextDocument))
       await driver.switchToParentContext()
     }
   })
 
-  describe('refreshContexts()', () => {
+  describe('refresh()', () => {
     afterEach(async () => {
       await driver.switchToMainContext()
     })
@@ -156,9 +155,8 @@ describe('driver', () => {
     })
   })
 
-  describe('refreshContexts() when parentContext not implemented', () => {
+  describe('refresh() when parentContext not implemented', () => {
     before(() => {
-      // unable to deep clone driver object atm
       // @ts-ignore
       delete driver._spec.parentContext
     })
@@ -202,7 +200,7 @@ describe('driver', () => {
     frameElements.push(frameElement)
     await mock.switchToFrame(frameElement)
     assert.strictEqual(driver.mainContext, driver.currentContext)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -219,7 +217,7 @@ describe('driver', () => {
     frameElements.push(frameElement2)
     await mock.switchToFrame(frameElement2)
     assert.strictEqual(driver.mainContext, driver.currentContext)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -236,7 +234,7 @@ describe('driver', () => {
     frameElements.push(frameElement0)
     await mock.switchToFrame(frameElement0)
     assert.strictEqual(driver.mainContext, driver.currentContext)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -253,7 +251,7 @@ describe('driver', () => {
     frameElements.push(frameElement11)
     await mock.switchToFrame(frameElement11)
     assert.strictEqual(driver.mainContext, driver.currentContext)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -273,7 +271,7 @@ describe('driver', () => {
     frameElements.push(frameElement22)
     await mock.switchToFrame(frameElement22)
     assert.strictEqual(driver.currentContext.path.length, 3)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -293,7 +291,7 @@ describe('driver', () => {
     frameElements.push(frameElement22)
     await driver.switchToChildContext(frameElement22)
     assert.strictEqual(driver.currentContext.path.length, 3)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -313,7 +311,7 @@ describe('driver', () => {
     frameElements.push(frameElement22)
     await driver.switchToChildContext(frameElement22)
     assert.strictEqual(driver.currentContext.path.length, frameElements.length)
-    await driver.refreshContexts()
+    await driver.refresh()
     const contextPath = driver.currentContext.path
     assert.strictEqual(contextPath.length, frameElements.length)
     for (const frameIndex of frameElements.keys()) {
@@ -323,95 +321,120 @@ describe('driver', () => {
 })
 
 describe('driver native', () => {
-  let driver: Driver<any, any, any, any>
+  let driver: Driver<any>
 
   before(async () => {
     driver = new Driver({logger, spec, driver: new MockDriver({device: {isNative: true}})})
-    await driver.init()
   })
 
-  describe('from driver info', () => {
-    let driver: Driver<any, any, any, any>
-
-    before(async () => {
-      driver = new Driver({
-        logger,
-        spec,
-        driver: new MockDriver({
-          device: {isNative: true, name: 'MobilePhone'},
-          platform: {name: 'OS', version: 'V'},
-        }),
-      })
-      await driver.init()
+  it('from driver info', async () => {
+    const driver = new Driver({
+      logger,
+      spec,
+      driver: new MockDriver({
+        device: {isNative: true, name: 'MobilePhone'},
+        platform: {name: 'OS', version: 'V'},
+      }),
     })
 
-    it('returns device name', () => {
-      assert.strictEqual(driver.deviceName, 'MobilePhone')
-    })
-
-    it('returns platform name', () => {
-      assert.strictEqual(driver.platformName, 'OS')
-    })
-
-    it('returns platform version', () => {
-      assert.strictEqual(driver.platformVersion, 'V')
-    })
-
-    it('returns browser name', () => {
-      assert.strictEqual(driver.browserName, null)
-    })
-
-    it('returns browser version', () => {
-      assert.strictEqual(driver.browserVersion, null)
-    })
+    const environment = await driver.getEnvironment()
+    assert.strictEqual(environment.deviceName, 'MobilePhone')
+    assert.strictEqual(environment.platformName, 'OS')
+    assert.strictEqual(environment.platformVersion, 'V')
+    assert.strictEqual(environment.browserName, null)
+    assert.strictEqual(environment.browserVersion, null)
   })
 
-  describe('from no info', () => {
-    before(async () => {
-      driver = new Driver({
-        logger,
-        spec,
-        driver: new MockDriver({device: {isNative: true}}),
-      })
-      await driver.init()
+  it('from no info', async () => {
+    const driver = new Driver({
+      logger,
+      spec,
+      driver: new MockDriver({device: {isNative: true}}),
     })
 
-    it('returns device name', () => {
-      assert.strictEqual(driver.deviceName, undefined)
-    })
-
-    it('returns platform name', () => {
-      assert.strictEqual(driver.platformName, null)
-    })
-
-    it('returns platform version', () => {
-      assert.strictEqual(driver.platformVersion, null)
-    })
-
-    it('returns browser name', () => {
-      assert.strictEqual(driver.browserName, null)
-    })
-
-    it('returns browser version', () => {
-      assert.strictEqual(driver.browserVersion, null)
-    })
+    const environment = await driver.getEnvironment()
+    assert.strictEqual(environment.deviceName, undefined)
+    assert.strictEqual(environment.platformName, null)
+    assert.strictEqual(environment.platformVersion, null)
+    assert.strictEqual(environment.browserName, null)
+    assert.strictEqual(environment.browserVersion, null)
   })
 
   it('skip unnecessary method calls on native mode', async () => {
     const title = await driver.getTitle()
     const url = await driver.getUrl()
-    assert.strictEqual(title, null)
-    assert.strictEqual(url, null)
+    assert.strictEqual(title, undefined)
+    assert.strictEqual(url, undefined)
   })
 
   it('should return correct viewport size', async () => {
     assert.deepStrictEqual(await driver.getViewportSize(), {width: 1000, height: 1000})
   })
+
+  describe('with nml lib', () => {
+    let driver: Driver<any>, mock: MockDriver
+
+    beforeEach(async () => {
+      mock = new MockDriver({device: {isNative: true, name: 'MobilePhone'}})
+      driver = new Driver({logger, spec, driver: mock})
+    })
+
+    it('should extract broker url', async () => {
+      mock.mockElement('Applitools_View', {attrs: {text: '{"error":"","nextPath":"http://blah"}'}})
+      assert.deepStrictEqual(await driver.extractBrokerUrl(), 'http://blah')
+    })
+
+    it('should retry when extract broker url', async () => {
+      let count = 0
+      mock.mockElement('Applitools_View', {
+        attrs: {
+          get text() {
+            return ++count < 3 ? '{"error":"","nextPath":null}' : '{"error":"","nextPath":"http://blah"}'
+          },
+        },
+      })
+
+      assert.deepStrictEqual(await driver.extractBrokerUrl(), 'http://blah')
+    })
+
+    it('should cache nml element', async () => {
+      const element = mock.mockElement('Applitools_View', {
+        attrs: {
+          count: 0,
+          get text() {
+            return `{"error":"","nextPath":"http://blah${++this.count}"}`
+          },
+        },
+      })
+      assert.deepStrictEqual(await driver.extractBrokerUrl(), 'http://blah1')
+      mock.unmockElement(element)
+      assert.deepStrictEqual(await driver.extractBrokerUrl(), 'http://blah2')
+    })
+
+    it('should re-find nml element if text extraction failed', async () => {
+      const element = mock.mockElement('Applitools_View', {
+        attrs: {
+          used: false,
+          get text(): string {
+            if (this.used) {
+              this.used = false
+              throw new Error('It was already used')
+            }
+            this.used = false
+            return `{"error":"","nextPath":"http://blah"}`
+          },
+        },
+      })
+      assert.deepStrictEqual(await driver.extractBrokerUrl(), 'http://blah')
+      mock.unmockElement(element)
+      assert.deepStrictEqual(await driver.extractBrokerUrl(), 'http://blah')
+    })
+  })
 })
 
 describe('driver mobile', () => {
   it('from driver info', async () => {
-    const driver: Driver<any, any, any, any> = await new Driver({
+    const driver: Driver<any> = await new Driver({
       logger,
       spec,
       driver: new MockDriver({
@@ -420,53 +443,67 @@ describe('driver mobile', () => {
         platform: {name: 'OS', version: 'V'},
         browser: {name: 'Browser', version: '3'},
       }),
-    }).init()
+    })
 
-    const driverInfo = {
-      deviceName: driver.deviceName,
-      platformName: driver.platformName,
-      platformVersion: driver.platformVersion,
-      browserName: driver.browserName,
-      browserVersion: driver.browserVersion,
-    }
-
-    assert.deepStrictEqual(driverInfo, {
+    const environment = await driver.getEnvironment()
+    assert.deepStrictEqual(environment, {
       deviceName: 'MobilePhone',
       platformName: 'OS',
       platformVersion: 'V',
       browserName: 'Browser',
       browserVersion: '3',
+      isMobile: true,
+      isNative: false,
+      isWeb: true,
+      isEC: false,
+      isChrome: false,
+      isChromium: false,
+      isEdge: false,
+      isEdgeLegacy: false,
+      isIE: false,
+      isAndroid: false,
+      isIOS: false,
+      isMac: false,
+      isWindows: false,
     })
   })
 
   it('from ua info', async () => {
-    const driver: Driver<any, any, any, any> = await new Driver({
+    const driver: Driver<any> = await new Driver({
       logger,
       spec,
       driver: new MockDriver({
+        device: {isMobile: true, name: 'iPhone'},
         ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1',
       }),
-    }).init()
+    })
 
-    const driverInfo = {
-      deviceName: driver.deviceName,
-      platformName: driver.platformName,
-      platformVersion: driver.platformVersion,
-      browserName: driver.browserName,
-      browserVersion: driver.browserVersion,
-    }
-
-    assert.deepStrictEqual(driverInfo, {
-      deviceName: null,
+    const environment = await driver.getEnvironment()
+    assert.deepStrictEqual(environment, {
       platformName: 'iOS',
-      platformVersion: '12',
+      platformVersion: '12.3',
       browserName: 'Safari',
-      browserVersion: '12',
+      browserVersion: '12.1',
+      deviceName: 'iPhone',
+      isAndroid: false,
+      isChrome: false,
+      isChromium: false,
+      isEC: false,
+      isEdge: false,
+      isEdgeLegacy: false,
+      isIE: false,
+      isIOS: true,
+      isMac: false,
+      isMobile: true,
+      isNative: false,
+      isWeb: true,
+      isWindows: false,
+      isReliable: false,
     })
   })
 
   it('from driver info and ua info', async () => {
-    const driver: Driver<any, any, any, any> = await new Driver({
+    const driver: Driver<any> = await new Driver({
       logger,
       spec,
       driver: new MockDriver({
@@ -475,27 +512,34 @@ describe('driver mobile', () => {
         platform: {name: 'CorrectOS', version: 'X'},
         browser: {name: 'WrongBrowser', version: '0'},
       }),
-    }).init()
+    })
 
-    const driverInfo = {
-      deviceName: driver.deviceName,
-      platformName: driver.platformName,
-      platformVersion: driver.platformVersion,
-      browserName: driver.browserName,
-      browserVersion: driver.browserVersion,
-    }
-
-    assert.deepStrictEqual(driverInfo, {
+    const environment = await driver.getEnvironment()
+    assert.deepStrictEqual(environment, {
       deviceName: 'MobilePhone',
       platformName: 'CorrectOS',
       platformVersion: 'X',
       browserName: 'Safari',
-      browserVersion: '12',
+      browserVersion: '12.1',
+      isAndroid: false,
+      isChrome: false,
+      isChromium: false,
+      isEC: false,
+      isEdge: false,
+      isEdgeLegacy: false,
+      isIE: false,
+      isIOS: false,
+      isMac: false,
+      isMobile: true,
+      isNative: false,
+      isWeb: true,
+      isWindows: false,
+      isReliable: false,
     })
   })
 
   it('should work with lower case platformName: ios', async () => {
-    const driver: Driver<any, any, any, any> = await new Driver({
+    const driver: Driver<any> = await new Driver({
       logger,
       spec,
       driver: new MockDriver({
@@ -504,13 +548,14 @@ describe('driver mobile', () => {
         platform: {name: 'ios', version: '14.0'},
         browser: {name: 'safari', version: '0'},
       }),
-    }).init()
+    })
 
-    assert.equal(driver.isIOS, true)
+    const environment = await driver.getEnvironment()
+    assert.equal(environment.isIOS, true)
   })
 
   it('should work with lower case platformName: android', async () => {
-    const driver: Driver<any, any, any, any> = await new Driver({
+    const driver: Driver<any> = await new Driver({
       logger,
       spec,
       driver: new MockDriver({
@@ -519,8 +564,9 @@ describe('driver mobile', () => {
         platform: {name: 'android', version: '12.0'},
         browser: {name: 'chrome', version: '0'},
       }),
-    }).init()
+    })
 
-    assert.equal(driver.isAndroid, true)
+    const environment = await driver.getEnvironment()
+    assert.equal(environment.isAndroid, true)
   })
 })

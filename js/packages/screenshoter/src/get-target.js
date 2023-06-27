@@ -27,8 +27,9 @@ async function getTarget({window, context, region, fully, scrollingMode, logger}
       if (!element) throw new Error('Element not found!')
 
       const elementContext = element.context
+      const environment = await element.driver.getEnvironment()
 
-      if (element.driver.isNative) {
+      if (environment.isNative) {
         // if element is in a native context, then scroll it to the top, otherwise, it will be not possible to get all of its size
         const scrollingElement = await elementContext.getScrollingElement()
         if (scrollingElement && (await scrollingElement.contains(element))) {
@@ -37,26 +38,29 @@ async function getTarget({window, context, region, fully, scrollingMode, logger}
           await scrollingElement.scrollTo(utils.geometry.offsetNegative(elementLocation, scrollingLocation))
         }
       }
+      let returnRegion, scrollingElement
 
       if (fully) {
         const isScrollable = await element.isScrollable()
         // if element is scrollable, then take screenshot of the full element content, otherwise take screenshot of full element
-        const region = isScrollable ? null : await element.getRegion()
-        const scrollingElement = isScrollable ? element : await elementContext.getScrollingElement()
+        returnRegion = isScrollable ? null : await element.getRegion()
+        scrollingElement = isScrollable ? element : await elementContext.getScrollingElement()
         // css stitching could be applied only to root element of its context
         scrollingMode = scrollingMode === 'css' && !(await scrollingElement.isRoot()) ? 'mixed+' : scrollingMode
-        return {
-          context: elementContext,
-          region,
-          scroller: makeScroller({element: scrollingElement, scrollingMode, logger}),
-        }
       } else {
-        const scrollingElement = await context.getScrollingElement()
-        return {
-          context: elementContext,
-          region: await element.getRegion(),
-          scroller: makeScroller({element: scrollingElement, scrollingMode, logger}),
-        }
+        scrollingElement = await context.getScrollingElement()
+        returnRegion = await element.getRegion()
+      }
+      const scroller = makeScroller({element: scrollingElement, scrollingMode, logger})
+      if (returnRegion && !environment.isNative && !(await scrollingElement.isRoot())) {
+        const scrollerOffset = await scroller.getScrollOffset()
+        returnRegion = utils.geometry.offset(returnRegion, scrollerOffset)
+      }
+      return {
+        context: elementContext,
+        element,
+        region: returnRegion,
+        scroller,
       }
     }
   } else if (!context.isMain) {

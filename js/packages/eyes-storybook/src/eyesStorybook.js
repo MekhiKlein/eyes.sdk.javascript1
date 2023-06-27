@@ -1,7 +1,6 @@
 'use strict';
 const puppeteer = require('puppeteer');
 const getStories = require('../dist/getStories');
-const {makeVisualGridClient} = require('@applitools/visual-grid-client');
 const {presult, delay} = require('@applitools/functional-commons');
 const chalk = require('chalk');
 const makeInitPage = require('./initPage');
@@ -16,14 +15,16 @@ const memoryLog = require('./memoryLog');
 const getIframeUrl = require('./getIframeUrl');
 const createPagePool = require('./pagePool');
 const getClientAPI = require('../dist/getClientAPI');
-const {takeDomSnapshots} = require('@applitools/eyes-sdk-core');
+const {takeDomSnapshots} = require('@applitools/core');
+const {prepareTakeDomSnapshotsSettings} = require('./utils/prepare-settings');
 const {Driver} = require('@applitools/driver');
 const spec = require('@applitools/spec-driver-puppeteer');
 const {refineErrorMessage} = require('./errMessages');
-const {splitConfigsByBrowser} = require('./shouldRenderIE');
 const executeRenders = require('./executeRenders');
+const {makeCore} = require('@applitools/core');
+const {makeUFGClient} = require('@applitools/ufg-client');
+const makeGetStoriesWithConfig = require('./getStoriesWithConfig');
 
-const CONCURRENT_PAGES = 3;
 const MAX_RETRIES = 10;
 const RETRY_INTERVAL = 1000;
 
@@ -33,13 +34,20 @@ async function eyesStorybook({
   performance,
   timeItAsync,
   outputStream = process.stderr,
+  isVersion7,
 }) {
   let memoryTimeout;
   let renderIE = false;
   let transitioning = false;
   takeMemLoop();
   logger.log('eyesStorybook started');
-  const {storybookUrl, waitBeforeCapture, readStoriesTimeout, reloadPagePerStory} = config;
+
+  const CONCURRENT_TABS = isNaN(Number(process.env.APPLITOOLS_CONCURRENT_TABS))
+    ? 3
+    : Number(process.env.APPLITOOLS_CONCURRENT_TABS);
+  logger.log(`Running with ${CONCURRENT_TABS} concurrent tabs`);
+
+  const {storybookUrl, readStoriesTimeout, reloadPagePerStory, proxy, testConcurrency} = config;
 
   let iframeUrl;
   try {
@@ -48,24 +56,48 @@ async function eyesStorybook({
     logger.log(ex);
     throw new Error(`Storybook URL is not valid: ${storybookUrl}`);
   }
-
+  const agentId = `eyes-storybook/${require('../package.json').version}`;
   const browser = await puppeteer.launch(config.puppeteerOptions);
   logger.log('browser launched');
   const page = await browser.newPage();
-  const userAgent = await page.evaluate('navigator.userAgent');
+  // we send http headers here and in init page
+  if (config.puppeteerExtraHTTPHeaders) {
+    await page.setExtraHTTPHeaders(config.puppeteerExtraHTTPHeaders);
+  }
+  const core = await makeCore({spec, agentId, logger});
+  const manager = await core.makeManager({
+    type: 'ufg',
+    settings: {
+      concurrency: testConcurrency,
+    },
+    logger,
+  });
 
-  const {
-    testWindow,
-    closeBatch,
-    globalState,
-    getIosDevicesSizes,
-    getEmulatedDevicesSizes,
-    getResourceUrlsInCache,
-    getSetRenderInfo,
-  } = makeVisualGridClient({
-    userAgent,
-    ...config,
-    logger: logger.extend({label: 'vgc'}),
+  const settings = {
+    proxy: config.proxy,
+    serverUrl: config.serverUrl,
+    apiKey: config.apiKey,
+    agentId,
+  };
+  const [error, account] = await presult(core.getAccountInfo({settings, logger}));
+
+  const getStoriesWithConfig = makeGetStoriesWithConfig({config});
+
+  if (error && error.message && error.message.includes('Unauthorized(401)')) {
+    const failMsg = 'Incorrect API Key';
+    logger.log(failMsg);
+    await browser.close();
+    clearTimeout(memoryTimeout);
+    throw new Error(failMsg);
+  }
+  const client = await makeUFGClient({
+    config: {
+      ...account.ufgServer,
+      ...account,
+      proxy,
+      concurrency: testConcurrency,
+    },
+    logger,
   });
 
   const initPage = makeInitPage({
@@ -78,21 +110,33 @@ async function eyesStorybook({
   });
   const pagePool = createPagePool({initPage, logger});
 
-  const doTakeDomSnapshots = async ({page, browser, layoutBreakpoints, waitBeforeCapture}) => {
-    const driver = await new Driver({spec, driver: page, logger}).init();
-    const skipResources = getResourceUrlsInCache();
+  const doTakeDomSnapshots = async ({
+    page,
+    renderers,
+    layoutBreakpoints,
+    waitBeforeCapture,
+    disableBrowserFetching,
+  }) => {
+    const driver = await new Driver({spec, driver: page, logger});
+    const skipResources = client.getCachedResourceUrls();
     const result = await takeDomSnapshots({
       logger,
       driver,
-      breakpoints: layoutBreakpoints !== undefined ? layoutBreakpoints : config.layoutBreakpoints,
-      browsers: browser || [true], // this is a hack, since takeDomSnapshots expects an array. And VGC has a default in case browser is not specified. So we just need an array with length of 1 here.
-      skipResources,
-      showLogs: !!config.showLogs,
-      disableBrowserFetching: !!config.disableBrowserFetching,
-      getViewportSize: () => config.viewportSize,
-      getIosDevicesSizes,
-      getEmulatedDevicesSizes,
-      waitBeforeCapture,
+      settings: prepareTakeDomSnapshotsSettings({
+        config,
+        options: {
+          layoutBreakpoints,
+          renderers,
+          waitBeforeCapture,
+          skipResources,
+          disableBrowserFetching,
+        },
+      }),
+      provides: {
+        getChromeEmulationDevices: client.getChromeEmulationDevices,
+        getIOSDevices: client.getIOSDevices,
+      },
+      showLogs: config.showLogs,
     });
     return result;
   };
@@ -105,15 +149,21 @@ async function eyesStorybook({
     },
   });
   try {
-    await getSetRenderInfo();
-    const [stories] = await Promise.all(
-      [getStoriesWithSpinner()].concat(
-        new Array(CONCURRENT_PAGES).fill().map(async () => {
+    const stories = await getStoriesWithSpinner();
+
+    if (CONCURRENT_TABS <= 3) {
+      await Promise.all(
+        new Array(CONCURRENT_TABS).fill().map(async () => {
           const {pageId} = await pagePool.createPage();
           pagePool.addToPool(pageId);
         }),
-      ),
-    );
+      );
+    } else {
+      for (const _x of new Array(CONCURRENT_TABS).fill()) {
+        const {pageId} = await pagePool.createPage();
+        pagePool.addToPool(pageId);
+      }
+    }
 
     const filteredStories = filterStories({stories, config});
     const storiesIncludingVariations = addVariationStories({
@@ -121,20 +171,39 @@ async function eyesStorybook({
       config,
     });
 
-    logger.log(`starting to run ${storiesIncludingVariations.length} stories`);
+    logger.log(
+      `there are ${storiesIncludingVariations.length} stories after filtering and adding variations `,
+    );
+
+    const storiesByBrowserWithConfig = getStoriesWithConfig({
+      stories: storiesIncludingVariations,
+      logger,
+    });
+
+    logger.log(
+      `starting to run ${storiesByBrowserWithConfig.stories.length} normal stories ("non fake IE") and ${storiesByBrowserWithConfig.storiesWithIE.length} "fake IE stories"`,
+    );
 
     const getStoryData = makeGetStoryData({
       logger,
       takeDomSnapshots: doTakeDomSnapshots,
-      waitBeforeCapture,
     });
-
+    const closeSettings = {
+      ...settings,
+      updateBaselineIfNew: config.saveNewTests,
+      updateBaselineIfDifferent: config.saveFailedTests,
+    };
     const renderStory = makeRenderStory({
       logger: logger.extend({label: 'renderStory'}),
-      testWindow,
+      openEyes: manager.openEyes,
       performance,
       timeItAsync,
       reloadPagePerStory,
+      storyDataGap: config.storyDataGap,
+      concurrency: testConcurrency,
+      appName: config.appName,
+      closeSettings,
+      serverSettings: settings,
     });
 
     const renderStories = makeRenderStories({
@@ -144,31 +213,29 @@ async function eyesStorybook({
       storybookUrl,
       logger,
       stream: outputStream,
-      waitForQueuedRenders: globalState.waitForQueuedRenders,
-      storyDataGap: config.storyDataGap,
       pagePool,
+      isVersion7,
     });
 
     logger.log('finished creating functions');
 
-    const configs = config.fakeIE ? splitConfigsByBrowser(config) : [config];
     const [error, results] = await presult(
       executeRenders({
         renderStories,
         setRenderIE,
         setTransitioningIntoIE,
-        configs,
-        stories: storiesIncludingVariations,
+        storiesByBrowserWithConfig,
         pagePool,
         logger,
         timeItAsync,
       }),
     );
+    const [errorInGetResults, testResultsSummary] = await presult(
+      manager.getResults({throwErr: false}),
+    );
 
-    const [closeBatchErr] = await presult(closeBatch());
-
-    if (closeBatchErr) {
-      logger.log('failed to close batch', closeBatchErr);
+    if (errorInGetResults) {
+      logger.log('failed to get results', errorInGetResults);
     }
 
     if (error) {
@@ -176,7 +243,7 @@ async function eyesStorybook({
       logger.log(error);
       throw new Error(msg);
     } else {
-      return results;
+      return {summary: testResultsSummary, results};
     }
   } finally {
     logger.log('total time: ', performance['renderStories']);

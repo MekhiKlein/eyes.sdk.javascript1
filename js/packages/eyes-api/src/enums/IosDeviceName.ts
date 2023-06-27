@@ -1,4 +1,6 @@
 export enum IosDeviceNameEnum {
+  iPhone_14_Pro_Max = 'iPhone 14 Pro Max',
+  iPhone_14 = 'iPhone 14',
   iPhone_13_Pro_Max = 'iPhone 13 Pro Max',
   iPhone_13_Pro = 'iPhone 13 Pro',
   iPhone_13 = 'iPhone 13',
@@ -17,6 +19,7 @@ export enum IosDeviceNameEnum {
   iPhone_7 = 'iPhone 7',
   iPhone_SE = 'iPhone SE (1st generation)',
   iPad_Pro_3 = 'iPad Pro (12.9-inch) (3rd generation)',
+  iPad_Pro_4 = 'iPad Pro (11-inch) (4th generation)',
   iPad_7 = 'iPad (7th generation)',
   iPad_9 = 'iPad (9th generation)',
   iPad_Air_2 = 'iPad Air (2nd generation)',

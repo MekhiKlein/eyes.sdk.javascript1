@@ -1,42 +1,43 @@
-import {makeSDK} from '@applitools/eyes-sdk-core'
-import * as api from '@applitools/eyes-api'
+import type {SpecType as BaseSpecType} from '@applitools/driver'
+import type {SpecDriver} from '@applitools/driver'
+import * as eyes from '@applitools/eyes'
 import * as spec from './spec-driver'
-import type {Driver, Element, Selector} from './spec-driver'
 
-const sdk = makeSDK({
-  name: 'eyes.nightwatch',
-  version: require('../package.json').version,
-  spec,
-  VisualGridClient: require('@applitools/visual-grid-client'),
-})
+export * from '@applitools/eyes'
 
-export * from '@applitools/eyes-api'
+export type Driver = spec.NWDriver
+export type Element = spec.NWElement | spec.NWResponseElement
+export type Selector = spec.NWSelector
+export type SpecType = BaseSpecType<Driver, Driver, Element, Selector>
 
-export {Driver, Element, Selector}
+const sdk = {agentId: `eyes.nightwatch/${require('../package.json').version}`, spec}
 
-export class Eyes extends api.Eyes<Driver, Element, Selector> {
-  protected static readonly _spec = sdk
-  static setViewportSize: (driver: Driver, viewportSize: api.RectangleSize) => Promise<void>
+export class Eyes extends eyes.Eyes<SpecType> {
+  protected static readonly _sdk = sdk
+  static setViewportSize: (driver: Driver, viewportSize: eyes.RectangleSize) => Promise<void>
 }
 
-export type ConfigurationPlain = api.ConfigurationPlain<Element, Selector>
+export type CheckSettingsAutomationPlain = eyes.CheckSettingsAutomationPlain<SpecType>
+export class CheckSettingsAutomation extends eyes.CheckSettingsAutomation<SpecType> {
+  protected static readonly _spec = spec
+}
+export class CheckSettings extends CheckSettingsAutomation {}
 
-export class Configuration extends api.Configuration<Element, Selector> {
-  protected static readonly _spec = sdk
+export type TargetAutomation = eyes.TargetAutomation<SpecType>
+export const TargetAutomation = {
+  ...eyes.TargetAutomation,
+  spec: spec as unknown as SpecDriver<SpecType>,
+} as TargetAutomation
+export const Target = {...eyes.Target, spec: spec as unknown as SpecDriver<SpecType>} as eyes.Target<SpecType>
+
+export type OCRRegion = eyes.OCRRegion<SpecType>
+
+export type ConfigurationPlain = eyes.ConfigurationPlain<SpecType>
+export class Configuration extends eyes.Configuration<SpecType> {
+  protected static readonly _spec = spec
 }
 
-export type OCRRegion = api.OCRRegion<Element, Selector>
-
-export type CheckSettingsPlain = api.CheckSettingsPlain<Element, Selector>
-
-export class CheckSettings extends api.CheckSettings<Element, Selector> {
-  protected static readonly _spec = sdk
+export class BatchClose extends eyes.BatchClose {
+  protected static readonly _sdk = sdk
 }
-
-export const Target: api.Target<Element, Selector> = CheckSettings as any
-
-export const closeBatch = api.closeBatch(sdk)
-
-export class BatchClose extends api.BatchClose {
-  protected static readonly _spec = sdk
-}
+export const closeBatch = eyes.closeBatch(sdk)

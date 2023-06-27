@@ -2,7 +2,7 @@ const setupTests = require('./utils/core-e2e-utils')
 
 // This is for demo purposes, and was done as part of implementing support for UFG native in core
 // The reason it is skipped is because there are generic coverage tests covering the same scenario
-describe.skip('UFG native', () => {
+describe('UFG native', () => {
   describe('Android', () => {
     const env = {
       device: 'Pixel 3 XL duckduckgo',
@@ -25,15 +25,15 @@ describe.skip('UFG native', () => {
       }
       const eyes = await manager.openEyes({driver, config})
       await eyes.check()
-      await eyes.check()
       await eyes.close({throwErr: true})
     })
   })
 
   describe('iOS', () => {
     const env = {
-      device: 'iPhone 12 UFG native',
+      device: 'iPhone 12',
       app: 'https://applitools.jfrog.io/artifactory/Examples/DuckDuckGo-instrumented.app.zip',
+      injectUFGLib: true,
     }
     const {getDriver, getSDK} = setupTests({before, after, beforeEach, afterEach, env})
 
@@ -44,12 +44,11 @@ describe.skip('UFG native', () => {
         appName: 'core app',
         testName: 'native ufg ios',
         waitBeforeCapture: 1500,
-        browsersInfo: [{iosDeviceInfo: {deviceName: 'iPhone 12', iosVersion: 'latest'}}],
+        browsersInfo: [{iosDeviceInfo: {deviceName: 'iPhone 12', iosVersion: 'latest-1'}}],
         saveNewTests: false,
       }
       const manager = await sdk.makeManager({type: 'vg', concurrency: 5})
       const eyes = await manager.openEyes({driver, config})
-      await eyes.check()
       await eyes.check()
       await eyes.close({throwErr: true})
     })

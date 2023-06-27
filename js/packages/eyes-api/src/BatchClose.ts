@@ -1,63 +1,66 @@
+import type * as Core from '@applitools/core'
+import {initSDK, type SDK} from './SDK'
 import * as utils from '@applitools/utils'
 import {ProxySettings} from './input/ProxySettings'
 
 type BatchCloseOptions = {
   batchIds: string[]
-  serverUrl?: string
-  apiKey?: string
+  serverUrl: string
+  apiKey: string
   proxy?: ProxySettings
 }
 
-type BatchCloseSpec = {
-  closeBatches(options: {settings: BatchCloseOptions}): Promise<void>
-}
-
-export function closeBatch(spec: BatchCloseSpec): (options: BatchCloseOptions) => Promise<void> {
-  return (settings: BatchCloseOptions) => {
+export function closeBatch(sdk: SDK): (options: BatchCloseOptions) => Promise<void> {
+  return function closeBatch(settings: BatchCloseOptions) {
     utils.guard.notNull(settings.batchIds, {name: 'options.batchIds'})
-    return spec.closeBatches({settings})
+    const {core} = initSDK(sdk)
+    return core.closeBatch({settings: settings.batchIds.map(batchId => ({batchId, ...settings}))})
   }
 }
 
 export class BatchClose {
-  protected static readonly _spec: BatchCloseSpec
-  protected get _spec(): BatchCloseSpec {
-    return (this.constructor as typeof BatchClose)._spec
+  protected static readonly _sdk: SDK
+  protected get _sdk(): SDK {
+    return (this.constructor as typeof BatchClose)._sdk
   }
 
-  private _options: BatchCloseOptions = {batchIds: null}
+  private _core: Core.Core<Core.SpecType, 'classic' | 'ufg'>
+  private _settings = {} as BatchCloseOptions
 
   static async close(settings: BatchCloseOptions): Promise<void> {
     utils.guard.notNull(settings.batchIds, {name: 'options.batchIds'})
-    await this._spec.closeBatches({settings})
+    const {core} = initSDK(this._sdk)
+    await core.closeBatch({settings: settings.batchIds.map(batchId => ({batchId, ...settings}))})
   }
 
   constructor(options?: BatchCloseOptions) {
-    if (options) this._options = options
+    const {core} = initSDK(this._sdk)
+    this._core = core
+    if (options) this._settings = options
   }
 
   async close(): Promise<void> {
-    utils.guard.notNull(this._options.batchIds, {name: 'batchIds'})
-    await this._spec.closeBatches({settings: this._options})
+    utils.guard.notNull(this._settings.batchIds, {name: 'batchIds'})
+    await this._core.closeBatch({settings: this._settings.batchIds.map(batchId => ({batchId, ...this._settings}))})
   }
 
   setBatchIds(batchIds: string[]): this {
-    this._options.batchIds = batchIds
+    this._settings.batchIds = batchIds
     return this
   }
 
   setUrl(serverUrl: string): this {
-    this._options.serverUrl = serverUrl
+    this._settings.serverUrl = serverUrl
     return this
   }
 
   setApiKey(apiKey: string): this {
-    this._options.apiKey = apiKey
+    this._settings.apiKey = apiKey
     return this
   }
 
   setProxy(proxy: ProxySettings): this {
-    this._options.proxy = proxy
+    this._settings.proxy = proxy
     return this
   }
 }

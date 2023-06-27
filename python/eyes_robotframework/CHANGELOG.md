@@ -1,4 +1,37 @@
-[5.8.0] - 2022-07-26
+## [5.12.0] - 2023-05-24
+### Added
+- Get Execution Cloud URL  keyword [Trello 3228](https://trello.com/c/WJDMOddC)
+- Support of reloading the browser after resizing the page with Layout Breakpoints [Trello 99](https://trello.com/c/3KZDat3M)
+
+## [5.11.2] - 2023-05-11
+### Fixed
+- PropagateEyesTestResults model modifier failure in UFG test suites [Trello 3216](https://trello.com/c/EnWBl1se)
+
+## [5.11.1] - 2023-03-14
+### Fixed
+- IosVersion.LATEST is not a valid AndroidVersion error when native_mobile_grid is configured with Android device [Trello 3174](https://trello.com/c/O3c1xs0L)
+
+## [5.11.0] - 2022-12-21
+### Added
+- Configuration option dont_close_batches can now be set in yaml config [Trello 3103](https://trello.com/c/kxOBjjCs)
+
+## [5.10.0] - 2022-12-06
+### Added
+- `Create Batch Info` keyword now accepts optional notify_on_completion argument [Trello 3084](https://trello.com/c/YkjxDWWz)
+- notify_on_completion can be specified in batch section of config [Trello 3084](https://trello.com/c/YkjxDWWz)
+
+## [5.9.0] - 2022-10-06
+### Added
+- `Eyes Set NMG Capabilities` keyword to update existing capabilities with NMG params [GH-1124](/../../pull/1124)
+- `Eyes Create NMG Capabilities` keyword to create new capabilities with NMG params in it [GH-1124](/../../pull/1124)
+### Updated
+- Improved error handling [GH-1124](/../../pull/1124)
+
+## [5.8.1] - 2022-08-26
+### Fixed
+- Not possible to remove runner related sections from config [Trello 3016](https://trello.com/c/B0V3HPtF)
+
+## [5.8.0] - 2022-07-26
 ### Added
 - Coded region keywords now support optional padding and region_id arguments [Trello 2977](https://trello.com/c/lYJnhwCz)
 - Post-propagate of test results for test report [Trello 2898](https://trello.com/c/bVk3Q7vc)

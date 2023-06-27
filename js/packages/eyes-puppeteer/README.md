@@ -7,52 +7,56 @@
 </div>
 <br/>
 
-## Table of contents
+### Table of contents
 
 - [Installation](#installation)
 - [Applitools API key](#applitools-api-key)
 - [Usage](#usage)
 - [Getting started with the API](#getting-started-with-the-api)
-  * [Eyes constructor](#eyes-constructor)
-  * [open](#open)
-    + [Visual tests and baselines](#visual-tests-and-baselines)
-    + [Batches](#batches)
-  * [check](#check)
-    + [Arguments to `eyes.check`](#arguments-to-eyescheck)
-      - [`tag`](#tag)
-      - [`checkSettings`](#checksettings)
-        * [Page screenshot](#page-screenshot)
-        * [Region screenshot](#region-screenshot)
-        * [Switching into frames](#switching-into-frames)
-        * [Ignore Regions](#ignore-regions)
-        * [Floating Regions](#floating-regions)
-        * [Content/Strict/Layout Regions](#content-strict-layout-regions)
-        * [Accessiblity Regions](#accessiblity-regions)
-        * [Scroll root element](#scroll-root-element)
-        * [Other checkSettings configuration](#other-checksettings-configuration)
-  * [close](#close)
+  - [Eyes constructor](#eyes-constructor)
+  - [open](#open)
+    - [Visual tests and baselines](#visual-tests-and-baselines)
+    - [Batches](#batches)
+  - [check](#check)
+    - [`checkSettings`](#checksettings)
+      - [Page screenshot](#page-screenshot)
+      - [Region screenshot](#region-screenshot)
+      - [Working with frames](#working-with-frames)
+      - [Ignore Regions](#ignore-regions)
+      - [Floating Regions](#floating-regions)
+      - [Content/Strict/Layout Regions](#contentstrictlayout-regions)
+      - [Accessiblity Regions](#accessiblity-regions)
+      - [Scroll root element](#scroll-root-element)
+      - [Tag (`withName`)](#tag-withname)
+      - [Lazy loading (`lazyLoad`)](#lazy-loading-lazyload)
+      - [Density metrics](#density-metrics-densitymetrics)
+        - [Other checkSettings configuration](#other-checksettings-configuration)
+  - [close](#close)
 - [Runners](#runners)
-  * [Purpose of runners](#purpose-of-runners)
-    + [1. Use the Ultrafast grid](#1-use-the-ultra-fast-grid)
-    + [2. Manage tests across multiple `Eyes` instances](#2-manage-tests-across-multiple-eyes-instances)
+  - [Purpose of runners](#purpose-of-runners)
+    - [1. Use the Ultrafast grid](#1-use-the-ultrafast-grid)
+    - [2. Manage tests across multiple `Eyes` instances](#2-manage-tests-across-multiple-eyes-instances)
 - [Recipes for common tasks](#recipes-for-common-tasks)
-  * [Configure Server URL](#configure-server-url)
-  * [Configure Proxy](#configure-proxy)
-  * [Make every visual test correspond to a functional test](#make-every-visual-test-correspond-to-a-functional-test)
-  * [Organize tests in batches](#organize-tests-in-batches)
-    + [Method 1: environment variable](#method-1--environment-variable)
-    + [Method 2: `eyes.setBatch`](#method-2--eyessetbatch)
-  * [Stitch mode](#stitch-mode)
-    + [Background information](#background-information)
+  - [Configure Server URL](#configure-server-url)
+  - [Configure Proxy](#configure-proxy)
+  - [Make every visual test correspond to a functional test](#make-every-visual-test-correspond-to-a-functional-test)
+  - [Organize tests in batches](#organize-tests-in-batches)
+    - [Method 1: environment variable](#method-1-environment-variable)
+    - [Method 2: `eyes.setBatch`](#method-2-eyessetbatch)
+  - [Stitch mode](#stitch-mode)
+    - [Background information](#background-information)
       - [1. Stitch mode: Scroll](#1-stitch-mode-scroll)
       - [2. Stitch mode: CSS](#2-stitch-mode-css)
-  * [Stitch overlap](#stitch-overlap)
-  * [Match level](#match-level)
-  * [Ignore displacements](#ignore-displacements)
-  * [Test properties](#test-properties)
-  * [Test results](#test-results)
-  * [Logging](#logging)
-  * [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultra-fast-grid)
+  - [Stitch overlap](#stitch-overlap)
+  - [Match level](#match-level)
+  - [Ignore displacements](#ignore-displacements)
+  - [Test properties](#test-properties)
+  - [Test results](#test-results)
+  - [Logging](#logging)
+  - [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultrafast-grid)
+    - [Desktop browsers](#desktop-browsers)
+    - [Chrome device emulation](#chrome-device-emulation)
+    - [iOS device](#ios-device)
 
 
 ## Installation
@@ -382,6 +386,23 @@ Other details:
 - If an option is omitted, the sensible default for that value will be used
 - The SDK will repeatedly scroll the page using the `scrollLength` until either the page cannot be scrolled further or the `maxAmountToScroll` has been reached (whichever happens first)
 - If more time is needed for additional content to load, then increase the waitingTime to a value higher than 500 milliseconds. If better performance is desired and additional content lazily loads faster than the default waitingTime, then reduce it to a value below 500 milliseconds
+
+##### Density metrics (`densityMetrics`)
+
+In order to set the density metrics for the screenshot, use the `densityMetrics` method. This method accepts a object value with the following properties:
+
+- `xdpi` - The exact physical pixels per inch of the screen in the X dimension.
+- `ydpi` - The exact physical pixels per inch of the screen in the Y dimension.
+- `scaleRatio` - The scale ratio.
+
+```js
+// set density metrics
+eyes.check(Target.window().densityMetrics({
+  xdpi: 100,
+  ydpi: 100,
+  scaleRatio: 1
+}))
+```
 
 ###### Other checkSettings configuration
 
@@ -716,12 +737,27 @@ It's possible to provide additional information about each test in custom fields
 This is done by calling `setProperties` on the configuration, and providing it with an array of properties with the structure `{name, value}`. For example:
 
 ```js
-const {Eyes, Target} = require('@applitools/eyes-puppeteer')
+const {Eyes} = require('@applitools/eyes-puppeteer')
 
 const eyes = new Eyes()
 
 const configuration = eyes.getConfiguration()
 configuration.setProperties([{name: 'my custom property', value: 'some value'}])
+eyes.setConfiguration(configuration)
+```
+
+The test properties could also be specified per batch by calling `setProperties` on the batch info, and providing it with an array of properties with the structure `{name, value}`. For example:
+
+```js
+const {Eyes, BatchInfo} = require('@applitools/eyes-puppeteer')
+
+const eyes = new Eyes()
+
+const batch = new BatchInfo()
+batch.setProperties([{name: 'my custom batch property', value: 'some value'}])
+
+const configuration = eyes.getConfiguration()
+configuration.setBatch(batch)
 eyes.setConfiguration(configuration)
 ```
 

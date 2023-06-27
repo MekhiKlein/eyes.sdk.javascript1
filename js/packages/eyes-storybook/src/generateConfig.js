@@ -1,10 +1,10 @@
 'use strict';
 const pick = require('lodash.pick');
 const utils = require('@applitools/utils');
-const {GeneralUtils} = require('@applitools/eyes-sdk-core');
 const {resolve} = require('path');
-const {deprecationWarning} = GeneralUtils;
+const {deprecationWarning} = require('./errMessages');
 const uniq = require('./uniq');
+const MAX_DATA_GAP = 60;
 
 function generateConfig({argv = {}, defaultConfig = {}, externalConfigParams = []}) {
   const defaultConfigParams = Object.keys(defaultConfig);
@@ -40,18 +40,83 @@ function generateConfig({argv = {}, defaultConfig = {}, externalConfigParams = [
     result.waitBeforeCapture = Number(result.waitBeforeCapture);
   }
 
-  if (result.showLogs === '1') {
+  if (result.showLogs === '1' || process.env.APPLITOOLS_SHOW_LOGS === 'true') {
     result.showLogs = true;
   }
 
-  if (!result.testConcurrency && !result.concurrency) {
-    result.testConcurrency = 5; // TODO require from core
+  result.testConcurrency = utils.types.isInteger(result.testConcurrency)
+    ? result.testConcurrency
+    : utils.types.isInteger(result.concurrency)
+    ? result.concurrency * 5
+    : 5;
+
+  result.serverUrl = result.serverUrl
+    ? result.serverUrl
+    : utils.general.getEnvValue('SERVER_URL')
+    ? utils.general.getEnvValue('SERVER_URL')
+    : 'https://eyesapi.applitools.com';
+
+  result.viewportSize = result.viewportSize ? result.viewportSize : {width: 1024, height: 600};
+
+  result.saveNewTests = result.saveNewTests === undefined ? true : result.saveNewTests;
+  result.keepBatchOpen = result.dontCloseBatches;
+  result.fully = result.fully === undefined ? true : false;
+
+  if (result.batchName) {
+    result.batch = {name: result.batchName, ...result.batch};
+  }
+
+  if (result.batchId) {
+    result.batch = {id: result.batchId, ...result.batch};
   }
 
   if (result.storyDataGap === undefined) {
-    result.storyDataGap = result.testConcurrency;
+    result.storyDataGap = Math.max(
+      Math.min(result.testConcurrency * 2, MAX_DATA_GAP),
+      result.testConcurrency,
+    );
   }
+
+  transformConfig(result);
+  if (!result.renderers) {
+    result.renderers = [{name: 'chrome', width: 1024, height: 768}];
+  }
+
   return result;
 }
 
-module.exports = generateConfig;
+function transformConfig(result) {
+  transformLayoutBreakpoints(result);
+  transformBrowser(result);
+}
+
+function transformBrowser(result) {
+  if (result.browser) {
+    result.renderers = [];
+    if (!Array.isArray(result.browser)) {
+      result.browser = [result.browser];
+    }
+    result.renderers = result.browser.map(browser => {
+      if (browser.deviceName) {
+        return {chromeEmulationInfo: browser};
+      } else if (!browser.name) {
+        return {...browser, name: 'chrome'};
+      } else {
+        return browser;
+      }
+    });
+  }
+  delete result.browser;
+  return result;
+}
+
+function transformLayoutBreakpoints(result) {
+  if (
+    utils.types.isBoolean(result.layoutBreakpoints) ||
+    utils.types.isArray(result.layoutBreakpoints)
+  ) {
+    result.layoutBreakpoints = {breakpoints: result.layoutBreakpoints};
+  }
+}
+
+module.exports = {generateConfig, transformConfig};

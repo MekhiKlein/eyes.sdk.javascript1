@@ -1,15 +1,128 @@
-# Change Log
+# Changelog
 
-## Unreleased
-
-
+## [1.15.3](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-nightwatch@1.15.2...js/eyes-nightwatch@1.15.3) (2023-06-21)
 
 
+### Bug Fixes
+
+* fix coverage tests ([f5067d8](https://github.com/applitools/eyes.sdk.javascript1/commit/f5067d8693502c3f6c9dbdf8adafbe513d86a9ad))
+* fix coverage tests ([f5282cc](https://github.com/applitools/eyes.sdk.javascript1/commit/f5282cc59e11d42b2f51d581f4dd3038b4f3974b))
+
+
+### Dependencies
+
+* @applitools/driver bumped from 1.12.1 to 1.12.3
+
+* @applitools/eyes bumped from 1.2.17 to 1.3.0
+  #### Features
+
+  * added overload for locate method, to call it with custom target ([5d5914a](https://github.com/applitools/eyes.sdk.javascript1/commit/5d5914a5dae6822cde0086d6b9f4d6f9ac7cc4f2))
 
 
 
+* @applitools/spec-driver-webdriver bumped from 1.0.33 to 1.0.35
 
 
+## [1.15.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-nightwatch@1.15.1...js/eyes-nightwatch@1.15.2) (2023-06-15)
+
+
+### Dependencies
+
+* update some dependencies
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.2.16 to 1.2.17
+
+## [1.15.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-nightwatch-v1.15.0...js/eyes-nightwatch@1.15.1) (2023-06-14)
+
+
+### Dependencies
+
+* update some dependencies
+* The following workspace dependencies were updated
+  * dependencies
+    * @applitools/eyes bumped from 1.2.14 to 1.2.16
+
+## 1.15.0 - 2023/4/19
+
+### Features
+- Added `Resize` value to `StitchMode` enum
+- Improved extraction of nml element
+- Added `removeDuplicateTests` property to the `RunnerOptions` to remove duplicated tests in the runner at the end of execution
+- Make `locate` to return coordinates that could be directly used with the driver
+### Bug fixes
+- Avoid handing process when using execution cloud
+- Fixed slowness during ufg tests
+- Optimized number of requests during polling
+- Fixed screenshot framing
+- Fixed issue with css fetching for dom capture
+
+## 1.14.0 - 2023/3/2
+
+### Features
+- Added new android devices Sony Xperia 1 II, Sony Xperia Ace II, Huawei P30 Lite, Xiaomi Redmi Note 10 JE
+- Add NML support for Android
+- Crop screenshot image base on account info
+### Bug fixes
+- Fixed issue with sessionId on ufg
+
+## 1.13.0 - 2023/1/23
+
+### Features
+- No new features
+### Bug fixes
+
+## 1.12.1 - 2022/12/29
+
+### Features
+### Bug fixes
+- Improved webdriver url extraction
+
+## 1.12.0 - 2022/12/27
+
+### Features
+- Added new selector extensions `child` and `fallback`
+- Changed default value of `sendDom` from `true` to dynamically calculated
+- Added new android device `Sony Xperia 10 II`
+- Mark target element with `data-applitools-scroll` attribute before capture dom
+- Added new iOS device - 'iPad Pro (11-inch) (4th generation)'
+- Use user agent metadata to improve browser environment detection logic
+- Use APPLITOOLS_CONCURRENCY env variable to specify concurrency
+- Added `ignoreColors` method to `CheckSettings` to set a match level
+- Additional internal event logs
+### Bug fixes
+- Fixed issue with logs not being saved/written
+- Fixed issue with ufg renders failing intermittently
+- Fixed error that was happening when test results were deleted
+- Fixed bug that caused `extractText` to throw, due to fractional size of the target region
+- Fix dontCloseBatches mapping
+- Fixed issue when current context is not being preserved in ufg mode
+- Fixed issue with element scroll position not being restored after screenshot is taken on native platforms
+- Handle fake shadowRoot with UFG
+- Handed error during polling in long requests to eyes server
+
+## 1.11.5 - 2022/10/7
+
+### Features
+### Bug fixes
+- Fixed the issue with screenshots being taken on chrome-emulated devices
+- Fixed bug when error was thrown when coded region wasn't found using selector
+- Blank missed frames src in ufg
+- Fix an issue when ufg related requests were not sent through the proxy
+
+## 1.11.4 - 2022/9/29
+
+### Features
+- Don't fail `eyes.open` when there is a failure to set viewport size in `UFG`.
+- Support Nightwatch major version 2
+- Added support for lazy loading views in android native apps
+- Using `lazyLoad.waitingTime` as a delay between stitches by default
+- Added `Sony Xperia 10 II` emulation device
+- Added `iPhone 14`  and `iPhone 14 Pro Max` ios devices
+- Support Nightwatch major version 2
+- Deprecated "Content" match level value in favor of "IgnoreColors"
+### Bug fixes
+- Fixed incorrect calculation of the target element position.
 
 ## 1.11.3 - 2022/7/28
 
