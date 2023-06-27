@@ -10,4 +10,5 @@ module.exports = {
     {width: 800, height: 600, name: 'ie11'},
     {width: 800, height: 600, name: 'chrome'},
   ],
+  puppeteerOptions: {headless: 'new'},
 };

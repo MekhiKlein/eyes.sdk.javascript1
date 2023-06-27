@@ -11,4 +11,5 @@ module.exports = {
   ],
   layoutBreakpoints: true,
   waitBeforeCapture: 2000,
+  puppeteerOptions: {headless: 'new'},
 };

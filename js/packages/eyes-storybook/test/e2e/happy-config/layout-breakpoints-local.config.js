@@ -11,4 +11,5 @@ module.exports = {
     {chromeEmulationInfo: {deviceName: 'Pixel 4 XL'}},
   ],
   saveNewTests: false,
+  puppeteerOptions: {headless: 'new'},
 };

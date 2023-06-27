@@ -8,4 +8,5 @@ module.exports = {
   browser: [{width: 640, height: 480, name: 'chrome'}],
   waitBeforeCapture: 1000,
   visualGridOptions: {chromeHeadless: false},
+  puppeteerOptions: {headless: 'new'},
 };

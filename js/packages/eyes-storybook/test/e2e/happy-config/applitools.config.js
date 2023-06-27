@@ -13,5 +13,5 @@ module.exports = {
     }
   },
   ignoreRegions: [{selector: '.global-ignore-this'}],
-  // puppeteerOptions: {headless: false, devtools: true},
+  puppeteerOptions: {headless: 'new'},
 };

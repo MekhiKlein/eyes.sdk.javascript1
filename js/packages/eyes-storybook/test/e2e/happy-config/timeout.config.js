@@ -7,4 +7,5 @@ module.exports = {
   storybookStaticDir: path.resolve(__dirname, '../../fixtures'),
   startStorybookServerTimeout: 2,
   browser: [{width: 640, height: 480, name: 'chrome'}],
+  puppeteerOptions: {headless: 'new'},
 };

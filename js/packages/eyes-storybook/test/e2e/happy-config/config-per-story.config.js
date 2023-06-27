@@ -25,4 +25,5 @@ module.exports = {
       browser: [{name: 'ie', width: 1024, height: 600}],
     },
   ],
+  puppeteerOptions: {headless: 'new'},
 };

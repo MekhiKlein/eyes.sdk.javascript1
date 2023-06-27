@@ -11,4 +11,5 @@ module.exports = {
     height: 1000,
     name: 'firefox',
   },
+  puppeteerOptions: {headless: 'new'},
 };
