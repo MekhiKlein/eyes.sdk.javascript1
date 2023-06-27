@@ -11,7 +11,6 @@ const {
 } = require('./errMessages');
 const startStorybookServer = require('./startStorybookServer');
 const {isIE} = require('./shouldRenderIE');
-const {promisify: p} = require('util');
 const {makeLogger} = require('@applitools/logger');
 const findNpmModuleCommandPath = require('./findNpmModuleCommandPath');
 
