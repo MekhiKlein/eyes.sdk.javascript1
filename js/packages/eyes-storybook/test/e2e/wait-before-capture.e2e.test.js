@@ -1,4 +1,3 @@
-const {describe, it, before, after} = require('mocha');
 const testStorybook = require('../util/testStorybook');
 const path = require('path');
 const {delay: _psetTimeout, presult} = require('@applitools/functional-commons');

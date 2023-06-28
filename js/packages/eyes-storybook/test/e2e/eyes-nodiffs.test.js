@@ -1,4 +1,3 @@
-const {describe, it} = require('mocha');
 const path = require('path');
 const {spawn} = require('child_process');
 const {expect} = require('chai');

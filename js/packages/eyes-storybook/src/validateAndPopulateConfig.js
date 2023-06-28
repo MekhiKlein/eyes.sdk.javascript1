@@ -13,6 +13,7 @@ const startStorybookServer = require('./startStorybookServer');
 const {isIE} = require('./shouldRenderIE');
 const {makeLogger} = require('@applitools/logger');
 const findNpmModuleCommandPath = require('./findNpmModuleCommandPath');
+const {resolve} = require('path');
 
 async function validateAndPopulateConfig({config, packagePath = '', logger = makeLogger()}) {
   if (!config.apiKey) {
@@ -78,15 +79,29 @@ async function validateAndPopulateConfig({config, packagePath = '', logger = mak
 
 async function determineStorybookVersion(packagePath) {
   let sbArg,
+    storybookPath,
     isVersion7 = false;
 
-  let storybookPath = await findNpmModuleCommandPath('start-storybook', packagePath);
-  if (!storybookPath) {
-    storybookPath = await findNpmModuleCommandPath('sb', packagePath);
+  const storybookPathV6 = resolve(packagePath, 'node_modules/.bin/start-storybook');
+  const storybookPathV7 = resolve(packagePath, 'node_modules/.bin/sb');
+
+  // first we look for the binaries in the local node_modules/.bin folder in case there are multiple versions of storybook installed
+  if (fs.existsSync(storybookPathV6)) {
+    storybookPath = storybookPathV6;
+  } else if (fs.existsSync(storybookPathV7)) {
+    storybookPath = storybookPathV7;
     isVersion7 = true;
     sbArg = 'dev';
   } else {
-    isVersion7 = false;
+    // the binary is not in the local node_modules/.bin folder, so we need to find it
+    storybookPath = await findNpmModuleCommandPath('start-storybook', packagePath);
+    if (!storybookPath) {
+      storybookPath = await findNpmModuleCommandPath('sb', packagePath);
+      isVersion7 = true;
+      sbArg = 'dev';
+    } else {
+      isVersion7 = false;
+    }
   }
 
   return {storybookPath, isVersion7, sbArg};

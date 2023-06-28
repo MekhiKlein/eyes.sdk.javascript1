@@ -1,4 +1,3 @@
-const {describe, it} = require('mocha');
 const path = require('path');
 const {presult} = require('@applitools/functional-commons');
 const utils = require('@applitools/utils');
