@@ -1,6 +1,5 @@
 'use strict';
 const ora = require('ora');
-const findNpmModuleCommandPath = require('./findNpmModuleCommandPath');
 const StorybookConnector = require('./storybookConnector');
 
 async function startStorybookServer({
