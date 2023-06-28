@@ -12,7 +12,13 @@ import {Changelog} from 'release-please/build/src/updaters/changelog'
 import {ManifestPlugin} from 'release-please/build/src/plugin'
 import {buildPlugin} from 'release-please/build/src/factories/plugin-factory'
 
-type PatchedChangelogUpdate = Update & {updater: Changelog, sections: string[], bumps?: Record<string, any>[]}
+type PatchedChangelogUpdate = Update & {
+  updater: Changelog,
+  sections: string[],
+  bumps?: Bump[]
+}
+
+type Bump = {packageName: string, from: string, to: string, sections: string[]}
 
 export interface RichWorkspaceOptions extends WorkspacePluginOptions {
   manifestPath: string;
@@ -137,20 +143,32 @@ export class RichWorkspace extends ManifestPlugin {
     const patchChangelogUpdate = (update: Omit<PatchedChangelogUpdate, 'sections'> & Partial<Pick<PatchedChangelogUpdate, 'sections'>>): PatchedChangelogUpdate => {
       if (!update.sections) {
         const [header] = update.updater.changelogEntry.match(/^##[^#]+/) ?? []
-        update.sections = Array.from(update.updater.changelogEntry.matchAll(/^###[^#]+/gm), ([section]) => {
+        update.sections = Array.from(update.updater.changelogEntry.matchAll(/###.+?(?=###|$)/gs), ([section]) => {
           if (section.startsWith('### Dependencies\n\n')) {
-            update.bumps = Array.from(section.matchAll(/\* (?<packageName>\S+) bumped from (?<from>[\d\.]+) to (?<to>[\d\.]+)/gm), match => match.groups!)
-            const dependencies = update.bumps.map(bump => {
-              const header = `* ${bump.packageName} bumped from ${bump.from} to ${bump.to}\n`
-              const bumpedCandidate = candidateReleasePullRequests.find(candidate => candidate.path === this.pathsByPackagesName[bump.packageName])
-              const bumpedChangelogUpdate = bumpedCandidate?.pullRequest.updates.find(update => update.updater instanceof Changelog)
-              if (!bumpedChangelogUpdate) return header
-              const patchedBumpedChangelogUpdate = patchChangelogUpdate(bumpedChangelogUpdate as Update & {updater: Changelog})
-              return `${header}${patchedBumpedChangelogUpdate.sections.flatMap(section => {
-                if (section.startsWith('### Dependencies\n\n')) return []
-                return `  #${section.replace(/(\n+)([^\n])/g, '$1  $2')}`
-              }).join('')}`
-            })
+            const bumps = Array.from(section.matchAll(/\* (?<packageName>\S+) bumped from (?<from>[\d\.]+) to (?<to>[\d\.]+)/gm), match => match.groups! as Omit<Bump, 'sections'>)
+            update.bumps = bumps.reduce((bumps, bump) => {
+              if (bumps.every(existedBump => bump.packageName !== existedBump.packageName)) {
+                const bumpedCandidate = candidateReleasePullRequests.find(candidate => candidate.path === this.pathsByPackagesName[bump.packageName])
+                const bumpedChangelogUpdate = bumpedCandidate?.pullRequest.updates.find(update => update.updater instanceof Changelog)
+                if (bumpedChangelogUpdate) {
+                  const patchedBumpedChangelogUpdate = patchChangelogUpdate(bumpedChangelogUpdate as Update & {updater: Changelog})
+                  bumps.push(
+                    {...bump, sections: patchedBumpedChangelogUpdate.sections.filter(section => !section.startsWith('### Dependencies\n\n'))},
+                    ...(patchedBumpedChangelogUpdate.bumps?.filter(bump => bumps.every(existedBump => bump.packageName !== existedBump.packageName)) ?? [])
+                  )
+                } else {
+                  bumps.push({...bump, sections: []})
+                }
+              }
+              return bumps
+            }, [] as Bump[])
+            const dependencies = update.bumps
+              .sort((bump1, bump2) => (bump1.sections.length > 0 ? 1 : 0) > (bump2.sections.length > 0 ? 1 : 0) ? -1 : 1)
+              .map(bump => {
+                const header = `* ${bump.packageName} bumped from ${bump.from} to ${bump.to}\n`
+                if (!bump.sections) return header
+                return `${header}${bump.sections.map(section => `  #${section.replace(/(\n+)([^\n])/g, '$1  $2')}`).join('')}`
+              })
             return `### Dependencies\n\n${dependencies.join('\n')}`
           }
           return section
