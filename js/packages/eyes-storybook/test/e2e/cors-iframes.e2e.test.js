@@ -13,7 +13,7 @@ describe('eyes-storybook', () => {
     let closeServerA, closeServerB;
     const staticPath = path.join(
       process.cwd(),
-      'node_modules/@applitools/sdk-shared/coverage-tests/fixtures',
+      '../../node_modules/@applitools/sdk-shared/coverage-tests/fixtures',
     );
     try {
       closeServerA = (

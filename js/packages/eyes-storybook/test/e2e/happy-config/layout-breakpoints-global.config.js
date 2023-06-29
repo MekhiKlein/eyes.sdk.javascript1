@@ -12,5 +12,4 @@ module.exports = {
   ],
   layoutBreakpoints: [500, 1000],
   saveNewTests: false,
-  puppeteerOptions: {headless: 'new'},
 };
