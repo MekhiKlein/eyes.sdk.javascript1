@@ -501,7 +501,7 @@ __metadata:
   dependencies:
     "@applitools/api-extractor": "workspace:^"
     "@applitools/bongo": "workspace:^"
-    "@applitools/core": 3.2.3
+    "@applitools/core": 3.3.1
     "@applitools/eyes": 1.2.17
     "@applitools/functional-commons": 1.6.0
     "@applitools/logger": 2.0.3
@@ -526,6 +526,7 @@ __metadata:
     cypress8: "npm:cypress@^8.7.0"
     cypress9: "npm:cypress@^9.0.0"
     lodash.omit: 4.5.0
+    mocha: ^10.2.0
     morgan: 1.9.1
     ncp: 2.0.0
     node-fetch: 2.6.0
