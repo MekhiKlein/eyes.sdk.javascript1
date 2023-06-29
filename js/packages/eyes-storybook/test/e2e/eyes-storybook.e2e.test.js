@@ -1,3 +1,4 @@
+const {describe, it, before, after} = require('mocha');
 const {expect} = require('chai');
 const path = require('path');
 const {testServerInProcess} = require('@applitools/test-server');

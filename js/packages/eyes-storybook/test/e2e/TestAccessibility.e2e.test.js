@@ -1,5 +1,6 @@
 'use strict';
 
+const {describe, it, before, after} = require('mocha');
 const {expect} = require('chai');
 const testStorybook = require('../util/testStorybook');
 const path = require('path');

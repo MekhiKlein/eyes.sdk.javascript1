@@ -1,3 +1,4 @@
+const {describe, it} = require('mocha');
 const path = require('path');
 const {delay: _psetTimeout, presult} = require('@applitools/functional-commons');
 const utils = require('@applitools/utils');
