@@ -114,10 +114,10 @@ export class RichWorkspace extends ManifestPlugin {
 
     // collect package names
     const originalBuildAllPackages = (workspacePlugin as any).buildAllPackages.bind(workspacePlugin)
-    ;(workspacePlugin as any).buildAllPackages = async (pkgs: unknown[]): Promise<DependencyGraph<any>> => {
-      const result = await originalBuildAllPackages(pkgs)
-      Object.entries(result.candidatesByPackage as Record<string, CandidateReleasePullRequest>).forEach(([packageName, candidate]) => {
-        this.pathsByPackagesName[packageName] = candidate.path
+    ;(workspacePlugin as any).buildAllPackages = async (candidates: CandidateReleasePullRequest[]): Promise<DependencyGraph<any>> => {
+      const result = await originalBuildAllPackages(candidates)
+      ;(result.allPackages as unknown[]).forEach(pkg => {
+        this.pathsByPackagesName[(workspacePlugin as any).packageNameFromPackage(pkg)] = (workspacePlugin as any).pathFromPackage(pkg)
       })
       return result
     }
@@ -129,8 +129,10 @@ export class RichWorkspace extends ManifestPlugin {
       candidatesByPackage: Record<string, CandidateReleasePullRequest>
     ): string[] => {
       const packageNames = originalPackageNamesToUpdate(graph, candidatesByPackage)
+      console.log(this.componentsByPath, this.pathsByPackagesName)
       const additionalPackageNames = Array.from(graph.keys()).filter(packageName => {
         const syntheticDependencies = this.syntheticDependencies[this.componentsByPath[this.pathsByPackagesName[packageName]]]
+        console.log(packageName, syntheticDependencies)
         return syntheticDependencies?.some(dependencyComponent => this.candidates.some(candidate => candidate.config.component === dependencyComponent))
       })
       console.log('packageNames', [...packageNames, ...additionalPackageNames])
