@@ -48,13 +48,19 @@ export class RichCommits extends ManifestPlugin {
 
   protected filterRedundantCommits(commits: ConventionalCommit[], component: string): ConventionalCommit[] {
     // if empty commit has scope it should contain component in order to be attached to the path
-    return commits.filter(commit => {
-      return (
-        (commit.files?.length ?? 0) > 0 ||
-        !commit.scope ||
-        commit.scope.split(/,\s*/g).includes(component)
-      )
-    })
+    return commits.reduce((commits, commit) => {
+      if (commit.scope) {
+        const matches = commit.scope.split(/[,\s]+/g).some(scope => {
+          if (scope.startsWith('*')) return component.endsWith(scope.slice(1))
+          else if (scope.endsWith('*')) return component.startsWith(scope.slice(0, -1))
+          else component === scope
+        })
+        if (matches) commits.push({...commit, scope: null})
+      } else {
+        commits.push(commit)
+      }
+      return commits
+    }, [] as ConventionalCommit[])
   }
 
   protected addCommitNotes(commits: ConventionalCommit[]): ConventionalCommit[] {

@@ -158,6 +158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@applitools/core@npm:3.2.3":
   version: 3.2.3
   resolution: "@applitools/core@npm:3.2.3"
@@ -177,11 +178,33 @@ __metadata:
     "@applitools/ufg-client": 1.2.20
     "@applitools/utils": 1.4.0
     "@types/ws": 8.5.5
+=======
+"@applitools/core@npm:3.2.1":
+  version: 3.2.1
+  resolution: "@applitools/core@npm:3.2.1"
+  dependencies:
+    "@applitools/core-base": 1.1.56
+    "@applitools/dom-capture": 11.2.2
+    "@applitools/dom-snapshot": 4.7.9
+    "@applitools/driver": 1.12.1
+    "@applitools/ec-client": 1.2.32
+    "@applitools/logger": 2.0.2
+    "@applitools/nml-client": 1.3.55
+    "@applitools/req": 1.3.0
+    "@applitools/screenshoter": 3.7.46
+    "@applitools/snippets": 2.4.21
+    "@applitools/socket": 1.1.1
+    "@applitools/spec-driver-webdriver": 1.0.33
+    "@applitools/ufg-client": 1.2.18
+    "@applitools/utils": 1.3.37
+    "@types/ws": 8.5.4
+>>>>>>> master
     abort-controller: 3.0.0
     chalk: 4.1.2
     node-fetch: 2.6.7
     webdriver: 7.30.0
     ws: 8.12.0
+<<<<<<< HEAD
     yargs: ^17.7.2
   bin:
     eyes: ./dist/cli/cli.js
@@ -219,6 +242,13 @@ __metadata:
     eyes: ./dist/cli/cli.js
     eyes-check-network: ./dist/troubleshoot/check-network.js
   checksum: d7f9e011faa9b2fdbe6e11fdd0dd2e983924ad0331d23513067ae8292118cfcdd4433dfdee9f608625c1eb9bffe1e6b71a1e55d255972496ed1211ecb0811ffd
+=======
+    yargs: 17.6.2
+  bin:
+    eyes: dist/cli/cli.js
+    eyes-check-network: dist/troubleshoot/check-network.js
+  checksum: cc8744daff3df07f0fd8fc77cd640903b206be949c9fbc42c29234044763c474f72cdd08776ca39769f93d7f28bc39e481c81e6e606821ae6e30bf91048ad015
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -335,18 +365,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@applitools/driver@npm:1.12.2":
-  version: 1.12.2
-  resolution: "@applitools/driver@npm:1.12.2"
-  dependencies:
-    "@applitools/logger": 2.0.3
-    "@applitools/snippets": 2.4.21
-    "@applitools/utils": 1.4.0
-    semver: 7.3.7
-  checksum: 4a35742a55a862d30c52197e4e55bbef5eeb7c98bdb856a412eae738faa670bd47cad9040f8195d5604925d93dfaeb029a5aed24852c72c55c31bca07b0b34fe
-  languageName: node
-  linkType: hard
-
 "@applitools/ec-client@1.5.0, @applitools/ec-client@workspace:packages/execution-grid-client":
   version: 0.0.0-use.local
   resolution: "@applitools/ec-client@workspace:packages/execution-grid-client"
@@ -377,6 +395,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+<<<<<<< HEAD
 "@applitools/ec-client@npm:1.2.34":
   version: 1.2.34
   resolution: "@applitools/ec-client@npm:1.2.34"
@@ -396,6 +415,27 @@ __metadata:
     ec-client: ./dist/cli/cli.js
     eg-client: ./dist/cli/cli.js
   checksum: 274638b62fc425196f9db41a30bc6ab669a8fc46486d78b5ff7f2391739f57fc7f7bc6f9931b3db04c77b62b5a6f4a52641db722aa9b728b1b3553c2f4bb06d6
+=======
+"@applitools/ec-client@npm:1.2.32":
+  version: 1.2.32
+  resolution: "@applitools/ec-client@npm:1.2.32"
+  dependencies:
+    "@applitools/core-base": 1.1.56
+    "@applitools/driver": 1.12.1
+    "@applitools/execution-grid-tunnel": 2.1.0
+    "@applitools/logger": 2.0.2
+    "@applitools/req": 1.3.0
+    "@applitools/socket": 1.1.1
+    "@applitools/spec-driver-webdriver": 1.0.33
+    "@applitools/utils": 1.3.37
+    abort-controller: 3.0.0
+    webdriver: 7
+    yargs: 17.6.2
+  bin:
+    ec-client: dist/cli/cli.js
+    eg-client: dist/cli/cli.js
+  checksum: 85467ce83d659cb1a695cbb859957d7a55dd74849cb15b484e3b4a27d0625b73c0eb4c02e76c7ff66ed46b871066a6bdf8cf305e10b48b3d4216e88bc3cc6c49
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -533,15 +573,15 @@ __metadata:
   dependencies:
     "@applitools/api-extractor": "workspace:^"
     "@applitools/bongo": "workspace:^"
-    "@applitools/core": 3.3.1
-    "@applitools/eyes": 1.2.17
+    "@applitools/core": 3.4.0
+    "@applitools/eyes": 1.5.0
     "@applitools/functional-commons": 1.6.0
-    "@applitools/logger": 2.0.3
+    "@applitools/logger": 2.0.5
     "@applitools/sdk-coverage-tests": "workspace:^"
     "@applitools/snaptdout": 1.0.1
     "@applitools/test-server": "workspace:^"
     "@applitools/test-utils": "workspace:^"
-    "@applitools/utils": 1.4.0
+    "@applitools/utils": 1.5.0
     "@types/node": ^12.20.55
     "@types/semver": ^7.3.13
     "@types/uuid": ^9.0.0
@@ -766,17 +806,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@applitools/eyes@npm:1.2.17":
-  version: 1.2.17
-  resolution: "@applitools/eyes@npm:1.2.17"
-  dependencies:
-    "@applitools/core": 3.2.3
-    "@applitools/logger": 2.0.3
-    "@applitools/utils": 1.4.0
-  checksum: 4d209d3d5690e2e94b9c76dc32c78982b10a939a2f889d161a42df6983afd363b8c91d7381a9f793cc0a9bbd68cee6d1e697aea5bbd7da8e108b6a28c194608a
-  languageName: node
-  linkType: hard
-
 "@applitools/functional-commons@npm:1.6.0":
   version: 1.6.0
   resolution: "@applitools/functional-commons@npm:1.6.0"
@@ -798,6 +827,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+<<<<<<< HEAD
 "@applitools/image@npm:1.0.35":
   version: 1.0.35
   resolution: "@applitools/image@npm:1.0.35"
@@ -807,6 +837,17 @@ __metadata:
     jpeg-js: 0.4.4
     png-async: 0.9.4
   checksum: 62f2a113a3488c7d98b057dc32681da49511a0074a4acfb56bb957515b7482328b87e3c0b934a41abdb50a927fb1d6375bcf6cfa2084d7772495955dc3fed07c
+=======
+"@applitools/image@npm:1.0.34":
+  version: 1.0.34
+  resolution: "@applitools/image@npm:1.0.34"
+  dependencies:
+    "@applitools/utils": 1.3.37
+    bmpimagejs: 1.0.4
+    jpeg-js: 0.4.4
+    png-async: 0.9.4
+  checksum: 5a2582c2d875deb7920b97e36212e47483bed1e8d03be6d76ad8fe1efddc3627a5795208294331de46c0961dd6d1a14fd20d04be5968f0da5f094f87d274575d
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -900,17 +941,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@applitools/logger@npm:2.0.3":
-  version: 2.0.3
-  resolution: "@applitools/logger@npm:2.0.3"
-  dependencies:
-    "@applitools/utils": 1.4.0
-    chalk: 4.1.2
-    debug: 4.3.3
-  checksum: c00615ce9617b025f8a7bc589c55b1e21a5e40c7d5b9dbe2690e6c97850881972b7af7cfe319f95f49a3b1fe76f3ec13a96e0474a43c2fc51325f3406d365e5b
-  languageName: node
-  linkType: hard
-
 "@applitools/logger@npm:^1.0.12":
   version: 1.1.53
   resolution: "@applitools/logger@npm:1.1.53"
@@ -959,6 +989,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@applitools/nml-client@npm:1.3.57":
   version: 1.3.57
   resolution: "@applitools/nml-client@npm:1.3.57"
@@ -978,6 +1009,16 @@ __metadata:
     "@applitools/req": 1.3.3
     "@applitools/utils": 1.5.0
   checksum: 4aeff0992ad0a668fb65037e3d87161568e58872fdaa249aa16d5470637fe0ca6fcaa249bc4cee28c07b34ee510a09a3a0d6be90cdb60d2b969459291db95f19
+=======
+"@applitools/nml-client@npm:1.3.55":
+  version: 1.3.55
+  resolution: "@applitools/nml-client@npm:1.3.55"
+  dependencies:
+    "@applitools/logger": 2.0.2
+    "@applitools/req": 1.3.0
+    "@applitools/utils": 1.3.37
+  checksum: 01069bc1ac55b27d28abcc8008605d619c54c6fce65092adbbb4d3573513ca7206ef45525a7575d0f75a21043aa81b5aed5e53a1fdd9f1fe53c73d4f689fecd3
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -1023,19 +1064,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@applitools/req@npm:1.3.2":
-  version: 1.3.2
-  resolution: "@applitools/req@npm:1.3.2"
-  dependencies:
-    "@applitools/utils": 1.4.0
-    abort-controller: 3.0.0
-    http-proxy-agent: 5.0.0
-    https-proxy-agent: 5.0.1
-    node-fetch: 3.3.1
-  checksum: 7b65feedaf0565bee17df7baf0464abee3738eefa8cc3032bc4a03e38494f29e2c475a660a70bfdc40573d3f496f317b2c5f7541cc6e79db49a6f34682c3e2f4
-  languageName: node
-  linkType: hard
-
 "@applitools/screenshoter@3.8.1, @applitools/screenshoter@workspace:packages/screenshoter":
   version: 0.0.0-use.local
   resolution: "@applitools/screenshoter@workspace:packages/screenshoter"
@@ -1070,6 +1098,7 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@applitools/screenshoter@npm:3.7.47":
   version: 3.7.47
   resolution: "@applitools/screenshoter@npm:3.7.47"
@@ -1081,6 +1110,19 @@ __metadata:
     jpeg-js: 0.4.4
     png-async: 0.9.4
   checksum: e285cd9c87b577e3d6706a87888acdc8f5f42b4a118d87955c34885ffe4b2ac91f42bee8d106c7ab28693058c0c29d851cd4bd20d922f9b2f1312036d024f7b2
+=======
+"@applitools/screenshoter@npm:3.7.46":
+  version: 3.7.46
+  resolution: "@applitools/screenshoter@npm:3.7.46"
+  dependencies:
+    "@applitools/image": 1.0.34
+    "@applitools/logger": 2.0.2
+    "@applitools/snippets": 2.4.21
+    "@applitools/utils": 1.3.37
+    jpeg-js: 0.4.4
+    png-async: 0.9.4
+  checksum: f6c0bb33bc5b7351f23ab9c84a73d95004e91ab5c9e94777dab460ec62dab11baf48da88e01bbd1e7bef0e79bfbf0679b18d64507b2a4d4cbb93366e3db246ac
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -1166,6 +1208,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+<<<<<<< HEAD
 "@applitools/socket@npm:1.1.3":
   version: 1.1.3
   resolution: "@applitools/socket@npm:1.1.3"
@@ -1173,6 +1216,15 @@ __metadata:
     "@applitools/logger": 2.0.3
     "@applitools/utils": 1.4.0
   checksum: b945fc59104293ee6ccff0184efac1195541f0f08994d7b7e6615dfcc00d6ae566df0da5ac32fb4eca2811b501b0459512ef574da712fab627faead8e12d6cb1
+=======
+"@applitools/socket@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@applitools/socket@npm:1.1.1"
+  dependencies:
+    "@applitools/logger": 2.0.2
+    "@applitools/utils": 1.3.37
+  checksum: a3b311ab8bfb4437cae826ebff19b8e1d8cbf9dd43b64949437b9ec539e57d595e1816a7d11ab836f16daf258ee9238b0f895825ea5bec43fc490cde3a5566f6
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -1288,17 +1340,30 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+<<<<<<< HEAD
 "@applitools/spec-driver-webdriver@npm:1.0.34":
   version: 1.0.34
   resolution: "@applitools/spec-driver-webdriver@npm:1.0.34"
   dependencies:
     "@applitools/driver": 1.12.2
     "@applitools/utils": 1.4.0
+=======
+"@applitools/spec-driver-webdriver@npm:1.0.33":
+  version: 1.0.33
+  resolution: "@applitools/spec-driver-webdriver@npm:1.0.33"
+  dependencies:
+    "@applitools/driver": 1.12.1
+    "@applitools/utils": 1.3.37
+>>>>>>> master
     http-proxy-agent: 5.0.0
     https-proxy-agent: 5.0.1
   peerDependencies:
     webdriver: ">=7.27.0"
+<<<<<<< HEAD
   checksum: 8516dd59828b177d1e6db0a00ffc20d4e44931119085b180387e538b6a6a03eaea9ad5d6435dffc152f44adfa83f7b684d0a5d7fe5a6b9b0870b068e7bdaa096
+=======
+  checksum: cc53c6941cc4e41de494d58094b30b769d75264b24bcec8153ec23e8e473189a6ba96fb6494b46554ca35a590b93e3842efaa9e32ac9d6fc03c68f9d43067f5b
+>>>>>>> master
   languageName: node
   linkType: hard
 
@@ -1445,21 +1510,6 @@ __metadata:
     css-tree: 2.3.1
     throat: 6.0.1
   checksum: e780c7586593169dd50a2e52e9911ac69f6b7c5cb428ea8f1510900cf55a0113e3b94eca164ebf8b2361ea69c09dd38c5acfc2ca4392d3202303546bcf2c7439
-  languageName: node
-  linkType: hard
-
-"@applitools/ufg-client@npm:1.2.20":
-  version: 1.2.20
-  resolution: "@applitools/ufg-client@npm:1.2.20"
-  dependencies:
-    "@applitools/logger": 2.0.3
-    "@applitools/req": 1.3.2
-    "@applitools/utils": 1.4.0
-    abort-controller: 3.0.0
-    css-tree: 2.3.1
-    jsdom: 19.0.0
-    throat: 6.0.1
-  checksum: 7a0df4348a653782e0b42607b44dea2f88e3b30b4bf04404b8c756477c89ee9efb0556ec28992337170a37fa5f15e1e2d5ac7290d0eac1d7d7e2c8da3b9cd974
   languageName: node
   linkType: hard
 

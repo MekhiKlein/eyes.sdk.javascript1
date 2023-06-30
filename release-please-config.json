@@ -7,7 +7,17 @@
   "prerelease": true,
   "plugins": [
     "rich-commits",
-    {"type": "rich-workspace", "workspace": "node"}
+    {
+      "type": "rich-workspace",
+      "workspaces": ["node", "maven"],
+      "synthetic-dependencies": {
+        "java/eyes-universal-core-linux": ["js/eyes-cypress"],
+        "java/eyes-universal-core-arm": ["js/core"],
+        "java/eyes-universal-core-alpine": ["js/core"],
+        "java/eyes-universal-core-win": ["js/core"],
+        "java/eyes-universal-core-mac": ["js/core"]
+      }
+    }
   ],
   "changelog-sections": [
     {"type": "feat", "section": "Features"},
@@ -509,6 +519,203 @@
       ],
       "releases": [
         {"registry-url": "https://registry.npmjs.org"}
+      ]
+    },
+    "java/eyes.sdk.core": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-sdk-core-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"report": {"name": "java"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.common.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-common-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.connectivity.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-connectivity-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.selenium.common": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-selenium-common-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.ufg.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-ufg-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.universal.core/eyes-universal-core": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-universal-core",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.universal.core/eyes-universal-core-linux": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-universal-core-linux",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"runner": "ubuntu-latest", "grep": "TestCoreBinaries#testLinuxBinaries", "report": {"name": "java", "group": "core"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.universal.core/eyes-universal-core-arm": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-universal-core-arm",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"runner": "linuxarm", "grep": "TestCoreBinaries#testArm64Binaries", "report": {"name": "java", "group": "core"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.universal.core/eyes-universal-core-alpine": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-universal-core-alpine",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"container": "alpine:latest", "grep": "TestCoreBinaries#testAlpineBinaries", "report": {"name": "java", "group": "core"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.universal.core/eyes-universal-core-win": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-universal-core-win",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"runner": "windows-latest", "grep": "TestCoreBinaries#testWindowsBinaries", "report": {"name": "java", "group": "core"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.universal.core/eyes-universal-core-mac": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-universal-core-mac",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"runner": "macos-latest", "grep": "TestCoreBinaries#testMacosBinaries", "report": {"name": "java", "group": "core"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven"}
+      ]
+    },
+    "java/eyes.images.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-images-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"report": {"name": "java"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven", "notification": {"name": "java"}}
+      ]
+    },
+    "java/eyes.selenium.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-selenium-java5",
+      "builds": [
+        {"artifacts": ["./target"], "build-type": "maven", "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"test-type": "unit it e2e", "report": {"name": "java"}, "artifacts": ["./logs/**/*"], "key": "{{component}}/{{test-type}}"},
+        {"test-type": "coverage", "report": {"name": "java", "result-path": "../coverage-tests/target/surefire-reports/java_coverage_tests", "meta-path": "../coverage-tests"}, "artifacts": ["./logs/**/*"], "key": "{{component}}/{{test-type}}"}
+      ],
+      "releases": [
+        {"profile": "maven", "notification": {"name": "java"}}
+      ]
+    },
+    "java/eyes.appium.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-appium-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"report": {"name": "java"}, "artifacts": ["./logs/**/*"], "key": "{{component}}"}
+      ],
+      "releases": [
+        {"profile": "maven", "notification": {"name": "java"}}
+      ]
+    },
+    "java/eyes.playwright.java": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-playwright-java5",
+      "builds": [
+        {"build-type": "maven", "artifacts": ["./target"], "key": "{{component}}/{{package-version}}/{{hash}}"}
+      ],
+      "tests": [
+        {"test-type": "unit it e2e",  "report": {"name": "java_playwright"}, "artifacts": ["./logs/**/*"], "key": "{{component}}/{{test-type}}"},
+        {"test-type": "coverage", "report": {"name": "java_playwright", "result-path": "../coverage-tests/target/surefire-reports/java_coverage_tests", "meta-path": "../coverage-tests"}, "artifacts": ["./logs/**/*"], "key": "{{component}}/{{test-type}}"}
+      ],
+      "releases": [
+        {"profile": "maven", "notification": {"name": "java_playwright"}}
       ]
     }
   }

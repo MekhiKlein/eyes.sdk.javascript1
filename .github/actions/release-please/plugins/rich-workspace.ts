@@ -22,17 +22,21 @@ type Bump = {packageName: string, from: string, to: string, sections: string[]}
 
 export interface RichWorkspaceOptions extends WorkspacePluginOptions {
   manifestPath: string;
-  workspace: 'node' | 'maven'
+  workspaces: ('node' | 'maven' | 'python' | 'ruby')[]
+  'synthetic-dependencies': Record<string, string[]>
 }
 
 export class RichWorkspace extends ManifestPlugin {
   private index = -1
-  protected plugin: WorkspacePlugin<unknown>
+  protected plugins: Record<string, WorkspacePlugin<unknown>>
+  protected syntheticDependencies: Record<string, string[]>
   protected strategiesByPath: Record<string, Strategy> = {}
   protected commitsByPath: Record<string, ConventionalCommit[]> = {}
   protected releasesByPath: Record<string, Release> = {}
   protected releasePullRequestsByPath: Record<string, ReleasePullRequest | undefined> = {}
   protected pathsByPackagesName: Record<string, string> = {}
+  protected componentsByPath: Record<string, string> = {}
+  protected candidates: CandidateReleasePullRequest[] = []
 
   constructor(
     github: GitHub,
@@ -41,14 +45,17 @@ export class RichWorkspace extends ManifestPlugin {
     options: RichWorkspaceOptions
   ) {
     super(github, targetBranch, repositoryConfig, options.logger);
-    const workspacePlugin = buildPlugin({
-      ...options,
-      type: {type: `${options.workspace}-workspace`, merge: false},
-      github,
-      targetBranch,
-      repositoryConfig,
-    }) as WorkspacePlugin<unknown>
-    this.plugin = this.patchWorkspacePlugin(workspacePlugin)
+    this.plugins = options.workspaces.reduce((plugins, workspaceName) => {
+      plugins[workspaceName] = this.patchWorkspacePlugin(buildPlugin({
+        ...options,
+        type: {type: `${workspaceName}-workspace`, merge: false},
+        github,
+        targetBranch,
+        repositoryConfig,
+      }) as WorkspacePlugin<unknown>)
+      return plugins
+    }, {} as Record<string, WorkspacePlugin<unknown>>)
+    this.syntheticDependencies = options['synthetic-dependencies']
   }
 
   async preconfigure(
@@ -58,32 +65,21 @@ export class RichWorkspace extends ManifestPlugin {
   ): Promise<Record<string, Strategy>> {
     this.strategiesByPath = strategiesByPath as Record<string, BaseStrategy>
     this.releasesByPath = releasesByPath
-    this.pathsByPackagesName = await Object.entries(this.strategiesByPath).reduce(async (promise, [path, strategy]) => {
-      const packageName = await (strategy as BaseStrategy).getPackageName()
-      return promise.then(pathsByPackagesName => Object.assign(pathsByPackagesName, packageName ? {[packageName]: path} : {}))
+    this.componentsByPath = await Object.entries(strategiesByPath).reduce(async (promise, [path, strategy]) => {
+      const component = await strategy.getComponent()
+      return promise.then(componentsByPath => Object.assign(componentsByPath, {[path]: component}))
     }, Promise.resolve({} as Record<string, string>))
-    return this.plugin.preconfigure(strategiesByPath, commitsByPath, releasesByPath)
+    return this.strategiesByPath
   }
 
   processCommits(commits: ConventionalCommit[]): ConventionalCommit[] {
     this.index += 1
     this.commitsByPath[Object.keys(this.strategiesByPath)[this.index]] = commits
-    return this.plugin.processCommits(commits)
+    return commits
   }
 
   async run(candidates: CandidateReleasePullRequest[]) {
-    const updateDepsCommit = {
-      sha: '',
-      message: 'deps: update some dependencies',
-      files: [],
-      pullRequest: undefined,
-      type: 'deps',
-      scope: undefined,
-      bareMessage: 'update some dependencies',
-      notes: [],
-      references: [],
-      breaking: false
-    }
+    const updateDepsCommit = {sha: '', message: 'deps: update some dependencies', files: [], pullRequest: undefined, type: 'deps', scope: undefined, bareMessage: 'update some dependencies', notes: [], references: [], breaking: false}
     this.releasePullRequestsByPath = await Object.entries(this.strategiesByPath).reduce(async (promise, [path, strategy]) => {
       const releasePullRequest = 
         candidates.find(candidate => candidate.path === path)?.pullRequest ??
@@ -93,25 +89,17 @@ export class RichWorkspace extends ManifestPlugin {
         return releasePullRequestsByPath
       })
     }, Promise.resolve({} as Record<string, ReleasePullRequest | undefined>))
-    const updatedCandidates = await this.plugin.run(candidates.filter(candidate => !candidate.pullRequest.labels.includes('skip-release')))
+    this.candidates = await Object.values(this.plugins).reduce(async (promise, plugin) => {
+      this.candidates = await promise
+      return plugin.run(candidates.filter(candidate => !candidate.pullRequest.labels.includes('skip-release')))
+    }, Promise.resolve(candidates))
 
-    this.patchChangelogs(updatedCandidates)
+    this.patchChangelogs(this.candidates)
 
-    return updatedCandidates.filter(candidate => !candidate.pullRequest.labels.includes('skip-release'))
+    return this.candidates.filter(candidate => !candidate.pullRequest.labels.includes('skip-release'))
   }
 
   protected patchWorkspacePlugin(workspacePlugin: WorkspacePlugin<unknown>): WorkspacePlugin<unknown> {
-    // const originalPackageNamesToUpdate = (workspacePlugin as any).packageNamesToUpdate.bind(workspacePlugin)
-    // ;(workspacePlugin as any).packageNamesToUpdate = (
-    //   graph: DependencyGraph<unknown>,
-    //   candidatesByPackage: Record<string, CandidateReleasePullRequest>
-    // ): string[] => {
-    //   return originalPackageNamesToUpdate(
-    //     graph,
-    //     Object.fromEntries(Object.entries(candidatesByPackage).filter(([, candidate]) => !candidate.pullRequest.labels.includes('skip-release'))),
-    //   )
-    // }
-
     // const originalBuildGraph = (workspacePlugin as any).buildGraph.bind(workspacePlugin)
     // ;(workspacePlugin as any).buildGraph = async (pkgs: unknown[]): Promise<DependencyGraph<any>> => {
     //   const graph = await originalBuildGraph(pkgs)
@@ -123,17 +111,48 @@ export class RichWorkspace extends ManifestPlugin {
     //   }
     //   return graph
     // }
+
+    // collect package names
+    const originalBuildAllPackages = (workspacePlugin as any).buildAllPackages.bind(workspacePlugin)
+    ;(workspacePlugin as any).buildAllPackages = async (pkgs: unknown[]): Promise<DependencyGraph<any>> => {
+      const result = await originalBuildAllPackages(pkgs)
+      Object.entries(result.candidatesByPackage as Record<string, CandidateReleasePullRequest>).forEach(([packageName, candidate]) => {
+        this.pathsByPackagesName[packageName] = candidate.path
+      })
+      return result
+    }
+
+    // follow the dependencies
+    const originalPackageNamesToUpdate = (workspacePlugin as any).packageNamesToUpdate.bind(workspacePlugin)
+    ;(workspacePlugin as any).packageNamesToUpdate = (
+      graph: DependencyGraph<unknown>,
+      candidatesByPackage: Record<string, CandidateReleasePullRequest>
+    ): string[] => {
+      const packageNames = originalPackageNamesToUpdate(graph, candidatesByPackage)
+      const additionalPackageNames = Array.from(graph.keys()).filter(packageName => {
+        const syntheticDependencies = this.syntheticDependencies[this.componentsByPath[this.pathsByPackagesName[packageName]]]
+        return syntheticDependencies?.some(dependencyComponent => this.candidates.some(candidate => candidate.config.component === dependencyComponent))
+      })
+      return [...packageNames, ...additionalPackageNames]
+    }
     
+    // create a proper new candidate
     const originalNewCandidate = (workspacePlugin as any).newCandidate.bind(workspacePlugin)
     const originalUpdateCandidate = (workspacePlugin as any).updateCandidate.bind(workspacePlugin)
     ;(workspacePlugin as any).newCandidate = (pkg: any, updatedVersions: Map<string, Version>): CandidateReleasePullRequest => {
-      const {path} = originalNewCandidate(pkg, updatedVersions)
-      const candidateReleasePullRequest = {
-        path,
-        pullRequest: this.releasePullRequestsByPath[path]!,
-        config: this.repositoryConfig[path]
+      const originalCandidate = originalNewCandidate(pkg, updatedVersions)
+      if (this.releasePullRequestsByPath[originalCandidate.path]) {
+        const candidate = {
+          path: originalCandidate.path,
+          pullRequest: this.releasePullRequestsByPath[originalCandidate.path],
+          config: this.repositoryConfig[originalCandidate.path]
+        }
+        return originalUpdateCandidate(candidate, pkg, updatedVersions)
+      } else {
+        // some plugins (e.g. maven) tries to update not listed dependencies, so we will have to skip them
+        originalCandidate.pullRequest.labels = ['skip-release']
+        return originalCandidate
       }
-      return originalUpdateCandidate(candidateReleasePullRequest, pkg, updatedVersions)
     }
 
     return workspacePlugin
@@ -145,7 +164,7 @@ export class RichWorkspace extends ManifestPlugin {
         const [header] = update.updater.changelogEntry.match(/^##[^#]+/) ?? []
         update.sections = Array.from(update.updater.changelogEntry.matchAll(/###.+?(?=###|$)/gs), ([section]) => {
           if (section.startsWith('### Dependencies\n\n')) {
-            const bumps = Array.from(section.matchAll(/\* (?<packageName>\S+) bumped from (?<from>[\d\.]+) to (?<to>[\d\.]+)/gm), match => match.groups! as Omit<Bump, 'sections'>)
+            const bumps = Array.from(section.matchAll(/\* (?<packageName>\S+) bumped (?:from (?<from>[\d\.]+) )?to (?<to>[\d\.]+)/gm), match => match.groups! as Omit<Bump, 'sections'>)
             update.bumps = bumps.reduce((bumps, bump) => {
               if (bumps.every(existedBump => bump.packageName !== existedBump.packageName)) {
                 const bumpedCandidate = candidateReleasePullRequests.find(candidate => candidate.path === this.pathsByPackagesName[bump.packageName])
@@ -165,7 +184,7 @@ export class RichWorkspace extends ManifestPlugin {
             const dependencies = update.bumps
               .sort((bump1, bump2) => (bump1.sections.length > 0 ? 1 : 0) > (bump2.sections.length > 0 ? 1 : 0) ? -1 : 1)
               .map(bump => {
-                const header = `* ${bump.packageName} bumped from ${bump.from} to ${bump.to}\n`
+                const header = `* ${bump.packageName} bumped ${bump.from ? `from ${bump.from} ` : ''}to ${bump.to}\n`
                 if (!bump.sections) return header
                 return `${header}${bump.sections.map(section => `  #${section.replace(/(\n+)([^\n])/g, '$1  $2')}`).join('')}`
               })
