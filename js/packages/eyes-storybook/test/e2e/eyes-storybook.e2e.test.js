@@ -103,7 +103,7 @@ describe('eyes-storybook', () => {
   it('fails with proper message when failing to get stories because of navigation timeout', async () => {
     const promise = presult(
       utils.process.sh(
-        `node ./bin/eyes-storybook --read-stories-timeout=10 -u http://localhost:9001`,
+        `node ./bin/eyes-storybook --read-stories-timeout=5 -u http://localhost:9001`,
         {spawnOptions},
       ),
     );

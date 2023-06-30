@@ -115,7 +115,7 @@
     "    If you encounter any bugs, please report them to https://github.com/puppeteer/puppeteer/issues/new/choose.\u001b[0m",
     "",
     "- Reading stories",
-    "\u001b[31m✖\u001b[39m Error when loading storybook. Navigation timeout of 10 ms exceeded",
+    "\u001b[31m✖\u001b[39m Error when loading storybook. Navigation timeout of 5 ms exceeded",
     ""
   ],
   "too slowly stdout": [
