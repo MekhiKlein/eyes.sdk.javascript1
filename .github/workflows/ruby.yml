@@ -346,7 +346,7 @@ jobs:
           BUNDLE_GEMFILE: ${{ github.workspace }}/ruby/GemfileGithub
         run: |
           gem install pkg/gems/eyes_universal-*.gem
-          bundle install
+          bundle add selenium-webdriver -v 3.142.7
           chmod +x ./generic_tests.sh && ./generic_tests.sh
 
   tag-only:
