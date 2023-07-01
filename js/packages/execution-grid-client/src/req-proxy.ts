@@ -1,6 +1,6 @@
 import {type IncomingMessage, type ServerResponse} from 'http'
 import {type Logger} from '@applitools/logger'
-import {makeReq, type Proxy, type Retry, type Options} from '@applitools/req'
+import {makeReq, type Req, type Proxy, type Retry, type Options} from '@applitools/req'
 import * as utils from '@applitools/utils'
 
 export type ReqProxyConfig = {
@@ -15,6 +15,8 @@ export type ReqProxyOptions = Options & {
   logger?: Logger
 }
 
+export type ReqProxy = Req<ReqProxyOptions>
+
 export function makeReqProxy(config: ReqProxyConfig) {
   return makeReq<ReqProxyOptions>({
     baseUrl: config.targetUrl,
@@ -22,18 +24,20 @@ export function makeReqProxy(config: ReqProxyConfig) {
     retry: config.retry,
     hooks: {
       afterOptionsMerged({options}) {
-        options.method ??= options.io.request.method
+        options.method ??= options.io.request.method ?? 'GET'
         options.headers = {
           ...options.io.request.headers,
           ...options.headers,
           host: options.baseUrl && new URL(options.baseUrl).host,
         }
-        if (!['GET', 'HEAD'].includes(options.method?.toUpperCase() ?? 'GET')) {
+        if (['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase())) {
           options.body ??= utils.streams.persist(options.io.request)
         }
-        if (options.body && !utils.types.isFunction(options.body, 'pipe')) {
+        if (options.body === undefined) {
+          delete options.headers['content-type']
+        } else if (!utils.types.isFunction(options.body, 'pipe')) {
           options.headers['content-length'] = Buffer.byteLength(
-            utils.types.isArray(options.body) || utils.types.isPlainObject(options.body)
+            utils.types.isArray(options.body) || utils.types.isPlainObject(options.body) || options.body === null
               ? JSON.stringify(options.body)
               : options.body,
           ).toString()
@@ -52,7 +56,8 @@ export function makeReqProxy(config: ReqProxyConfig) {
           io.response.sendDate = false
           if (io.handle !== false) {
             io.response.writeHead(response.status, Object.fromEntries(response.headers.entries()))
-            response.body.pipe(io.response)
+            if (response.body) response.body.pipe(io.response)
+            else io.response.end()
           }
         }
       },

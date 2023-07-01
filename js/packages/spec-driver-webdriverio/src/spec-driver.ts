@@ -83,8 +83,14 @@ function scriptRunner(script: string, arg: any, ...elements: Element[]) {
   }
 }
 function loadCommand() {
-  return Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) < 8
-    ? require('webdriver/build/command').default
+  let commandPath
+  try {
+    commandPath = require.resolve('webdriver/build/command', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    commandPath = 'webdriver/build/command'
+  }
+  return Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 8
+    ? require(commandPath).default
     : (method: string, url: string, body: any) => {
         const webdriver = import('webdriver') as any
         return async function (this: any, ...args: any[]) {
@@ -249,19 +255,6 @@ export async function setWindowSize(browser: Driver, size: Size): Promise<void> 
     await browser._setWindowSize(size.width, size.height)
   }
 }
-export async function getSessionMetadata(driver: Driver): Promise<any[] | null> {
-  // NOTE: this command is meant to be called when running with the eg-client
-  // otherwise it will not be implemented on the driver and throw
-  const command = loadCommand()
-  const cmd = command('GET', '/session/:sessionId/applitools/metadata', {
-    command: 'getSessionMetadata',
-    description: '',
-    ref: '',
-    parameters: [],
-  })
-  const result = await cmd.call(driver)
-  return result
-}
 export async function getCookies(browser: Driver, context?: boolean): Promise<Cookie[]> {
   if (context) return browser.getCookies()
   let cookies
@@ -337,14 +330,9 @@ export async function hover(browser: Driver, element: Element | Selector): Promi
     await extendedElement.moveTo()
   }
 }
-export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
-  const resolvedElement = isSelector(element) ? await findElement(browser, element) : element
-  const extendedElement = await browser.$(resolvedElement as any)
-  await extendedElement.scrollIntoView(align)
-}
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(browser, selector)
-  if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '5') {
     // @ts-ignore
     await element.waitForDisplayed(timeout)
   } else {
@@ -432,7 +420,13 @@ const browserOptionsNames: Record<string, string> = {
  * installed in the SDK, then this function will error.
  */
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const webdriverio = require('webdriverio')
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('webdriverio', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'webdriverio'
+  }
+  const {remote} = require(frameworkPath)
   const chromedriver = require('chromedriver')
   const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {
@@ -499,7 +493,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       noProxy: proxy.bypass.join(','),
     }
   }
-  const driver = await webdriverio.remote(options)
+  const driver = await remote(options)
   return [driver, () => driver.deleteSession().then(() => chromedriver.stop())]
 }
 

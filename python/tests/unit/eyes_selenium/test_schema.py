@@ -1,5 +1,7 @@
 from datetime import datetime
+from enum import Enum
 
+import pytest
 from mock import ANY
 from selenium.webdriver.common.by import By
 
@@ -29,8 +31,14 @@ from applitools.common import (
     SessionType,
     TestResults,
     VisualGridOption,
+    schema,
 )
 from applitools.common.accessibility import SessionAccessibilityStatus
+from applitools.common.batch_close import BatchClose
+from applitools.common.cut import FixedCutProvider
+from applitools.common.extract_text import OCRRegion, TextRegionSettings
+from applitools.common.fluent.target_path import TargetPath
+from applitools.common.locators import VisualLocatorSettings
 from applitools.common.selenium import BrowserType, Configuration
 from applitools.common.test_results import (
     SessionUrls,
@@ -39,10 +47,6 @@ from applitools.common.test_results import (
     TestResultsStatus,
     TestResultsSummary,
 )
-from applitools.core import BatchClose, TextRegionSettings, VisualLocatorSettings
-from applitools.core.cut import FixedCutProvider
-from applitools.core.extract_text import OCRRegion
-from applitools.selenium import TargetPath, schema
 from applitools.selenium.fluent import SeleniumCheckSettings
 from applitools.selenium.object_registry import SeleniumWebdriverObjectRegistry
 
@@ -158,7 +162,7 @@ def test_config_marshal(monkeypatch):
         "enablePatterns": True,
         "fully": True,
         "hideScrollbars": True,
-        "layoutBreakpoints": [1, 2, 3],
+        "layoutBreakpoints": {"breakpoints": [1, 2, 3]},
         "normalization": {
             "cut": {"bottom": 2.0, "left": 3.0, "right": 4.0, "top": 1.0},
             "rotation": 90,
@@ -203,6 +207,17 @@ def test_config_marshal(monkeypatch):
     }
 
 
+def test_legacy_config_layout_breakpoints_marshal():
+    config = Configuration()
+    config.layout_breakpoints = (1, 2, 3)
+
+    serializer = schema.EyesConfig()
+    json, errors = serializer.dump(config)
+
+    assert errors == {}
+    assert json == {"layoutBreakpoints": {"breakpoints": [1, 2, 3]}}
+
+
 def test_check_settings_marshal():
     serializer = schema.CheckSettings(
         context={"registry": SeleniumWebdriverObjectRegistry()}
@@ -213,7 +228,7 @@ def test_check_settings_marshal():
         .disable_browser_fetching(True)
         .visual_grid_options(VisualGridOption("vo key", "vo value"))
     )
-    check_settings.layout_breakpoints(True)
+    check_settings.layout_breakpoints(True, reload=True)
     check_settings.before_render_screenshot_hook("hook")
     check_settings.page_id("page id")
     check_settings.variation_group_id("vargroup id")
@@ -299,7 +314,7 @@ def test_check_settings_marshal():
                 "regionId": "ignore id",
             }
         ],
-        "layoutBreakpoints": True,
+        "layoutBreakpoints": {"breakpoints": True, "reload": True},
         "layoutRegions": [
             {"region": {"height": 4.0, "width": 3.0, "x": 1.0, "y": 2.0}}
         ],
@@ -643,3 +658,29 @@ def test_configuration_schema_allows_strings_instead_of_enums():
 
     assert errors == {}
     assert json == {"stitchMode": "CSS"}
+
+
+def test_configuration_schema_allows_any_compatible_enums():
+    class DummyStitchMode(Enum):
+        CSS = "CSS"
+
+    serializer = schema.EyesConfig()
+    conf = Configuration()
+    conf.stitch_mode = DummyStitchMode.CSS
+
+    json, errors = serializer.dump(conf)
+
+    assert errors == {}
+    assert json == {"stitchMode": "CSS"}
+
+
+def test_configuration_schema_raises_on_incompatible_enums():
+    class DummyStitchMode(Enum):
+        CSS = "wrong"
+
+    serializer = schema.EyesConfig()
+    conf = Configuration()
+    conf.stitch_mode = DummyStitchMode.CSS
+
+    with pytest.raises(ValueError, match="is not a valid StitchMode"):
+        serializer.dump(conf)

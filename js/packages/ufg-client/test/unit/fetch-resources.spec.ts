@@ -1,7 +1,9 @@
 import {makeFetchResource} from '../../src/resources/fetch-resource'
 import {makeResource} from '../../src/resources/resource'
+import {makeLogger} from '@applitools/logger'
 import assert from 'assert'
 import nock from 'nock'
+import * as utils from '@applitools/utils'
 
 describe('fetch-resource', () => {
   const mockResource = makeResource({
@@ -12,7 +14,7 @@ describe('fetch-resource', () => {
   const urlResource = makeResource({url: mockResource.url})
 
   it('fetches with content and content-type', async () => {
-    const fetchResource = makeFetchResource({retryLimit: 0})
+    const fetchResource = makeFetchResource({retryLimit: 0, logger: makeLogger()})
     nock(mockResource.url).get('/').reply(200, mockResource.value, {'content-type': mockResource.contentType})
 
     const resource = await fetchResource({resource: urlResource})
@@ -30,7 +32,7 @@ describe('fetch-resource', () => {
         return [200, mockResource.value, {'content-type': mockResource.contentType}]
       })
 
-    const fetchResource = makeFetchResource({retryLimit: 3})
+    const fetchResource = makeFetchResource({retryLimit: 3, logger: makeLogger()})
     const resource = await fetchResource({resource: urlResource})
     assert.deepStrictEqual(resource, mockResource)
   })
@@ -38,14 +40,14 @@ describe('fetch-resource', () => {
   it('fetches with retries event though fails', async () => {
     let called = 0
     const dontFetch: any = () => ((called += 1), Promise.reject(new Error('DONT FETCH')))
-    const fetchResource = makeFetchResource({retryLimit: 3, fetch: dontFetch})
+    const fetchResource = makeFetchResource({retryLimit: 3, fetch: dontFetch, logger: makeLogger()})
 
     await assert.rejects(fetchResource({resource: urlResource}), new Error('DONT FETCH'))
     assert.strictEqual(called, 4)
   })
 
   it('stops retry and returns errosStatusCode when getting bad status', async () => {
-    const fetchResource = makeFetchResource({retryLimit: 3})
+    const fetchResource = makeFetchResource({retryLimit: 3, logger: makeLogger()})
     let called = 0
     nock(mockResource.url)
       .get('/')
@@ -60,7 +62,7 @@ describe('fetch-resource', () => {
   })
 
   it('caches requests', async () => {
-    const fetchResource = makeFetchResource({retryLimit: 0})
+    const fetchResource = makeFetchResource({retryLimit: 0, logger: makeLogger()})
     nock(mockResource.url).get('/').once().reply(200, mockResource.value, {'content-type': mockResource.contentType})
 
     const [resource1, resource2] = await Promise.all([
@@ -70,6 +72,27 @@ describe('fetch-resource', () => {
 
     assert.deepStrictEqual(resource1, mockResource)
     assert.deepStrictEqual(resource2, mockResource)
+  })
+
+  it('fetch with concurrency limitation', async () => {
+    const mockResources = Array.from({length: 10}, (_, index) => makeResource({url: `http://something/${index}`}))
+    let count = 0
+    nock('http://something').get(/\d+/).times(mockResources.length).reply(limitServerParallelRequests)
+
+    const fetchResource = makeFetchResource({fetchConcurrency: 5, logger: makeLogger()})
+    const resResources = await Promise.all(mockResources.map(resource => fetchResource({resource})))
+
+    assert.strictEqual(
+      resResources.some(resource => utils.types.has(resource, `errorStatusCode`)),
+      false,
+    )
+
+    async function limitServerParallelRequests() {
+      count += 1
+      await utils.general.sleep(300)
+      count -= 1
+      return [count > 4 ? 504 : 200, 'font', {'Content-Type': `some-context-type`}]
+    }
   })
 
   describe('works with streamingTimeout', () => {
@@ -86,7 +109,7 @@ describe('fetch-resource', () => {
         .delayBody(200)
         .reply(200, mockMediaResource.value, {'content-type': mockMediaResource.contentType})
 
-      const fetchResource = makeFetchResource({streamingTimeout: 80})
+      const fetchResource = makeFetchResource({streamingTimeout: 80, logger: makeLogger()})
       const resource = await fetchResource({resource: urlMediaResource})
       assert.deepStrictEqual(resource, makeResource({id: urlMediaResource.url, errorStatusCode: 599}))
     })
@@ -97,7 +120,7 @@ describe('fetch-resource', () => {
         .delay(200)
         .reply(200, mockMediaResource.value, {'content-type': mockMediaResource.contentType})
 
-      const fetchResource = makeFetchResource({streamingTimeout: 80})
+      const fetchResource = makeFetchResource({streamingTimeout: 80, logger: makeLogger()})
       const resource = await fetchResource({resource: urlMediaResource})
       assert.deepStrictEqual(resource, mockMediaResource)
     })
@@ -108,7 +131,7 @@ describe('fetch-resource', () => {
         'content-length': '3',
       })
 
-      const fetchResource = makeFetchResource({streamingTimeout: 80})
+      const fetchResource = makeFetchResource({streamingTimeout: 80, logger: makeLogger()})
       const resource = await fetchResource({resource: urlMediaResource})
       assert.deepStrictEqual(resource, mockMediaResource)
     })
@@ -119,7 +142,7 @@ describe('fetch-resource', () => {
         .delayBody(200)
         .reply(200, mockResource.value, {'content-type': mockResource.contentType})
 
-      const fetchResource = makeFetchResource({streamingTimeout: 80})
+      const fetchResource = makeFetchResource({streamingTimeout: 80, logger: makeLogger()})
       const resource = await fetchResource({resource: urlResource})
       assert.deepStrictEqual(resource, mockResource)
     })

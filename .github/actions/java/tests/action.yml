@@ -1,0 +1,31 @@
+name: Java tests
+description: Run Java SDKs tests
+
+inputs:
+  working-directory:
+    description: the path to the directory from repository root
+    type: string
+    required: true
+  test-type:
+    description: type of testing (unit, e2e, coverage)
+    type: string
+    default: all
+    required: false
+  grep:
+    description: grep pattern to filter tests
+    type: string
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Test and report
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        chmod +x runTests.sh;
+        ./runTests.sh;
+      env:
+        TEST_TYPE: ${{ inputs.test-type }}
+        MAVEN_GREP: ${{ inputs.grep }}
+        REPORT_DIR: "reports"

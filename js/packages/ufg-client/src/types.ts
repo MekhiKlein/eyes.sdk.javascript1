@@ -3,6 +3,7 @@ import {type Logger} from '@applitools/logger'
 import {type HashedResource} from './resources/resource'
 import {type AbortSignal} from 'abort-controller'
 import {type ProcessResourcesSettings} from './resources/process-resources'
+import {type UFGRequestsConfig} from './server/requests'
 
 export type DomSnapshot = {
   cdt: any[]
@@ -232,17 +233,31 @@ export type Renderer = (
 }
 
 export interface UFGClient {
-  createRenderTarget(options: {snapshot: Snapshot; settings?: ProcessResourcesSettings}): Promise<RenderTarget>
-  bookRenderer(options: {settings: RendererSettings}): Promise<RendererEnvironment>
-  render(options: {target: RenderTarget; settings: RenderSettings; signal?: AbortSignal}): Promise<RenderResult>
+  createRenderTarget(options: {
+    snapshot: Snapshot
+    settings?: ProcessResourcesSettings
+    logger?: Logger
+  }): Promise<RenderTarget>
+  bookRenderer(options: {settings: RendererSettings; logger?: Logger}): Promise<RendererEnvironment>
+  render(options: {
+    target: RenderTarget
+    settings: RenderSettings
+    signal?: AbortSignal
+    logger?: Logger
+  }): Promise<RenderResult>
   getChromeEmulationDevices(options?: {logger?: Logger}): Promise<Record<ChromeEmulationDevice, any>>
   getIOSDevices(options?: {logger?: Logger}): Promise<Record<IOSDevice, any>>
   getAndroidDevices(options?: {logger?: Logger}): Promise<Record<AndroidDevice, any>>
   getCachedResourceUrls(): string[]
 }
 
+export type UFGClientConfig = UFGRequestsConfig & {
+  fetchConcurrency?: number
+}
+
 export type RendererEnvironment = {
   rendererId: string
+  rendererUniqueId: string
   rendererInfo: {type: 'native' | 'web'; renderer: Renderer}
   rawEnvironment: Record<string, any>
 }
@@ -261,9 +276,11 @@ export type RendererSettings = {
 }
 
 export type RenderSettings = RendererSettings & {
+  rendererUniqueId: string
   rendererId: string
   region?: Region | Selector
   fully?: boolean
+  scrollRootElement?: Selector
   stitchMode?: 'Scroll' | 'CSS' | 'Resize'
   selectorsToCalculate?: Selector[]
   includeFullPageSize?: boolean

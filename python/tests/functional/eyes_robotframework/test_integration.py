@@ -1,15 +1,13 @@
-import json
 import os
 import subprocess
-import uuid
-from os import path
+import sys
+from os import chdir, getcwd, path
 from typing import TYPE_CHECKING
 
 import pytest
-import requests
+from robot import run_cli
 from robot.result import ExecutionResult
 
-from applitools.common.utils.converters import str2bool
 from EyesLibrary.test_results_manager import (
     METADATA_EYES_TEST_RESULTS_URL_NAME,
     METADATA_PATH_TO_EYES_RESULTS_NAME,
@@ -28,20 +26,23 @@ backend_to_backend_name = {
 }
 
 
-def run_robot(*args, output_file_path=None):
+def run_robot(*args, output_file_path=None, isolation=True):
     test_dir = path.join(path.dirname(__file__), "robot_tests")
     call_args = (
-        "python",
-        "-m",
-        "robot",
         "--output={}.xml".format(output_file_path),
         "--report={}.html".format(output_file_path),
         "--log={}-log.html".format(output_file_path),
     ) + args
-    result = subprocess.run(
-        call_args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=test_dir
-    )
-    return result.returncode, result.stdout.decode()
+    if isolation:
+        robot = (sys.executable, "-m", "robot")
+        subprocess.run(robot + call_args, cwd=test_dir)
+    else:
+        dir = getcwd()
+        chdir(test_dir)
+        try:
+            run_cli(call_args, exit=False)
+        finally:
+            chdir(dir)
 
 
 def from_suite(suite):
@@ -53,30 +54,6 @@ def from_suite(suite):
     else:
         for t in suite.tests:
             yield t
-
-
-def send_test_report(suite, **kwargs):
-    report_data = {
-        "sdk": "robotframework",
-        "group": "selenium",
-        "id": os.getenv("GITHUB_SHA", str(uuid.uuid4())),
-        "sandbox": bool(str2bool(os.getenv("TEST_REPORT_SANDBOX", "True"))),
-        "results": [
-            {
-                "passed": t.passed,
-                "test_name": t.name,
-                "parameters": kwargs,
-            }
-            for t in from_suite(suite)
-        ],
-    }
-    r = requests.post(
-        "http://applitools-quality-server.herokuapp.com/result",
-        data=json.dumps(report_data),
-    )
-    r.raise_for_status()
-    print("Result report send: {} - {}".format(r.status_code, r.text))
-    return r
 
 
 @pytest.mark.parametrize("runner", ["web", "web_ufg"])
@@ -112,11 +89,6 @@ def test_suite_dir_with_results_propagation_and_one_diff_in_report(
     local_chrome_driver.get("file://" + output_file_path + ".html")
     assert METADATA_EYES_TEST_RESULTS_URL_NAME in local_chrome_driver.page_source
     assert "1 test failed" in local_chrome_driver.page_source
-    send_test_report(
-        result.suite,
-        runner=runner,
-        with_propagation=bool(with_propagation),
-    )
 
 
 @pytest.mark.parametrize(
@@ -144,12 +116,6 @@ def test_web_mobile(data, tmp_path):
     result = ExecutionResult(output_file_path + ".xml")
     not_passed = [t for t in result.suite.tests if t.status != "PASS"]
     assert not_passed == [], "\n".join(msg.message for msg in result.errors.messages)
-    send_test_report(
-        result.suite,
-        runner=runner,
-        backend=backend,
-        platform=platform,
-    )
 
 
 @pytest.mark.parametrize(
@@ -178,12 +144,6 @@ def test_web_desktop(data, tmp_path):
 
     not_passed = [t for t in from_suite(result.suite) if t.status != "PASS"]
     assert not_passed == [], "\n".join(msg.message for msg in result.errors.messages)
-    send_test_report(
-        result.suite,
-        runner=runner,
-        backend=backend,
-        platform=platform,
-    )
 
 
 @pytest.mark.parametrize(
@@ -192,7 +152,8 @@ def test_web_desktop(data, tmp_path):
         ["ios", "mobile_native"],
         ["ios", "native_mobile_grid"],
         ["android", "mobile_native"],
-        ["android", "native_mobile_grid"],
+        # separate applitools.yaml to have different sections for ios/android
+        # ["android", "native_mobile_grid"],
     ],
     ids=lambda d: str(d),
 )
@@ -215,9 +176,11 @@ def test_suite_mobile_native(data, tmp_path):
     result = ExecutionResult(output_file_path + ".xml")
     not_passed = [t for t in result.suite.tests if t.status != "PASS"]
     assert not_passed == [], "\n".join(msg.message for msg in result.errors.messages)
-    send_test_report(
-        result.suite,
-        runner=runner,
-        backend=backend,
-        platform=platform,
-    )
+
+
+def test_execution_cloud(tmp_path):
+    output_file_path = os.path.join(tmp_path, "web_ec")
+    run_robot("web_ec.robot", output_file_path=output_file_path, isolation=False)
+
+    result = ExecutionResult(output_file_path + ".xml")
+    assert [t.status for t in result.suite.tests] == ["PASS"], str(result.errors)

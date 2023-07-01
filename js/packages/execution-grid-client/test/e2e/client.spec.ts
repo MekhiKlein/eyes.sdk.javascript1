@@ -1,109 +1,72 @@
 import type {ECClient} from '../../src/types'
-import {Builder} from 'selenium-webdriver'
-import {Command} from 'selenium-webdriver/lib/command'
-import {makeTestServer} from '@applitools/test-server'
+import {Builder, type WebDriver} from 'selenium-webdriver'
+import {getTestInfo} from '@applitools/test-utils'
 import {makeECClient} from '../../src/client'
 import assert from 'assert'
+import * as utils from '@applitools/utils'
 
 describe('client', () => {
-  let client: ECClient
+  let client: ECClient, driver: WebDriver
 
   afterEach(async () => {
+    await driver.quit()
     await client.close()
   })
 
   it('works', async () => {
-    client = await makeECClient()
-    const driver = await new Builder().forBrowser('chrome').usingServer(client.url).build()
+    client = await makeECClient({settings: {options: {useSelfHealing: false}}})
+    driver = await new Builder().forBrowser('chrome').usingServer(client.url).build()
 
     await driver.get('https://demo.applitools.com')
+
+    // execute script works as expected
     const title = await driver.executeScript('return document.title')
+    assert.strictEqual(title, 'ACME Demo App by Applitools')
 
-    await driver.quit()
-
-    assert.strictEqual(title, 'ACME demo app')
+    // find element (important! without self healing logic) returns a proper error
+    await assert.rejects(
+      Promise.race([
+        driver.findElement({css: '#doesn-exists'}),
+        utils.general.sleep(1000)?.then(() => Promise.reject(new Error('Timeout error'))),
+      ]),
+      error => error.name === 'NoSuchElementError',
+    )
   })
 
   it('works with self healing', async () => {
-    let driver: any
-    try {
-      client = await makeECClient()
+    client = await makeECClient()
 
-      const builder = new Builder()
-        .withCapabilities({browserName: 'chrome', 'applitools:useSelfHealing': true})
-        .usingServer(client.url)
+    driver = new Builder()
+      .withCapabilities({browserName: 'chrome', 'applitools:useSelfHealing': true})
+      .usingServer(client.url)
+      .build()
 
-      driver = await builder.build()
-      await driver.get('https://demo.applitools.com')
-      await driver.findElement({css: '#log-in'})
-      await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
-      await driver.findElement({css: '#log-in'})
+    await driver.get('https://demo.applitools.com')
+    await driver.findElement({css: '#log-in'})
+    await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
+    await driver.findElement({css: '#log-in'})
 
-      driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
-      const result = await driver.execute(new Command('getSessionMetadata'))
-      assert.deepStrictEqual(result.length, 1)
-      assert.ok(result[0].successfulSelector)
-      assert.deepStrictEqual(result[0].originalSelector, {using: 'css selector', value: '#log-in'})
-      const noResult = await driver.execute(new Command('getSessionMetadata'))
-      assert.deepStrictEqual(noResult, [])
-    } finally {
-      await driver.quit()
-    }
+    const result: any[] = await driver.executeScript('applitools:metadata')
+    assert.deepStrictEqual(result.length, 1)
+    assert.ok(result[0].successfulSelector)
+    assert.deepStrictEqual(result[0].originalSelector, {using: 'css selector', value: '#log-in'})
+    const noResult: any[] = await driver.executeScript('applitools:metadata')
+    assert.deepStrictEqual(noResult, [])
   })
 
-  describe('with tunnel', () => {
-    let server: any, url: string
+  it('works with functional tests', async () => {
+    client = await makeECClient()
 
-    before(async () => {
-      server = await makeTestServer()
-      url = `http://localhost:${server.port}/page/index.html`
-    })
+    driver = await new Builder().withCapabilities({browserName: 'chrome'}).usingServer(client.url).build()
 
-    after(async () => {
-      await server.close()
-    })
-
-    it('works with tunnel', async () => {
-      client = await makeECClient()
-      const driver = await new Builder()
-        .withCapabilities({browserName: 'chrome', 'applitools:tunnel': true})
-        .usingServer(client.url)
-        .build()
-
-      await driver.get(url)
-      const title = await driver.executeScript('return document.title')
-
-      await driver.quit()
-
-      assert.strictEqual(title, 'My local page')
-    })
-
-    it('throws when ec is not enabled', async () => {
-      client = await makeECClient({settings: {capabilities: {eyesServerUrl: 'https://testeyes.applitools.com'}}})
-      await assert.rejects(
-        new Builder()
-          .withCapabilities({browserName: 'chrome', 'applitools:tunnel': true})
-          .usingServer(client.url)
-          .build(),
-        error => error.message === 'Failed to create tunnel with code EG_NOT_ENABLED',
-      )
-    })
-
-    // TODO: add assertion for expected error
-    it.skip('fails gracefully when tunnel closes during test run', async () => {
-      client = await makeECClient()
-      let driver = await new Builder()
-        .withCapabilities({browserName: 'chrome', 'applitools:tunnel': true})
-        .usingServer(client.url)
-        .build()
-      await driver.get('https://applitools.com')
-      await driver.quit()
-      driver = await new Builder()
-        .withCapabilities({browserName: 'chrome', 'applitools:tunnel': true})
-        .usingServer(client.url)
-        .build()
-      await driver.get('https://applitools.com')
-      await driver.quit()
-    })
+    await driver.executeScript('applitools:startTest', {testName: 'EC functional test'})
+    await driver.get('https://applitools.com')
+    await driver.executeScript('applitools:endTest', {status: 'Failed'})
+    const [result] = await driver.executeScript<any[]>('applitools:getResults')
+    const info = await getTestInfo(result)
+    assert.strictEqual(info.scenarioName, 'EC functional test')
+    assert.strictEqual(info.appName, 'default')
+    assert.strictEqual(info.startInfo.nonVisual, true)
+    // assert.strictEqual(info.status, 'Failed') bug on backend
   })
 })

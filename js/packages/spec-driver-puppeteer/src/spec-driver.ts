@@ -210,10 +210,6 @@ export async function hover(frame: Context, element: Element | Selector): Promis
   const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
   await resolvedElement?.hover()
 }
-export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
-  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
-  await frame.evaluate((element, align) => element?.scrollIntoView(align), resolvedElement, align)
-}
 export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
   await frame.waitForSelector(selector)
 }
@@ -231,7 +227,13 @@ const browserNames = ['chrome', 'firefox']
  * installed in the SDK, then this function will error.
  */
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const puppeteer = require('puppeteer')
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('puppeteer', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'puppeteer'
+  }
+  const puppeteer = require(frameworkPath)
   const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {browser, attach, proxy, args = [], headless} = parseEnv(env, 'cdp')
   if (!browserNames.includes(browser)) throw new Error(`Browser "${browser}" is not supported.`)

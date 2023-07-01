@@ -1,28 +1,22 @@
-import type * as core from '@applitools/core'
 import {strict as assert} from 'assert'
 import * as api from '../../src'
-
-const makeSDK = require('../utils/fake-sdk')
+import * as utils from '@applitools/utils'
 
 describe('CheckSettings', () => {
-  let sdk: core.Core<any, any> & {history: Record<string, any>[]; settings: Record<string, any>}
+  const spec = {
+    isElement(element: any) {
+      return Boolean(element.isElement)
+    },
+    isSelector(selector: any) {
+      return utils.types.isString(selector) || utils.types.has(selector, 'fakeSelector')
+    },
+  } as any
 
   class CheckSettings extends api.CheckSettingsAutomation {
-    protected static get _spec() {
-      return sdk
-    }
+    protected static _spec = spec
   }
 
-  const Target = {
-    ...api.Target,
-    get spec() {
-      return sdk
-    },
-  }
-
-  beforeEach(() => {
-    sdk = makeSDK()
-  })
+  const Target = {...api.Target, spec}
 
   it('sets shadow selector with string', () => {
     const checkSettings = Target.shadow('el-with-shadow').region('el')
@@ -81,5 +75,21 @@ describe('CheckSettings', () => {
     const checkSettings = new CheckSettings().densityMetrics(expected)
     const actual = checkSettings.toJSON().settings.densityMetrics
     assert.deepStrictEqual(actual, expected)
+  })
+
+  describe('layoutBreakpoints', () => {
+    it('with boolean', () => {
+      const checkSettings = Target.window().layoutBreakpoints(true, {reload: true})
+      assert.deepStrictEqual(checkSettings.toJSON().settings, {layoutBreakpoints: {breakpoints: true, reload: true}})
+    })
+    it('with array of numbers', () => {
+      const checkSettings = Target.window().layoutBreakpoints([1, 2, 3], {reload: true})
+      assert.deepStrictEqual(checkSettings.toJSON().settings, {
+        layoutBreakpoints: {
+          breakpoints: [3, 2, 1],
+          reload: true,
+        },
+      })
+    })
   })
 })

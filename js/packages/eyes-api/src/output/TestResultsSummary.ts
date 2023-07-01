@@ -1,22 +1,25 @@
-import {CoreSpec, CoreTestResultContainer, CoreTestResultSummary} from '../Core'
+import type * as Core from '@applitools/core'
 import {TestResultContainer, TestResultContainerData} from './TestResultContainer'
 
 export type TestResultsSummary = Iterable<TestResultContainer>
 
 export class TestResultsSummaryData implements Iterable<TestResultContainerData> {
-  private _summary?: CoreTestResultSummary
-  private _deleteTest?: CoreSpec['deleteTest']
+  private _summary?: Core.TestResultSummary<'classic' | 'ufg'>
+  private _core?: Core.Core<Core.SpecType, 'classic' | 'ufg'>
 
   /** @internal */
-  constructor(options?: {summary?: CoreTestResultSummary; deleteTest?: CoreSpec['deleteTest']}) {
+  constructor(options?: {
+    summary?: Core.TestResultSummary<'classic' | 'ufg'>
+    core?: Core.Core<Core.SpecType, 'classic' | 'ufg'>
+  }) {
     this._summary = options?.summary
-    this._deleteTest = options?.deleteTest
+    this._core = options?.core
   }
 
   getAllResults(): TestResultContainerData[] {
     return (
       this._summary?.results.map(container => {
-        return new TestResultContainerData({container, deleteTest: this._deleteTest})
+        return new TestResultContainerData({container, core: this._core})
       }) ?? []
     )
   }
@@ -25,14 +28,14 @@ export class TestResultsSummaryData implements Iterable<TestResultContainerData>
     return (
       this._summary?.results
         .map(container => {
-          return new TestResultContainerData({container, deleteTest: this._deleteTest})
+          return new TestResultContainerData({container, core: this._core})
         })
         [Symbol.iterator]() ?? [][Symbol.iterator]()
     )
   }
 
   /** @internal */
-  toJSON(): CoreTestResultContainer[] {
+  toJSON(): Core.TestResultContainer<'classic' | 'ufg'>[] {
     return this._summary?.results ?? []
   }
 

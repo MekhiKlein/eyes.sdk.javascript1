@@ -1,9 +1,14 @@
 import assert from 'assert'
 import nock from 'nock'
 import {Request} from 'node-fetch'
-import {req} from '../../src/req'
+import {req} from '../../src/req.js'
+import * as utils from '@applitools/utils'
 
 describe('req', () => {
+  beforeEach(() => {
+    nock.cleanAll()
+  })
+
   it('works', async () => {
     nock('https://eyesapi.applitools.com').get('/api/hello').reply(200, {hello: 'world'})
     const response = await req('https://eyesapi.applitools.com/api/hello')
@@ -131,12 +136,12 @@ describe('req', () => {
   })
 
   it('retries on configured status codes with timeout backoff', async () => {
-    const expectedRetryIntervals = [1000, 1500, 2000]
+    const expectedRetryIntervals = [100, 150, 200, 200]
     let index = -1
     let prevRequestTimestamp: number
     nock('https://eyesapi.applitools.com')
       .get('/api/hello')
-      .times(4)
+      .times(5)
       .reply(() => {
         // if retry
         if (index >= 0) {
@@ -148,7 +153,7 @@ describe('req', () => {
       })
 
     const response = await req('https://eyesapi.applitools.com/api/hello', {
-      retry: [{statuses: [500], limit: 3, timeout: expectedRetryIntervals}],
+      retry: [{statuses: [500], limit: 4, timeout: [100, 150, 200]}],
     })
 
     assert.strictEqual(response.status, 500)
@@ -160,6 +165,19 @@ describe('req', () => {
 
     await assert.rejects(
       () => req('https://eyesapi.applitools.com/api/hello', {timeout: 1000}),
+      error => error.constructor.name === 'AbortError',
+    )
+  })
+
+  it('aborts retry request on timeout', async () => {
+    nock('https://eyesapi.applitools.com').get('/api/hello').reply(500).persist()
+
+    await assert.rejects(
+      () =>
+        req('https://eyesapi.applitools.com/api/hello', {
+          retry: {validate: ({response}) => response?.status === 500},
+          timeout: 1000,
+        }),
       error => error.constructor.name === 'AbortError',
     )
   })
@@ -179,5 +197,18 @@ describe('req', () => {
     assert.strictEqual(response.status, 200)
     assert.deepStrictEqual(await response.json(), {hello: 'world'})
     assert.deepStrictEqual(await response.headers.get('after-response'), 'true')
+  })
+
+  it("doesn't hangs when cloning 100mb response body", async () => {
+    nock('https://eyesapi.applitools.com')
+      .get('/api/hello')
+      .reply(200, Buffer.alloc(1024 * 1024 * 100).fill('?'))
+
+    const response = await req('https://eyesapi.applitools.com/api/hello')
+
+    await Promise.race([
+      response.clone().arrayBuffer(),
+      utils.general.sleep(3000)?.then(() => Promise.reject(new Error('hangs'))),
+    ])
   })
 })

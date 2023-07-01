@@ -16,15 +16,15 @@ const getIframeUrl = require('./getIframeUrl');
 const createPagePool = require('./pagePool');
 const getClientAPI = require('../dist/getClientAPI');
 const {takeDomSnapshots} = require('@applitools/core');
+const {prepareTakeDomSnapshotsSettings} = require('./utils/prepare-settings');
 const {Driver} = require('@applitools/driver');
 const spec = require('@applitools/spec-driver-puppeteer');
 const {refineErrorMessage} = require('./errMessages');
-const {splitConfigsByBrowser} = require('./shouldRenderIE');
 const executeRenders = require('./executeRenders');
 const {makeCore} = require('@applitools/core');
 const {makeUFGClient} = require('@applitools/ufg-client');
+const makeGetStoriesWithConfig = require('./getStoriesWithConfig');
 
-const CONCURRENT_PAGES = 3;
 const MAX_RETRIES = 10;
 const RETRY_INTERVAL = 1000;
 
@@ -34,6 +34,7 @@ async function eyesStorybook({
   performance,
   timeItAsync,
   outputStream = process.stderr,
+  isVersion7,
 }) {
   let memoryTimeout;
   let renderIE = false;
@@ -41,14 +42,12 @@ async function eyesStorybook({
   takeMemLoop();
   logger.log('eyesStorybook started');
 
-  const {
-    storybookUrl,
-    waitBeforeCapture,
-    readStoriesTimeout,
-    reloadPagePerStory,
-    proxy,
-    testConcurrency,
-  } = config;
+  const CONCURRENT_TABS = isNaN(Number(process.env.APPLITOOLS_CONCURRENT_TABS))
+    ? 3
+    : Number(process.env.APPLITOOLS_CONCURRENT_TABS);
+  logger.log(`Running with ${CONCURRENT_TABS} concurrent tabs`);
+
+  const {storybookUrl, readStoriesTimeout, reloadPagePerStory, proxy, testConcurrency} = config;
 
   let iframeUrl;
   try {
@@ -65,19 +64,13 @@ async function eyesStorybook({
   if (config.puppeteerExtraHTTPHeaders) {
     await page.setExtraHTTPHeaders(config.puppeteerExtraHTTPHeaders);
   }
-  const core = await makeCore({
-    spec,
-    concurrency: testConcurrency,
-    logger,
-    agentId,
-  });
+  const core = await makeCore({spec, agentId, logger});
   const manager = await core.makeManager({
-    spec,
-    concurrency: testConcurrency,
-    agentId,
-    logger,
-    core,
     type: 'ufg',
+    settings: {
+      concurrency: testConcurrency,
+    },
+    logger,
   });
 
   const settings = {
@@ -88,6 +81,8 @@ async function eyesStorybook({
   };
   const [error, account] = await presult(core.getAccountInfo({settings, logger}));
 
+  const getStoriesWithConfig = makeGetStoriesWithConfig({config});
+
   if (error && error.message && error.message.includes('Unauthorized(401)')) {
     const failMsg = 'Incorrect API Key';
     logger.log(failMsg);
@@ -97,7 +92,7 @@ async function eyesStorybook({
   }
   const client = await makeUFGClient({
     config: {
-      ...account.ufg,
+      ...account.ufgServer,
       ...account,
       proxy,
       concurrency: testConcurrency,
@@ -115,24 +110,33 @@ async function eyesStorybook({
   });
   const pagePool = createPagePool({initPage, logger});
 
-  const doTakeDomSnapshots = async ({page, renderers, layoutBreakpoints, waitBeforeCapture}) => {
-    const driver = await new Driver({spec, driver: page, logger}).init();
+  const doTakeDomSnapshots = async ({
+    page,
+    renderers,
+    layoutBreakpoints,
+    waitBeforeCapture,
+    disableBrowserFetching,
+  }) => {
+    const driver = await new Driver({spec, driver: page, logger});
     const skipResources = client.getCachedResourceUrls();
     const result = await takeDomSnapshots({
       logger,
       driver,
-      settings: {
-        layoutBreakpoints:
-          layoutBreakpoints !== undefined ? layoutBreakpoints : config.layoutBreakpoints,
-        renderers,
-        waitBeforeCapture,
-        skipResources,
-        disableBrowserFetching: !!config.disableBrowserFetchin,
-      },
+      settings: prepareTakeDomSnapshotsSettings({
+        config,
+        options: {
+          layoutBreakpoints,
+          renderers,
+          waitBeforeCapture,
+          skipResources,
+          disableBrowserFetching,
+        },
+      }),
       provides: {
         getChromeEmulationDevices: client.getChromeEmulationDevices,
         getIOSDevices: client.getIOSDevices,
       },
+      showLogs: config.showLogs,
     });
     return result;
   };
@@ -145,14 +149,21 @@ async function eyesStorybook({
     },
   });
   try {
-    const [stories] = await Promise.all(
-      [getStoriesWithSpinner()].concat(
-        new Array(CONCURRENT_PAGES).fill().map(async () => {
+    const stories = await getStoriesWithSpinner();
+
+    if (CONCURRENT_TABS <= 3) {
+      await Promise.all(
+        new Array(CONCURRENT_TABS).fill().map(async () => {
           const {pageId} = await pagePool.createPage();
           pagePool.addToPool(pageId);
         }),
-      ),
-    );
+      );
+    } else {
+      for (const _x of new Array(CONCURRENT_TABS).fill()) {
+        const {pageId} = await pagePool.createPage();
+        pagePool.addToPool(pageId);
+      }
+    }
 
     const filteredStories = filterStories({stories, config});
     const storiesIncludingVariations = addVariationStories({
@@ -160,12 +171,22 @@ async function eyesStorybook({
       config,
     });
 
-    logger.log(`starting to run ${storiesIncludingVariations.length} stories`);
+    logger.log(
+      `there are ${storiesIncludingVariations.length} stories after filtering and adding variations `,
+    );
+
+    const storiesByBrowserWithConfig = getStoriesWithConfig({
+      stories: storiesIncludingVariations,
+      logger,
+    });
+
+    logger.log(
+      `starting to run ${storiesByBrowserWithConfig.stories.length} normal stories ("non fake IE") and ${storiesByBrowserWithConfig.storiesWithIE.length} "fake IE stories"`,
+    );
 
     const getStoryData = makeGetStoryData({
       logger,
       takeDomSnapshots: doTakeDomSnapshots,
-      waitBeforeCapture,
     });
     const closeSettings = {
       ...settings,
@@ -193,17 +214,17 @@ async function eyesStorybook({
       logger,
       stream: outputStream,
       pagePool,
+      isVersion7,
     });
 
     logger.log('finished creating functions');
-    const configs = config.fakeIE ? splitConfigsByBrowser(config) : [config];
+
     const [error, results] = await presult(
       executeRenders({
         renderStories,
         setRenderIE,
         setTransitioningIntoIE,
-        configs,
-        stories: storiesIncludingVariations,
+        storiesByBrowserWithConfig,
         pagePool,
         logger,
         timeItAsync,

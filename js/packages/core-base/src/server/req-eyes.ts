@@ -1,14 +1,5 @@
-import globalReq, {
-  makeReq,
-  mergeOptions,
-  Request,
-  type Req,
-  type Options,
-  type Proxy,
-  type Hooks,
-  type Fetch,
-} from '@applitools/req'
-import {Logger} from '@applitools/logger'
+import {type Logger} from '@applitools/logger'
+import globalReq, {makeReq, type Req, type Options, type Proxy, type Hooks, type Fetch} from '@applitools/req'
 import * as utils from '@applitools/utils'
 
 export type ReqEyesConfig = {
@@ -77,11 +68,16 @@ function handleLogs({logger: defaultLogger}: {logger?: Logger} = {}): Hooks<ReqE
         options?.body,
       )
     },
-    beforeRetry({request, attempt}) {
-      const [requestId] = request.headers.get('x-applitools-eyes-client-request-id')?.split('#') ?? []
-      if (requestId) {
-        request.headers.set('x-applitools-eyes-client-request-id', `${requestId}#${attempt + 1}`)
-      }
+    beforeRetry({request, attempt, error, response, options}) {
+      const logger = options?.logger ?? defaultLogger
+      const requestId = request.headers.get('x-applitools-eyes-client-request-id')!
+      logger?.log(
+        `Request "${options?.name}" [${requestId}] that was sent to the address "[${request.method}]${request.url}" with body`,
+        options?.body,
+        `is going to retried due to ${error ? 'an error' : 'a response with status'}`,
+        error ?? `${response!.statusText}(${response!.status})`,
+      )
+      request.headers.set('x-applitools-eyes-client-request-id', `${requestId.split('#', 1)[0]}#${attempt + 1}`)
     },
     async afterResponse({request, response, options}) {
       const logger = options?.logger ?? defaultLogger
@@ -119,7 +115,7 @@ function handleUnexpectedResponse(): Hooks<ReqEyesOptions> {
   }
 }
 
-function handleLongRequests({req}: {req: Req}): Hooks {
+function handleLongRequests({req}: {req: Req<ReqEyesOptions>}): Hooks {
   return {
     beforeRequest({request}) {
       request.headers.set('Eyes-Expect-Version', '2')
@@ -133,42 +129,36 @@ function handleLongRequests({req}: {req: Req}): Hooks {
         }
 
         // polling for result
-        const pollResponse = await req(
-          response.headers.get('Location')!,
-          mergeOptions<ReqEyesOptions>(options ?? {}, {
-            method: 'GET',
-            body: undefined,
-            expected: undefined,
-            retry: {
-              statuses: [200],
-              timeout: [...Array(5).fill(1000) /* 5x1s */, ...Array(5).fill(2000) /* 5x2s */, 5000 /* 5s */],
+        const pollResponse = await req(response.headers.get('Location')!, options ?? {}, {
+          method: 'GET',
+          body: undefined,
+          expected: undefined,
+          retry: {
+            statuses: [200],
+            timeout: [...Array(5).fill(1000) /* 5x1s */, ...Array(5).fill(2000) /* 5x2s */, 5000 /* 5s */],
+          },
+          hooks: {
+            beforeRetry({request, response}) {
+              if (response && response.status === 200 && response.headers.has('Location')) {
+                return {request, url: response.headers.get('Location')!}
+              }
             },
-            hooks: {
-              beforeRetry({request, response}) {
-                if (response && response.status === 200 && response.headers.has('Location')) {
-                  return new Request(response.headers.get('Location')!, request)
-                }
-              },
-            },
-          }),
-        )
+          },
+        })
 
         // getting result of the initial request
-        const resultResponse = await req(
-          pollResponse.headers.get('Location')!,
-          mergeOptions<ReqEyesOptions>(options ?? {}, {
-            method: 'DELETE',
-            expected: undefined,
-            hooks: {
-              beforeRetry({response, stop}) {
-                // if the long request is blocked due to concurrency the whole long request should start over
-                if (response?.status === 503) return stop
-              },
+        const resultResponse = await req(pollResponse.headers.get('Location')!, options ?? {}, {
+          method: 'DELETE',
+          expected: undefined,
+          hooks: {
+            beforeRetry({response, stop}) {
+              // if the long request is blocked due to concurrency the whole long request should start over
+              if (response?.status === 503) return stop
             },
-          }),
-        )
+          },
+        })
 
-        return resultResponse.status === 503 ? req(request, options) : resultResponse
+        return resultResponse.status === 503 ? req(request, options ?? {}) : resultResponse
       }
     },
   }

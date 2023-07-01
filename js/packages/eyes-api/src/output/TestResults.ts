@@ -1,10 +1,11 @@
-import * as utils from '@applitools/utils'
-import {CoreSpec, CoreTestResult} from '../Core'
+import type * as Core from '@applitools/core'
 import {TestResultsStatus, TestResultsStatusEnum} from '../enums/TestResultsStatus'
+import {ProxySettings} from '../input/ProxySettings'
 import {RectangleSize, RectangleSizeData} from '../input/RectangleSize'
 import {TestAccessibilityStatus} from './TestAccessibilityStatus'
 import {SessionUrls, SessionUrlsData} from './SessionUrls'
 import {StepInfo, StepInfoData} from './StepInfo'
+import * as utils from '@applitools/utils'
 
 export type TestResults = {
   readonly id?: string
@@ -19,7 +20,7 @@ export type TestResults = {
   readonly hostApp?: string
   readonly hostDisplaySize?: RectangleSize
   readonly accessibilityStatus?: TestAccessibilityStatus
-  readonly startedAt?: Date | string
+  readonly startedAt?: string
   readonly duration?: number
   readonly isNew?: boolean
   readonly isDifferent?: boolean
@@ -37,16 +38,25 @@ export type TestResults = {
   readonly layoutMatches?: number
   readonly noneMatches?: number
   readonly url?: string
+  readonly server?: {
+    serverUrl: string
+    apiKey: string
+    proxy?: ProxySettings
+  }
+  readonly keepIfDuplicate?: boolean
 }
 
 export class TestResultsData implements Required<TestResults> {
-  private _result: CoreTestResult
-  private _deleteTest?: CoreSpec['deleteTest']
+  private _core?: Core.Core<Core.SpecType, 'classic' | 'ufg'>
+  private _result: Core.TestResult<'classic' | 'ufg'>
 
   /** @internal */
-  constructor(options: {result?: CoreTestResult; deleteTest?: CoreSpec['deleteTest']}) {
-    this._deleteTest = options.deleteTest
-    this._result = options.result ?? {}
+  constructor(options: {
+    result?: Partial<Core.TestResult<'classic' | 'ufg'>>
+    core?: Core.Core<Core.SpecType, 'classic' | 'ufg'>
+  }) {
+    this._result = options.result ?? ({} as any)
+    this._core = options.core
   }
 
   get id(): string {
@@ -181,7 +191,7 @@ export class TestResultsData implements Required<TestResults> {
     // DEPRECATED
   }
 
-  get startedAt(): Date | string {
+  get startedAt(): string {
     return this._result.startedAt!
   }
   getStartedAt(): Date {
@@ -379,13 +389,28 @@ export class TestResultsData implements Required<TestResults> {
     // DEPRECATED
   }
 
+  get server() {
+    return this._result.server
+  }
+
+  get keepIfDuplicate() {
+    return this._result.keepIfDuplicate
+  }
+
   isPassed(): boolean {
     return this._result.status === TestResultsStatusEnum.Passed
   }
 
   async delete(): Promise<void> {
-    return this._deleteTest?.({
-      settings: {serverUrl: '', apiKey: '', testId: this.id, batchId: this.batchId, secretToken: this.secretToken},
+    return this._core?.deleteTest({
+      settings: {
+        serverUrl: this._result.server.serverUrl,
+        apiKey: this._result.server.apiKey,
+        proxy: this._result.server.proxy,
+        testId: this._result.id!,
+        batchId: this._result.batchId,
+        secretToken: this._result.secretToken,
+      },
     })
   }
   /** @deprecated */
@@ -399,7 +424,7 @@ export class TestResultsData implements Required<TestResults> {
   }
 
   /** @internal */
-  toJSON(): CoreTestResult {
+  toJSON(): Core.TestResult<'classic' | 'ufg'> {
     return this._result
   }
 

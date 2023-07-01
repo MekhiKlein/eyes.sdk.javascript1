@@ -1,7 +1,7 @@
 import type {Region} from '@applitools/utils'
 import type {ScreenshotSettings} from '../../classic/types'
 import {type Logger} from '@applitools/logger'
-import {type Driver, type Element, type ElementReference, type SpecType} from '@applitools/driver'
+import {type Driver, type Element, type ElementReference, type Selector, type SpecType} from '@applitools/driver'
 import * as utils from '@applitools/utils'
 
 const {takeScreenshot: legacyTakeScreenshot} = require('@applitools/screenshoter')
@@ -12,7 +12,7 @@ export type Screenshot<TSpec extends SpecType> = {
   element: Element<TSpec>
   scrollingElement: Element<TSpec>
   restoreState(): Promise<void>
-  calculatedRegions: []
+  calculatedRegions: {selector?: Selector; regions: Region[]}[]
 }
 
 export async function takeScreenshot<TSpec extends SpecType>({
@@ -24,6 +24,7 @@ export async function takeScreenshot<TSpec extends SpecType>({
   settings: ScreenshotSettings<TSpec> & {regionsToCalculate?: ElementReference<TSpec>[]}
   logger: Logger
 }): Promise<Screenshot<TSpec>> {
+  const environment = await driver.getEnvironment()
   return legacyTakeScreenshot({
     driver,
     frames: settings.frames?.map(frame => {
@@ -36,10 +37,10 @@ export async function takeScreenshot<TSpec extends SpecType>({
     fully: settings.fully,
     hideScrollbars: settings.hideScrollbars,
     hideCaret: settings.hideCaret,
-    scrollingMode: settings.stitchMode?.toLowerCase(),
+    scrollingMode: settings.stitchMode?.toLowerCase() ?? 'scroll',
     overlap: settings.overlap,
     wait: settings.waitBeforeCapture,
-    framed: driver.isNative,
+    framed: environment.isNative,
     lazyLoad: settings.lazyLoad,
     stabilization: settings.normalization && {
       crop: settings.normalization.cut,

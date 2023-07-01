@@ -4,53 +4,53 @@ import type * as AutomationCore from '../automation/types'
 import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 import {type Proxy} from '@applitools/req'
-import {type Renderer, type DomSnapshot, type AndroidSnapshot, type IOSSnapshot} from '@applitools/ufg-client'
+import {
+  type UFGClient,
+  type UFGRequestsConfig,
+  type Renderer,
+  type DomSnapshot,
+  type AndroidSnapshot,
+  type IOSSnapshot,
+} from '@applitools/ufg-client'
 
 export * from '../automation/types'
 
 export type SnapshotTarget = MaybeArray<DomSnapshot> | MaybeArray<AndroidSnapshot> | MaybeArray<IOSSnapshot>
 export type Target<TSpec extends SpecType> = SnapshotTarget | AutomationCore.Target<TSpec>
 
-export interface Core<
-  TSpec extends SpecType,
-  TTarget = AutomationCore.Target<TSpec>,
-  TEyes extends Eyes<TSpec, TTarget | SnapshotTarget> = Eyes<TSpec, TTarget | SnapshotTarget>,
-> extends AutomationCore.Core<TSpec, TTarget, TEyes> {
+export interface Core<TSpec extends SpecType> extends AutomationCore.Core<TSpec> {
   readonly type: 'ufg'
+  getUFGClient(options?: {config: UFGRequestsConfig; concurrency?: number; logger?: Logger}): Promise<UFGClient>
   openEyes(options: {
     target?: AutomationCore.DriverTarget<TSpec>
-    settings: OpenSettings
-    eyes?: BaseCore.Eyes[]
+    settings: AutomationCore.OpenSettings
+    base?: BaseCore.Eyes[]
     logger?: Logger
-  }): Promise<TEyes>
+  }): Promise<Eyes<TSpec>>
 }
 
-export interface Eyes<TSpec extends SpecType, TTarget = Target<TSpec>> extends AutomationCore.Eyes<TSpec, TTarget> {
+export interface Eyes<TSpec extends SpecType> extends AutomationCore.Eyes<TSpec> {
   readonly type: 'ufg'
+  readonly core: Core<TSpec>
   getBaseEyes(options?: {
     settings?: {type: 'web' | 'native'; renderer: Renderer}
     logger?: Logger
   }): Promise<BaseCore.Eyes[]>
-  check(options?: {target?: TTarget; settings?: CheckSettings<TSpec>; logger?: Logger}): Promise<CheckResult[]>
+  check(options?: {target?: Target<TSpec>; settings?: CheckSettings<TSpec>; logger?: Logger}): Promise<CheckResult[]>
   checkAndClose(options?: {
-    target?: TTarget
+    target?: Target<TSpec>
     settings?: CheckSettings<TSpec> & AutomationCore.CloseSettings
     logger?: Logger
   }): Promise<TestResult[]>
   getResults(options?: {settings?: AutomationCore.GetResultsSettings; logger?: Logger}): Promise<TestResult[]>
 }
 
-export type OpenSettings = AutomationCore.OpenSettings & {
-  renderConcurrency?: number
-}
-
 export type CheckSettings<TSpec extends SpecType> = AutomationCore.CheckSettings<TSpec> & {
   renderers?: Renderer[]
   hooks?: {beforeCaptureScreenshot: string}
   disableBrowserFetching?: boolean
-  layoutBreakpoints?: boolean | number[]
+  layoutBreakpoints?: {breakpoints: number[] | boolean; reload?: boolean}
   ufgOptions?: Record<string, any>
-  nmgOptions?: Record<string, any>
   autProxy?: Proxy & {mode?: 'Allow' | 'Block'; domains?: string[]}
 }
 

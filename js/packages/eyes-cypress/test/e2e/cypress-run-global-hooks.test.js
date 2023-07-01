@@ -1,10 +1,8 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
 const {expect} = require('chai')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
 const fs = require('fs')
 const cypressConfig = require('../fixtures/testApp/cypress')
 const {presult} = require('@applitools/functional-commons')
@@ -15,7 +13,7 @@ const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/tes
 async function runCypress(testFile) {
   return (
     await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js`,
+      `./node_modules/.bin/cypress run --browser=chrome --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/global-hooks.js,supportFile=cypress/support/index-run.js`,
       {
         maxBuffer: 10000000,
       },
@@ -30,7 +28,7 @@ describe('global hooks', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
+    await pexec(`yarn`, {
       maxBuffer: 1000000,
     })
   })
@@ -55,15 +53,15 @@ describe('global hooks', () => {
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })
 
-  it('works with cypress version 4 (< 6.2.0 no global hooks available)', async () => {
-    await pexec(`npm install cypress@4`)
+  it('works with cypress version 4: < 6.2.0 no global hooks available', async () => {
+    await pexec(`yarn add cypress@4`)
     const [err, _stdout] = await presult(runCypress('fail.js'))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })
 
   it('works with cypress 6.7.0 or greater without flag', async () => {
-    await pexec(`npm install cypress@9`)
+    await pexec(`yarn add cypress@9`)
     const [err, _stdout] = await presult(runCypress('fail.js'))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')

@@ -1,35 +1,12 @@
+import type {TunnelManagerSettings} from '../types'
 import {type Logger} from '@applitools/logger'
-import {makeReq} from '@applitools/req'
-//@ts-ignore
-import makeTunnelServer from '@applitools/execution-grid-tunnel'
-
+import {makeTunnelClient, type Tunnel, type TunnelCredentials} from '@applitools/tunnel-client'
 import * as utils from '@applitools/utils'
 
 export interface TunnelManager {
-  create(credentials: TunnelCredentials): Promise<Tunnel>
-  destroy(tunnel: Tunnel): Promise<void>
-
   acquire(credentials: TunnelCredentials): Promise<Tunnel[]>
   release(tunnels: Tunnel[]): Promise<void>
-}
-
-export interface Tunnel {
-  tunnelId: string
-  credentials: TunnelCredentials
-}
-
-export interface TunnelCredentials {
-  eyesServerUrl: string
-  apiKey: string
-}
-
-export type TunnelManagerSettings = {
-  serverUrl?: string
-  groupSize?: number
-  pool?: {
-    maxInuse?: number
-    timeout?: {idle?: number; expiration?: number}
-  }
+  close(): Promise<void>
 }
 
 export async function makeTunnelManager({
@@ -38,38 +15,19 @@ export async function makeTunnelManager({
 }: {
   settings?: TunnelManagerSettings
   logger: Logger
-}): Promise<TunnelManager & {cleanup(): Promise<void>}> {
-  let server: {port: number; close: () => Promise<void>} | undefined
-
-  const req = makeReq({
-    retry: {
-      validate: async ({response}) => {
-        if (!response) return false
-        const body = await response
-          .clone()
-          .json()
-          .catch(() => null)
-        return ['CONCURRENCY_LIMIT_REACHED', 'NO_AVAILABLE_TUNNEL_PROXY'].includes(body?.message)
-      },
-      timeout: [
-        ...Array(5).fill(2000), // 5 tries with delay 2s (total 10s)
-        ...Array(4).fill(5000), // 4 tries with delay 5s (total 20s)
-        10000, // all next tries with delay 10s
-      ],
-    },
-  })
-
+}): Promise<TunnelManager & {close(): Promise<void>}> {
+  const client = makeTunnelClient({settings, logger})
   const pools = new Map<string, Pool<Tunnel[], TunnelCredentials>>()
 
-  return {create, destroy, acquire, release, cleanup}
+  return {acquire, release, close: client.close}
 
   async function acquire(credentials: TunnelCredentials): Promise<Tunnel[]> {
     const key = JSON.stringify(credentials)
     let pool = pools.get(key)!
     if (!pool) {
       pool = makePool({
-        create: () => Promise.all(Array.from({length: settings?.groupSize ?? 1}, () => create(credentials))),
-        destroy: tunnels => Promise.all(tunnels.map(destroy)).then(() => undefined),
+        create: () => Promise.all(Array.from({length: settings?.groupSize ?? 1}, () => client.create(credentials))),
+        destroy: tunnels => Promise.all(tunnels.map(client.destroy)).then(() => undefined),
         ...settings?.pool,
       })
       pools.set(key, pool)
@@ -83,60 +41,6 @@ export async function makeTunnelManager({
     const pool = pools.get(key)!
     if (!pool) return
     await pool.release(tunnels)
-  }
-
-  async function create(credentials: TunnelCredentials): Promise<Tunnel> {
-    if (!settings?.serverUrl) {
-      settings ??= {}
-      settings.serverUrl = await open()
-    }
-
-    const response = await req('/tunnels', {
-      method: 'POST',
-      baseUrl: settings!.serverUrl,
-      headers: {
-        'x-eyes-api-key': credentials.apiKey,
-        'x-eyes-server-url': credentials.eyesServerUrl,
-      },
-    })
-
-    const body = await response.json().catch(() => null)
-    if (response.status === 201) return {tunnelId: body, credentials}
-
-    logger.error(`Failed to create tunnel with status ${response.status} and code ${body?.message ?? 'UNKNOWN_ERROR'}`)
-    throw new Error(`Failed to create tunnel with code ${body?.message ?? 'UNKNOWN_ERROR'}`)
-  }
-
-  async function destroy(tunnel: Tunnel): Promise<void> {
-    if (!settings?.serverUrl) {
-      settings ??= {}
-      settings.serverUrl = await open()
-    }
-
-    const response = await req(`/tunnels/${tunnel.tunnelId}`, {
-      method: 'DELETE',
-      baseUrl: settings!.serverUrl,
-      headers: {
-        'x-eyes-api-key': tunnel.credentials.apiKey,
-        'x-eyes-server-url': tunnel.credentials.eyesServerUrl,
-      },
-    })
-
-    const body = await response.json().catch(() => null)
-    if (response.status === 200) return
-
-    logger.error(`Failed to delete tunnel with status ${response.status} and code ${body?.message ?? 'UNKNOWN_ERROR'}`)
-    throw new Error(`Failed to delete tunnel with code ${body?.message ?? 'UNKNOWN_ERROR'}`)
-  }
-
-  async function open(): Promise<string> {
-    const {port, cleanupFunction} = await makeTunnelServer({logger})
-    server = {port, close: cleanupFunction}
-    return `http://localhost:${port}`
-  }
-
-  async function cleanup() {
-    await server?.close()
   }
 }
 
@@ -167,7 +71,7 @@ interface PoolOptions<TResource, TResourceOptions> {
 function makePool<TResource, TResourceOptions = never>(
   options: PoolOptions<TResource, TResourceOptions>,
 ): Pool<TResource, TResourceOptions> {
-  const pool = new Map<TResource, PoolItem<TResource>>()
+  const pool = new Map<string, PoolItem<TResource>>()
 
   return {
     acquire,
@@ -199,7 +103,7 @@ function makePool<TResource, TResourceOptions = never>(
       item.timers.expiration = setTimeout(() => destroy(resource), options.timeout.expiration)
       item.expireAt = Date.now() + options.timeout.expiration
     }
-    pool.set(resource, item)
+    pool.set(JSON.stringify(resource), item)
   }
 
   async function get(): Promise<TResource | null> {
@@ -216,7 +120,7 @@ function makePool<TResource, TResourceOptions = never>(
   }
 
   async function use(resource: TResource): Promise<boolean> {
-    const item = pool.get(resource)
+    const item = pool.get(JSON.stringify(resource))
     if (!item) return false
     if (item.timers?.idle) clearTimeout(item.timers?.idle)
     item.inuse += 1
@@ -224,7 +128,7 @@ function makePool<TResource, TResourceOptions = never>(
   }
 
   async function release(resource: TResource): Promise<boolean> {
-    const item = pool.get(resource)
+    const item = pool.get(JSON.stringify(resource))
     if (!item) return false
     item.inuse -= 1
     if (item.destroyed) await destroy(resource)
@@ -240,7 +144,7 @@ function makePool<TResource, TResourceOptions = never>(
   }
 
   async function destroy(resource: TResource): Promise<boolean> {
-    const item = pool.get(resource)
+    const item = pool.get(JSON.stringify(resource))
     if (!item) return false
     item.destroyed = true
     if (item.inuse > 0) return false

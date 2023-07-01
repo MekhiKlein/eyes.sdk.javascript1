@@ -17,7 +17,7 @@ export function makeCheck<TSpec extends SpecType, TDefaultType extends 'classic'
   eyes,
   target: defaultTarget,
   spec,
-  logger: defaultLogger,
+  logger: mainLogger,
 }: Options<TSpec, TDefaultType>) {
   let stepIndex = 0
   return async function check<TType extends 'classic' | 'ufg' = TDefaultType>({
@@ -25,7 +25,7 @@ export function makeCheck<TSpec extends SpecType, TDefaultType extends 'classic'
     target = defaultTarget,
     settings,
     config,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     type?: TType
     target?: Target<TSpec, TType>
@@ -33,10 +33,12 @@ export function makeCheck<TSpec extends SpecType, TDefaultType extends 'classic'
     config?: Config<TSpec, TType>
     logger?: Logger
   } = {}): Promise<CheckResult<TType>[]> {
+    logger = logger.extend(mainLogger, {tags: [`check-${type}-${utils.general.shortid()}`]})
+
     settings = {...config?.screenshot, ...config?.check, ...settings}
     settings.fully ??= !settings.region && (!settings.frames || settings.frames.length === 0)
+    settings.screenshotMode ??= process.env.NML_API_KEY ? 'applitools-lib' : 'default'
     settings.waitBeforeCapture ??= 100
-    settings.stitchMode ??= 'Scroll'
     settings.hideScrollbars ??= true
     settings.hideCaret ??= true
     settings.overlap = {top: 10, bottom: 50, ...settings?.overlap}
@@ -63,11 +65,13 @@ export function makeCheck<TSpec extends SpecType, TDefaultType extends 'classic'
     }
 
     const driver = isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
+    const environment = await driver?.getEnvironment()
     const typedEyes = await eyes.getTypedEyes({
       type,
-      settings: driver
-        ? {type: driver.isNative ? 'native' : 'web', renderers: (settings as CheckSettings<TSpec, 'ufg'>).renderers}
-        : undefined,
+      settings: (settings as CheckSettings<TSpec, 'ufg'>).renderers?.map(renderer => ({
+        type: environment?.isNative ? 'native' : 'web',
+        renderer,
+      })),
       logger,
     })
     const results = await typedEyes.check({target: driver ?? target, settings, logger})

@@ -3,9 +3,16 @@ import type {DriverTarget, Target, Eyes, CheckSettings, CheckResult} from './typ
 import {type DomSnapshot, type AndroidSnapshot, type IOSSnapshot} from '@applitools/ufg-client'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
-import {type UFGClient} from '@applitools/ufg-client'
-import {makeDriver, isDriver, type SpecType, type SpecDriver, type Selector, type Cookie} from '@applitools/driver'
-import {takeSnapshots} from './utils/take-snapshots'
+import {
+  makeDriver,
+  isDriver,
+  isSelector,
+  type SpecType,
+  type SpecDriver,
+  type Selector,
+  type Cookie,
+} from '@applitools/driver'
+import {takeDomSnapshots} from './utils/take-dom-snapshots'
 import {waitForLazyLoad} from '../automation/utils/wait-for-lazy-load'
 import {toBaseCheckSettings} from '../automation/utils/to-base-check-settings'
 import {generateSafeSelectors} from './utils/generate-safe-selectors'
@@ -16,7 +23,6 @@ import chalk from 'chalk'
 
 type Options<TSpec extends SpecType> = {
   eyes: Eyes<TSpec>
-  client: UFGClient
   target?: DriverTarget<TSpec>
   spec?: SpecDriver<TSpec>
   signal?: AbortSignal
@@ -25,21 +31,22 @@ type Options<TSpec extends SpecType> = {
 
 export function makeCheck<TSpec extends SpecType>({
   eyes,
-  client,
   target: defaultTarget,
   spec,
   signal,
-  logger: defaultLogger,
+  logger: mainLogger,
 }: Options<TSpec>) {
   return async function check({
     target = defaultTarget,
     settings = {},
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     settings?: CheckSettings<TSpec>
     target?: Target<TSpec>
     logger?: Logger
   }): Promise<CheckResult[]> {
+    logger = logger.extend(mainLogger)
+
     logger.log('Command "check" is called with settings', settings)
 
     if (signal?.aborted) {
@@ -51,18 +58,27 @@ export function makeCheck<TSpec extends SpecType>({
       settings,
     })
 
+    const uniqueRenderers = uniquifyRenderers(settings.renderers ?? [])
+    const ufgClient = await eyes.core.getUFGClient({
+      config: {...eyes.test.ufgServer},
+      concurrency: uniqueRenderers.length || 5,
+      logger,
+    })
+
     let snapshots: DomSnapshot[] | AndroidSnapshot[] | IOSSnapshot[]
     let snapshotUrl: string | undefined
     let snapshotTitle: string | undefined
     let userAgent: string | undefined
-    let regionToTarget: Selector | Region
+    let regionToTarget: Selector | Region | undefined
+    let scrollRootSelector: Selector | undefined
     let selectorsToCalculate: {originalSelector: Selector | null; safeSelector: Selector | null}[]
-    const uniqueRenderers = uniquifyRenderers(settings.renderers ?? [])
+
     const driver = spec && isDriver(target, spec) ? await makeDriver({spec, driver: target, logger}) : null
     if (driver) {
+      const environment = await driver.getEnvironment()
       await driver.currentContext.setScrollingElement(settings.scrollRootElement ?? null)
       if (uniqueRenderers.length === 0) {
-        if (driver.isWeb) {
+        if (environment.isWeb) {
           const viewportSize = await driver.getViewportSize()
           uniqueRenderers.push({name: 'chrome', ...viewportSize})
         } else {
@@ -70,39 +86,50 @@ export function makeCheck<TSpec extends SpecType>({
         }
       }
       let cleanupGeneratedSelectors
-      if (driver.isWeb) {
-        userAgent = driver.userAgent
+      if (environment.isWeb) {
+        userAgent = await driver.getUserAgentLegacy()
         const generated = await generateSafeSelectors({
           context: driver.currentContext,
           elementReferences: [
             ...(elementReferenceToTarget ? [elementReferenceToTarget] : []),
+            ...(settings.scrollRootElement ? [settings.scrollRootElement] : []),
             ...elementReferencesToCalculate,
           ],
         })
         cleanupGeneratedSelectors = generated.cleanupGeneratedSelectors
+        selectorsToCalculate = generated.selectors
         if (elementReferenceToTarget) {
-          if (!generated.selectors[0]?.safeSelector) throw new Error('Target element not found')
-          regionToTarget = generated.selectors[0]?.safeSelector as Selector<never>
-          selectorsToCalculate = generated.selectors.slice(1)
-        } else {
-          selectorsToCalculate = generated.selectors
+          if (!selectorsToCalculate[0]?.safeSelector) throw new Error('Target element not found')
+          regionToTarget = selectorsToCalculate[0].safeSelector
+          selectorsToCalculate = selectorsToCalculate.slice(1)
         }
+        if (settings.scrollRootElement) {
+          scrollRootSelector = selectorsToCalculate[0].safeSelector ?? undefined
+          selectorsToCalculate = selectorsToCalculate.slice(1)
+        }
+      } else {
+        regionToTarget = isSelector(elementReferenceToTarget)
+          ? spec?.untransformSelector?.(settings.scrollRootElement) ?? undefined
+          : undefined
+        scrollRootSelector = isSelector(settings.scrollRootElement)
+          ? spec?.untransformSelector?.(settings.scrollRootElement) ?? undefined
+          : undefined
       }
 
       const currentContext = driver.currentContext
-      snapshots = await takeSnapshots({
-        driver,
+
+      const snapshotOptions = {
         settings: {
           ...eyes.test.server,
           waitBeforeCapture: settings.waitBeforeCapture,
           disableBrowserFetching: settings.disableBrowserFetching,
           layoutBreakpoints: settings.layoutBreakpoints,
           renderers: uniqueRenderers,
-          skipResources: client.getCachedResourceUrls(),
+          skipResources: ufgClient.getCachedResourceUrls(),
         },
         hooks: {
           async beforeSnapshots() {
-            if (settings.lazyLoad && driver.isWeb) {
+            if (settings.lazyLoad && environment.isWeb) {
               await waitForLazyLoad({
                 context: driver.currentContext,
                 settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
@@ -112,11 +139,17 @@ export function makeCheck<TSpec extends SpecType>({
           },
         },
         provides: {
-          getChromeEmulationDevices: client.getChromeEmulationDevices,
-          getIOSDevices: client.getIOSDevices,
+          getChromeEmulationDevices: ufgClient.getChromeEmulationDevices,
+          getIOSDevices: ufgClient.getIOSDevices,
         },
-        logger,
-      })
+      }
+      if (environment.isWeb) {
+        snapshots = await takeDomSnapshots({driver, ...snapshotOptions, logger})
+      } else {
+        const nmlClient = await eyes.core.getNMLClient({config: eyes.test.server, driver, logger})
+        snapshots = (await nmlClient.takeSnapshots({...snapshotOptions, logger})) as AndroidSnapshot[] | IOSSnapshot[]
+      }
+
       await currentContext.focus()
       snapshotUrl = await driver.getUrl()
       snapshotTitle = await driver.getTitle()
@@ -133,22 +166,24 @@ export function makeCheck<TSpec extends SpecType>({
     }))
 
     const promises = uniqueRenderers.map(async (renderer, index) => {
+      const rendererLogger = logger.extend({tags: [`renderer-${utils.general.shortid()}`]})
+
       if (utils.types.has(renderer, 'name') && renderer.name === 'edge') {
         const message = chalk.yellow(
           `The 'edge' option that is being used in your browsers' configuration will soon be deprecated. Please change it to either 'edgelegacy' for the legacy version or to 'edgechromium' for the new Chromium-based version. Please note, when using the built-in BrowserType enum, then the values are BrowserType.EDGE_LEGACY and BrowserType.EDGE_CHROMIUM, respectively.`,
         )
-        logger.console.log(message)
+        rendererLogger.console.log(message)
       }
 
       try {
         if (signal?.aborted) {
-          logger.warn('Command "check" was aborted before rendering')
+          rendererLogger.warn('Command "check" was aborted before rendering')
           throw new AbortError('Command "check" was aborted before rendering')
         }
 
         const {cookies, ...snapshot} = snapshots[index] as (typeof snapshots)[number] & {cookies: Cookie[]}
         const snapshotType = utils.types.has(snapshot, 'cdt') ? 'web' : 'native'
-        const renderTargetPromise = client.createRenderTarget({
+        const renderTargetPromise = ufgClient.createRenderTarget({
           snapshot,
           settings: {
             renderer,
@@ -158,16 +193,19 @@ export function makeCheck<TSpec extends SpecType>({
             autProxy: settings.autProxy,
             userAgent,
           },
+          logger: rendererLogger,
         })
 
-        const [baseEyes] = await eyes.getBaseEyes({settings: {renderer, type: snapshotType}, logger})
+        const [baseEyes] = await eyes.getBaseEyes({settings: {renderer, type: snapshotType}, logger: rendererLogger})
 
         try {
           if (signal?.aborted) {
-            logger.warn('Command "check" was aborted before rendering')
+            rendererLogger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
           } else if (!baseEyes.running) {
-            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            rendererLogger.warn(
+              `Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`,
+            )
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
             )
@@ -176,27 +214,32 @@ export function makeCheck<TSpec extends SpecType>({
           const renderTarget = await renderTargetPromise
 
           if (signal?.aborted) {
-            logger.warn('Command "check" was aborted before rendering')
+            rendererLogger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
           } else if (!baseEyes.running) {
-            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            rendererLogger.warn(
+              `Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`,
+            )
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
             )
           }
 
-          const {renderId, selectorRegions, ...baseTarget} = await client.render({
+          const {renderId, selectorRegions, ...baseTarget} = await ufgClient.render({
             target: renderTarget,
             settings: {
               ...settings,
               region: regionToTarget,
+              scrollRootElement: scrollRootSelector,
               selectorsToCalculate: selectorsToCalculate.flatMap(({safeSelector}) => safeSelector ?? []),
               includeFullPageSize: Boolean(settings.pageId),
               type: snapshotType,
               renderer,
+              rendererUniqueId: baseEyes.test.rendererUniqueId!,
               rendererId: baseEyes.test.rendererId!,
             },
             signal,
+            logger: rendererLogger,
           })
           let offset = 0
           const baseSettings = getBaseCheckSettings({
@@ -210,10 +253,12 @@ export function makeCheck<TSpec extends SpecType>({
           baseTarget.name = snapshotTitle
 
           if (signal?.aborted) {
-            logger.warn('Command "check" was aborted after rendering')
+            rendererLogger.warn('Command "check" was aborted after rendering')
             throw new AbortError('Command "check" was aborted after rendering')
           } else if (!baseEyes.running) {
-            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            rendererLogger.warn(
+              `Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`,
+            )
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
             )
@@ -222,11 +267,13 @@ export function makeCheck<TSpec extends SpecType>({
           const [result] = await baseEyes.check({
             target: {...baseTarget, isTransformed: true},
             settings: baseSettings,
-            logger,
+            logger: rendererLogger,
           })
 
           if (!baseEyes.running) {
-            logger.warn(`Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`)
+            rendererLogger.warn(
+              `Renderer with id ${baseEyes.test.rendererId} was aborted during one of the previous steps`,
+            )
             throw new AbortError(
               `Renderer with id "${baseEyes.test.rendererId}" was aborted during one of the previous steps`,
             )
@@ -234,13 +281,13 @@ export function makeCheck<TSpec extends SpecType>({
 
           return {...result, eyes: baseEyes, renderer}
         } catch (error: any) {
-          if (baseEyes.running && !signal?.aborted) {
-            await baseEyes.abort({settings: {testMetadata: await driver?.getSessionMetadata()}})
-          }
+          rendererLogger.error(`Renderer with id ${baseEyes.test.rendererId} failed due to an error`, error)
+          if (baseEyes.running && !signal?.aborted) await baseEyes.abort({logger: rendererLogger})
           error.info = {eyes: baseEyes}
           throw error
         }
       } catch (error: any) {
+        rendererLogger.error(`Renderer with id ${renderer.id} failed before rendering started due to an error`, error)
         error.info = {...error.info, userTestId: eyes.test.userTestId, renderer}
         throw error
       }

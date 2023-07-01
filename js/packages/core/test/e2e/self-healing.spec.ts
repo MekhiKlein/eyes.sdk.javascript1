@@ -20,10 +20,14 @@ describe('self-healing', () => {
 
   before(async () => {
     core = makeCore({spec, concurrency: 10})
-    client = await core.makeECClient({
-      settings: {capabilities: {eyesServerUrl: serverUrl, useSelfHealing: true}},
+    client = await core.getECClient({
+      settings: {options: {eyesServerUrl: serverUrl, useSelfHealing: true}},
     })
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false, url: client.url})
+    ;[driver, destroyDriver] = await spec.build({
+      browser: 'chrome',
+      headless: false,
+      url: client.url,
+    })
   })
 
   after(async () => {

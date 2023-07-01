@@ -65,7 +65,7 @@ describe('spec driver', async () => {
       await untransformSelector({input: () => Promise.resolve(), expected: null})
     })
     it('untransformSelector(relative-by)', async function () {
-      if (Number(process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION) < 4) this.skip()
+      if (Number(process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION) < 4) this.skip()
       await untransformSelector({input: locateWith(By.css('div')).near(By.css('button')), expected: null})
     })
     it('untransformSelector(string)', async () => {
@@ -140,20 +140,6 @@ describe('spec driver', async () => {
     })
     it('visit()', async () => {
       await visit()
-    })
-    it('getSessionMetadata()', async () => {
-      // when driver doens't respond to the command route
-      await assert.rejects(async () => await spec.getSessionMetadata(driver), {message: /unknown command/})
-
-      // when the driver does
-      // TODO: replace w/ a proper e2e test
-      const session = await driver.getSession()
-      const sessionId = session.getId()
-      nock('http://localhost:4444/wd/hub').persist().get(`/session/${sessionId}/applitools/metadata`).reply(200, {
-        value: [],
-      })
-      nock('http://localhost:4444/wd/hub').persist().delete(`/session/${sessionId}`).reply(200, {value: null})
-      assert.deepStrictEqual(await spec.getSessionMetadata(driver), [])
     })
   })
 

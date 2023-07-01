@@ -21,7 +21,7 @@ describe('get manager results', async () => {
     ])
 
     const fakeCore = makeFakeCore()
-    core = makeCore({spec, core: fakeCore})
+    core = makeCore({spec, base: fakeCore})
   })
 
   it('should not throw on get results', async () => {
@@ -51,5 +51,19 @@ describe('get manager results', async () => {
     assert.strictEqual(summary1.results[0].result!.status, 'Passed')
     const summary2 = await manager.getResults()
     assert.deepStrictEqual(summary1, summary2)
+  })
+
+  it('should remove duplicates', async () => {
+    const manager = await core.makeManager()
+    let eyes = await manager.openEyes({target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.check({settings: {name: 'blah'}})
+    await eyes.close()
+
+    eyes = await manager.openEyes({target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.check({settings: {name: 'blah'}})
+    await eyes.close()
+
+    const summary = await manager.getResults({settings: {throwErr: false, removeDuplicateTests: true}})
+    assert.deepStrictEqual(summary.results.length, 1)
   })
 })

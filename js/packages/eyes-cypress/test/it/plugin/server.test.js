@@ -8,20 +8,20 @@ const logger = makeLogger()
 
 describe('plugin server', () => {
   it('starts at random port', async () => {
-    const startServer = makeStartServer({logger})
+    const startServer = makeStartServer({logger, eyesConfig: {}})
     const {port, server} = await startServer()
     expect(port).to.not.undefined
-    await server.close()
+    await new Promise(res => server.close(res))
   })
 
   it('start another server with random port', async () => {
-    const startServer = makeStartServer({logger})
+    const startServer = makeStartServer({logger, eyesConfig: {}})
     const {port, server} = await startServer()
     expect(port).to.not.undefined
 
     const {port: port2, server: server2} = await startServer()
     expect(port2).to.not.undefined
-    await server.close()
-    await server2.close()
+    await new Promise(res => server.close(res))
+    await new Promise(res => server2.close(res))
   })
 })

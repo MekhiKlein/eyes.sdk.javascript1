@@ -4,9 +4,14 @@ const chalk = require('chalk');
 const utils = require('@applitools/utils');
 const uniq = require('./uniq');
 const concurrencyMsg = require('./concurrencyMsg');
-const {formatters} = require('@applitools/core');
 
-function processResults({results = [], totalTime, testConcurrency, saveNewTests = true}) {
+function processResults({
+  results,
+  totalTime,
+  testConcurrency,
+  saveNewTests = true,
+  configExitCode,
+}) {
   let outputStr = '\n';
   const pluralize = utils.general.pluralize;
   let testResults = flatten(results.summary.results);
@@ -102,12 +107,19 @@ function processResults({results = [], totalTime, testConcurrency, saveNewTests 
     // TODO require from core
     outputStr += `\n${concurrencyMsg}\n`;
   }
-  const formatter = formatters.toJsonOutput(results.summary);
-  const exitCode =
-    !warnForUnsavedNewTests && passedOrNew.length && !errors.length && !unresolved.length ? 0 : 1;
+
+  let exitCode;
+  if (!configExitCode) {
+    exitCode = 0;
+  } else if (configExitCode === 'nodiffs') {
+    exitCode = errors.length ? 1 : 0;
+  } else {
+    exitCode =
+      !warnForUnsavedNewTests && passedOrNew.length && !errors.length && !unresolved.length ? 0 : 1;
+  }
   return {
     outputStr,
-    formatter,
+    summary: results.summary,
     exitCode,
   };
 }

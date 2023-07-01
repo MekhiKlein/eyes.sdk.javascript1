@@ -41,7 +41,7 @@ function isByHashSelector(selector: any): selector is Selenium.ByHash {
   return byHash.includes(Object.keys(selector)[0] as (typeof byHash)[number])
 }
 async function executeCustomCommand(driver: Driver, command: Command) {
-  return process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
+  return process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3'
     ? (driver as any).schedule(command)
     : driver.execute(command)
 }
@@ -78,9 +78,8 @@ export function transformDriver(driver: Driver): Driver {
   driver.getExecutor().defineCommand('getCurrentContext', 'GET', '/session/:sessionId/context')
   driver.getExecutor().defineCommand('getContexts', 'GET', '/session/:sessionId/contexts')
   driver.getExecutor().defineCommand('switchToContext', 'POST', '/session/:sessionId/context')
-  driver.getExecutor().defineCommand('getSessionMetadata', 'GET', '/session/:sessionId/applitools/metadata')
 
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
     driver.getExecutor().defineCommand('switchToParentFrame', 'POST', '/session/:sessionId/frame/parent')
   }
   return driver
@@ -134,7 +133,7 @@ export async function mainContext(driver: Driver): Promise<Driver> {
   return driver
 }
 export async function parentContext(driver: Driver): Promise<Driver> {
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
     await executeCustomCommand(driver, new Command('switchToParentFrame'))
     return driver
   }
@@ -201,11 +200,6 @@ export async function setWindowSize(driver: Driver, size: Size) {
     else await executeCustomCommand(driver, new Command('setWindowSize').setParameters({...size}))
   }
 }
-// NOTE: this command is meant to be called when running with the eg-client
-// otherwise it will not be implemented on the driver and throw
-export async function getSessionMetadata(driver: Driver): Promise<[] | void> {
-  return await executeCustomCommand(driver, new Command('getSessionMetadata'))
-}
 export async function getCookies(driver: Driver, context?: boolean): Promise<Cookie[]> {
   if (context) return driver.manage().getCookies()
 
@@ -265,17 +259,13 @@ export async function click(driver: Driver, element: Element | Selector): Promis
 }
 export async function hover(driver: Driver, element: Element | Selector) {
   const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+  if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
     const {ActionSequence} = require('selenium-webdriver')
     const action = new ActionSequence(driver)
     await action.mouseMove(resolvedElement).perform()
   } else {
     await driver.actions().move({origin: resolvedElement!}).perform()
   }
-}
-export async function scrollIntoView(driver: Driver, element: Element | Selector, align = false): Promise<void> {
-  const resolvedElement = isSelector(element) ? await findElement(driver, element) : element
-  await driver.executeScript('arguments[0].scrollIntoView(arguments[1])', resolvedElement, align)
 }
 export async function waitUntilDisplayed(driver: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(driver, selector)
@@ -346,8 +336,14 @@ const browserOptionsNames: Record<string, string> = {
  * When wiring the spec-driver up to an SDK and calling this function, if you don't have the same dev deps
  * installed in the SDK, then this function will error.
  */
-export async function build({selenium, ...env}: any): Promise<[Driver & {__serverUrl?: string}, () => Promise<void>]> {
-  const {Builder} = (selenium ?? require('selenium-webdriver')) as typeof Selenium
+export async function build(env: any): Promise<[Driver & {__serverUrl?: string}, () => Promise<void>]> {
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('selenium-webdriver', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'selenium-webdriver'
+  }
+  const {Builder} = require(frameworkPath) as typeof Selenium
   const parseEnv = require('@applitools/test-utils/src/parse-env')
 
   const {
@@ -360,7 +356,7 @@ export async function build({selenium, ...env}: any): Promise<[Driver & {__serve
     appium = false,
     args = [],
     headless,
-  } = parseEnv({...env, legacy: env.legacy ?? process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'})
+  } = parseEnv({...env, legacy: env.legacy ?? process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3'})
   const desiredCapabilities = {...capabilities}
   if (configurable) {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
@@ -378,7 +374,7 @@ export async function build({selenium, ...env}: any): Promise<[Driver & {__serve
   if (browser === 'chrome') {
     if (appium) {
       desiredCapabilities['appium:chromeOptions'] = {w3c: false, ...desiredCapabilities['appium:chromeOptions']}
-    } else if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+    } else if (process.env.APPLITOOLS_FRAMEWORK_MAJOR_VERSION === '3') {
       desiredCapabilities['goog:chromeOptions'] = {w3c: false, ...desiredCapabilities['goog:chromeOptions']}
     }
   }

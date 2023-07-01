@@ -15,6 +15,7 @@ export type Options = ServerOptions & {
   shutdownMode?: 'lazy' | 'stdin'
   idleTimeout?: number
   printStdout?: boolean
+  isProcess?: boolean
 }
 
 export async function makeCoreServer({
@@ -22,14 +23,14 @@ export async function makeCoreServer({
   shutdownMode = 'lazy',
   idleTimeout = 900000, // 15min
   printStdout = false,
+  isProcess = false,
   ...handlerOptions
 }: Options = {}): Promise<{port: number; close?: () => void}> {
   const logDirname = process.env.APPLITOOLS_LOG_DIR ?? path.resolve(os.tmpdir(), `applitools-logs`)
   const baseLogger = makeLogger({
     handler: {type: 'rolling file', name: 'universal', dirname: logDirname},
-    label: 'core-universal',
     level: 'info',
-    colors: false,
+    format: {label: 'core-universal', colors: false},
   })
   baseLogger.log('Core universal is going to be initialized with options', {
     debug,
@@ -39,9 +40,11 @@ export async function makeCoreServer({
     ...handlerOptions,
   })
   const {server, port} = await makeServer({...handlerOptions, debug})
-  // eslint-disable-next-line no-console
-  console.log(port) // NOTE: this is a part of the generic protocol
-  process.send?.({name: 'port', payload: {port}}) // NOTE: this is a part of the js specific protocol
+  if (isProcess) {
+    // eslint-disable-next-line no-console
+    console.log(port) // NOTE: this is a part of the generic protocol
+    process.send?.({name: 'port', payload: {port}}) // NOTE: this is a part of the js specific protocol
+  }
   if (!server) {
     baseLogger.console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
     return {port}
@@ -136,13 +139,23 @@ export async function makeCoreServer({
       const core = await corePromise
       return core.extractText(options)
     })
+    socket.command('Core.getECClient', async options => {
+      const core = await corePromise
+      const client = await core.getECClient(options)
+      return {url: client.url} as any
+    })
+    // TODO remove
     socket.command('Core.makeECClient', async options => {
       const core = await corePromise
-      const client = await core.makeECClient(options)
+      const client = await core.getECClient(options)
       return {url: client.url} as any
     })
     socket.command('Core.makeManager', async options => {
       const core = await corePromise
+      options.settings ??= {}
+      options.settings.concurrency ??= (options as any).concurrency
+      options.settings.legacyConcurrency ??= (options as any).legacyConcurrency
+      options.settings.agentId ??= (options as any).agentId
       return refer.ref(await core.makeManager(options))
     })
 
@@ -173,6 +186,11 @@ export async function makeCoreServer({
 
     socket.command('Debug.getHistory', async () => {
       return getHistory()
+    })
+
+    socket.command('Core.logEvent', async ({settings}) => {
+      const core = await corePromise
+      core.logEvent({settings})
     })
   })
 

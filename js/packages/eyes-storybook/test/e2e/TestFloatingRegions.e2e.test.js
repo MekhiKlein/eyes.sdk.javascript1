@@ -6,7 +6,7 @@ const testStorybook = require('../util/testStorybook');
 const path = require('path');
 const {testServerInProcess} = require('@applitools/test-server');
 const eyesStorybook = require('../../src/eyesStorybook');
-const generateConfig = require('../../src/generateConfig');
+const {generateConfig} = require('../../src/generateConfig');
 const {configParams: externalConfigParams} = require('../../src/configParams');
 const {makeTiming} = require('@applitools/monitoring-commons');
 const logger = require('../util/testLogger');
@@ -34,7 +34,6 @@ describe('eyes-storybook floating region', () => {
   it('renders storybook with floating region', async () => {
     const {stream, getEvents} = testStream();
     const configPath = path.resolve(__dirname, 'happy-config/floatingRegion.config.js');
-    const globalConfig = require(configPath);
     const defaultConfig = {waitBeforeScreenshots: 50};
     const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
 

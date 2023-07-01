@@ -1,5 +1,4 @@
 import {type UFGRequests} from '../../src/server/requests'
-import {Response, type Fetch, type Request} from '@applitools/req'
 import {makeResource} from '../../src/resources/resource'
 import {makeProcessResources} from '../../src/resources/process-resources'
 import {makeFetchResource} from '../../src/resources/fetch-resource'
@@ -7,23 +6,24 @@ import {makeUploadResource} from '../../src/resources/upload-resource'
 import {makeFixtureResources as makeFixtureCssResources} from '../fixtures/page/test.css.resources'
 import {makeFixtureResources as makeFixtureSvgResources} from '../fixtures/page/with-style.svg.resources'
 import {readFileSync} from 'fs'
-import {testServer} from '@applitools/test-server'
+import {makeLogger} from '@applitools/logger'
+import {makeTestServer} from '@applitools/test-server'
 import nock from 'nock'
 import assert from 'assert'
 
 describe('processResources', () => {
-  let server, baseUrl, fetchResource, uploadResource
+  let server, baseUrl: string
+  const fetchResource = makeFetchResource({logger: makeLogger()})
+  const uploadResource = makeUploadResource({
+    requests: {
+      checkResources: async ({resources}) => Array(resources.length).fill(true),
+    } as UFGRequests,
+    logger: makeLogger(),
+  })
 
   before(async () => {
-    server = await testServer()
+    server = await makeTestServer()
     baseUrl = `http://localhost:${server.port}`
-
-    fetchResource = makeFetchResource()
-    uploadResource = makeUploadResource({
-      requests: {
-        checkResources: async ({resources}) => Array(resources.length).fill(true),
-      } as UFGRequests,
-    })
   })
 
   after(async () => {
@@ -31,7 +31,7 @@ describe('processResources', () => {
   })
 
   it('works for absolute urls', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const jpgPath = 'page/smurfs.jpg'
     const jpgUrl = `${baseUrl}/${jpgPath}`
@@ -80,7 +80,7 @@ describe('processResources', () => {
   })
 
   it('works for urls with long paths', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const filePath = `page/long/path/to/something.js`
     const fileUrl = `${baseUrl}/${filePath}`
@@ -100,7 +100,7 @@ describe('processResources', () => {
   })
 
   it('works for svg urls', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const svg1Path = 'page/basic.svg'
     const svg1Url = `${baseUrl}/${svg1Path}`
@@ -139,21 +139,13 @@ describe('processResources', () => {
 
   it('fetches with user-agent and referer headers', async () => {
     const url = 'http://url.com/'
-    const fetchResource = makeFetchResource({
-      fetch: (async (request: Request) => {
-        if (
-          request.url === url &&
-          request.headers.get('Referer') === 'some-referer' &&
-          request.headers.get('User-Agent') === 'SomeUserAgent'
-        ) {
-          return new Response(Buffer.from('content'), {
-            status: 200,
-            headers: {'Content-Type': 'text/plain'},
-          })
-        }
-      }) as Fetch,
-    })
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    nock(url)
+      .get(/.*/)
+      .matchHeader('Referer', 'some-referer')
+      .matchHeader('User-Agent', 'SomeUserAgent')
+      .reply(200, 'content', {'Content-Type': 'text/plain'})
+    const fetchResource = makeFetchResource({logger: makeLogger()})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resources = await processResources({
       resources: {[url]: makeResource({url})},
@@ -172,6 +164,7 @@ describe('processResources', () => {
       fetchResource,
       uploadResource,
       cache: new Map<string, any>([[fakeResource.url, {hash: fakeResource.hash}]]),
+      logger: makeLogger(),
     })
 
     const resourcesFromCache = await processResources({
@@ -186,7 +179,7 @@ describe('processResources', () => {
     let called = 0
     const resource = makeResource({url: 'http://url.com', contentType: 'text/css', value: Buffer.from('content')})
     const fetchResource = async () => (++called, resource)
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const urlResource = makeResource({url: resource.url})
 
@@ -230,7 +223,7 @@ describe('processResources', () => {
       `${baseUrl}/page/smurfs3.jpg`,
     ]
 
-    const processResources = makeProcessResources({fetchResource, uploadResource, cache})
+    const processResources = makeProcessResources({fetchResource, uploadResource, cache, logger: makeLogger()})
 
     const resourcesFromCache = await processResources({
       resources: {[cssUrl]: makeResource({url: cssUrl})},
@@ -240,7 +233,7 @@ describe('processResources', () => {
   })
 
   it("doesn't crash with unsupported protocols", async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const dataUrl = 'data:text/html,<div>'
     const blobUrl = 'blob:http://localhost/something.css'
@@ -254,7 +247,7 @@ describe('processResources', () => {
   })
 
   it('handles empty resources', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resource1 = makeResource({url: 'one', contentType: 'some-type', value: null as any})
     const resource2 = makeResource({url: 'two', contentType: 'some-type', value: Buffer.from('some-content')})
@@ -275,6 +268,7 @@ describe('processResources', () => {
       fetchResource: (() => null) as any,
       uploadResource,
       cache: new Map<string, any>([[resource.url, {hash: resource.hash}]]),
+      logger: makeLogger(),
     })
 
     const resourcesFromCache = await processResources({
@@ -287,7 +281,7 @@ describe('processResources', () => {
   })
 
   it('handles uppercase urls', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resource = makeResource({
       url: `${baseUrl.toUpperCase()}/page/imported2.css`,
@@ -302,7 +296,7 @@ describe('processResources', () => {
   })
 
   it('gets resources from prefilled resources', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const cssPath = 'page/blob.css'
     const cssUrl = `${baseUrl}/${cssPath}`
@@ -345,7 +339,7 @@ describe('processResources', () => {
   })
 
   it("doesn't extract dependencies from prefilled resources", async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const cssPath = 'page/svg2.css' // has smurfs4.jpg as dependecy
     const cssUrl = `${baseUrl}/${cssPath}`
@@ -363,7 +357,7 @@ describe('processResources', () => {
   })
 
   it('works for unknown content-type', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const filePath = 'page/no-content-type'
     const fileUrl = `${baseUrl}/${filePath}`
@@ -388,28 +382,30 @@ describe('processResources', () => {
 
   it("doesn't fail when fetch fails, but write a log", async () => {
     let output = ''
+    const logger = {
+      log: (...args: any[]) => void (output += args.join('')),
+      error: () => void 0,
+      extend: () => logger,
+    } as any
     const processResources = makeProcessResources({
-      fetchResource,
+      fetchResource: () => {
+        throw new Error('noop')
+      },
       uploadResource,
-      logger: {
-        log: (...args) => void (output += args.join('')),
-      } as any,
+      logger,
     })
 
     const url = 'http://localhost:1234/err/bla.css'
     const resources = await processResources({resources: {[url]: makeResource({url})}})
     assert.deepStrictEqual(resources.mapping, {[url]: makeResource({id: url, errorStatusCode: 504}).hash})
-    // NOTE: since node 18 address string had changed from `127.0.0.1:1234` to `::1:1234`
-    // TODO remove when support node >=18
-    output = output.replace('ECONNREFUSED 127.0.0.1:1234', 'ECONNREFUSED ::1:1234')
     assert.strictEqual(
       output,
-      'error fetching resource at http://localhost:1234/err/bla.css, setting errorStatusCode to 504. err=FetchError: request to http://localhost:1234/err/bla.css failed, reason: connect ECONNREFUSED ::1:1234',
+      'error fetching resource at http://localhost:1234/err/bla.css, setting errorStatusCode to 504. err=Error: noop',
     )
   })
 
   it('handles the case when the same resource appears as prefilled resource and as a dependency of another url resource', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const preResource = makeResource({
       url: `${baseUrl}/page/smurfs5.jpg`,
@@ -436,7 +432,7 @@ describe('processResources', () => {
   })
 
   it('handles the case when the same resource appears both in prefilled resource and as a dependency of another prefilled resource', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const jpgResource = makeResource({
       url: `${baseUrl}/page/smurfs5.jpg`,
@@ -463,7 +459,7 @@ describe('processResources', () => {
   })
 
   it('handles recursive reference inside a dependency', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const cssPath = 'page/recursive.css'
     const cssUrl = `${baseUrl}/${cssPath}`
@@ -480,7 +476,7 @@ describe('processResources', () => {
   })
 
   it('handles recursive reference inside a dependency from a prefilled resource', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const cssPath = 'page/recursive.css'
     const cssUrl = `${baseUrl}/${cssPath}`
@@ -497,7 +493,7 @@ describe('processResources', () => {
   })
 
   it('handles mutually recursive references', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const css1Path = 'page/recursive-1.css'
     const css1Url = `${baseUrl}/${css1Path}`
@@ -526,16 +522,16 @@ describe('processResources', () => {
   })
 
   it('make sure we send user agent when fetching google fonts', async () => {
-    const fetchResource = makeFetchResource({
-      fetch: (async (request: Request) => {
-        return new Response('font', {
-          status: 200,
-          headers: {'Content-Type': `application/${request.headers.get('User-Agent')}`},
-        })
-      }) as Fetch,
-    })
+    nock('https://fonts.googleapis.com')
+      .get(/.*/)
+      .matchHeader(
+        'User-Agent',
+        'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko',
+      )
+      .reply(200, 'font', {'Content-Type': 'application/x-font'})
 
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const fetchResource = makeFetchResource({logger: makeLogger()})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const googleFontUrl = 'https://fonts.googleapis.com/css?family=Zilla+Slab'
 
@@ -548,14 +544,15 @@ describe('processResources', () => {
       },
     })
 
-    assert.deepStrictEqual(
-      (resources.mapping[googleFontUrl] as any).contentType,
-      `application/Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like Gecko`,
-    )
+    assert.deepStrictEqual(resources.mapping[googleFontUrl], {
+      contentType: 'application/x-font',
+      hash: '795ea3efa43d0872b63bf0067be97553b46983e4f075097669391e9d15388ecc',
+      hashFormat: 'sha256',
+    })
   })
 
   it('handles resources with errorStatusCode (non-200 resources) from prefilled resources', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resource = makeResource({id: 'http://resource-1', errorStatusCode: 500})
 
@@ -564,7 +561,7 @@ describe('processResources', () => {
   })
 
   it('handles resources with errorStatusCode (non-200 resources) from url resources', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resource = makeResource({id: `${baseUrl}/predefined-status/401`, errorStatusCode: 401})
 
@@ -575,7 +572,7 @@ describe('processResources', () => {
   })
 
   it('handles resources with errorStatusCode (non-200 resources) from cache', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resource = makeResource({id: 'http://resource-1', errorStatusCode: 500})
 
@@ -588,7 +585,7 @@ describe('processResources', () => {
   })
 
   it('handles prefilled resources with dependencies', async () => {
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     const resource1 = makeResource({
       url: 'http://resource-1',
@@ -616,16 +613,38 @@ describe('processResources', () => {
 
   it('handles cookies', async () => {
     const results = [] as any[]
-    const fetchResource = makeFetchResource({
-      fetch: (async (request: Request) => {
-        results.push({url: request.url, cookie: request.headers.get('Cookie')})
-        return new Response('content', {
-          status: 200,
-          headers: {'Content-Type': `text/plain`},
-        })
-      }) as Fetch,
-    })
-    const processResources = makeProcessResources({fetchResource, uploadResource})
+    nock('http://some-url.com')
+      .get(/.*/)
+      .reply(function (url) {
+        results.push({url: `http://some-url.com${url}`, cookie: this.req.headers.cookie})
+        return [200, 'content', {'Content-Type': 'text/plain'}]
+      })
+    nock('http://some-other-url.com')
+      .get(/.*/)
+      .reply(function (url) {
+        results.push({url: `http://some-other-url.com${url}`, cookie: this.req.headers.cookie})
+        return [200, 'content', {'Content-Type': 'text/plain'}]
+      })
+    nock('http://my-domain.com')
+      .get(/.*/)
+      .reply(function (url) {
+        results.push({url: `http://my-domain.com${url}`, cookie: this.req.headers.cookie})
+        return [200, 'content', {'Content-Type': 'text/plain'}]
+      })
+    nock('http://web.theweb.com')
+      .get(/.*/)
+      .reply(function (url) {
+        results.push({url: `http://web.theweb.com${url}`, cookie: this.req.headers.cookie})
+        return [200, 'content', {'Content-Type': 'text/plain'}]
+      })
+    nock('http://theinternet.com')
+      .get(/.*/)
+      .reply(function (url) {
+        results.push({url: `http://theinternet.com${url}`, cookie: this.req.headers.cookie})
+        return [200, 'content', {'Content-Type': 'text/plain'}]
+      })
+    const fetchResource = makeFetchResource({logger: makeLogger()})
+    const processResources = makeProcessResources({fetchResource, uploadResource, logger: makeLogger()})
 
     await processResources({
       resources: {
@@ -669,8 +688,8 @@ describe('processResources', () => {
 
     assert.deepStrictEqual(results, [
       {url: 'http://some-url.com/images/image.png', cookie: 'hello=world;'},
-      {url: 'http://some-other-url.com/pictures/picture.jpeg', cookie: null}, // expired
-      {url: 'http://my-domain.com/static/style.css', cookie: null}, // non secure (http)
+      {url: 'http://some-other-url.com/pictures/picture.jpeg', cookie: undefined}, // expired
+      {url: 'http://my-domain.com/static/style.css', cookie: undefined}, // non secure (http)
       {url: 'http://web.theweb.com/resources/resource.css', cookie: 'resource=alright;'},
       {url: 'http://theinternet.com/assets/public/img.png', cookie: 'assets=okay;'},
     ])
@@ -696,6 +715,7 @@ describe('processResources', () => {
       fetchResource,
       uploadResource,
       cache,
+      logger: makeLogger(),
     })
 
     const googleFontResource = makeResource({

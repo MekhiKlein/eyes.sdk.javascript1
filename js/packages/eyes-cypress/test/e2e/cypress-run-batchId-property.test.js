@@ -1,9 +1,7 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
 const {testServerInProcess} = require('@applitools/test-server')
 const fs = require('fs')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
@@ -25,7 +23,7 @@ describe('handle batchId property', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
+    await pexec(`yarn`, {
       maxBuffer: 1000000,
     })
   })
@@ -39,7 +37,7 @@ describe('handle batchId property', () => {
   })
 
   it('works with batchId from env var with global hooks', async () => {
-    await pexec(`npm install cypress@9`)
+    await pexec(`yarn add cypress@9`)
     process.env.APPLITOOLS_BATCH_ID = 'batchId1234'
     try {
       await pexec(
@@ -56,7 +54,7 @@ describe('handle batchId property', () => {
     }
   })
   it('works with batchId from config file with global hooks', async () => {
-    await pexec(`npm install cypress@9`)
+    await pexec(`yarn add cypress@9`)
     const config = {...applitoolsConfig, batchId: 'batchId123456'}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {

@@ -1,6 +1,9 @@
-export APPLITOOLS_BATCH_ID=$(shell python -c "import uuid;print(str(uuid.uuid4()))")
+ifdef PYTEST_FILTER
+	PYTEST_FLAGS= -k '$(PYTEST_FILTER)'
+endif
+PYTEST=python -m pytest $(PYTEST_FLAGS)
 
-install_dev_requirements: ensure_dev_venv install_installation_tests_requirements
+install_dev_requirements: ensure_dev_venv install_installation_tests_requirements generate_images_tests generate_selenium_tests generate_appium_tests generate_playwright_tests
 	python -m pip install --upgrade --editable core_universal
 	python -m pip install --upgrade --editable eyes_images
 	python -m pip install --upgrade --editable eyes_selenium
@@ -33,10 +36,12 @@ install_eyes_images: eyes_images/dist install_core_universal
 
 
 install_eyes_playwright: eyes_playwright/dist install_eyes_images
+	python -m pip install 'playwright<1.34'
 	python -m pip install eyes_playwright/dist/*
 	python -m playwright install
 
 install_eyes_selenium: eyes_selenium/dist install_eyes_images
+	pip install 'urllib3<2.0.2'  # urllib3 2.0.2 breaks appium 2.9.0, remove this line when appium is fixed
 	python -m pip install eyes_selenium/dist/*
 
 
@@ -44,24 +49,44 @@ install_eyes_robotframework: eyes_robotframework/dist install_eyes_selenium
 	python -m pip install eyes_robotframework/dist/*
 
 
-install_unit_tests_requirements:
-	python -m pip install 'pytest<8' 'pytest-xdist<3' 'mock' 'psutil'
+install_tests_requirements:
+	python -m pip install 'pytest<8' 'pytest-xdist<3' 'mock' "pytest-rerunfailures<11; python_version>='3'"
 
 
-install_functional_tests_requirements: install_unit_tests_requirements
-	python -m pip install 'pillow' 'requests' "webdriver-manager==3.7.0; python_version>='3'"
+install_unit_tests_requirements: install_tests_requirements
+	python -m pip install 'psutil'
 
 
-install_installation_tests_requirements: install_unit_tests_requirements
+install_functional_tests_requirements: install_tests_requirements node_modules
+	python -m pip install 'pillow' "webdriver-manager==3.7.0; python_version>='3'"
+
+
+install_installation_tests_requirements: install_tests_requirements node_modules
 	python -m pip install 'pytest-venv==0.2.1' 'virtualenv==20.11'
 
 
-install_selenium_generated_tests_requirements: install_functional_tests_requirements
-	python -m pip install 'webdriver-manager==3.7.0'
+install_selenium_generated_tests_requirements: install_functional_tests_requirements node_modules
+	python -m pip install "webdriver-manager==3.7.0; python_version>='3'"
 
 
-install_publish_requirements:
+install_publish_requirements: node_modules
 	python -m pip install twine
+
+
+generate_images_tests: node_modules
+	cd tests/coverage/images && npx coverage-tests generate . --pascalizeTests --strict
+
+
+generate_appium_tests: node_modules
+	cd tests/coverage/appium && npx coverage-tests generate . --pascalizeTests --strict
+
+
+generate_selenium_tests: install_selenium_generated_tests_requirements node_modules
+	cd tests/coverage/selenium && npx coverage-tests generate . --pascalizeTests --strict
+
+
+generate_playwright_tests: node_modules
+	cd tests/coverage/playwright && npx coverage-tests generate . --pascalizeTests --strict
 
 
 uninstall:
@@ -69,22 +94,20 @@ uninstall:
 
 
 publish_eyes_selenium: eyes_images/dist eyes_playwright/dist eyes_selenium/dist install_publish_requirements
-	bash ./ci_scripts/send_mail.sh python ${SDK_VERSION} eyes_images/CHANGELOG.md
+	cd eyes_images && npx bongo send-release-notification --verbose --name python --releaseVersion "${SDK_VERSION}"
 	twine upload --verbose eyes_images/dist/* eyes_playwright/dist/* eyes_selenium/dist/*
 
 
 publish_testing_eyes_selenium: eyes_images/dist eyes_playwright/dist eyes_selenium/dist install_publish_requirements
-	echo bash ./ci_scripts/send_mail.sh python ${SDK_VERSION} eyes_images/CHANGELOG.md
 	twine upload --verbose --repository testpypi eyes_images/dist/* eyes_playwright/dist/* eyes_selenium/dist/*
 
 
 publish_eyes_robotframework: eyes_robotframework/dist install_publish_requirements
-	bash ./ci_scripts/send_mail.sh robotframework ${SDK_VERSION} eyes_robotframework/CHANGELOG.md
+	cd eyes_robotframework && npx bongo send-release-notification --verbose --name robotframework --releaseVersion "${SDK_VERSION}"
 	twine upload --verbose eyes_robotframework/dist/*
 
 
 publish_testing_eyes_robotframework: eyes_robotframework/dist install_publish_requirements
-	echo bash ./ci_scripts/send_mail.sh robotframework ${SDK_VERSION} eyes_robotframework/CHANGELOG.md
 	twine upload --verbose --repository testpypi eyes_robotframework/dist/*
 
 
@@ -129,46 +152,78 @@ eyes_robotframework/dist:
 clean:
 	for PACK in core_universal eyes_images eyes_playwright eyes_selenium eyes_robotframework; \
 	do rm -rf $$PACK/dist $$PACK/build $$PACK/$$PACK.egg-info; done
+	rm -rf node_modules
 
 
 gen_robot_docs:
 	python -m robot.libdoc --format html EyesLibrary docs/eyes_robotframework/keywords.html
 
 
-eyes_selenium_unit_tests: install_eyes_robotframework install_unit_tests_requirements
-	pytest -n6 tests/unit
+unit_tests: install_eyes_robotframework install_unit_tests_requirements
+	$(PYTEST) -n6 tests/unit
+
+
+eyes_selenium_unit_tests: unit_tests
 
 
 eyes_selenium_installation_tests: install_eyes_robotframework install_installation_tests_requirements
-	pytest tests/test_installation.py
+	$(PYTEST) tests/test_installation.py
 
 
-eyes_selenium_generated_tests: install_eyes_selenium install_selenium_generated_tests_requirements
-	chmod a+x ./coverage-tests/python_tests.sh
-	npm run python:tests --prefix ./coverage-tests
+eyes_images_generated_tests: install_eyes_images install_tests_requirements generate_images_tests
+	# cd into suite directory required because coverage-tests-metadata.json is there
+	cd tests/coverage/images && $(PYTEST) -n 14 --durations=10 generic/*
 
 
-eyes_playwright_generated_tests: install_eyes_playwright install_functional_tests_requirements
-	cd coverage-tests && npm install
-	npm run python:generate:playwright --prefix ./coverage-tests
-	npm run python:run:parallel --prefix ./coverage-tests
+eyes_appium_generated_tests: install_eyes_selenium install_selenium_generated_tests_requirements generate_appium_tests
+	python -m pip freeze
+	# cd into suite directory required because coverage-tests-metadata.json is there
+	cd tests/coverage/appium && $(PYTEST) -n 4 --durations=10 --dist loadgroup generic/*
+
+
+eyes_selenium_generated_tests: install_eyes_selenium install_selenium_generated_tests_requirements generate_selenium_tests
+	python -m pip freeze
+	# cd into suite directory required because coverage-tests-metadata.json is there
+	cd tests/coverage/selenium && $(PYTEST) -n 14 --durations=10 --dist loadgroup generic/*
+
+
+eyes_playwright_generated_tests: install_eyes_playwright install_functional_tests_requirements generate_playwright_tests
+	python -m pip freeze
+	# cd into suite directory required because coverage-tests-metadata.json is there
+	cd tests/coverage/playwright && $(PYTEST) -n 10 --durations=10 generic/*
 
 
 eyes_images_functional_tests: install_eyes_images install_functional_tests_requirements
-	pytest -n8 tests/functional/eyes_images/
+	$(PYTEST) -n8 tests/functional/eyes_images/
+
+
+eyes_playwright_functional_tests: install_eyes_playwright install_functional_tests_requirements
+	$(PYTEST) -n8 tests/functional/eyes_playwright/
 
 
 eyes_robotframework_functional_tests: install_eyes_robotframework install_functional_tests_requirements
-	pytest -n8 -m "not sauce" tests/functional/eyes_robotframework/test_integration.py
+	$(PYTEST) -n8 -m "not sauce" tests/functional/eyes_robotframework/*.py
 
 
 eyes_robotframework_sauce_functional_tests: install_eyes_robotframework install_functional_tests_requirements
-	pytest -n4 -m sauce tests/functional/eyes_robotframework/test_integration.py
+	$(PYTEST) -n4 -m sauce tests/functional/eyes_robotframework/test_integration.py
 
 
 eyes_selenium_functional_tests: install_eyes_selenium install_functional_tests_requirements
-	pytest -n8 -m "not sauce" tests/functional/eyes_selenium/
+	$(PYTEST) -n8 -m "not sauce" tests/functional/eyes_selenium/
 
 
-eyes_selenium_sauce_functional_tests: install_eyes_selenium install_functional_tests_requirements
-	pytest -n4 -m sauce tests/functional/eyes_selenium/
+eyes_images_all_tests: eyes_images_generated_tests eyes_images_functional_tests
+
+
+eyes_selenium_all_tests: eyes_selenium_generated_tests eyes_appium_generated_tests eyes_selenium_functional_tests unit_tests
+
+
+eyes_playwright_all_tests: eyes_playwright_generated_tests eyes_playwright_functional_tests
+
+
+eyes_robotframework_all_tests: eyes_robotframework_functional_tests eyes_robotframework_sauce_functional_tests
+
+
+node_modules:
+	npm install '@applitools/bongo' '@applitools/sdk-coverage-tests'

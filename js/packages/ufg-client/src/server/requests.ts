@@ -36,17 +36,14 @@ export interface UFGRequests {
   getAndroidDevices(options?: {logger?: Logger}): Promise<Record<AndroidDevice, any>>
 }
 
-export type UFGRequestsConfig = ReqUFGConfig & {uploadUrl: string; stitchingServiceUrl: string}
+export type UFGRequestsConfig = ReqUFGConfig & {
+  uploadUrl: string
+  stitchingServiceUrl: string
+}
 
-export function makeUFGRequests({
-  config,
-  logger: defaultLogger,
-}: {
-  config: UFGRequestsConfig
-  logger: Logger
-}): UFGRequests {
-  defaultLogger ??= makeLogger()
-  const req = makeReqUFG({config, logger: defaultLogger})
+export function makeUFGRequests({config, logger}: {config: UFGRequestsConfig; logger?: Logger}): UFGRequests {
+  const mainLogger = makeLogger({logger, format: {label: 'ufg-requests'}})
+  const req = makeReqUFG({config, logger: mainLogger})
 
   const getChromeEmulationDevicesWithCache = utils.general.cachify(getChromeEmulationDevices)
   const getIOSDevicesWithCache = utils.general.cachify(getIOSDevices)
@@ -65,11 +62,13 @@ export function makeUFGRequests({
 
   async function bookRenderers({
     settings,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     settings: RendererSettings[]
     logger?: Logger
   }): Promise<RendererEnvironment[]> {
+    logger = logger.extend(mainLogger, {tags: [`ufg-request-${utils.general.shortid()}`]})
+
     logger.log('Request "bookRenderers" called for with settings', settings)
     const response = await req('./job-info', {
       name: 'bookRenderers',
@@ -87,10 +86,11 @@ export function makeUFGRequests({
       expected: 200,
       logger,
     })
-    const results = await response.json().then((results: any[]) => {
-      return results.map((result, index) => {
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map((result, index) => {
         return {
           rendererId: result.renderer,
+          rendererUniqueId: utils.general.guid(),
           rendererInfo: {type: settings[index]?.type, renderer: settings[index]?.renderer},
           rawEnvironment: result.eyesEnvironment,
         } as RendererEnvironment
@@ -102,11 +102,13 @@ export function makeUFGRequests({
 
   async function startRenders({
     requests,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     requests: RenderRequest[]
     logger?: Logger
   }): Promise<StartedRender[]> {
+    logger = logger.extend(mainLogger, {tags: [`start-render-request-${utils.general.shortid()}`]})
+
     logger.log('Request "startRenders" called for requests', requests)
     const response = await req('./render', {
       name: 'startRenders',
@@ -131,6 +133,8 @@ export function makeUFGRequests({
         if (settings.type === 'native') {
           renderOptions.renderInfo.vhsType = target.vhsType
           renderOptions.renderInfo.vhsCompatibilityParams = target.vhsCompatibilityParams
+          //NOTE: at the moment stitch mode is supported only for native devices
+          renderOptions.renderInfo.stitchMode = settings.stitchMode
         }
         if (settings.region) {
           if (utils.types.has(settings.region, ['x', 'y', 'width', 'height'])) {
@@ -142,17 +146,18 @@ export function makeUFGRequests({
           }
         } else {
           renderOptions.renderInfo.target = settings.fully ? 'full-page' : 'viewport'
-        }
-        if (settings.stitchMode) {
-          renderOptions.renderInfo.stitchMode = settings.stitchMode
+          //NOTE: at the moment scroll root is supported only for native devices
+          if (settings.type === 'native') {
+            renderOptions.renderInfo.selector = settings.scrollRootElement
+          }
         }
         return renderOptions
       }),
       expected: 200,
       logger,
     })
-    const results = await response.json().then((results: any[]) => {
-      return results.map(result => {
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map(result => {
         return {jobId: result.jobId, renderId: result.renderId, status: result.renderStatus} as StartedRender
       })
     })
@@ -162,18 +167,20 @@ export function makeUFGRequests({
 
   async function checkRenderResults({
     renders,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     renders: StartedRender[]
     logger?: Logger
   }): Promise<RenderResult[]> {
+    logger = logger.extend(mainLogger, {tags: [`ufg-request-${utils.general.shortid()}`]})
+
     logger.log('Request "checkRenderResults" called for renders', renders)
     const response = await req('./render-status', {
       name: 'checkRenderResults',
       method: 'POST',
       body: renders.map(render => render.renderId),
       expected: 200,
-      timeout: 15000,
+      timeout: 60000,
       hooks: {
         afterOptionsMerged({options}) {
           options.retry = [
@@ -188,8 +195,8 @@ export function makeUFGRequests({
       },
       logger,
     })
-    const results = await response.json().then((results: any[]) => {
-      return results.map((result, index) => ({
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map((result, index) => ({
         renderId: renders[index].renderId,
         status: result.status,
         error: result.error,
@@ -213,11 +220,13 @@ export function makeUFGRequests({
 
   async function checkResources({
     resources,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     resources: ContentfulResource[]
     logger?: Logger
   }): Promise<(boolean | null)[]> {
+    logger = logger.extend(mainLogger, {tags: [`ufg-request-${utils.general.shortid()}`]})
+
     logger.log('Request "checkResources" called for resources', resources)
     const response = await req('./resources/query/resources-exist', {
       name: 'checkResources',
@@ -229,18 +238,20 @@ export function makeUFGRequests({
       expected: 200,
       logger,
     })
-    const results = await response.json()
+    const results: any = await response.json()
     logger.log('Request "checkResources" finished successfully with body', results)
     return results
   }
 
   async function uploadResource({
     resource,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
     resource: ContentfulResource
     logger?: Logger
   }): Promise<void> {
+    logger = logger.extend(mainLogger, {tags: [`ufg-request-${utils.general.shortid()}`]})
+
     logger.log('Request "uploadResource" called for resource', resource)
     await req(`./resources/sha256/${resource.hash.hash}`, {
       name: 'uploadResource',
@@ -258,28 +269,32 @@ export function makeUFGRequests({
     logger.log('Request "uploadResource" finished successfully')
   }
 
-  async function getChromeEmulationDevices({logger = defaultLogger}: {logger?: Logger} = {}): Promise<
+  async function getChromeEmulationDevices({logger = mainLogger}: {logger?: Logger} = {}): Promise<
     Record<ChromeEmulationDevice, any>
   > {
+    logger = logger.extend(mainLogger, {tags: [`ufg-request-${utils.general.shortid()}`]})
+
     logger.log('Request "getChromeEmulationDevices" called')
     const response = await req('./emulated-devices-sizes', {
       name: 'getChromeEmulationDevices',
       method: 'GET',
       logger,
     })
-    const result = await response.json()
+    const result: any = await response.json()
     logger.log('Request "getChromeEmulationDevices" finished successfully with body', result)
     return result
   }
 
-  async function getIOSDevices({logger = defaultLogger}: {logger?: Logger} = {}): Promise<Record<IOSDevice, any>> {
+  async function getIOSDevices({logger = mainLogger}: {logger?: Logger} = {}): Promise<Record<IOSDevice, any>> {
+    logger = logger.extend(mainLogger, {tags: [`ufg-request-${utils.general.shortid()}`]})
+
     logger.log('Request "getIOSDevices" called')
     const response = await req('./ios-devices-sizes', {
       name: 'getIOSDevices',
       method: 'GET',
       logger,
     })
-    const result = await response.json()
+    const result: any = await response.json()
     logger.log('Request "getIOSDevices" finished successfully with body', result)
     return result
   }

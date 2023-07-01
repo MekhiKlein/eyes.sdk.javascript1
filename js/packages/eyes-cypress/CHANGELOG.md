@@ -12,6 +12,89 @@
 
 
 
+## [3.34.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-cypress-v3.33.2...js/eyes-cypress@3.34.0) (2023-07-01)
+
+
+### Features
+
+* add getResults api ([d92ea94](https://github.com/applitools/eyes.sdk.javascript1/commit/d92ea9434f6758bf38214648a0543c8d683ecc6e))
+* add getResults api to Cypress ([#1663](https://github.com/applitools/eyes.sdk.javascript1/issues/1663)) ([b522222](https://github.com/applitools/eyes.sdk.javascript1/commit/b522222038f33c69191e534cca0f87622188f63b))
+* handled abandoned tunnels ([#1669](https://github.com/applitools/eyes.sdk.javascript1/issues/1669)) ([e01a9f6](https://github.com/applitools/eyes.sdk.javascript1/commit/e01a9f6f7543fc5e6bd842acf6ee8de8cfb49998))
+
+
+### Bug Fixes
+
+* some fix ([8aca690](https://github.com/applitools/eyes.sdk.javascript1/commit/8aca690a75963cf2641242e0128d30c9794c6263))
+* use new delete test implementation ([d819ad0](https://github.com/applitools/eyes.sdk.javascript1/commit/d819ad05387175a86f1a18009f81c1854a7c7a21))
+
+## 3.33.1 - 2023/5/31
+
+### Features
+### Bug fixes
+- Increase timeout for rendering results polling
+- Fixed issue when logs are not show up
+
+## 3.33.0 - 2023/5/23
+
+### Features
+- Add support for reloading the page when using layoutBreakpoints
+- Internal improvements
+- Start universal core in the plugin process
+### Bug fixes
+
+## 3.32.2 - 2023/5/3
+
+### Features
+### Bug fixes
+- Update internal dependencies
+- Fix coded regions by coordinates
+
+## 3.32.1 - 2023/4/24
+
+### Features
+### Bug fixes
+- Fix fetchConcurrency mapping
+
+## 3.32.0 - 2023/4/21
+
+### Features
+- Add a timeout and max concurrency for fetching resources
+### Bug fixes
+
+## 3.31.1 - 2023/4/14
+
+### Features
+### Bug fixes
+- Map values from open and global config
+
+## 3.31.0 - 2023/4/4
+
+### Features
+- Added `removeDuplicateTests` configuration to remove duplicated tests in the runner at the end of execution
+### Bug fixes
+- disableBrowserFetching change from open to check
+
+## 3.30.2 - 2023/3/28
+
+### Features
+### Bug fixes
+- map visualGridOptions to ufgOptions
+
+## 3.30.1 - 2023/3/22
+
+### Features
+### Bug fixes
+- Fixed cypress 8 not working with core v2
+- Fixed closeBatch issue
+
+## 3.30.0 - 2023/3/19
+
+### Features
+- Crop screenshot image base on account info
+### Bug fixes
+- Fixed slowness during ufg tests
+- Upgrade to core@v2
+
 ## 3.29.1 - 2023/2/2
 
 ### Features

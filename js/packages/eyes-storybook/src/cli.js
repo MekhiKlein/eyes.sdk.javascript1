@@ -7,7 +7,7 @@ const eyesStorybook = require('./eyesStorybook');
 const processResults = require('./processResults');
 const validateAndPopulateConfig = require('./validateAndPopulateConfig');
 const yargsOptions = require('./yargsOptions');
-const generateConfig = require('./generateConfig');
+const {generateConfig} = require('./generateConfig');
 const defaultConfig = require('./defaultConfig');
 const configDigest = require('./configDigest');
 const {makeTiming} = require('@applitools/monitoring-commons');
@@ -32,33 +32,40 @@ const {performance, timeItAsync} = makeTiming();
     console.log(`Using @applitools/eyes-storybook version ${VERSION}.\n`);
     const config = generateConfig({argv, defaultConfig, externalConfigParams});
     const logger = makeLogger({level: config.showLogs ? 'info' : 'silent', label: 'eyes'});
-    await validateAndPopulateConfig({config, logger, packagePath: process.cwd()});
+    const isVersion7 = await validateAndPopulateConfig({
+      config,
+      logger,
+      packagePath: process.cwd(),
+    });
     logger.log(`Running with the following config:\n${configDigest(config)}`);
     const [err, results] = await presult(
-      timeItAsync('eyesStorybook', () => eyesStorybook({config, logger, performance, timeItAsync})),
+      timeItAsync('eyesStorybook', () =>
+        eyesStorybook({config, logger, performance, timeItAsync, isVersion7}),
+      ),
     );
     if (err) {
       console.log(chalk.red(err.message));
-      process.exit(config.exitcode ? config.exitcode : 0);
+      process.exit(config.exitcode ? 1 : 0);
     } else {
       const totalTime = performance['eyesStorybook'];
-      const {exitCode, formatter, outputStr} = processResults({
+      const {exitCode, summary, outputStr} = processResults({
         results,
         totalTime,
         testConcurrency: config.testConcurrency,
         saveNewTests: config.saveNewTests,
+        configExitCode: config.exitcode,
       });
       console.log(outputStr);
       if (config.jsonFilePath) {
-        handleJsonFile(config.jsonFilePath, formatter);
+        handleJsonFile(config.jsonFilePath, summary);
       }
       if (config.tapFilePath) {
-        handleTapFile(config.tapFilePath, formatter);
+        handleTapFile(config.tapFilePath, summary);
       }
       if (config.xmlFilePath) {
-        handleXmlFile(config.xmlFilePath, formatter, {totalTime});
+        handleXmlFile(config.xmlFilePath, summary, {totalTime});
       }
-      process.exit(config.exitcode ? exitCode : 0);
+      process.exit(exitCode);
     }
   } catch (ex) {
     console.log(ex);

@@ -1,6 +1,6 @@
 {
   "name": "@applitools/core",
-  "version": "2.3.10",
+  "version": "3.4.0",
   "homepage": "https://applitools.com",
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
@@ -15,9 +15,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "core"
-  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
@@ -36,33 +33,31 @@
   },
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
+  "browser": {
+    "@applitools/ec-client": false
+  },
   "files": [
     "dist",
     "types"
   ],
   "scripts": {
-    "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
+    "lint": "run --top-level eslint '**/*.ts'",
     "build": "yarn build:dist",
-    "build:dist": "node ../../node_modules/.bin/tsc --project ./tsconfig.build.json",
+    "build:dist": "run --top-level tsc --project ./tsconfig.build.json",
     "build:x64": "yarn build:dist && yarn build:bin:x64",
     "build:arm64": "yarn build:dist && yarn build:bin:arm64",
     "build:bin:x64": "pkg . --target node14-linux-x64,node14-alpine-x64,node14-macos-x64,node14-win-x64",
     "build:bin:arm64": "pkg . --target node14-linux-arm64 --output ./bin/core-linux-arm64",
     "build:bin:zip": "zip -j ./bin/core.zip $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)",
     "build:bin:tgz": "tar -czf ./bin/core.tar.gz $(find ./bin -type f -not -name '*.zip' -not -name '*.tar.gz' | xargs)",
-    "test": "mocha --config .mocharc.cvg.js",
-    "test:sanity": "yarn test:unit",
-    "test:bin": "mocha --no-timeouts -r ts-node/register --parallel --jobs 15 './test/bin/**/*.spec.ts'",
-    "test:e2e": "mocha --no-timeouts -r ts-node/register --parallel --jobs 15 './test/e2e/**/*.spec.ts'",
-    "test:it": "mocha --no-timeouts -r ts-node/register './test/it/**/*.spec.ts'",
-    "test:unit": "mocha --no-timeouts -r ts-node/register './test/unit/**/*.spec.ts'",
-    "setup": "yarn docker:setup",
-    "docker:setup": "node ../../scripts/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion --verify-pending-changes --skip-deps",
-    "version": "bongo version --with-pending-changes",
-    "postversion": "bongo postversion"
+    "test": "run --top-level mocha './test/**/*.spec.ts' --exclude './test/bin/**' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
+    "test:local": "MOCHA_OMIT_TAGS=sauce run test",
+    "test:sauce": "MOCHA_ONLY_TAGS=sauce run test",
+    "test:bin": "MOCHA_GROUP=bin run --top-level mocha './test/bin/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15}",
+    "test:e2e": "MOCHA_GROUP=e2e run --top-level mocha './test/e2e/**/*.spec.ts' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
+    "test:it": "MOCHA_GROUP=it run --top-level mocha './test/it/**/*.spec.ts'",
+    "test:unit": "MOCHA_GROUP=unit run --top-level mocha './test/unit/**/*.spec.ts'",
+    "setup": "run --top-level browsers:setup"
   },
   "pkg": {
     "scripts": "./dist/cli/cli.js",
@@ -73,52 +68,51 @@
     ]
   },
   "dependencies": {
-    "@applitools/core-base": "1.1.39",
-    "@applitools/dom-capture": "11.2.1",
-    "@applitools/dom-snapshot": "4.7.5",
-    "@applitools/driver": "1.11.34",
-    "@applitools/ec-client": "1.2.12",
-    "@applitools/logger": "1.1.46",
-    "@applitools/nml-client": "1.3.37",
-    "@applitools/req": "1.1.30",
-    "@applitools/screenshoter": "3.7.28",
-    "@applitools/snippets": "2.4.15",
-    "@applitools/socket": "1.0.8",
-    "@applitools/spec-driver-webdriver": "1.0.14",
-    "@applitools/ufg-client": "1.2.0",
-    "@applitools/utils": "1.3.30",
-    "@types/ws": "8.5.4",
+    "@applitools/core-base": "1.2.1",
+    "@applitools/dom-capture": "11.2.2",
+    "@applitools/dom-snapshot": "4.7.9",
+    "@applitools/driver": "1.12.4",
+    "@applitools/ec-client": "1.5.0",
+    "@applitools/logger": "2.0.5",
+    "@applitools/nml-client": "1.5.0",
+    "@applitools/req": "1.3.3",
+    "@applitools/screenshoter": "3.8.1",
+    "@applitools/snippets": "2.4.21",
+    "@applitools/socket": "1.1.5",
+    "@applitools/spec-driver-webdriver": "1.0.36",
+    "@applitools/ufg-client": "1.2.22",
+    "@applitools/utils": "1.5.0",
+    "@types/ws": "8.5.5",
     "abort-controller": "3.0.0",
     "chalk": "4.1.2",
     "node-fetch": "2.6.7",
-    "throat": "6.0.1",
     "webdriver": "7.30.0",
     "ws": "8.12.0",
-    "yargs": "17.6.2"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@applitools/bongo": "^2.2.5",
-    "@applitools/sdk-coverage-tests": "^2.7.12",
-    "@applitools/spec-driver-puppeteer": "^1.1.46",
-    "@applitools/spec-driver-selenium": "^1.5.31",
-    "@applitools/spec-driver-webdriverio": "^1.4.29",
-    "@applitools/test-server": "^1.1.26",
-    "@applitools/test-utils": "^1.5.12",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "12",
+    "@applitools/bongo": "workspace:^",
+    "@applitools/sdk-coverage-tests": "workspace:^",
+    "@applitools/spec-driver-puppeteer": "^1.1.67",
+    "@applitools/spec-driver-selenium": "^1.5.50",
+    "@applitools/spec-driver-webdriverio": "^1.5.5",
+    "@applitools/test-server": "workspace:^",
+    "@applitools/test-utils": "workspace:^",
+    "@types/node": "^12.20.55",
     "@types/selenium-webdriver": "^4.1.2",
     "@types/yargs": "^17.0.22",
-    "chromedriver": "^106.0.0",
-    "mocha": "^10.0.0",
-    "mocha-multi": "^1.1.7",
+    "chromedriver": "^114.0.1",
     "nock": "^13.2.8",
     "pkg": "^5.8.0",
     "png-async": "^0.9.4",
-    "puppeteer": "^19.7.0",
+    "puppeteer": "^19.11.1",
     "selenium-webdriver": "4.4",
     "webdriverio": "^7.25.0"
   },
   "engines": {
     "node": ">=12.13.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

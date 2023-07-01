@@ -6,7 +6,7 @@ const path = require('path');
 const {testServerInProcess} = require('@applitools/test-server');
 const fakeEyesServer = require('../util/fakeEyesServer');
 const eyesStorybook = require('../../src/eyesStorybook');
-const generateConfig = require('../../src/generateConfig');
+const {generateConfig} = require('../../src/generateConfig');
 const defaultConfig = require('../../src/defaultConfig');
 const {configParams: externalConfigParams} = require('../../src/configParams');
 const {makeTiming} = require('@applitools/monitoring-commons');
@@ -300,7 +300,7 @@ describe('eyesStorybook', () => {
   });
 
   it('enforces legacy concurrency', async () => {
-    const {port, close} = await fakeEyesServer({renderDelay: 2500});
+    const {port, close} = await fakeEyesServer({renderDelay: 5000});
     closeEyesServer = close;
     serverUrl = `http://localhost:${port}`;
     const {stream} = testStream();

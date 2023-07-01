@@ -1,6 +1,6 @@
-import type {UFGClient} from './types'
+import type {UFGClient, UFGClientConfig} from './types'
 import {makeLogger, type Logger} from '@applitools/logger'
-import {makeUFGRequests, type UFGRequestsConfig} from './server/requests'
+import {makeUFGRequests} from './server/requests'
 import {makeCreateRenderTarget} from './create-render-target'
 import {makeBookRenderer} from './book-renderer'
 import {makeRender} from './render'
@@ -12,26 +12,24 @@ export const defaultResourceCache = new Map<string, any>()
 
 export function makeUFGClient({
   config,
-  concurrency,
   cache = defaultResourceCache,
   logger,
 }: {
-  config: UFGRequestsConfig
-  concurrency?: number
+  config: UFGClientConfig
   cache?: Map<string, any>
   logger?: Logger
 }): UFGClient {
-  logger = logger?.extend({label: 'ufg client'}) ?? makeLogger({label: 'ufg client'})
+  logger = makeLogger({logger, format: {label: 'ufg-client'}})
 
   const requests = makeUFGRequests({config, logger})
-  const fetchResource = makeFetchResource({logger})
+  const fetchResource = makeFetchResource({fetchConcurrency: config.fetchConcurrency, logger})
   const uploadResource = makeUploadResource({requests, logger})
   const processResources = makeProcessResources({fetchResource, uploadResource, cache, logger})
 
   return {
-    createRenderTarget: makeCreateRenderTarget({processResources}),
+    createRenderTarget: makeCreateRenderTarget({processResources, logger}),
     bookRenderer: makeBookRenderer({requests, logger}),
-    render: makeRender({requests, concurrency, logger}),
+    render: makeRender({requests, logger}),
     getChromeEmulationDevices: requests.getChromeEmulationDevices,
     getAndroidDevices: requests.getAndroidDevices,
     getIOSDevices: requests.getIOSDevices,

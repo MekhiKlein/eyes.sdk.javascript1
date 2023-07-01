@@ -1,10 +1,8 @@
 'use strict';
-const {resolve} = require('path');
 const ora = require('ora');
 const StorybookConnector = require('./storybookConnector');
 
 async function startStorybookServer({
-  packagePath,
   storybookPort,
   storybookHost,
   storybookConfigDir,
@@ -12,9 +10,10 @@ async function startStorybookServer({
   showStorybookOutput,
   logger,
   startStorybookServerTimeout,
+  storybookPath,
+  sbArg,
 }) {
   const isWindows = process.platform.startsWith('win');
-  const storybookPath = resolve(packagePath, 'node_modules/.bin/start-storybook');
 
   const storybookConnector = new StorybookConnector({
     storybookPath,
@@ -24,6 +23,7 @@ async function startStorybookServer({
     storybookStaticDir,
     isWindows,
     logger,
+    sbArg,
   });
 
   if (showStorybookOutput) {

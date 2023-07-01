@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from typing import TYPE_CHECKING
 
 import attr
@@ -9,3 +11,4 @@ if TYPE_CHECKING:
 @attr.s
 class ImageTarget(object):
     image = attr.ib(default=None)  # type: Optional[Text]
+    dom = attr.ib(default=None)  # type: Optional[Text]

@@ -1,36 +1,33 @@
 import type {MaybeArray} from '@applitools/utils'
-import type {ECClient} from '@applitools/ec-client'
 import type * as AutomationCore from './automation/types'
 import type * as ClassicCore from './classic/types'
 import type * as UFGCore from './ufg/types'
 import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 import {type Renderer} from '@applitools/ufg-client'
+import {type ECClient, type ECClientSettings} from '@applitools/ec-client'
 
-export {ECClient}
+export {ECClient, Renderer}
 export * from './automation/types'
 
 export type TypedCore<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = TType extends 'ufg'
   ? UFGCore.Core<TSpec>
   : ClassicCore.Core<TSpec>
 
-export type TypedEyes<
-  TSpec extends SpecType,
-  TType extends 'classic' | 'ufg',
-  TTarget = Target<TSpec, TType>,
-> = TType extends 'ufg' ? UFGCore.Eyes<TSpec, TTarget> : ClassicCore.Eyes<TSpec, TTarget>
+export type TypedEyes<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = TType extends 'ufg'
+  ? UFGCore.Eyes<TSpec>
+  : ClassicCore.Eyes<TSpec>
 
 export type Target<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = TType extends 'ufg'
   ? UFGCore.Target<TSpec>
   : ClassicCore.Target<TSpec>
 
-export interface Core<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg'>
+export interface Core<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg' = 'classic' | 'ufg'>
   extends AutomationCore.Core<TSpec> {
-  makeECClient(options?: {settings?: any; logger?: Logger}): Promise<ECClient>
+  getECClient(options?: {settings?: Partial<ECClientSettings>; logger?: Logger}): Promise<ECClient>
   makeManager<TType extends 'classic' | 'ufg' = TDefaultType>(options?: {
     type: TType
-    concurrency?: TType extends 'ufg' ? number : never
-    agentId?: string
+    settings?: ManagerSettings
     logger?: Logger
   }): Promise<EyesManager<TSpec, TType>>
   openEyes<TType extends 'classic' | 'ufg' = TDefaultType>(options: {
@@ -60,7 +57,7 @@ export interface Core<TSpec extends SpecType, TDefaultType extends 'classic' | '
   }): Promise<string[]>
 }
 
-export interface EyesManager<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg'> {
+export interface EyesManager<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg' = 'classic' | 'ufg'> {
   openEyes<TType extends 'classic' | 'ufg' = TDefaultType>(options: {
     type?: TType
     target?: AutomationCore.DriverTarget<TSpec>
@@ -69,16 +66,14 @@ export interface EyesManager<TSpec extends SpecType, TDefaultType extends 'class
     logger?: Logger
   }): Promise<Eyes<TSpec, TType>>
   getResults: (options?: {
-    settings?: GetResultsSettings<TDefaultType>
+    settings?: GetManagerResultsSettings<TDefaultType>
     logger?: Logger
   }) => Promise<TestResultSummary<'classic' | 'ufg'>>
 }
 
-export interface Eyes<
-  TSpec extends SpecType,
-  TDefaultType extends 'classic' | 'ufg',
-  TTarget = Target<TSpec, TDefaultType>,
-> extends AutomationCore.Eyes<TSpec> {
+export interface Eyes<TSpec extends SpecType, TDefaultType extends 'classic' | 'ufg' = 'classic' | 'ufg'>
+  extends AutomationCore.Eyes<TSpec> {
+  readonly core: Core<TSpec, TDefaultType>
   getTypedEyes<TType extends 'classic' | 'ufg' = TDefaultType>(options?: {
     type?: TType
     settings?: any
@@ -86,14 +81,14 @@ export interface Eyes<
   }): Promise<TypedEyes<TSpec, TType>>
   check<TType extends 'classic' | 'ufg' = TDefaultType>(options?: {
     type?: TType
-    target?: TTarget
+    target?: Target<TSpec, TType>
     settings?: Partial<CheckSettings<TSpec, TDefaultType> & CheckSettings<TSpec, TType>>
     config?: Config<TSpec, TDefaultType> & Config<TSpec, TType>
     logger?: Logger
   }): Promise<CheckResult<TType>[]>
   checkAndClose<TType extends 'classic' | 'ufg' = TDefaultType>(options?: {
     type?: TType
-    target?: TTarget
+    target?: Target<TSpec, TType>
     settings?: Partial<
       CheckSettings<TSpec, TDefaultType> &
         CloseSettings<TDefaultType> &
@@ -114,10 +109,19 @@ export interface Eyes<
     logger?: Logger
   }): Promise<void>
   getResults(options?: {
-    settings?: Partial<GetResultsSettings<TDefaultType>>
+    settings?: Partial<GetEyesResultsSettings<TDefaultType>>
     config?: Config<TSpec, TDefaultType>
     logger?: Logger
   }): Promise<TestResult<TDefaultType>[]>
+}
+
+export interface ManagerSettings {
+  concurrency?: number
+  fetchConcurrency?: number
+  /** @deprecated */
+  legacyConcurrency?: number
+  batch?: AutomationCore.Batch
+  agentId?: string
 }
 
 export type Config<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = {
@@ -146,6 +150,12 @@ export type AbortSettings<TType extends 'classic' | 'ufg'> = TType extends 'ufg'
 export type GetResultsSettings<TType extends 'classic' | 'ufg'> = (TType extends 'ufg'
   ? UFGCore.GetResultsSettings
   : ClassicCore.GetResultsSettings) & {throwErr?: boolean}
+
+export type GetEyesResultsSettings<TType extends 'classic' | 'ufg'> = GetResultsSettings<TType>
+
+export type GetManagerResultsSettings<TType extends 'classic' | 'ufg'> = GetEyesResultsSettings<TType> & {
+  removeDuplicateTests?: boolean
+}
 
 export type CheckResult<TType extends 'classic' | 'ufg'> = TType extends 'ufg'
   ? UFGCore.CheckResult

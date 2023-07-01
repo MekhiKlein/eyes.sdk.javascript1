@@ -167,13 +167,6 @@ export async function hover(frame: Context, element: Element | Selector): Promis
   const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
   await resolvedElement?.hover()
 }
-export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
-  const resolvedElement = isSelector(element) ? await findElement(frame, element) : element
-  await frame.evaluate(([element, align]) => element?.scrollIntoView(align), [
-    resolvedElement as Element<HTMLElement | SVGElement>,
-    align,
-  ] as const)
-}
 export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
   if (utils.types.instanceOf<Playwright.Locator>(selector, 'Locator')) return selector.waitFor()
   await frame.waitForSelector(selector)
@@ -197,7 +190,13 @@ const browserNames: Record<string, string> = {
  * installed in the SDK, then this function will error.
  */
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const playwright = require('playwright')
+  let frameworkPath
+  try {
+    frameworkPath = require.resolve('playwright', {paths: [`${process.cwd()}/node_modules`]})
+  } catch {
+    frameworkPath = 'playwright'
+  }
+  const playwright = require(frameworkPath)
   const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {browser, device, url, attach, proxy, args = [], headless, extension} = parseEnv(env, 'cdp')
   const launcher = playwright[browserNames[browser] || browser]

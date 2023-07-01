@@ -11,12 +11,14 @@ from six import raise_from
 from applitools.common import (
     AndroidDeviceInfo,
     AndroidDeviceName,
+    AndroidVersion,
     ChromeEmulationInfo,
     DesktopBrowserInfo,
     DeviceName,
     IosDeviceInfo,
     IosDeviceName,
     IosVersion,
+    LayoutBreakpointsOptions,
     ProxySettings,
     RectangleSize,
     ScreenOrientation,
@@ -170,7 +172,7 @@ class AndroidDeviceInfoTrafaret(trf.Trafaret):
                     ScreenOrientation
                 ),
                 trf.Key("android_version", optional=True): UpperTextToEnumTrafaret(
-                    IosVersion
+                    AndroidVersion
                 ),
             }
         )
@@ -196,6 +198,19 @@ class ChromeEmulationInfoTrafaret(trf.Trafaret):
     def check_and_return(self, value, context=None):
         sanitized = self.scheme.check(value, context)
         return [ChromeEmulationInfo(**dct) for dct in sanitized]
+
+
+class LayoutBreakpointsTrafaret(trf.Trafaret):
+    scheme = trf.Dict(
+        {
+            "breakpoints": trf.Bool | trf.List(trf.Int),
+            trf.Key("reload", optional=True): trf.Bool,
+        }
+    )
+
+    def check_and_return(self, value, context=None):
+        sanitized = self.scheme.check(value, context)
+        return LayoutBreakpointsOptions(**sanitized)
 
 
 class RunnerOptionsTrafaret(trf.Trafaret):
@@ -298,7 +313,9 @@ class ConfigurationTrafaret(trf.Trafaret):  # typedef
             trf.Key("disable_browser_fetching", optional=True): trf.Bool,
             trf.Key("enable_cross_origin_rendering", optional=True): trf.Bool,
             trf.Key("dont_use_cookies", optional=True): trf.Bool,
-            trf.Key("layout_breakpoints", optional=True): trf.Bool | trf.List(trf.Int),
+            trf.Key("layout_breakpoints", optional=True): trf.Bool
+            | trf.List(trf.Int)
+            | LayoutBreakpointsTrafaret,
             trf.Key("browsers", optional=True) >> "browsers_info": BrowsersTrafaret,
         },
     )

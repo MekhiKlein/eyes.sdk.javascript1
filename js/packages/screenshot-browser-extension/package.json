@@ -1,6 +1,7 @@
 {
-  "name": "@applitools/screenshot-browser-extension",
+  "name": "@applitools/centra",
   "version": "1.0.1",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/applitools/eyes.sdk.javascript1.git",
@@ -11,9 +12,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "centra"
-  ],
   "scripts": {
     "lint": "eslint '**/*.js'",
     "build": "yarn build:dist && yarn build:zip",
@@ -23,7 +21,7 @@
     "gh:publish": "gh workflow run publish-browser-extension-screenshot.yml --ref $(git rev-parse --abbrev-ref HEAD)",
     "preversion": "bongo preversion",
     "version": "yarn build && bongo version",
-    "postversion": "bongo postversion --skip-release-notification"
+    "postversion": "bongo postversion"
   },
   "dependencies": {
     "@applitools/core": "1.4.7",
@@ -75,7 +73,7 @@
     "tty-browserify": "^0.0.1",
     "util": "^0.12.3",
     "webextension-polyfill": "^0.10.0",
-    "webpack": "^5.72.1",
+    "webpack": "^5.76.0",
     "webpack-cli": "^4.9.2"
   },
   "engines": {

@@ -1,9 +1,7 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
 const fs = require('fs')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
@@ -16,7 +14,7 @@ describe('legacy hooks', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec('npm install', {
+    await pexec('yarn', {
       maxBuffer: 1000000,
     })
   })
@@ -26,7 +24,7 @@ describe('legacy hooks', () => {
   })
 
   it('works with older versions without legacyHooks flag', async () => {
-    await pexec('npm install cypress@6.0.0', {
+    await pexec('yarn add cypress@6.0.0', {
       maxBuffer: 1000000,
     })
     try {
@@ -44,7 +42,7 @@ describe('legacy hooks', () => {
 
   it('works with newer versions without legacyHooks flag', async () => {
     try {
-      await pexec('npm install cypress@6.3.0', {
+      await pexec('yarn add cypress@6.3.0', {
         maxBuffer: 1000000,
       })
       await pexec(

@@ -1,10 +1,9 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
 const {expect} = require('chai')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
+const {promisify: p} = require('util')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
 const readFile = p(fs.readFile)
@@ -43,7 +42,7 @@ describe('tap file', () => {
 
   it(`supports creating '.tap' file from browser hooks`, async () => {
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
+    await pexec(`yarn`, {
       maxBuffer: 1000000,
     })
 
@@ -75,7 +74,7 @@ describe('tap file', () => {
     packageJson.devDependencies['cypress'] = latestCypressVersion
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
+    await pexec(`yarn`, {
       maxBuffer: 1000000,
     })
 

@@ -1,10 +1,10 @@
-const {describe, it, before, after, beforeEach, afterEach} = require('mocha');
+const {describe, it, before, after} = require('mocha');
 const {expect} = require('chai');
 const testStorybook = require('../util/testStorybook');
 const path = require('path');
 const {testServerInProcess} = require('@applitools/test-server');
 const eyesStorybook = require('../../src/eyesStorybook');
-const generateConfig = require('../../src/generateConfig');
+const {generateConfig} = require('../../src/generateConfig');
 const defaultConfig = require('../../src/defaultConfig');
 const {makeTiming} = require('@applitools/monitoring-commons');
 const logger = require('../util/testLogger');

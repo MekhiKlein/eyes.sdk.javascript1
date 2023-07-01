@@ -1,5 +1,4 @@
-import * as utils from '@applitools/utils'
-import {CoreCheckSettingsAutomation, CoreCheckSettingsImage, SpecType} from '../Core'
+import type * as Core from '@applitools/core'
 import {EyesSelector} from './EyesSelector'
 import {Image} from './Image'
 import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
@@ -8,12 +7,13 @@ import {Region, LegacyRegion} from './Region'
 import {Location} from './Location'
 import {LazyLoadOptions} from './LazyLoadOptions'
 import {DensityMetrics} from './DensityMetrics'
+import * as utils from '@applitools/utils'
 
-type RegionReference<TSpec extends SpecType> = Region | ElementReference<TSpec>
-type ElementReference<TSpec extends SpecType> = TSpec['element'] | SelectorReference<TSpec>
-type SelectorReference<TSpec extends SpecType> = EyesSelector<TSpec['selector']>
-type FrameReference<TSpec extends SpecType> = ElementReference<TSpec> | string | number
-type ContextReference<TSpec extends SpecType> = {
+type RegionReference<TSpec extends Core.SpecType> = Region | ElementReference<TSpec>
+type ElementReference<TSpec extends Core.SpecType> = TSpec['element'] | SelectorReference<TSpec>
+type SelectorReference<TSpec extends Core.SpecType> = EyesSelector<TSpec['selector']>
+type FrameReference<TSpec extends Core.SpecType> = ElementReference<TSpec> | string | number
+type ContextReference<TSpec extends Core.SpecType> = {
   frame: FrameReference<TSpec>
   scrollRootElement?: ElementReference<TSpec>
 }
@@ -60,17 +60,16 @@ export type CheckSettingsBase<TRegion = never> = {
 
 export type CheckSettingsImage = CheckSettingsBase
 
-export type CheckSettingsAutomation<TSpec extends SpecType> = CheckSettingsBase<RegionReference<TSpec>> & {
+export type CheckSettingsAutomation<TSpec extends Core.SpecType> = CheckSettingsBase<RegionReference<TSpec>> & {
   frames?: (ContextReference<TSpec> | FrameReference<TSpec>)[]
   webview?: boolean | string
   scrollRootElement?: ElementReference<TSpec>
   fully?: boolean
   disableBrowserFetching?: boolean
-  layoutBreakpoints?: boolean | number[]
+  layoutBreakpoints?: boolean | number[] | {breakpoints: number[] | boolean; reload?: boolean}
   visualGridOptions?: {[key: string]: any}
-  nmgOptions?: {[key: string]: any}
+  useSystemScreenshot?: boolean
   hooks?: {beforeCaptureScreenshot: string}
-  renderId?: string
   timeout?: number
   waitBeforeCapture?: number
   lazyLoad?: boolean | LazyLoadOptions
@@ -387,7 +386,7 @@ export class CheckSettingsImageFluent extends CheckSettingsBaseFluent {
   }
 
   /** @internal */
-  toJSON(): {target: Image; settings: CoreCheckSettingsImage} {
+  toJSON(): {target: Image; settings: Core.CheckSettings<never, 'classic'>} {
     return {
       target: this._target,
       settings: utils.general.removeUndefinedProps({
@@ -412,17 +411,12 @@ export class CheckSettingsImageFluent extends CheckSettingsBaseFluent {
   }
 }
 
-type CheckSettingsAutomationSpec<TSpec extends SpecType = SpecType> = {
-  isElement?(value: any): value is TSpec['element']
-  isSelector?(value: any): value is TSpec['selector']
-}
-
-export class CheckSettingsAutomationFluent<TSpec extends SpecType = SpecType> extends CheckSettingsBaseFluent<
+export class CheckSettingsAutomationFluent<TSpec extends Core.SpecType = Core.SpecType> extends CheckSettingsBaseFluent<
   RegionReference<TSpec>
 > {
   protected _settings: CheckSettingsAutomation<TSpec>
-  protected static readonly _spec: CheckSettingsAutomationSpec<SpecType>
-  protected _spec: CheckSettingsAutomationSpec<TSpec>
+  protected static readonly _spec: Core.SpecDriver<Core.SpecType>
+  protected _spec: Core.SpecDriver<TSpec>
 
   protected _isElementReference(value: any): value is ElementReference<TSpec> {
     const spec = this._spec ?? ((this.constructor as typeof CheckSettingsAutomationFluent)._spec as typeof this._spec)
@@ -442,9 +436,15 @@ export class CheckSettingsAutomationFluent<TSpec extends SpecType = SpecType> ex
     return utils.types.isNumber(value) || utils.types.isString(value) || this._isElementReference(value)
   }
 
+  constructor(settings?: CheckSettingsAutomation<TSpec> | CheckSettingsAutomationFluent<TSpec>)
+  /** @internal */
   constructor(
     settings?: CheckSettingsAutomation<TSpec> | CheckSettingsAutomationFluent<TSpec>,
-    spec?: CheckSettingsAutomationSpec<TSpec>,
+    spec?: Core.SpecDriver<TSpec>,
+  )
+  constructor(
+    settings?: CheckSettingsAutomation<TSpec> | CheckSettingsAutomationFluent<TSpec>,
+    spec?: Core.SpecDriver<TSpec>,
   ) {
     super(settings)
     this._spec = spec!
@@ -527,13 +527,12 @@ export class CheckSettingsAutomationFluent<TSpec extends SpecType = SpecType> ex
     return this
   }
 
-  layoutBreakpoints(layoutBreakpoints: boolean | number[] = true): this {
-    if (!utils.types.isArray(layoutBreakpoints)) {
-      this._settings.layoutBreakpoints = layoutBreakpoints
-    } else if (layoutBreakpoints.length === 0) {
-      this._settings.layoutBreakpoints = false
-    } else {
-      this._settings.layoutBreakpoints = Array.from(new Set(layoutBreakpoints)).sort((a, b) => (a < b ? 1 : -1))
+  layoutBreakpoints(breakpoints: boolean | number[] = true, settings?: {reload?: boolean}): this {
+    this._settings.layoutBreakpoints = {
+      breakpoints: utils.types.isArray(breakpoints)
+        ? Array.from(new Set(breakpoints)).sort((a, b) => (a < b ? 1 : -1))
+        : breakpoints,
+      reload: settings?.reload,
     }
     return this
   }
@@ -567,17 +566,8 @@ export class CheckSettingsAutomationFluent<TSpec extends SpecType = SpecType> ex
     return this.ufgOptions(options)
   }
 
-  nmgOption(key: string, value: any) {
-    this._settings.nmgOptions = {...this._settings.nmgOptions, [key]: value}
-    return this
-  }
-  nmgOptions(options: {[key: string]: any}) {
-    this._settings.nmgOptions = options
-    return this
-  }
-
-  renderId(renderId: string): this {
-    this._settings.renderId = renderId
+  useSystemScreenshot(useSystemScreenshot: boolean) {
+    this._settings.useSystemScreenshot = useSystemScreenshot
     return this
   }
 
@@ -602,7 +592,7 @@ export class CheckSettingsAutomationFluent<TSpec extends SpecType = SpecType> ex
   }
 
   /** @internal */
-  toJSON(): {target: undefined; settings: CoreCheckSettingsAutomation<TSpec>} {
+  toJSON(): {target: undefined; settings: Core.CheckSettings<TSpec, 'classic'> & Core.CheckSettings<TSpec, 'ufg'>} {
     return {
       target: undefined,
       settings: utils.general.removeUndefinedProps({
@@ -637,9 +627,13 @@ export class CheckSettingsAutomationFluent<TSpec extends SpecType = SpecType> ex
           }),
         accessibilityRegions: this._settings.accessibilityRegions,
         disableBrowserFetching: this._settings.disableBrowserFetching,
-        layoutBreakpoints: this._settings.layoutBreakpoints,
+        layoutBreakpoints: utils.types.isDefined(this._settings.layoutBreakpoints)
+          ? utils.types.has(this._settings.layoutBreakpoints, 'breakpoints')
+            ? this._settings.layoutBreakpoints
+            : {breakpoints: this._settings.layoutBreakpoints ?? false}
+          : undefined,
         ufgOptions: this._settings.visualGridOptions,
-        nmgOptions: this._settings.nmgOptions,
+        screenshotMode: this._settings.useSystemScreenshot ? 'default' : undefined,
         hooks: this._settings.hooks,
         pageId: this._settings.pageId,
         lazyLoad: this._settings.lazyLoad,
@@ -660,20 +654,7 @@ export type TargetImage = {
   url(imageUrl: URL | string): CheckSettingsImageFluent
 }
 
-export type TargetAutomation<TSpec extends SpecType = SpecType> = {
-  window(): CheckSettingsAutomationFluent<TSpec>
-  region(region: RegionReference<TSpec> | LegacyRegion): CheckSettingsAutomationFluent<TSpec>
-  frame(context: ContextReference<TSpec>): CheckSettingsAutomationFluent<TSpec>
-  frame(frame: FrameReference<TSpec>, scrollRootElement?: ElementReference<TSpec>): CheckSettingsAutomationFluent<TSpec>
-  shadow(selector: SelectorReference<TSpec>): CheckSettingsAutomationFluent<TSpec>
-  webview(webview?: string | boolean): CheckSettingsAutomationFluent<TSpec>
-}
-
-export type Target<TSpec extends SpecType = SpecType> = TargetImage & TargetAutomation<TSpec>
-
-export const Target: Target<SpecType> & {spec?: CheckSettingsAutomationSpec} = {
-  spec: null as never,
-
+export const TargetImage: TargetImage = {
   image(image: Buffer | URL | string): CheckSettingsImageFluent {
     return new CheckSettingsImageFluent().image(image)
   },
@@ -689,6 +670,23 @@ export const Target: Target<SpecType> & {spec?: CheckSettingsAutomationSpec} = {
   url(imageUrl: URL | string): CheckSettingsImageFluent {
     return new CheckSettingsImageFluent().image(imageUrl)
   },
+}
+
+export type TargetAutomation<TSpec extends Core.SpecType = Core.SpecType> = {
+  /** @internal */
+  spec: Core.SpecDriver<TSpec>
+
+  window(): CheckSettingsAutomationFluent<TSpec>
+  region(region: RegionReference<TSpec> | LegacyRegion): CheckSettingsAutomationFluent<TSpec>
+  frame(context: ContextReference<TSpec>): CheckSettingsAutomationFluent<TSpec>
+  frame(frame: FrameReference<TSpec>, scrollRootElement?: ElementReference<TSpec>): CheckSettingsAutomationFluent<TSpec>
+  shadow(selector: SelectorReference<TSpec>): CheckSettingsAutomationFluent<TSpec>
+  webview(webview?: string | boolean): CheckSettingsAutomationFluent<TSpec>
+}
+
+export const TargetAutomation: TargetAutomation<Core.SpecType> = {
+  spec: null as never,
+
   window(): CheckSettingsAutomationFluent {
     return new CheckSettingsAutomationFluent({}, this.spec)
   },
@@ -705,3 +703,7 @@ export const Target: Target<SpecType> & {spec?: CheckSettingsAutomationSpec} = {
     return new CheckSettingsAutomationFluent({}, this.spec).webview(webview)
   },
 }
+
+export type Target<TSpec extends Core.SpecType = Core.SpecType> = TargetImage & TargetAutomation<TSpec>
+
+export const Target: Target<Core.SpecType> = {...TargetImage, ...TargetAutomation}

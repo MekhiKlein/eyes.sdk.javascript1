@@ -3,7 +3,6 @@ const getStoryUrl = require('./getStoryUrl');
 const getStoryBaselineName = require('./getStoryBaselineName');
 const ora = require('ora');
 const {presult} = require('@applitools/functional-commons');
-const {shouldRenderIE} = require('./shouldRenderIE');
 
 function makeRenderStories({
   getStoryData,
@@ -14,10 +13,11 @@ function makeRenderStories({
   stream,
   getClientAPI,
   maxPageTTL = 60000,
+  isVersion7,
 }) {
   let newPageIdToAdd;
 
-  return async function renderStories(stories, config) {
+  return async function renderStories(stories, isIE) {
     let doneStories = 0;
     const allTestResults = [];
     let allStoriesPromise = Promise.resolve();
@@ -57,18 +57,14 @@ function makeRenderStories({
 
       async function processStory() {
         const story = stories[currIndex++];
-        const storyUrl = getStoryUrl(story, storybookUrl);
+        const storyUrl = getStoryUrl(story, storybookUrl, isVersion7);
         const title = getStoryBaselineName(story);
-        const {waitBeforeCapture} = (story.parameters && story.parameters.eyes) || {};
-
         try {
           let [error, storyData] = await presult(
             getStoryData({
               story,
               storyUrl,
-              renderers: config.renderers,
               page,
-              waitBeforeStory: waitBeforeCapture,
             }),
           );
 
@@ -92,9 +88,7 @@ function makeRenderStories({
               getStoryData({
                 story,
                 storyUrl,
-                renderers: config.renderers,
                 page: newPageObj.page,
-                waitBeforeStory: waitBeforeCapture,
               }),
             );
             error = newError;
@@ -113,10 +107,10 @@ function makeRenderStories({
             snapshots: storyData,
             url: storyUrl,
             story,
-            config,
           });
           return onDoneStory(testResults, story);
         } catch (ex) {
+          logger.log(`[page ${pageId}] error while processing story "${title}". ${ex}`);
           return onDoneStory(ex, story);
         }
       }
@@ -124,8 +118,7 @@ function makeRenderStories({
 
     function didTestPass({resultsOrErr}) {
       return (
-        resultsOrErr.constructor &&
-        resultsOrErr.constructor.name !== 'Error' &&
+        Array.isArray(resultsOrErr) &&
         resultsOrErr.every(r => !r.isDifferent && !r.isAborted && !r.isNew)
       );
     }
@@ -135,11 +128,11 @@ function makeRenderStories({
     }
 
     function updateSpinnerText(number, length) {
-      return `Done ${number} stories out of ${length} ${shouldRenderIE(config) ? '(IE)' : ''}`;
+      return `Done ${number} stories out of ${length} ${isIE ? '(IE)' : ''}`;
     }
 
     function onDoneStory(resultsOrErr, story) {
-      spinner.text = updateSpinnerText(++doneStories, stories.length);
+      spinner.text = updateSpinnerText(++doneStories, stories.length, story.config);
       const title = getStoryBaselineName(story);
       allTestResults.push({title, resultsOrErr});
       return {title, resultsOrErr};

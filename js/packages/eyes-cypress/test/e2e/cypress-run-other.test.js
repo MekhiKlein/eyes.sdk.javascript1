@@ -1,9 +1,7 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
 const fs = require('fs')
 const {expect} = require('chai')
 const {msgText} = require('../../dist/plugin/concurrencyMsg').default
@@ -19,7 +17,7 @@ describe('eyes configurations', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     process.chdir(targetTestAppPath)
-    await pexec(`npm install`, {
+    await pexec(`yarn`, {
       maxBuffer: 1000000,
     })
   })

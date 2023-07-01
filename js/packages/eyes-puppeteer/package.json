@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-puppeteer",
-  "version": "1.14.0",
+  "version": "1.17.9",
   "description": "Applitools Eyes SDK for Puppeteer",
   "keywords": [
     "eyes-puppeteer",
@@ -27,10 +27,6 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "aliases": [
-    "puppeteer",
-    "pptr"
-  ],
   "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "files": [
@@ -38,41 +34,32 @@
     "types"
   ],
   "scripts": {
-    "lint": "node ../../node_modules/.bin/eslint '**/*.ts'",
-    "build": "node ../../node_modules/.bin/ttsc --project ./tsconfig.build.json",
-    "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js --name 'eyes-puppeteer'",
+    "lint": "run --top-level eslint '**/*.ts'",
+    "build": "run --top-level tspc --project ./tsconfig.build.json",
+    "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/config.js --name 'eyes-puppeteer' --meta-path './logs'",
     "test": "yarn test:coverage",
-    "test:sanity": "echo 'create sanity suite'",
-    "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-puppeteer' APPLITOOLS_BATCH_ID=$(uuidgen) mocha --exit --config .mocharc.cvg.js",
-    "report": "coverage-tests report https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-puppeteer'",
-    "upgrade:framework": "if [ ! -z $APPLITOOLS_PUPPETEER_VERSION ]; then packagejson=`cat package.json`; yarn upgrade --no-lockfile puppeteer@$APPLITOOLS_PUPPETEER_VERSION; echo \"$packagejson\" > package.json; fi",
-    "deps": "bongo deps",
-    "gh:test": "gh workflow run test.yml --ref $(git rev-parse --abbrev-ref HEAD) -f packages='puppeteer' -f links='types test-utils eyes-sdk-core visual-grid-client eyes-api spec-driver-puppeteer utils driver snippets screenshoter'",
-    "gh:publish": "gh workflow run publish-puppeteer.yml --ref $(git rev-parse --abbrev-ref HEAD)",
-    "preversion": "bongo preversion --verifyPendingChanges",
-    "version": "bongo version --withPendingChanges",
-    "postversion": "bongo postversion"
+    "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-puppeteer' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage run --top-level mocha './test/generic/*.spec.js' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
+    "up:framework": "run --top-level add-silent puppeteer"
   },
   "dependencies": {
-    "@applitools/core": "2.3.6",
-    "@applitools/eyes-api": "1.13.6",
-    "@applitools/spec-driver-puppeteer": "1.1.44"
+    "@applitools/eyes": "1.5.0",
+    "@applitools/spec-driver-puppeteer": "1.1.67"
   },
   "devDependencies": {
-    "@applitools/api-extractor": "1.2.11",
-    "@applitools/bongo": "^2.2.5",
-    "@applitools/sdk-coverage-tests": "2.7.10",
-    "@applitools/test-utils": "1.5.12",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "12",
-    "mocha": "^9.2.2",
-    "mocha-multi": "^1.1.7",
-    "puppeteer": "^18.0.5"
+    "@applitools/api-extractor": "workspace:^",
+    "@applitools/bongo": "workspace:^",
+    "@applitools/sdk-coverage-tests": "workspace:^",
+    "@applitools/test-utils": "workspace:^",
+    "@types/node": "^12.20.55",
+    "puppeteer": "^19.11.1"
   },
   "peerDependencies": {
     "puppeteer": ">=5.3.0"
   },
   "engines": {
     "node": ">=12.13.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

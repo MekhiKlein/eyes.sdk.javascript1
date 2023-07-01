@@ -5,10 +5,10 @@ from os import getcwd
 from mock import ANY
 from pytest import raises
 
+from applitools.common.command_executor import CommandExecutor, ManagerType
 from applitools.common.connection import USDKConnection
 from applitools.common.errors import USDKFailure
 from applitools.common.selenium import Configuration
-from applitools.selenium.command_executor import CommandExecutor, ManagerType
 from applitools.selenium.fluent import SeleniumCheckSettings
 from applitools.selenium.object_registry import SeleniumWebdriverObjectRegistry
 from applitools.selenium.protocol import SeleniumWebDriver
@@ -75,7 +75,7 @@ def test_usdk_commands_open_close_eyes(local_chrome_driver):
     assert test_result["appName"] == "USDK Test"
     assert test_result["name"] == "USDK Commands open close"
 
-    manager_close_result = commands.manager_get_results(mgr, False, 100)
+    manager_close_result = commands.manager_get_results(mgr, False, False, 100)
 
     assert manager_close_result == {
         "exceptions": 0,
@@ -113,7 +113,7 @@ def test_usdk_commands_open_abort_eyes(local_chrome_driver):
     assert test_result["appName"] == "USDK Test"
     assert test_result["name"] == "USDK Commands open abort"
 
-    manager_close_result = commands.manager_get_results(mgr, False, 100)
+    manager_close_result = commands.manager_get_results(mgr, False, False, 100)
 
     assert manager_close_result == {
         "exceptions": 1,
@@ -170,7 +170,7 @@ def test_usdk_commands_open_check_close_eyes(local_chrome_driver):
     assert test_result["appName"] == "USDK Test"
     assert test_result["name"] == "USDK Commands open check close"
 
-    manager_close_result = commands.manager_get_results(mgr, True, 100)
+    manager_close_result = commands.manager_get_results(mgr, True, False, 100)
 
     assert manager_close_result == {
         "exceptions": 0,

@@ -1,12 +1,13 @@
+import json
 import os
 
 import pytest
-import requests
 import six
 from PIL import Image
 
 from applitools.common import MatchLevel, Region
-from applitools.images import Eyes, OCRRegion, Target
+from applitools.core.extract_text import TextRegion
+from applitools.images import Eyes, OCRRegion, Target, TextRegionSettings
 
 
 def test_image_check_fluent(target, eyes):
@@ -94,6 +95,41 @@ def test_image_extract_text_region(ocr_image, eyes):
     assert text == ["s the navigation bar"]
 
 
+def test_image_extract_text_with_hint(ocr_image, eyes):
+    text = eyes.extract_text(OCRRegion(ocr_image).hint("navigati0n bar"))
+
+    assert text == ["This is the navigati0n bar"]
+
+
+def test_images_extract_text_regions(ocr_image, eyes):
+    regions = eyes.extract_text_regions(
+        TextRegionSettings("navigation").image(ocr_image)
+    )
+    assert regions == {
+        "navigation": [
+            TextRegion(
+                left=10, top=11, width=214, height=18, text="This is the navigation bar"
+            )
+        ]
+    }
+
+
+def test_images_send_dom(png_target, eyes, app_output):
+    dom = {
+        "childNodes": [],
+        "css": "",
+        "images": {},
+        "rect": {"height": 600, "left": 0, "top": 0, "width": 800},
+        "scriptVersion": "11.2.1",
+        "style": {},
+        "tagName": "HTML",
+        "version": "1.3.0",
+    }
+    eyes.check(png_target.with_dom(json.dumps(dom)))
+
+    assert app_output()[0]["image"]["hasDom"]
+
+
 def img_path(kind):
     img_dir = (
         os.path.abspath(os.path.dirname(__file__) + "/../../resources") + "/{0}.{0}"
@@ -164,18 +200,5 @@ def eyes(request):
 
 
 @pytest.fixture
-def app_output(eyes):
-    def get_test_info():
-        results = eyes.close()
-        r = requests.get(
-            results.api_urls.session,
-            params={
-                "format": "json",
-                "AccessToken": results.secret_token,
-                "apiKey": eyes.configure.api_key,
-            },
-        )
-        r.raise_for_status()
-        return r.json()["actualAppOutput"]
-
-    return get_test_info
+def app_output(eyes, helpers):
+    return lambda: helpers.get_test_info(eyes.close())["actualAppOutput"]

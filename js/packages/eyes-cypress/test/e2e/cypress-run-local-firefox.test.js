@@ -1,9 +1,7 @@
 'use strict'
 const {describe, it, before, after} = require('mocha')
-const {exec} = require('child_process')
-const {promisify: p} = require('util')
 const path = require('path')
-const pexec = p(exec)
+const pexec = require('../util/pexec')
 const fs = require('fs')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
@@ -18,10 +16,10 @@ describe.skip('hello world firefox', () => {
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
       process.chdir(targetTestAppPath)
-      await pexec(`npm install`, {
+      await pexec(`yarn`, {
         maxBuffer: 1000000,
       })
-      await pexec(`npm install cypress@9`)
+      await pexec(`yarn add cypress@9`)
     } catch (ex) {
       console.log(ex)
       throw ex

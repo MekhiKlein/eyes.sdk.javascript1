@@ -1,6 +1,6 @@
 import type {MaybeArray} from '@applitools/utils'
-import type {DriverTarget, ImageTarget, ExtractTextSettings} from '../classic/types'
-import type {Core as BaseCore, ExtractTextSettings as BaseExtractTextSettings} from '@applitools/core-base'
+import type {Target, ImageTarget, Core, ExtractTextSettings} from '../classic/types'
+import type {ExtractTextSettings as BaseExtractTextSettings} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
 import {makeDriver, isDriver, isElementReference, type SpecType, type SpecDriver} from '@applitools/driver'
 import {takeScreenshot} from './utils/take-screenshot'
@@ -10,27 +10,30 @@ import * as utils from '@applitools/utils'
 const {getText} = require('@applitools/snippets')
 
 type Options<TSpec extends SpecType> = {
-  core: BaseCore
+  core: Core<TSpec>
   spec?: SpecDriver<TSpec>
   logger: Logger
 }
 
-export function makeExtractText<TSpec extends SpecType>({core, spec, logger: defaultLogger}: Options<TSpec>) {
+export function makeExtractText<TSpec extends SpecType>({core, spec, logger: mainLogger}: Options<TSpec>) {
   return async function extractText({
     target,
     settings,
-    logger = defaultLogger,
+    logger = mainLogger,
   }: {
-    target: DriverTarget<TSpec> | ImageTarget
+    target: Target<TSpec>
     settings: MaybeArray<ExtractTextSettings<TSpec>>
     logger?: Logger
   }): Promise<string[]> {
+    logger = logger.extend(mainLogger)
+
     logger.log('Command "extractText" is called with settings', settings)
     if (!isDriver(target, spec)) {
-      return core.extractText({target, settings: settings as MaybeArray<BaseExtractTextSettings>, logger})
+      return core.base.extractText({target, settings: settings as MaybeArray<BaseExtractTextSettings>, logger})
     }
     settings = utils.types.isArray(settings) ? settings : [settings]
     const driver = await makeDriver({spec, driver: target, logger})
+    const environment = await driver.getEnvironment()
     const results = await settings.reduce(async (prev, settings) => {
       const steps = await prev
       const screenshot = await takeScreenshot({driver, settings, logger})
@@ -45,14 +48,16 @@ export function makeExtractText<TSpec extends SpecType>({core, spec, logger: def
         size: utils.geometry.size(screenshot.region),
         locationInViewport: utils.geometry.location(screenshot.region),
       }
-      if (driver.isWeb) {
+      if (environment.isWeb) {
         if (settings.fully) await screenshot.scrollingElement.setAttribute('data-applitools-scroll', 'true')
         else await screenshot.element?.setAttribute('data-applitools-scroll', 'true')
-        baseTarget.dom = await takeDomCapture({driver, logger}).catch(() => undefined)
+        baseTarget.dom = await takeDomCapture({driver, settings: {proxy: settings.proxy}, logger}).catch(
+          () => undefined,
+        )
       }
       delete settings.region
       delete settings.normalization
-      const results = await core.extractText({
+      const results = await core.base.extractText({
         target: baseTarget,
         settings: settings as BaseExtractTextSettings,
         logger,
