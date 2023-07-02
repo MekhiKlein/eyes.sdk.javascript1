@@ -10,4 +10,5 @@ echo "DEPLOY"
 foreach($p in Get-Content .\UPDATED_PROJECTS.txt) {
     dotnet pack ./$p.DotNet/$p.DotNet.csproj
 }
-dotnet nuget push ./PackagesOutput/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY} --skip-duplicate
+
+echo "dotnet nuget push ./PackagesOutput/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY} --skip-duplicate"
