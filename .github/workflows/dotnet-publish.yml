@@ -46,4 +46,3 @@ jobs:
           ./update_core_versions.ps1 &&
           ./update_versions.ps1 &&
           chmod +x ./deploy.sh && ./deploy.sh &&
-          chmod +x ./sendMail.sh && ./sendMail.sh
