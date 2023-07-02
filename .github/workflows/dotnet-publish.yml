@@ -38,7 +38,7 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: "6.0"
-      - name: Run Selenium coverage tests
+      - name: Deploy nugets
         shell: pwsh
         run: |
           cd dotnet
