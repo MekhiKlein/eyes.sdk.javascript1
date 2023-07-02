@@ -43,7 +43,7 @@ jobs:
         run: |
           cd dotnet
           ./download_cores.ps1 -CORE_VERSION "${env:CORE_VERSION}" &&
-          ./update_core_versions.ps1 &&
+          ./update_core_versions.ps1
       - name: Update versions
         shell: python
         run: dotnet/updateChangelogAndProjectFiles.py
