@@ -48,11 +48,6 @@
 			<PackageCopyToOutput>true</PackageCopyToOutput>
 			<Pack>True</Pack>
 		</None>
-
-		<None Include="Eyes.Image.Core.targets">
-			<PackagePath>build\</PackagePath>
-			<Pack>true</Pack>
-		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -74,15 +69,6 @@
 	<ItemGroup Condition="$(TargetFramework.Contains('.'))">
 		<PackageReference Include="System.Drawing.Common" Version="5.0.3" />
 	</ItemGroup>
-
-	<PropertyGroup>
-		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);GetMyPackageFiles</TargetsForTfmSpecificBuildOutput>
-	</PropertyGroup>
-
-	<Target Name="GetMyPackageFiles">
-		<ItemGroup>
-		</ItemGroup>
-	</Target>
 
 	<ItemGroup>
 		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" />

@@ -21,6 +21,7 @@ env:
   SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
   SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
   CORE_VERSION: "3.3.1"
+  GH_TOKEN: ${{ secrets.RUN_GITHUB_TOKEN }}
 
 jobs:
 
@@ -41,8 +42,8 @@ jobs:
         shell: pwsh
         run: |
           cd dotnet
-          ./download_cores.ps1
-          ./update_core_versions.ps1
-          ./update_versions.ps1
-          chmod +x ./deploy.sh && ./deploy.sh
+          ./download_cores.ps1 &&
+          ./update_core_versions.ps1 &&
+          ./update_versions.ps1 &&
+          chmod +x ./deploy.sh && ./deploy.sh &&
           chmod +x ./sendMail.sh && ./sendMail.sh
