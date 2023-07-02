@@ -7,8 +7,8 @@ echo "DEPLOY"
 # while read p; do  echo $p; git tag $p; done <NEW_TAGS.txt
 # git push origin HEAD:$RELEASE_BRANCH --tags
 
-foreach($p in Get-Content .\UPDATED_PROJECTS.txt) {
-    dotnet pack ./$p.DotNet/$p.DotNet.csproj
-}
+# foreach($p in Get-Content .\UPDATED_PROJECTS.txt) {
+#     dotnet pack ./$p.DotNet/$p.DotNet.csproj
+# }
 
 echo "dotnet nuget push ./PackagesOutput/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_API_KEY} --skip-duplicate"
