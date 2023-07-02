@@ -45,8 +45,10 @@ jobs:
           ./download_cores.ps1 -CORE_VERSION "${env:CORE_VERSION}" &&
           ./update_core_versions.ps1
       - name: Update versions
-        shell: python
-        run: dotnet/updateChangelogAndProjectFiles.py
+        shell: bash
+        run: |
+          cd dotnet
+          python updateChangelogAndProjectFiles.py
       - name: Create nugets
         shell: pwsh
         run: |
