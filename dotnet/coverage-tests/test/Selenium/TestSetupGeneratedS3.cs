@@ -48,7 +48,7 @@ namespace Applitools.Generated.Selenium.Tests
 
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         protected void SetUpDriver(browserType browser = browserType.Chrome,
-            bool legacy = false, bool headless = false, bool executionGrid = false)
+            bool legacy = false, bool headless = false, bool executionGrid = false, string device = null)
         {
             switch (browser)
             {
