@@ -321,7 +321,7 @@ jobs:
           git fetch
           git status
           git pull origin ${{github.ref_name}} --rebase
-          git merge $BRANCH
+          git merge $BRANCH --no-verify
           git push origin ${{github.ref_name}} --no-verify
 
   release-mail:
