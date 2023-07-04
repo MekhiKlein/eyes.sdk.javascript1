@@ -38,6 +38,7 @@ function makeInitPage({iframeUrl, config, browser, logger, getTransitiongIntoIE,
         logger.log(
           `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
         );
+        await pagePool.removeAndAddPage(pageId);
       }
     });
 

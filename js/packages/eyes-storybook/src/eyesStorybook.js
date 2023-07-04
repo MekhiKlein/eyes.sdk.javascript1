@@ -257,7 +257,6 @@ async function eyesStorybook({
   } finally {
     logger.log('total time: ', performance['renderStories']);
     logger.log('perf results', performance);
-    pagePool.notifyOnBrowserClose();
     await browser.close();
     clearTimeout(memoryTimeout);
   }
