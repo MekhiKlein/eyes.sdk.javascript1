@@ -1,3 +1,1 @@
-module.exports = {
-  puppeteerOptions: {headless: 'new'},
-};
+module.exports = {};

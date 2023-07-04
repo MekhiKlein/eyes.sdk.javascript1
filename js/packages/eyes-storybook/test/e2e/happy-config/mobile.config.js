@@ -14,5 +14,4 @@ module.exports = {
     name: 'chrome',
   },
   include: /Button/,
-  puppeteerOptions: {headless: 'new'},
 };

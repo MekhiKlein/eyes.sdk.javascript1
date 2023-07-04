@@ -9,5 +9,4 @@ module.exports = {
     level: 'AA',
     guidelinesVersion: 'WCAG_2_0',
   },
-  puppeteerOptions: {headless: 'new'},
 };

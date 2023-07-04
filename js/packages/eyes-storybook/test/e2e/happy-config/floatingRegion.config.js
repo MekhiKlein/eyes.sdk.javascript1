@@ -5,5 +5,4 @@ module.exports = {
   batchName: 'floating region storybook',
   storybookConfigDir: path.resolve(__dirname, '../../fixtures/floatingRegionStorybook'),
   storybookStaticDir: path.resolve(__dirname, '../../fixtures'),
-  puppeteerOptions: {headless: 'new'},
 };

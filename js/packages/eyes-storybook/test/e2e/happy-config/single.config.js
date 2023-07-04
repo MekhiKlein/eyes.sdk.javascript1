@@ -11,5 +11,4 @@ module.exports = {
     {width: 640, height: 480, name: 'firefox-one-version-back'},
     // {width: 640, height: 480, name: 'firefox-two-versions-back'}, // TODO bring this back when Eyes 10.9 is out (baseline per browser version, a.k.a "the ping-pong problem")
   ],
-  puppeteerOptions: {headless: 'new'},
 };
