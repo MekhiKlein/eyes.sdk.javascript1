@@ -742,13 +742,15 @@ __metadata:
   resolution: "@applitools/req@workspace:packages/req"
   dependencies:
     "@applitools/api-extractor": "workspace:^"
+    "@applitools/test-server": "workspace:^"
     "@applitools/utils": 1.5.0
     "@types/node": ^12.20.55
     abort-controller: 3.0.0
     esbuild: ^0.17.18
+    hostile: ^1.3.3
     http-proxy-agent: 5.0.0
     https-proxy-agent: 5.0.1
-    nock: ^13.2.9
+    nock: ^13.3.1
     node-fetch: 3.3.1
   languageName: unknown
   linkType: soft
@@ -17111,6 +17113,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hostile@npm:^1.3.3":
+  version: 1.3.3
+  resolution: "hostile@npm:1.3.3"
+  dependencies:
+    chalk: ^4.1.0
+    minimist: ^1.2.5
+    once: ^1.4.0
+    split: ^1.0.1
+    through: ^2.3.8
+  bin:
+    hostile: bin/cmd.js
+  checksum: 2282b0ae579e2519423e339717a5769bf62bb006d2119266a6071b85c95ae9471ea550756dabcb3da3ffa773d9e88c5d37329bfee49cbb2317ec588e123e77ed
+  languageName: node
+  linkType: hard
+
 "html-encoding-sniffer@npm:^3.0.0":
   version: 3.0.0
   resolution: "html-encoding-sniffer@npm:3.0.0"
@@ -25523,6 +25540,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"split@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "split@npm:1.0.1"
+  dependencies:
+    through: 2
+  checksum: 12f4554a5792c7e98bb3e22b53c63bfa5ef89aa704353e1db608a55b51f5b12afaad6e4a8ecf7843c15f273f43cdadd67b3705cc43d48a75c2cf4641d51f7e7a
+  languageName: node
+  linkType: hard
+
 "sprintf-js@npm:~1.0.2":
   version: 1.0.3
   resolution: "sprintf-js@npm:1.0.3"
@@ -26549,7 +26575,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"through@npm:>=2.2.7 <3, through@npm:^2.3.6, through@npm:^2.3.8, through@npm:~2.3.4":
+"through@npm:2, through@npm:>=2.2.7 <3, through@npm:^2.3.6, through@npm:^2.3.8, through@npm:~2.3.4":
   version: 2.3.8
   resolution: "through@npm:2.3.8"
   checksum: a38c3e059853c494af95d50c072b83f8b676a9ba2818dcc5b108ef252230735c54e0185437618596c790bbba8fcdaef5b290405981ffa09dce67b1f1bf190cbd
