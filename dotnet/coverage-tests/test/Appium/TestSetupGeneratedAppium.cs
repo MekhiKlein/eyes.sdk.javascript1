@@ -61,58 +61,7 @@ namespace Applitools.Generated.Appium.Tests
 
 		protected void InitDriver(string device, string app)
 		{
-			AppiumOptions options = new AppiumOptions();
-			//options.AddAdditionalCapability(MobileCapabilityType.AppiumVersion, "1.17.1");
-			options.AddAdditionalCapability(MobileCapabilityType.PlatformName, MobileEmulation.Devices[device]["platformName"]);
-			options.AddAdditionalCapability(MobileCapabilityType.PlatformVersion, MobileEmulation.Devices[device]["platformVersion"]);
-			options.AddAdditionalCapability(MobileCapabilityType.DeviceName, MobileEmulation.Devices[device]["deviceName"]);
-			if (MobileEmulation.Devices[device].ContainsKey("deviceOrientation")) options.AddAdditionalCapability("deviceOrientation", MobileEmulation.Devices[device]["deviceOrientation"]);
-			else options.AddAdditionalCapability("deviceOrientation", "portrait");
-			options.AddAdditionalCapability("browserName", "");
-
-			options.AddAdditionalCapability("phoneOnly", false);
-			options.AddAdditionalCapability("tabletOnly", false);
-			options.AddAdditionalCapability("privateDevicesOnly", false);
-
-			options.AddAdditionalCapability(MobileCapabilityType.App, app);
-
-			string url = null;
-			if (MobileEmulation.Devices[device].ContainsKey("sauce"))
-			{ 
-				options.AddAdditionalCapability("username", MobileEmulation.Credentials["sauce"]["username"]);
-				options.AddAdditionalCapability("accesskey", MobileEmulation.Credentials["sauce"]["access_key"]);
-				url = MobileEmulation.SauceServerUrl;
-			}
-
-			string platformName = (string)MobileEmulation.Devices[device]["platformName"];
-			options.AddAdditionalCapability("name", $"{platformName} Demo");
-
-			options.AddAdditionalCapability("idleTimeout", 300);
-
-			switch (platformName)
-			{
-                case "Android":
-                    driver = new AndroidDriver<AppiumWebElement>(
-                    new Uri(url), options, TimeSpan.FromMinutes(5));
-                    break;
-                case "iOS":
-					driver = new IOSDriver<AppiumWebElement>(
-					new Uri(url), options, TimeSpan.FromMinutes(5));
-					break;
-			}
-		}
-
-		[SuppressMessage("ReSharper", "StringLiteralTypo")]
-		private void SetDriverOptions_(ref SafariOptions driverOptions, string platformName, string browserVersion)
-		{
-			var sauceOptions = new Dictionary<string, object>
-			{
-				{ "username", SAUCE_USERNAME },
-				{ "accesskey", SAUCE_ACCESS_KEY }
-			};
-			driverOptions.PlatformName = platformName;
-			driverOptions.BrowserVersion = browserVersion;
-			driverOptions.AddAdditionalCapability("sauce:options", sauceOptions);
+			driver = MobileEmulation.InitDriver(device, app: app);
 		}
 		
 		protected SessionResults GetTestInfo(TestResults results)

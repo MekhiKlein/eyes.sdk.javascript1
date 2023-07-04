@@ -858,11 +858,18 @@ namespace Applitools.Selenium
 
         private string GetServerUrl(ICommandExecutor commandExecutor)
         {
-            var instance = commandExecutor is DriverServiceCommandExecutor driverServiceCommandExecutor
-                ? driverServiceCommandExecutor.HttpExecutor
-                : commandExecutor;
+            Type cet = commandExecutor.GetType();
+            if (cet.FullName == "OpenQA.Selenium.Appium.Service.AppiumCommandExecutor")
+            {
+                return commandExecutor.GetPrivateFieldValue<Uri>("URL").AbsoluteUri;
+            }
+            
+            if (cet.FullName == "OpenQA.Selenium.Remote.DriverServiceCommandExecutor")
+            {
+                commandExecutor = ((DriverServiceCommandExecutor)commandExecutor).HttpExecutor;
+            }
 
-            return instance.GetPrivateFieldValue<Uri>(serverUrlFieldName_).AbsoluteUri;
+            return commandExecutor.GetPrivateFieldValue<Uri>(serverUrlFieldName_).AbsoluteUri;
         }
 
         private IDictionary<string, object> GetCapabilities(WebDriver webDriver)
