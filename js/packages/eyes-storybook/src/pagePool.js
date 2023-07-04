@@ -1,8 +1,7 @@
 'use strict';
 
 function createPagePool({initPage, logger}) {
-  let counter = 0,
-    isBrowserClose;
+  let counter = 0;
   const fullPageObjs = [];
   logger.log(`[page pool] created`);
   let currWaitOnFreePage = Promise.resolve();
@@ -38,10 +37,6 @@ function createPagePool({initPage, logger}) {
         await removeAndAddPage(pageId);
       }
     },
-    notifyOnBrowserClose: () => {
-      isBrowserClose = true;
-    },
-    getIsBrowserClose: () => isBrowserClose,
   };
 
   return pagePool;
