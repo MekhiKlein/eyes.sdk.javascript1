@@ -1,3 +1,9 @@
+## [5.59.0] - 2023-07-04
+### Features
+- added a new mode for taking native app screenshots
+### Bug fixes
+-
+
 ## [5.58.0] - 2023-06-29
 ### Features
 - Added new API `setMobileCapabilities` for native Eyes.
