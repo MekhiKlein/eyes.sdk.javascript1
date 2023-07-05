@@ -54,7 +54,7 @@ namespace Applitools.Appium
 
         TargetPathLocator ITargetContainer.GetTargetLocator()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public AppiumCheckSettings Webview(bool? isDefaultWebview = true)
