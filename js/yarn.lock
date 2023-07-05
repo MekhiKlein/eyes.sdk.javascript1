@@ -549,7 +549,7 @@ __metadata:
     node-fetch: ^2.6.0
     ora: 3.4.0
     prettier: ^1.19.1
-    puppeteer: ^19.11.1
+    puppeteer: 19.8.0
     react: ^16.12.0
     react-dom: ^16.12.0
     rollup: ^1.28.0
@@ -11451,6 +11451,17 @@ __metadata:
   bin:
     chromedriver: bin/chromedriver
   checksum: fe8b9fa768e5689e8d2f2c76d31042cf7fe843a387c746e1fc68fce068817f26754c8dd4f825c0b416444ff94bdc6b522a5102d776737475622bf727b33ada38
+  languageName: node
+  linkType: hard
+
+"chromium-bidi@npm:0.4.5":
+  version: 0.4.5
+  resolution: "chromium-bidi@npm:0.4.5"
+  dependencies:
+    mitt: 3.0.0
+  peerDependencies:
+    devtools-protocol: "*"
+  checksum: 82935d25faad4c4718ba699df884e2719911bfbf99b5eaf42eceb92b1b91f5c251d087641ebb5a93f4bc82a679a6aaaa310d2f8b201443df81ed160cb9e1bee7
   languageName: node
   linkType: hard
 
@@ -23139,6 +23150,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"puppeteer-core@npm:19.8.0":
+  version: 19.8.0
+  resolution: "puppeteer-core@npm:19.8.0"
+  dependencies:
+    chromium-bidi: 0.4.5
+    cross-fetch: 3.1.5
+    debug: 4.3.4
+    devtools-protocol: 0.0.1107588
+    extract-zip: 2.0.1
+    https-proxy-agent: 5.0.1
+    proxy-from-env: 1.1.0
+    tar-fs: 2.1.1
+    unbzip2-stream: 1.4.3
+    ws: 8.13.0
+  peerDependencies:
+    typescript: ">= 4.7.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: a696ae2f8c3a8d0ca25141d22e2a49221d99a27e539d5776dbe153d1f8c00f04686a2cee6df43c3a20eb1b41f4077c339babf59e39fff26d8f34d08d726f1c96
+  languageName: node
+  linkType: hard
+
 "puppeteer-core@npm:20.3.0":
   version: 20.3.0
   resolution: "puppeteer-core@npm:20.3.0"
@@ -23195,6 +23229,19 @@ __metadata:
     unbzip2-stream: ^1.3.3
     ws: ^7.2.3
   checksum: b50e55dd6e88524e50fa6b71dd45b32d7ff556e21f60f4ec0cf0ca686248959abcb14d98e5bb7324210ac822b041b773d9bd17c49ea95641f9c7a1f66ed88eec
+  languageName: node
+  linkType: hard
+
+"puppeteer@npm:19.8.0":
+  version: 19.8.0
+  resolution: "puppeteer@npm:19.8.0"
+  dependencies:
+    cosmiconfig: 8.1.3
+    https-proxy-agent: 5.0.1
+    progress: 2.0.3
+    proxy-from-env: 1.1.0
+    puppeteer-core: 19.8.0
+  checksum: 174b66c6904f3cc386b72124150d0b677a7bc6b36f5cab7ee66851eebeea71776facf864ce7bcfd9d257535b4fa2e9c8b6b59feeabb28b730a418a18029f9f0d
   languageName: node
   linkType: hard
 
