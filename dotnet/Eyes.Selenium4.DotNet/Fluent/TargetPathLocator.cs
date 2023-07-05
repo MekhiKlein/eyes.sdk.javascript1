@@ -1,11 +1,9 @@
-using System;
-
 namespace Applitools.Selenium
 {
     public class TargetPathLocator
     {
-        protected TargetPathLocator Parent { get; }
-        protected IPathNodeValue Value { get; }
+        protected internal TargetPathLocator Parent { get; }
+        protected internal  IPathNodeValue Value { get; }
 
         public TargetPathLocator()
         {
