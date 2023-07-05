@@ -22,7 +22,6 @@ export async function makeServer({
 }): Promise<ECClient> {
   const serverLogger = mainLogger.extend()
   const req = makeReqProxy({
-    targetUrl: settings.serverUrl,
     proxy: settings.proxy,
     retry: {
       validate: async ({response, error}) => {
@@ -33,6 +32,7 @@ export async function makeServer({
       limit: 10,
       timeout: 5000,
     },
+    useDnsCache: settings.useDnsCache,
   })
   const core = makeCore({agentId: `js/ec-client/${require('../package.json').version}`})
   const tunnels = settings.tunnel?.serviceUrl
@@ -69,9 +69,13 @@ export async function makeServer({
         await commands.endSession({session, request, response, logger: requestLogger})
         sessions.delete(session.sessionId)
       })
-      router.any(async () => {
+      router.any(/^\/session\/(?<sessionId>[^\/]+).*$/, async ({match}) => {
         requestLogger.log('Passthrough request')
-        await req(request.url!, {io: {request, response}, logger: requestLogger})
+        const session = sessions.get(match.groups!.sessionId)!
+        await req(request.url!, {baseUrl: session.serverUrl, io: {request, response}, logger: requestLogger})
+      })
+      router.fallback(async () => {
+        throw new Error('Unknown request')
       })
       router.catch(async ({error}) => {
         requestLogger.error(`Error during processing request`, error)

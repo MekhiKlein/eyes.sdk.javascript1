@@ -33,21 +33,16 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Bongo
-      shell: ${{inputs.shell}}
+    - name: Sending report
+      if: ${{inputs.command == 'report'}}
       working-directory: ${{inputs.working-directory}}
+      shell: ${{inputs.shell}}
       run: |
-        if [ "${{inputs.command}}" == "report" ]
-        then
-          echo "::group::Sending report"
-          npx --package=@applitools/bongo -- bongo report --name="${{inputs.name}}" --group="${{inputs.group}}" --report-id="${{inputs.report-id || '$REPORT_ID'}}" --result-path="${{inputs.result-path || '$RESULT_PATH'}}" --meta-path="${{inputs.meta-path || '$META_PATH'}}"
-          echo "::endgroup::"
-        elif [ "${{inputs.command}}" == "notification" ]
-        then
-          echo "::group::Sending notification"
-          npx --package=@applitools/bongo -- bongo send-release-notification --name="${{inputs.name}}" --report-id="${{inputs.report-id || '$REPORT_ID'}}"
-          echo "::endgroup::"
-        else
-          echo "::error::Unknown command '${{inputs.command}}'"
-        fi
+        npx --package=@applitools/bongo@latest --yes -- bongo report --name="${{inputs.name}}" --group="${{inputs.group}}" --report-id="${{inputs.report-id || '$REPORT_ID'}}" --result-path="${{inputs.result-path || '$RESULT_PATH'}}" --meta-path="${{inputs.meta-path || '$META_PATH'}}"
+    - name: Sending notification
+      if: ${{inputs.command == 'notification'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: ${{inputs.shell}}
+      run: |
+        npx --package=@applitools/bongo@latest --yes -- bongo send-release-notification --name="${{inputs.name}}" --report-id="${{inputs.report-id || '$REPORT_ID'}}"
 

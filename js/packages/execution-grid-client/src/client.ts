@@ -13,8 +13,12 @@ export async function makeECClient({
   const logger = makeLogger({logger: defaultLogger, format: {label: 'ec-client'}})
 
   settings ??= {}
-  settings.serverUrl ??= utils.general.getEnvValue('EG_SERVER_URL') ?? 'https://exec-wus.applitools.com'
+  settings.serverUrl ??=
+    utils.general.getEnvValue('EXECUTION_CLOUD_URL') ??
+    utils.general.getEnvValue('EG_SERVER_URL') ??
+    'https://exec-wus.applitools.com'
   settings.proxy ??= utils.general.getEnvValue('PROXY_URL') ? {url: utils.general.getEnvValue('PROXY_URL')} : undefined
+  settings.useDnsCache ??= utils.general.getEnvValue('USE_DNS_CACHE', 'boolean')
   settings.tunnel ??= {}
   settings.tunnel.serviceUrl ??= utils.general.getEnvValue('EG_TUNNEL_URL')
   settings.tunnel.groupSize ??= utils.general.getEnvValue('TUNNEL_GROUP_SIZE', 'number') ?? 2
@@ -31,6 +35,7 @@ export async function makeECClient({
     utils.general.getEnvValue('SERVER_URL') ??
     'https://eyesapi.applitools.com'
   settings.options.apiKey ??= utils.general.getEnvValue('API_KEY')
+  settings.options.region ??= utils.general.getEnvValue('EXECUTION_CLOUD_REGION') as 'us-west' | 'australia'
   settings.options.batch ??= {}
   settings.options.batch.id ??= utils.general.getEnvValue('BATCH_ID') ?? `generated-${utils.general.guid()}`
   settings.options.batch.name ??= utils.general.getEnvValue('BATCH_NAME')
