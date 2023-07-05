@@ -39,4 +39,10 @@ To learn more, visit https://applitools.com/ .</Description>
   <ItemGroup>
     <ProjectReference Include="..\Eyes.Images.DotNet\Eyes.Images.DotNet.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WebDriver.Support">
+      <HintPath>..\..\..\..\.nuget\packages\selenium.support\3.141.0\lib\net45\WebDriver.Support.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
