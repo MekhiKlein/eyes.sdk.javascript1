@@ -26,14 +26,6 @@ To learn more, visit https://applitools.com/ .</Description>
     <PackageOutputPath>..\PackagesOutput</PackageOutputPath>
   </PropertyGroup>
 
-
-
-
-
-
-
-
-
   <ItemGroup>
     <PackageReference Condition="'$(TargetFramework)' == 'net45'" Include="AutoMapper" Version="7.0.1" />
     <PackageReference Condition="'$(TargetFramework)' == 'net461'" Include="AutoMapper" Version="10.1.1" />
@@ -42,15 +34,6 @@ To learn more, visit https://applitools.com/ .</Description>
     <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);GetMyPackageFiles</TargetsForTfmSpecificBuildOutput>
-  </PropertyGroup>
-
-  <Target Name="GetMyPackageFiles">
-    <ItemGroup>
-    </ItemGroup>
-  </Target>
   
   <ItemGroup>
     <None Include="..\LICENSE.txt" Pack="true" PackagePath="" />
@@ -60,13 +43,5 @@ To learn more, visit https://applitools.com/ .</Description>
   <ItemGroup>
     <ProjectReference Include="..\Eyes.Image.Core.DotNet\Eyes.Image.Core.DotNet.csproj" />
   </ItemGroup>
-
-
-
-
-
-
-
-
 
 </Project>

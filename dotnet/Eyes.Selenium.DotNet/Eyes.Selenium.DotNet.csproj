@@ -33,6 +33,7 @@ To learn more, visit https://applitools.com/ .</Description>
 
   <ItemGroup>
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+    <PackageReference Include="DotNetSeleniumExtras.PageObjects" Version="3.11.0" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
 
@@ -40,9 +41,4 @@ To learn more, visit https://applitools.com/ .</Description>
     <ProjectReference Include="..\Eyes.Images.DotNet\Eyes.Images.DotNet.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="WebDriver.Support">
-      <HintPath>..\..\..\..\.nuget\packages\selenium.support\3.141.0\lib\net45\WebDriver.Support.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>
