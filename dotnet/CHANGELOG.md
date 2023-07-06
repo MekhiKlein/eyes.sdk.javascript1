@@ -1,8 +1,12 @@
-## [Eyes.Image.Core 3.5.1] - UPDATED
+## [Eyes.Image.Core 3.5.1] - 2023-07-06
 ### Updated
 - Server Core to 3.5.1
 
-## [Eyes.Selenium vNext]
+## [Eyes.Images 3.29] - 2023-07-06
+### Updated
+- Match to latest Eyes.Image.Core
+
+## [Eyes.Selenium 3.57] - 2023-07-06
 ### Added
 - Shadow DOM support
 - New emulated devices:
@@ -10,13 +14,21 @@
   * Galaxy S22 Ultra
   * Galaxy S21 Ultra 5G
 
-## [Eyes.Selenium4 vNext]
+## [Eyes.Appium 5.53] - 2023-07-06
+### Updated
+- Match to latest Eyes.Selenium
+
+## [Eyes.Selenium4 3.57] - 2023-07-06
 ### Added
 - Shadow DOM support
 - New emulated devices:
   * Galaxy S21 5G
   * Galaxy S22 Ultra
   * Galaxy S21 Ultra 5G
+
+## [Eyes.Playwright 1.6] - 2023-07-06
+### Updated
+- Match to latest Eyes.Images
 
 ## [Eyes.Image.Core 3.3.1] - 2023-07-02
 ### Updated
