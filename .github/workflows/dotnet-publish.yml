@@ -21,7 +21,7 @@ env:
   SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
   SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
   GITHUB_TOKEN: ${{ secrets.RUN_GITHUB_TOKEN }}
-  CORE_VERSION: "3.3.1"
+  CORE_VERSION: "3.5.1"
   NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
 jobs:
@@ -42,7 +42,7 @@ jobs:
         shell: pwsh
         run: |
           cd dotnet
-          ./download_cores.ps1 -CORE_VERSION "${env:CORE_VERSION}" &&
+          ./download_cores.ps1 &&
           ./update_core_versions.ps1
       - name: Update versions
         shell: bash
