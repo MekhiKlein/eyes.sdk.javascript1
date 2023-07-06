@@ -56,7 +56,10 @@ namespace Applitools.VisualGrid
         [EnumMember(Value = "Galaxy S10")] Galaxy_S10,
         [EnumMember(Value = "Galaxy S10 Plus")] Galaxy_S10_Plus,
         [EnumMember(Value = "Galaxy S20")] Galaxy_S20,
-
+        [EnumMember(Value = "Galaxy S21 5G")] Galaxy_S21_5G,
+        [EnumMember(Value = "Galaxy S22 Ultra")] Galaxy_S22_Ultra,
+        [EnumMember(Value = "Galaxy S22 Ultra 5G")] Galaxy_S22_Ultra_5G,
+        
         [EnumMember(Value = "Galaxy Note II")] Galaxy_Note_2,
         [EnumMember(Value = "Galaxy Note 3")] Galaxy_Note_3,
         [EnumMember(Value = "Galaxy Note 4")] Galaxy_Note_4,
