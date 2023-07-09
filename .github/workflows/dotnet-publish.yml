@@ -73,10 +73,10 @@ jobs:
           git config --local user.email "action-queue@applitools.com"
           git config --local user.name "queue-bot"
           git checkout -b test_branch_$GITHUB_SHA
-          echo "test@v1" > NEW_TAGS.txt
-          git add NEW_TAGS.txt
+          echo "test@v1" > TEST.txt
+          git add TEST.txt
           git commit -m 'Updated CHANGELOG and bumped versions.'
           git push origin HEAD:test_branch_$GITHUB_SHA
           # while read p; do  echo $p; git tag $p; done <NEW_TAGS.txt
           # git push origin HEAD:test_branch_$GITHUB_SHA --tags
-          hub pull-request -h "test_branch_$GITHUB_SHA" -F NEW_TAGS.txt
+          hub pull-request -h "test_branch_$GITHUB_SHA" -F TEST.txt
