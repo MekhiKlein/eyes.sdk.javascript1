@@ -1,4 +1,4 @@
-## [v5.0.0] - 2023-07-11
+## [5.0.0] - 2023-07-11
 ### Breaking Changes:
 - get_all_test_results return TestResultSummary with additional info
 - TestResults Array now in get_all_test_results.results or can be accessed old-style with get_all_test_results[0]
