@@ -140,6 +140,7 @@
         <module>eyes.universal.core/eyes-universal-core-linux</module>
         <module>eyes.universal.core/eyes-universal-core-arm</module>
         <module>eyes.universal.core/eyes-universal-core-alpine</module>
+        <module>eyes.universal.core/eyes-universal-core-binaries</module>
     </modules>
 
     <distributionManagement>

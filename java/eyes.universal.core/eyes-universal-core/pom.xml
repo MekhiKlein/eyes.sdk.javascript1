@@ -214,27 +214,7 @@
             <dependencies>
                 <dependency>
                     <groupId>com.applitools</groupId>
-                    <artifactId>eyes-universal-core-mac</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.applitools</groupId>
-                    <artifactId>eyes-universal-core-win</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.applitools</groupId>
-                    <artifactId>eyes-universal-core-linux</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.applitools</groupId>
-                    <artifactId>eyes-universal-core-alpine</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>com.applitools</groupId>
-                    <artifactId>eyes-universal-core-arm</artifactId>
+                    <artifactId>eyes-universal-core-binaries</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
