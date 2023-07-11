@@ -1,3 +1,11 @@
+## [5.60.0] - 2023-07-11
+### Features
+- ability to skip deserialize dom snapshot.
+- prevent animated gif images from playing in ufg.
+- support custom property per renderer.
+### Bug fixes
+-
+
 ## [5.59.0] - 2023-07-04
 ### Features
 - added a new mode for taking native app screenshots
