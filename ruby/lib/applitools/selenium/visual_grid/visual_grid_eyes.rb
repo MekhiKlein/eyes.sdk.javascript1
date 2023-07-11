@@ -317,7 +317,8 @@ module Applitools
       end
 
       def close_async
-        test_list.each(&:close)
+        # test_list.each(&:close)
+        close(false)
       end
 
       def close(throw_exception = true)

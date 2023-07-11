@@ -58,7 +58,7 @@ module Applitools
     end
 
     def aborted?
-      original_results['isAborted']
+      original_results['isAborted'] || !errors.nil?
     end
 
     def api_session_url
