@@ -3,6 +3,7 @@
 - ability to skip deserialize dom snapshot.
 - prevent animated gif images from playing in ufg.
 - support custom property per renderer.
+- added new chrome emulation devices - `Galaxy S21`, `Galaxy S21 Ultra`, and `Galaxy S22 Ultra`.
 ### Bug fixes
 -
 
