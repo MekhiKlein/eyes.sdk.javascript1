@@ -7,6 +7,15 @@
 ### Added
 - Add support for reloading the page when using layout_breakpoints
 - add errors to TestResults
+### Updated
+- Update version of Universal SDK Core to 3.6.0
+### Features
+- ability to skip deserialize dom snapshot
+- prevent animated gif images from playing in ufg
+- support custom property per renderer
+### Bug fixes
+- fixed issue that caused creation of unnecessary tunnels
+- start tunnels with proper regional server
 ## [4.6.3] - 2023-07-04
 ### Updated
 - Update version of Universal SDK Core to 3.4.0
