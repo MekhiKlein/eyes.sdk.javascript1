@@ -1,3 +1,9 @@
+## [5.61.0] - 2023-07-12
+### Features
+- add an active by default profile with all core binaries.
+### Bug fixes
+-
+
 ## [5.60.0] - 2023-07-11
 ### Features
 - ability to skip deserialize dom snapshot.
