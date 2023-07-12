@@ -2,55 +2,11 @@
 
 const yargs = require('yargs')
 const chalk = require('chalk')
-const path = require('path')
-const {getLatestReleaseEntries} = require('../changelog/query')
-const log = require('../log')
-const released = require('../released')
 const {sendTestReport} = require('../qa/send-report')
 const {sendReleaseNotification} = require('../qa/send-notification')
 
-const pendingChangesFilePath = path.join(process.cwd(), '..', '..', '..', 'pending-changes.yaml')
-
 yargs
   .config({cwd: process.cwd()})
-  .command(
-    ['released', 'release'],
-    'Show which SDK versions contain a given package version or commit',
-    {
-      filterBySDK: {type: 'boolean', default: true},
-      packageName: {alias: 'p', type: 'string'},
-      sha: {type: 'string'},
-      version: {alias: 'v', type: 'number'},
-      versionsBack: {alias: 'n', type: 'number', default: 1},
-      pendingChangesFilePath: {type: 'string', default: pendingChangesFilePath},
-    },
-    async args => {
-      await released({args})
-    },
-  )
-  .command(
-    ['log', 'logs'],
-    'Show commit logs for a given package',
-    {
-      packageName: {alias: 'p', type: 'string'},
-      lowerVersion: {alias: 'lv', type: 'string'},
-      upperVersion: {alias: 'uv', type: 'string'},
-      expandAutoCommitLogEntries: {alias: 'expand', type: 'boolean', default: true},
-      versionsBack: {alias: 'n', type: 'number', default: 3},
-      listVersions: {alias: 'lsv', type: 'boolean'},
-      splitByVersion: {alias: 'split', type: 'boolean', default: true},
-      'latest-changelog': {type: 'boolean', default: false},
-    },
-    async args => {
-      if (args['latest-changelog']) {
-        try {
-          console.log(getLatestReleaseEntries({targetFolder: args.cwd}).join('\n'))
-        } catch (error) {
-          // no-op
-        }
-      } else await log(args)
-    },
-  )
   .command({
     command: ['send-release-notification'],
     description: 'Send a notification that an sdk has been released',
