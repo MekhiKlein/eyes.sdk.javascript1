@@ -3,6 +3,7 @@ module.exports = {
   emitter: "/home/itaibh/devel/sdk.coverage.tests/DotNet/emitter.js",
   overrides: [
     "https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/js/overrides.js",
+    "/home/itaibh/devel/sdk.coverage.tests/DotNet/overrides/overrides-images.js"
   ],
   template: "/home/itaibh/devel/sdk.coverage.tests/DotNet/template.hbs",
   tests: "/home/itaibh/devel/sdk.coverage.tests/coverage-tests.js",
