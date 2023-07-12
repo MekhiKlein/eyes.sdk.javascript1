@@ -8,8 +8,9 @@ module.exports = {
   tests: "/home/itaibh/devel/sdk.coverage.tests/coverage-tests.js",
   ext: ".cs",
   outPath: './test/Images/coverage/generic',
-  // emitOnly: test => {
-  //   return test.features && test.features.includes('image')
-  // },
-  emitOnly: ['check image file in png format'],
+  fixtures: "https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/fixtures/fixtures.zip",
+  emitOnly: test => {
+    return test.features && test.features.includes('image')
+  },
+  // emitOnly: ['check image file in png format'],
 };

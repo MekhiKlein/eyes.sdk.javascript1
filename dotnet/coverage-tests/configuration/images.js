@@ -8,6 +8,7 @@ module.exports = {
     tests: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/coverage-tests.js',
     ext: '.cs',
     outPath: './test/Images/coverage/generic',
+    fixtures: "https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/fixtures/fixtures.zip",
     emitOnly: test => {
         return test.features && test.features.includes('image')
       },
