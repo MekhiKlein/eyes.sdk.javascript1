@@ -38,7 +38,7 @@
     </developers>
 
     <properties>
-        <revision>5.60.0</revision>
+        <revision>5.61.0</revision>
     </properties>
 
     <dependencies>
