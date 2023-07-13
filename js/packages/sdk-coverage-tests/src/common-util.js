@@ -62,9 +62,9 @@ function loadFile(path) {
   return isUrl(path) ? fetchSync(path).buffer() : fs.readFileSync(path)
 }
 
-function runCode(code, context) {
+function runCode(code, context, filename) {
   try {
-    return vm.runInContext(code, vm.createContext({...context, console, process}))
+    return vm.runInContext(code, vm.createContext({...context, console, process}), {filename: filename})
   } catch (err) {
     if (err.constructor.name !== 'ReferenceError') throw err
     const stack = err.stack.split('\n')
@@ -81,6 +81,7 @@ function requireUrl(url, cache = {}) {
   const code = loadFile(url).toString()
   const module = {exports: {}}
   cache[url] = module
+  var filename = url.substring(url.lastIndexOf('/')+1);
   runCode(code, {
     require(modulePath) {
       if (!/^[./]/.test(modulePath)) return require(modulePath)
@@ -90,7 +91,7 @@ function requireUrl(url, cache = {}) {
     },
     process,
     module,
-  })
+  }, filename)
   return module.exports
 }
 
