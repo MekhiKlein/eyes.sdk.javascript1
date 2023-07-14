@@ -1,3 +1,39 @@
+## [Eyes.Image.Core 3.6.1.1] - 2023-07-14
+### Updated
+- Server Core to 3.6.1
+
+## [Eyes.Image.Core 3.6.1] - 2023-07-13
+### Updated
+- Server Core to 3.6.1
+
+## [Eyes.Images 3.33] - 2023-07-13
+### Updated
+- Match to latest Eyes.Image.Core
+
+## [Eyes.Selenium 3.62] - 2023-07-13
+### Updated
+- Match to latest Eyes.Images
+
+## [Eyes.Appium 5.60] - 2023-07-13
+### Updated
+- Match to latest Eyes.Selenium
+
+## [Eyes.Selenium4 3.62] - 2023-07-13
+### Updated
+- Match to latest Eyes.Images
+
+## [Eyes.Playwright 1.10] - 2023-07-13
+### Updated
+- Match to latest Eyes.Images
+
+## [Eyes.Appium 5.59] - 2023-07-12
+### Fixed
+- `SetMobileCapabilities` method.
+
+## [Eyes.Appium 5.58] - 2023-07-12
+### Added
+- `SetMobileCapabilities` method.
+
 ## [Eyes.Image.Core 3.6.0] - 2023-07-11
 ### Updated
 - Server Core to 3.6.0

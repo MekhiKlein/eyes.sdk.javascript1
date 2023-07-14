@@ -25,6 +25,7 @@ jobs:
         uses: ./.github/actions/setup
         id: setup
         with:
+          type: release
           tag: ${{github.event.release.tag_name}}
 
   js-release:
@@ -55,6 +56,7 @@ jobs:
         uses: ./.github/actions/storage/restore
         with: 
           name: ${{join(matrix.builds)}}
+          latest: true
       - name: Queue
         uses: ./.github/actions/queue
         with:
@@ -85,8 +87,9 @@ jobs:
           working-directory: ${{matrix.working-directory}}
           shell: ${{matrix.shell || 'bash'}}
           command: notification
-          name: ${{matrix.notification.name}}
           report-id: ${{matrix.name}}@${{matrix.package-version}}
+          name: ${{matrix.notification.name}}
+          release-version: ${{matrix.package-version}}
 
   java-release:
     needs: [setup]
