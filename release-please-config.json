@@ -8,9 +8,10 @@
     "rich-commits",
     {
       "type": "rich-workspace",
-      "workspaces": ["node", "maven"],
+      "workspaces": ["node", "maven", "ruby"],
       "synthetic-dependencies": {
-        "java/eyes-universal-core": ["js/core"]
+        "java/eyes-universal-core": ["js/core"],
+        "ruby/eyes_universal": ["js/core"]
       }
     }
   ],
@@ -1525,6 +1526,20 @@
         "profile": "maven",
         "notification": {"name": "java_playwright"}
       }]
+    },
+
+    "ruby/eyes_universal": {
+      "release-type": "ruby",
+      "component": "ruby/eyes_universal",
+      "builds": [{
+          "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
+          "key": "{{component}}/{{environment}}",
+          "artifacts": ["./pkg"]
+      }],
+      "tests": [
+        {"ruby-version": "2.6"}
+      ],
+      "releases": [{}]
     }
   }
 }

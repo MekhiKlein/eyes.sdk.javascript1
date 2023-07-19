@@ -1,0 +1,26 @@
+name: Ruby tests
+description: Run Ruby SDKs tests
+
+inputs:
+  working-directory:
+    description: the path to the directory from repository root
+    type: string
+    required: true
+  test-type:
+    description: type of testing (...)
+    type: string
+    default: all
+    required: false
+
+
+runs:
+  using: composite
+  steps:
+    - name: Test
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      env:
+        TEST_TYPE: ${{ inputs.test-type }}
+        BUNDLE_GEMFILE: ${{ inputs.working-directory }}/GemfileGithub
+      run: |
+        echo $BUNDLE_GEMFILE

@@ -105,6 +105,25 @@ async function main() {
           return packages
         })
       }
+      if (packageConfig.component.startsWith('ruby/')) {
+        const versionRbPath = path.resolve(packagePath, 'lib', 'applitools', 'version.rb')
+        const versionRb = await fs.readFile(versionRbPath, {encoding: 'utf8'})
+        const version = versionRb.match('VERSION = \'(.*)\'')![1]
+        const name = packageConfig.component.substring(5)
+        return packages.then(packages => {
+          packages[name] = {
+            index,
+            name,
+            version,
+            component: packageConfig.component,
+            path: packagePath,
+            tests: packageConfig.tests ?? [],
+            builds: packageConfig.builds ?? [],
+            releases: packageConfig.releases ?? [],
+          }
+          return packages
+        })
+      }
       return packages
     }, Promise.resolve({} as Record<string, Package>))
     return packages

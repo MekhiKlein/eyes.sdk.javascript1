@@ -5330,6 +5330,25 @@ async function main() {
                     return packages;
                 });
             }
+            if (packageConfig.component.startsWith('ruby/')) {
+                const versionRbPath = external_node_path_namespaceObject.resolve(packagePath, 'lib', 'applitools', 'version.rb');
+                const versionRb = await promises_namespaceObject.readFile(versionRbPath, { encoding: 'utf8' });
+                const version = versionRb.match('VERSION = \'(.*)\'')[1];
+                const name = packageConfig.component.substring(5);
+                return packages.then(packages => {
+                    packages[name] = {
+                        index,
+                        name,
+                        version,
+                        component: packageConfig.component,
+                        path: packagePath,
+                        tests: packageConfig.tests ?? [],
+                        builds: packageConfig.builds ?? [],
+                        releases: packageConfig.releases ?? [],
+                    };
+                    return packages;
+                });
+            }
             return packages;
         }, Promise.resolve({}));
         return packages;
