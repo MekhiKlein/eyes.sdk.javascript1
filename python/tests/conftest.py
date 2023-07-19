@@ -34,7 +34,7 @@ def pytest_sessionfinish(session, exitstatus):
     if environ.get("BONGO_REPORT_TESTS", "false").lower() not in ("false", "0"):
         releasing_package = environ.get("RELEASING_PACKAGE")
         npx = "npx.cmd" if platform == "win32" else "npx"
-        git_sha = check_output(["git", "log", "-n1", "--format=%H"]).decode().strip()
+        git_sha = environ.get("GITHUB_SHA", check_output(["git", "log", "-n1", "--format=%H"]).decode().strip())
         suite_dir = path.basename(getcwd())
         selenium_version = int(selenium_version.split(".", 1)[0])
         reported_name, group = sdk_name_group(
