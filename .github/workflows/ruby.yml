@@ -4,9 +4,9 @@ on:
   push:
     tags:
       - '@applitools/ruby/eyes_selenium*'
-  pull_request:
-    paths:
-      - 'ruby/**'
+#  pull_request:
+#    paths:
+#      - 'ruby/**'
 
   workflow_dispatch:
     inputs:
