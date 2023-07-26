@@ -35,7 +35,7 @@ runs:
       with:
         python-version: "3.10"
     - name: Test
-      if: ${{inputs.package-name == 'eyes_universal'}}
+      if: ${{matrix.package-name == 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
@@ -44,7 +44,7 @@ runs:
         pytest -vv spec/universal_server/universal_bindings_termination_test.py
 
     - name: Test
-      if: ${{inputs.package-name != 'eyes_universal'}}
+      if: ${{matrix.package-name != 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       env:
