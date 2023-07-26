@@ -1697,11 +1697,11 @@
           "artifacts": ["./pkg"]
       }],
       "tests": [
-        {"ruby-version": "2.6"},
-        {"ruby-version": "2.7"},
-        {"ruby-version": "3.0"},
-        {"ruby-version": "3.1"},
-        {"ruby-version": "3.2"}
+        {"ruby-version": "2.6", "test-type": "eyes_universal"},
+        {"ruby-version": "2.7", "test-type": "eyes_universal"},
+        {"ruby-version": "3.0", "test-type": "eyes_universal"},
+        {"ruby-version": "3.1", "test-type": "eyes_universal"},
+        {"ruby-version": "3.2", "test-type": "eyes_universal"}
       ],
       "releases": [{}]
     }
