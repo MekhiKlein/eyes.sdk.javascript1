@@ -1693,11 +1693,15 @@
       "builds": [{
           "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
           "key": "{{component}}/{{environment}}",
-          "gem-list": "eyes_universal",
+          "server-build": true,
           "artifacts": ["./pkg"]
       }],
       "tests": [
-        {"ruby-version": "2.6"}
+        {"ruby-version": "2.6"},
+        {"ruby-version": "2.7"},
+        {"ruby-version": "3.0"},
+        {"ruby-version": "3.1"},
+        {"ruby-version": "3.2"}
       ],
       "releases": [{}]
     }

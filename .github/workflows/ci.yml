@@ -452,7 +452,7 @@ jobs:
         uses: ./.github/actions/ruby/build
         with:
           working-directory: ${{matrix.working-directory}}
-          gem-list: ${{matrix.gem-list}}
+          server-build: ${{matrix.server-build}}
       - name: Save build artifacts
         if: ${{matrix.key && matrix.artifacts}}
         uses: ./.github/actions/storage/save

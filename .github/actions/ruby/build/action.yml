@@ -6,18 +6,16 @@ inputs:
     description: the path to the directory from repository root
     type: string
     required: true
-  gem-list:
-    description: optional filter
-    type: string
+  server-build:
+    description: flag for js binaries
+    type: boolean
     required: false
-#  core-build-dir:
-#    required: false
-#    description: path to the core-universal binaries relative to repository root
 
 runs:
   using: composite
   steps:
     - name: Get binaries
+      if: ${{inputs.server-build}}
       working-directory: .
       shell: bash
       env:
@@ -40,12 +38,6 @@ runs:
     - name: Build Gems
       working-directory: ${{inputs.working-directory}}
       shell: bash
-      env:
-        GEMS: ${{ inputs.gem-list }}
       run: |
-        echo $GEMS
-        pwd
-        ls ../eyes_universal/ext/eyes-universal
-
         gem install builder
         rake build
