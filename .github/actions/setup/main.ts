@@ -125,7 +125,6 @@ async function main() {
       }
       if (packageConfig.component.startsWith('ruby/')) {
         const name = packageConfig.component.substring(5)
-        console.log('packagePath : ', packagePath)
         const versionRbPath = path.resolve(packagePath, 'lib', 'applitools', name, 'version.rb')
         const versionRb = await fs.readFile(versionRbPath, {encoding: 'utf8'})
         const version = versionRb.match('VERSION = \'(.*)\'')![1]
@@ -165,8 +164,6 @@ async function main() {
         return jobs
       }
 
-      console.log('packageInfo.path : ', packageInfo.path)
-      console.log('packageInfo : ', packageInfo)
       const [type] = packageInfo.path.split('/', 1)
       const baseJob = {
         name: packageInfo.component,

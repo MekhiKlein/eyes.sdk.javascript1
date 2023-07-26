@@ -26,3 +26,6 @@ runs:
         echo $BUNDLE_GEMFILE
         pwd
         ls ./pkg
+        ls ../eyes_universal/pkg
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        bundle exec rake --tasks
