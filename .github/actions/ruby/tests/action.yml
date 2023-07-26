@@ -41,7 +41,7 @@ runs:
       run: |
         bundle exec rake github:server_tests
         pip install pytest psutil
-        pytest -vv spec/universal_server/universal_bindings_termination_test.py
+        pytest -vv spec/eyes_universal/universal_bindings_termination_test.py
 
     - name: Test
       if: ${{matrix.package-name != 'eyes_universal'}}
