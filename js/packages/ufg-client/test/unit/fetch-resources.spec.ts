@@ -1,6 +1,5 @@
+import {makeResource, type ContentfulResource, type FailedResource} from '../../src/resources/resource'
 import {makeFetchResource} from '../../src/resources/fetch-resource'
-import {makeFetchResourceFromTunnel} from '../../src/resources/fetch-resource-from-tunnel'
-import {makeResource} from '../../src/resources/resource'
 import {makeLogger} from '@applitools/logger'
 import assert from 'assert'
 import nock from 'nock'
@@ -80,7 +79,7 @@ describe('fetch-resource', () => {
     let count = 0
     nock('http://something').get(/\d+/).times(mockResources.length).reply(limitServerParallelRequests)
 
-    const fetchResource = makeFetchResource({fetchConcurrency: 5, logger: makeLogger()})
+    const fetchResource = makeFetchResource({concurrency: 5, logger: makeLogger()})
     const resResources = await Promise.all(mockResources.map(resource => fetchResource({resource})))
 
     assert.strictEqual(
@@ -97,43 +96,89 @@ describe('fetch-resource', () => {
   })
 
   it('can fetch resources from tunnel', async () => {
-    try {
-      nock('https://exec-wus.applitools.com', {
-        reqheaders: {
-          'x-eyes-api-key': 'blah',
-          'x-eyes-server-url': 'blah',
-          'x-ufg-jwt-token': () => true,
-          'x-tunnel-ids': '1,2,3',
-        },
+    nock('https://exec-wus.applitools.com', {
+      reqheaders: {
+        'x-eyes-api-key': 'blah',
+        'x-eyes-server-url': 'blah',
+        'x-ufg-jwt-token': () => true,
+        'x-tunnel-ids': '1,2,3',
+      },
+    })
+      .post('/handle-resource')
+      .reply(() => {
+        return [
+          200,
+          mockResource.value,
+          {
+            'Content-Type': 'application/octet-stream',
+            'x-is-streaming-content': 'true',
+            'x-resource-hash': '',
+            'x-fetch-status-code': 222,
+            'x-fetch-status-text': 'status text',
+            'x-fetch-response-header-content-type': 'some/content-type',
+          },
+        ]
       })
-        .post('/handle-resource')
-        .reply(() => {
-          return [
-            200,
-            mockResource.value,
-            {
-              'Content-Type': 'application/octet-stream',
-              'x-is-streamining-content': 'true',
-              'x-resource-hash': '',
-              'x-fetch-status-code': '',
-              'x-fetch-status-text': '',
-              'x-fetch-response-headers': '',
-            },
-          ]
-        })
 
-      const fetchResource = makeFetchResourceFromTunnel({
-        logger: makeLogger(),
-        accessToken: 'blah',
-        eyesServerUrl: 'blah',
-        eyesApiKey: 'blah',
-        tunnelIds: '1,2,3',
+    const fetchResource = makeFetchResource({
+      eyesServerUrl: 'blah',
+      apiKey: 'blah',
+      accessToken: 'blah',
+      tunnelIds: '1,2,3',
+      logger: makeLogger(),
+    })
+    const resource = await fetchResource({resource: urlResource})
+    assert.deepStrictEqual(resource as ContentfulResource, {
+      id: mockResource.url,
+      url: mockResource.url,
+      value: mockResource.value,
+      contentType: mockResource.contentType,
+      hash: {
+        hashFormat: 'sha256',
+        hash: '4df3c3f68fcc83b27e9d42c90431a72499f17875c81a599b566c9889b9696703', //crypto.createHash('sha256').update(mockResource.value).digest('hex'),
+        contentType: mockResource.contentType,
+      },
+      dependencies: undefined,
+    })
+  })
+
+  it('handles resources with error status code from tunnel', async () => {
+    nock('https://exec-wus.applitools.com', {
+      reqheaders: {
+        'x-eyes-api-key': 'blah',
+        'x-eyes-server-url': 'blah',
+        'x-ufg-jwt-token': () => true,
+        'x-tunnel-ids': '1,2,3',
+      },
+    })
+      .post('/handle-resource')
+      .reply(() => {
+        return [
+          200,
+          '',
+          {
+            'Content-Type': 'application/octet-stream',
+            'x-fetch-status-code': 404,
+            'x-fetch-status-text': 'not found',
+          },
+        ]
       })
-      const resource = await fetchResource({resource: urlResource})
-      assert.deepStrictEqual(resource.value, mockResource.value)
-    } finally {
-      process.env.APPLITOOLS_TUNNEL_IDS = undefined
-    }
+
+    const fetchResource = makeFetchResource({
+      eyesServerUrl: 'blah',
+      apiKey: 'blah',
+      accessToken: 'blah',
+      tunnelIds: '1,2,3',
+      logger: makeLogger(),
+    })
+    const resource = await fetchResource({resource: urlResource})
+    assert.deepStrictEqual(resource as FailedResource, {
+      id: mockResource.url,
+      errorStatusCode: 404,
+      hash: {
+        errorStatusCode: 404,
+      },
+    })
   })
 
   describe('works with streamingTimeout', () => {

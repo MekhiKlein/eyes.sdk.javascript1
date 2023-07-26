@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-nightwatch",
-  "version": "1.15.12",
+  "version": "1.15.14",
   "description": "Applitools Eyes SDK for Nightwatch.js",
   "keywords": [
     "eyes-nightwatch",
@@ -40,31 +40,31 @@
   "scripts": {
     "lint": "run --top-level eslint '**/*.ts' '**/*.js'",
     "build": "run --top-level tspc --project ./tsconfig.build.json",
-    "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-nightwatch' --meta-path './logs'",
+    "generate:tests": "generic ./test/generic/config.mjs",
     "test": "run test:it && run test:e2e && run test:coverage",
     "test:local": "run test:it && run test:e2e && MOCHA_OMIT_TAGS=sauce run test:coverage",
     "test:sauce": "MOCHA_ONLY_TAGS=sauce run test:coverage",
     "test:it": "MOCHA_GROUP=it run --top-level mocha './test/it/*.spec.ts' -r @applitools/test-utils/mocha-hooks/docker",
     "test:e2e": "nightwatch --config test/e2e/nightwatch.conf.js --eyes-config applitools.config.js test/e2e/*.spec.js",
-    "test:coverage": "run generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-nightwatch' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage run --top-level mocha './test/generic/*.spec.js' -r @applitools/test-utils/mocha-hooks/docker --parallel --jobs ${MOCHA_JOBS:-15} --exit",
+    "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-nightwatch' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage run --top-level mocha './test/generated-coverage/*.spec.js' -r @applitools/test-utils/mocha-hooks/docker --parallel --jobs ${MOCHA_JOBS:-15} --exit",
     "setup": "run --top-level browsers:setup",
     "up:framework": "run --top-level add-silent nightwatch"
   },
   "dependencies": {
-    "@applitools/driver": "1.13.1",
-    "@applitools/eyes": "1.6.2",
-    "@applitools/spec-driver-webdriver": "1.0.38",
-    "@applitools/utils": "1.5.0",
-    "webdriver": "7.27.0"
+    "@applitools/driver": "workspace:*",
+    "@applitools/eyes": "workspace:*",
+    "@applitools/spec-driver-webdriver": "workspace:*",
+    "@applitools/utils": "workspace:*",
+    "webdriver": "7.30.0"
   },
   "devDependencies": {
     "@applitools/api-extractor": "workspace:^",
     "@applitools/bongo": "workspace:^",
-    "@applitools/sdk-coverage-tests": "workspace:^",
+    "@applitools/generic": "workspace:^",
     "@applitools/test-utils": "workspace:^",
     "@types/nightwatch": "^2.3.16",
     "@types/node": "^12.20.55",
-    "chromedriver": "^114.0.1",
+    "chromedriver": "^114.0.3",
     "cucumber": "6.0.7",
     "geckodriver": "^3.0.1",
     "nightwatch": "^2.6.21"
