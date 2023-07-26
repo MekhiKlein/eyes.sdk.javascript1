@@ -1694,7 +1694,7 @@
           "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
           "key": "{{component}}/{{environment}}",
           "gem-list": "eyes_universal",
-          "artifacts": ["../pkg"]
+          "artifacts": ["./pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6"}
