@@ -325,8 +325,9 @@ jobs:
           wait: true
       - name: Build
         uses: ./.github/actions/ruby/build
-#        with:
-#          core-build-dir: js/packages/core/bin
+        with:
+          working-directory: ${{matrix.working-directory}}
+          gem-list: ${{matrix.gem-list}}
       - name: Save build artifacts
         if: ${{matrix.key && matrix.artifacts}}
         uses: ./.github/actions/storage/save

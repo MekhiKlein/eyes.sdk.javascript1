@@ -24,3 +24,5 @@ runs:
         BUNDLE_GEMFILE: ${{ inputs.working-directory }}/GemfileGithub
       run: |
         echo $BUNDLE_GEMFILE
+        pwd
+        ls ../pkg/gems

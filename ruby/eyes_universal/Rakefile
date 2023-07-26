@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+require 'rake/clean'
+
+require 'bundler/gem_helper'
+# Monkey patch the Bundler release class to change tags for eyes_images
+module Bundler
+  class GemHelper
+
+    def version_tag
+      ruby_tag = "@applitools/ruby"
+      "#{ruby_tag}/#{gemspec.name}@#{version}"
+    end
+
+  end
+end
+
+Bundler::GemHelper.install_tasks
+
+namespace :applitools do
+
+  task :get_build_server do
+    load 'ext/eyes-universal/Rakefile'
+    Rake::Task['get_compress_all_binaries'].invoke
+  end
+
+end
+
+task :build => ['applitools:get_build_server']

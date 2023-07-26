@@ -5331,10 +5331,11 @@ async function main() {
                 });
             }
             if (packageConfig.component.startsWith('ruby/')) {
-                const versionRbPath = external_node_path_namespaceObject.resolve(packagePath, 'lib', 'applitools', 'version.rb');
+                const name = packageConfig.component.substring(5);
+                console.log('packagePath : ', packagePath);
+                const versionRbPath = external_node_path_namespaceObject.resolve(packagePath, 'lib', 'applitools', name, 'version.rb');
                 const versionRb = await promises_namespaceObject.readFile(versionRbPath, { encoding: 'utf8' });
                 const version = versionRb.match('VERSION = \'(.*)\'')[1];
-                const name = packageConfig.component.substring(5);
                 return packages.then(packages => {
                     packages[name] = {
                         index,
@@ -5366,6 +5367,8 @@ async function main() {
                 core.warning(`Package name is unknown! Package configured as "${input}" will be ignored!`);
                 return jobs;
             }
+            console.log('packageInfo.path : ', packageInfo.path);
+            console.log('packageInfo : ', packageInfo);
             const [type] = packageInfo.path.split('/', 1);
             const baseJob = {
                 name: packageInfo.component,
@@ -5490,21 +5493,16 @@ async function main() {
     }
     function getChangedPackagesInput() {
         const changedFiles = (0,external_node_child_process_namespaceObject.execSync)(`git --no-pager diff --name-only $(git merge-base --fork-point origin/${process.env.GITHUB_BASE_REF || 'master'})`, { encoding: 'utf8' });
-        console.log(`git --no-pager diff --name-only $(git merge-base --fork-point origin/${process.env.GITHUB_BASE_REF || 'master'})`);
-        console.log(changedFiles);
         const changedPackageNames = changedFiles.split('\n').reduce((changedPackageNames, changedFile) => {
             const changedPackage = Object.values(packages).find(changedPackage => {
                 const changedPackagePath = external_node_path_namespaceObject.resolve(process.cwd(), changedPackage.path) + '/';
                 const changedFilePath = external_node_path_namespaceObject.resolve(process.cwd(), changedFile);
-                console.log('changedFilePath.startsWith(changedPackagePath) : ', changedFilePath.startsWith(changedPackagePath), ' : ', changedFile);
                 return changedFilePath.startsWith(changedPackagePath);
             });
-            console.log('changedPackage: ', changedPackage);
             if (changedPackage)
                 changedPackageNames.add(changedPackage.component);
             return changedPackageNames;
         }, new Set());
-        console.log('changedPackageNames : ', changedPackageNames);
         return Array.from(changedPackageNames.values()).join(' ');
     }
     function getPackagesInputFromTags(tags) {
