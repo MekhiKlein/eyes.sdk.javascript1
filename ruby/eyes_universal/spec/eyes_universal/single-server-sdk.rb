@@ -1,6 +1,6 @@
-require 'eyes_selenium'
+require 'eyes_universal'
 
-universal_server_control = Applitools::Connectivity::UniversalServerControl.instance
+universal_server_control = Applitools::EyesUniversal::UniversalServerControl.instance
 
 STDOUT.puts universal_server_control.to_s
 STDOUT.flush

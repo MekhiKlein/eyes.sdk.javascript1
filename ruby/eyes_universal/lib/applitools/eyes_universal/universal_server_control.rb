@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
 require 'singleton'
+require 'socket'
 
-module Applitools::Connectivity
+module Applitools::EyesUniversal
   class UniversalServerControl
 
     include Singleton
 
     DEFAULT_SERVER_IP = '127.0.0.1'
-    EXECUTABLE_FILEPATH = Applitools::Connectivity::UniversalServerGemFinder.executable_filepath
+    EXECUTABLE_FILEPATH = Applitools::EyesUniversal::UniversalServerGemFinder.executable_filepath
 
     def initialize
       @control_pipe = nil

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Applitools::Connectivity
+module Applitools::EyesUniversal
   module UniversalServerGemFinder
     extend self
 

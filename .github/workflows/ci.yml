@@ -506,6 +506,7 @@ jobs:
         with:
           working-directory: ${{matrix.working-directory}}
           test-type: ${{matrix.test-type}}
+          package-name: ${{matrix.package-name}}
       - name: Save testing artifacts
         if: ${{always() && matrix.key && matrix.artifacts}}
         uses: actions/upload-artifact@v3

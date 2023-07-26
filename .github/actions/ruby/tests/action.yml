@@ -11,21 +11,43 @@ inputs:
     type: string
     default: all
     required: false
+  package-name:
+    description: name of package
+    type: string
+    default: all
+    required: true
 
 
 runs:
   using: composite
   steps:
+
+    - name: Setting up dependencies
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        bundle install
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+
+    - name: Setup Python
+      if: ${{matrix.package-name == 'eyes_universal'}}
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
     - name: Test
+      if: ${{inputs.package-name == 'eyes_universal'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        bundle exec rake github:server_tests
+        pip install pytest psutil
+        pytest -vv spec/universal_server/universal_bindings_termination_test.py
+
+    - name: Test
+      if: ${{inputs.package-name != 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       env:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
-        echo $BUNDLE_GEMFILE
-        pwd
-        ls ./pkg
-        ls ../eyes_universal/pkg
-        bundle install
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
         bundle exec rake --tasks

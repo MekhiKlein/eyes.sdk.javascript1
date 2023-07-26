@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe "Termination tests for u-sdk #{RUBY_PLATFORM}", universal_server: true do
 
   it 'server same for a process and finish on :in and sockets close' do
-    universal_server_control = Applitools::Connectivity::UniversalServerControl.instance
+    universal_server_control = Applitools::EyesUniversal::UniversalServerControl.instance
 
     expect(universal_server_control.server_running?).to be(true)
     expect(universal_server_control.server_port).to be >= 21077
@@ -15,7 +17,7 @@ RSpec.describe "Termination tests for u-sdk #{RUBY_PLATFORM}", universal_server:
 
     universal_server_control.stop_server
 
-    is_same_in_same_process = universal_server_control === Applitools::Connectivity::UniversalServerControl.instance
+    is_same_in_same_process = universal_server_control === Applitools::EyesUniversal::UniversalServerControl.instance
     expect(is_same_in_same_process).to be(true)
 
     expect(universal_server_control.server_running?).to be(false)
