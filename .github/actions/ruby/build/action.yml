@@ -39,5 +39,4 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        gem install builder
         rake build
