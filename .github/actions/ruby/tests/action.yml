@@ -25,4 +25,4 @@ runs:
       run: |
         echo $BUNDLE_GEMFILE
         pwd
-        ls ../pkg/gems
+        ls ../pkg

@@ -18,7 +18,7 @@ runs:
   using: composite
   steps:
     - name: Get binaries
-      working-directory: ${{inputs.working-directory}}
+      working-directory: .
       shell: bash
       env:
         GH_TOKEN: ${{github.token}}
@@ -27,15 +27,15 @@ runs:
         if [[ (-d "$JS_CORE_BIN") ]]; then
           echo "binaries path correct $JS_CORE_BIN ; using it"
           ls $JS_CORE_BIN
-          tar -czf ./ruby/ext/eyes-universal/core.tar.gz $JS_CORE_BIN/core-*
+          tar -czf ./ruby/eyes_universal/ext/eyes-universal/core.tar.gz $JS_CORE_BIN/core-*
           chmod +x $JS_CORE_BIN/core-linux
           $JS_CORE_BIN/core-linux --version
         else
           echo "no binaries in $JS_CORE_BIN ; using script"
-          ./scripts/download-core-bin.sh --dir "./ruby/ext/eyes-universal"
-          tar -czf ./ruby/ext/eyes-universal/core.tar.gz ./ruby/ext/eyes-universal/core-*
-          chmod +x ./ruby/ext/eyes-universal/core-linux
-          ./ruby/ext/eyes-universal/core-linux --version
+          ./scripts/download-core-bin.sh --dir "./ruby/eyes_universal/ext/eyes-universal"
+          tar -czf ./ruby/eyes_universal/ext/eyes-universal/core.tar.gz ./ruby/eyes_universal/ext/eyes-universal/core-*
+          chmod +x ./ruby/eyes_universal/ext/eyes-universal/core-linux
+          ./ruby/eyes_universal/ext/eyes-universal/core-linux --version
         fi
     - name: Build Gems
       working-directory: ${{inputs.working-directory}}
@@ -45,11 +45,7 @@ runs:
       run: |
         echo $GEMS
         pwd
+        ls ../eyes_universal/ext/eyes-universal
 
-        cd ruby
         gem install builder
-        rake clobber clean build
-        cd pkg
-        mkdir gems
-        mv ./*.gem ./gems
-        gem generate_index
+        rake build
