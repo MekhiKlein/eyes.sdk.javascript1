@@ -21,12 +21,11 @@ runs:
       shell: bash
       env:
         TEST_TYPE: ${{ inputs.test-type }}
-        BUNDLE_GEMFILE: ${{ inputs.working-directory }}/GemfileGithub
       run: |
         echo $BUNDLE_GEMFILE
         pwd
         ls ./pkg
         ls ../eyes_universal/pkg
-        gem install rake
+        bundle install
         gem install ../eyes_universal/pkg/eyes_universal-*.gem
         bundle exec rake --tasks
