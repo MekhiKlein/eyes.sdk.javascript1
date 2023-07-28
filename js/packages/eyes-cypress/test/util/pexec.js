@@ -9,15 +9,16 @@ function getMajorVersion(version) {
 const nodeMajorVersion = getMajorVersion(process.version)
 const env = {...process.env}
 
-function pexecWarpper(cmd, options) {
+function pexecWarpper(cmd, options = {}) {
   let cypressVersion
   try {
-    cypressVersion = require(`${process.cwd()}/node_modules/cypress/package.json`).version
+    cypressVersion = require(`${options.workingDir || process.cwd()}/node_modules/cypress/package.json`).version
   } catch (_e) {}
   if (cypressVersion && getMajorVersion(cypressVersion) < 9 && nodeMajorVersion >= 18) {
     env.NODE_OPTIONS = '--openssl-legacy-provider'
   }
-  const promisePPexec = pexec(cmd, {...options, env})
+
+  const promisePPexec = pexec(cmd, {...options, env: {...env, ...options.env}})
   console.log(`$ ${cmd}`)
   // const {child} = promisePPexec
   // child.stdout.on('data', msg => {

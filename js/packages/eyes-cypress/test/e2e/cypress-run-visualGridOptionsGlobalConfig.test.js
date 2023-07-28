@@ -6,20 +6,11 @@ const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
 const {expect} = require('chai')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-visualGridOptions-globalConfig')
-
-async function runCypress(pluginsFile, testFile) {
-  return (
-    await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-      {
-        maxBuffer: 10000000,
-      },
-    )
-  ).stdout
-}
+const targetDir = 'test/fixtures/testAppCopies/testApp-visualGridOptions-globalConfig'
 
 describe('works with visualGridOptions from global config', () => {
   before(async () => {
@@ -27,8 +18,7 @@ describe('works with visualGridOptions from global config', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
+    await pexec(`cd ${targetTestAppPath} && yarn`, {
       maxBuffer: 1000000,
     })
   })
@@ -40,7 +30,9 @@ describe('works with visualGridOptions from global config', () => {
   it('works with visualGriedOptions from applitools.config file', async () => {
     const config = {...applitoolsConfig, visualGridOptions: {polyfillAdoptedStyleSheets: true}}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err, _stdout] = await presult(runCypress('index-run.js', 'visualGridOptionsGlobalConfig.js'))
+    const [err, _stdout] = await presult(
+      runCypress({pluginsFile: 'index-run.js', testFile: 'visualGridOptionsGlobalConfig.js', targetDir}),
+    )
     try {
       console.log(err)
       expect(err).to.be.undefined

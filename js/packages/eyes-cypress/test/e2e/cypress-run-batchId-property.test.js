@@ -5,9 +5,11 @@ const pexec = require('../util/pexec')
 const {testServerInProcess} = require('@applitools/test-server')
 const fs = require('fs')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-batchId-property')
+const targetDir = 'test/fixtures/testAppCopies/testApp-batchId-property'
 
 describe('handle batchId property', () => {
   let closeServer
@@ -22,10 +24,13 @@ describe('handle batchId property', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
-      maxBuffer: 1000000,
-    })
+    try {
+      await pexec(`cd ${targetTestAppPath} && yarn`, {
+        maxBuffer: 1000000,
+      })
+    } catch (ex) {
+      console.log(ex)
+    }
   })
 
   after(async () => {
@@ -37,15 +42,10 @@ describe('handle batchId property', () => {
   })
 
   it('works with batchId from env var with global hooks', async () => {
-    await pexec(`yarn add cypress@9`)
+    await pexec(`cd ${targetTestAppPath} && yarn add cypress@9`)
     process.env.APPLITOOLS_BATCH_ID = 'batchId1234'
     try {
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      )
+      await runCypress({pluginsFile: 'index-run.js', testFile: 'batchIdProperty.js', targetDir})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex
@@ -54,16 +54,11 @@ describe('handle batchId property', () => {
     }
   })
   it('works with batchId from config file with global hooks', async () => {
-    await pexec(`yarn add cypress@9`)
+    await pexec(`cd ${targetTestAppPath} && yarn add cypress@9`)
     const config = {...applitoolsConfig, batchId: 'batchId123456'}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=batchIdProperty.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      )
+      await runCypress({pluginsFile: 'index-run.js', testFile: 'batchIdProperty.js', targetDir})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

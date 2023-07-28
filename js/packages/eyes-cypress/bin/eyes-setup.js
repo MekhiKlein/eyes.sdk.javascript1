@@ -7,13 +7,11 @@ const handleCommands = require('../src/setup/handleCommands')
 const {handleTypeScript} = require('../src/setup/handleTypeScript')
 const getCypressVersion = require('../src/setup/getCypressVersion')
 const getCypressPaths = require('../src/setup/getCypressPaths')
-
 const cwd = process.cwd()
 const semver = require('semver')
 const {version} = require('../package')
 
 console.log(chalk.cyan('Setup Eyes-Cypress', version))
-
 const cypressVersion = getCypressVersion()
 console.log(chalk.cyan(`Cypress version: ${cypressVersion}`))
 

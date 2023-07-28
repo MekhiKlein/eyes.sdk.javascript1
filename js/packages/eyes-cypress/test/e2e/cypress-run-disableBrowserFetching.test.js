@@ -3,40 +3,11 @@ const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
+const {runCypress10} = require('../util/runCypress')
+const updateConfigFile = require('../util/updateConfigFile')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-disableBrowserFetching')
-
-async function runCypress() {
-  return (
-    await pexec(`./node_modules/.bin/cypress run`, {
-      maxBuffer: 10000000,
-    })
-  ).stdout
-}
-
-async function updateConfigFile(pluginFileName, testName = 'global-hooks-overrides.js') {
-  const promise = new Promise(resolve => {
-    fs.readFile(path.resolve(targetTestAppPath, `./cypress.config.js`), 'utf-8', function (err, contents) {
-      if (err) {
-        console.log(err)
-        return
-      }
-
-      const replaced = contents
-        .replace(/index-run.js/g, pluginFileName)
-        .replace(/integration-run/g, `integration-run/${testName}`)
-
-      fs.writeFile(path.resolve(targetTestAppPath, `./cypress.config.js`), replaced, 'utf-8', function (err) {
-        if (err) {
-          console.log(err)
-        }
-        resolve()
-      })
-    })
-  })
-  await promise
-}
 
 describe('disableBrowserFetching', () => {
   beforeEach(async () => {
@@ -54,11 +25,11 @@ describe('disableBrowserFetching', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     fs.unlinkSync(`${targetTestAppPath}/cypress.json`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
+
+    await pexec(`cd ${targetTestAppPath} && yarn`, {
       maxBuffer: 1000000,
     })
-    await pexec('yarn add cypress@latest')
+    await pexec(`cd ${targetTestAppPath} && yarn add cypress@latest`)
   })
 
   after(async () => {
@@ -67,8 +38,8 @@ describe('disableBrowserFetching', () => {
 
   it('works for disableBrowserFetching.js', async () => {
     try {
-      await updateConfigFile('index-run.js', 'disableBrowserFetching.js')
-      await runCypress()
+      await updateConfigFile({pluginFileName: 'index-run.js', testFile: 'disableBrowserFetching.js', targetTestAppPath})
+      await runCypress10(targetTestAppPath)
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

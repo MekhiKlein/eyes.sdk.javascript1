@@ -6,9 +6,11 @@ const fs = require('fs')
 const {expect} = require('chai')
 const {msgText} = require('../../dist/plugin/concurrencyMsg').default
 const concurrencyMsg = msgText.substr(0, 100)
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-other')
+const targetDir = 'test/fixtures/testAppCopies/testApp-other'
 
 describe('eyes configurations', () => {
   before(async () => {
@@ -16,25 +18,25 @@ describe('eyes configurations', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
+
+    await pexec(`cd ${targetTestAppPath} && yarn`, {
       maxBuffer: 1000000,
     })
   })
 
   after(async () => {
-    fs.rmdirSync(targetTestAppPath, {recursive: true})
+    // fs.rmdirSync(targetTestAppPath, {recursive: true})
   })
 
   it('works with disabled eyes', async () => {
     try {
-      const {stdout} = await pexec(
-        'APPLITOOLS_IS_DISABLED=1 ./node_modules/.bin/cypress run --headless --headless --spec cypress/integration-play/iframe.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      )
-
+      const {stdout} = await runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'iframe.js',
+        targetDir,
+        integrationFolder: `integration-play`,
+        env: {APPLITOOLS_IS_DISABLED: 1},
+      })
       expect(stdout, 'cypress ran with eyes disabled but concurrency msg is shown').to.not.have.string(concurrencyMsg)
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
@@ -44,12 +46,13 @@ describe('eyes configurations', () => {
 
   it('does not fail Cypress test if failCypressOnDiff flag is false', async () => {
     try {
-      await pexec(
-        'APPLITOOLS_FAIL_CYPRESS_ON_DIFF=false ./node_modules/.bin/cypress run --headless --headless --spec cypress/integration-play/always-fail.js --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      )
+      await runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'always-fail.js',
+        targetDir,
+        integrationFolder: `integration-play`,
+        env: {APPLITOOLS_FAIL_CYPRESS_ON_DIFF: false},
+      })
     } catch (ex) {
       console.error(
         'Test Failed even though failCypressOnDiff flag is false, If this is the first time u ran this test then u need to set up an invalid baseline for it.',

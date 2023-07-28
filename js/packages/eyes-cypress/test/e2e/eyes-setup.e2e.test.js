@@ -1,5 +1,5 @@
 'use strict'
-const {describe, it, after} = require('mocha')
+const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const path = require('path')
 const {presult} = require('@applitools/functional-commons')
@@ -7,7 +7,6 @@ const utils = require('@applitools/utils')
 const {readFileSync, writeFileSync, existsSync, rmdirSync, unlinkSync} = require('fs')
 
 const pexec = require('../util/pexec')
-const cwd = process.cwd()
 const {version: packageVersion} = require('../../package.json')
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/setup')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-eyes-setup')
@@ -15,10 +14,12 @@ const {pluginRequire} = require('../../src/setup/addEyesCypressPlugin')
 const {commandsImport} = require('../../src/setup/addEyesCommands')
 const {eyesIndexContent} = require('../../src/setup/handleTypeScript')
 const {removeStyleFromText} = require('../fixtures/utils/utils')
-const binEyesSetupPath = path.resolve(__dirname, '../../bin/eyes-setup')
-
+const binEyesSetupPath = path.resolve(__dirname, `../../bin/eyes-setup`)
 function runSetupScript() {
-  return utils.process.sh(`node ${binEyesSetupPath}`, {spawnOptions: {stdio: 'pipe'}})
+  console.log(`setup script: ${binEyesSetupPath}`)
+  return utils.process.sh(`node ${binEyesSetupPath}`, {
+    spawnOptions: {stdio: 'pipe', cwd: targetTestAppPath},
+  })
 }
 
 describe('eyes-setup script', () => {
@@ -41,27 +42,23 @@ describe('eyes-setup script', () => {
       rmdirSync(targetTestAppPath, {recursive: true})
     }
   })
-  after(() => {
-    process.chdir(cwd)
-  })
   beforeEach(async () => {
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    pluginFilePath = path.resolve('cypress/plugins/index-bla-plugin.js')
+    pluginFilePath = path.resolve(`${targetTestAppPath}/cypress/plugins/index-bla-plugin.js`)
 
     origPluginFileContent = readFileSync(pluginFilePath).toString()
 
-    supportFilePath = path.resolve('cypress/support/index-bla-commands.js')
+    supportFilePath = path.resolve(`${targetTestAppPath}/cypress/support/index-bla-commands.js`)
     origSupportFileContent = readFileSync(supportFilePath).toString()
 
-    typescriptFilePath = path.resolve('cypress/support/index.d.ts')
-    cypressConfigPath = path.resolve('cypress.config.js')
-    cypressConfigTSPath = path.resolve('cypress.config.ts')
-    cypressJsonPath = path.resolve('cypress.json')
+    typescriptFilePath = path.resolve(`${targetTestAppPath}/cypress/support/index.d.ts`)
+    cypressConfigPath = path.resolve(`${targetTestAppPath}/cypress.config.js`)
+    cypressConfigTSPath = path.resolve(`${targetTestAppPath}/cypress.config.ts`)
+    cypressJsonPath = path.resolve(`${targetTestAppPath}/cypress.json`)
     origCypressConfigContent = readFileSync(cypressConfigPath, 'utf-8')
     origCypressConfigTSContent = readFileSync(cypressConfigTSPath, 'utf-8')
 
-    packageJsonPath = path.resolve('package.json')
+    packageJsonPath = path.resolve(`${targetTestAppPath}/package.json`)
     originalPackageJson = JSON.parse(readFileSync(packageJsonPath))
     packageJson = Object.assign({}, originalPackageJson)
   })
@@ -77,9 +74,11 @@ describe('eyes-setup script', () => {
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    await pexec(`yarn`)
+    await pexec(`cd ${targetTestAppPath} && yarn`)
 
     const [err, result] = await presult(runSetupScript())
+    console.log('err', err)
+    console.log('result', result)
     expect(err).to.be.undefined
 
     expect(removeStyleFromText(result.stdout)).to.equal(
@@ -110,7 +109,7 @@ Setup done!
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    await pexec(`yarn`)
+    await pexec(`cd ${targetTestAppPath} && yarn`)
     unlinkSync(cypressConfigTSPath)
 
     const [err, result] = await presult(runSetupScript())
@@ -145,7 +144,7 @@ Setup done!
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    await pexec(`yarn`)
+    await pexec(`cd ${targetTestAppPath} && yarn`)
 
     unlinkSync(cypressConfigPath)
     unlinkSync(cypressConfigTSPath)
@@ -167,7 +166,7 @@ No configuration file found at ${targetTestAppPath}. This is usually caused by s
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    await pexec(`yarn`)
+    await pexec(`cd ${targetTestAppPath} && yarn`)
 
     unlinkSync(cypressJsonPath)
 
@@ -188,7 +187,7 @@ No configuration file found at ${cypressJsonPath}. This is usually caused by set
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    await pexec(`yarn`)
+    await pexec(`cd ${targetTestAppPath} && yarn`)
     unlinkSync(cypressJsonPath)
     unlinkSync(cypressConfigPath)
 

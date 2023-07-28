@@ -3,9 +3,11 @@ const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-parallel-run')
+const targetDir = 'test/fixtures/testAppCopies/testApp-parallel-run'
 
 describe('parallel run', () => {
   before(async () => {
@@ -14,8 +16,8 @@ describe('parallel run', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-      await pexec(`yarn`, {
+
+      await pexec(`cd ${targetTestAppPath} && yarn`, {
         maxBuffer: 1000000,
       })
     } catch (ex) {
@@ -32,22 +34,16 @@ describe('parallel run', () => {
     try {
       const runs = []
       runs.push(
-        pexec(
-          './node_modules/.bin/cypress run --headless --config testFiles=parallel-run-1.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-          {
-            maxBuffer: 10000000,
-            timeout: 60000,
-          },
-        ),
+        runCypress({pluginsFile: 'index-run.js', testFile: 'parallel-run-1.js', targetDir, options: {timeout: 60000}}),
       )
       runs.push(
-        pexec(
-          'xvfb-run -a ./node_modules/.bin/cypress run --headless --config testFiles=parallel-run-2.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-          {
-            maxBuffer: 10000000,
-            timeout: 60000,
-          },
-        ),
+        runCypress({
+          pluginsFile: 'index-run.js',
+          testFile: 'parallel-run-2.js',
+          targetDir,
+          xvfb: true,
+          options: {timeout: 60000},
+        }),
       )
       await Promise.all(runs)
     } catch (ex) {

@@ -5,20 +5,22 @@ const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-retries')
+const targetDir = 'test/fixtures/testAppCopies/testApp-retries'
 
-async function runCypress(pluginsFile, testFile = 'getAllTestResults.js') {
-  return (
-    await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-      {
-        maxBuffer: 10000000,
-      },
-    )
-  ).stdout
-}
+// async function runCypress(pluginsFile, testFile = 'getAllTestResults.js') {
+//   return (
+//     await pexec(
+//       `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
+//       {
+//         maxBuffer: 10000000,
+//       },
+//     )
+//   ).stdout
+// }
 
 // skip this test for now as it's flaky on CI
 describe('Retries', () => {
@@ -28,8 +30,8 @@ describe('Retries', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-      await pexec(`yarn`, {
+
+      await pexec(`cd ${targetTestAppPath} && yarn`, {
         maxBuffer: 1000000,
       })
     } catch (ex) {
@@ -43,8 +45,7 @@ describe('Retries', () => {
   })
 
   it('remove duplicate tests on retry', async () => {
-    const [err, v] = await presult(runCypress('log-plugin.js', 'retries.js'))
-    console.log(v)
+    const [err, _v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'retries.js', targetDir}))
     expect(err).to.be.undefined
   })
 })

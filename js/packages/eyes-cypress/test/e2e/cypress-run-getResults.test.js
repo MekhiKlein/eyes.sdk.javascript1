@@ -7,20 +7,11 @@ const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 const snap = require('@applitools/snaptdout')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-getResults')
-
-async function runCypress(pluginsFile, testFile) {
-  return (
-    await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-      {
-        maxBuffer: 10000000,
-      },
-    )
-  ).stdout
-}
+const targetDir = 'test/fixtures/testAppCopies/testApp-getResults'
 
 function parseResults(stdout) {
   const results = stdout.substring(stdout.indexOf('@@START@@') + '@@START@@'.length, stdout.indexOf('@@END@@'))
@@ -34,8 +25,7 @@ describe('get results', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-      await pexec(`yarn`, {
+      await pexec(`cd ${targetTestAppPath} && yarn`, {
         maxBuffer: 1000000,
       })
     } catch (ex) {
@@ -49,10 +39,9 @@ describe('get results', () => {
   })
 
   it('return test results using eyesGetResults', async () => {
-    const [err, v] = await presult(runCypress('log-plugin.js', 'getResults.js'))
+    const [err, v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResults.js', targetDir}))
     expect(err).to.be.undefined
-    debugger
-    const [results] = parseResults(v)
+    const [results] = parseResults(v.stdout)
     expect(results.appName).to.equal('test result 2')
     expect(results.name).to.equal('some test 2')
   })
@@ -60,7 +49,9 @@ describe('get results', () => {
   it('getResults fail test when throwErr is not false', async () => {
     const config = {...applitoolsConfig, failCypressOnDiff: false}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err, _v] = await presult(runCypress('log-plugin.js', 'getResultsWithDiffs.js'))
+    const [err, _v] = await presult(
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResultsWithDiffs.js', targetDir}),
+    )
     snap(err.stdout, 'getResults fail test when throwErr is not false')
   })
 })

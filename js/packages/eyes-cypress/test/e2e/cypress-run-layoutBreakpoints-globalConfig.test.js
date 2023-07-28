@@ -4,9 +4,11 @@ const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-layoutBreakpoints-globalConfig')
+const targetDir = 'test/fixtures/testAppCopies/testApp-layoutBreakpoints-globalConfig'
 
 describe('works with layoutbreakpoing in global config', () => {
   before(async () => {
@@ -14,8 +16,8 @@ describe('works with layoutbreakpoing in global config', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
+
+    await pexec(`cd ${targetTestAppPath} && yarn`, {
       maxBuffer: 1000000,
     })
   })
@@ -28,12 +30,7 @@ describe('works with layoutbreakpoing in global config', () => {
     const config = {...applitoolsConfig, layoutBreakpoints: [500, 1000]}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
-      await pexec(
-        './node_modules/.bin/cypress run --config testFiles=layoutBreakpointsGlobalConfig.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      )
+      await runCypress({pluginsFile: 'index-run.js', testFile: 'layoutBreakpointsGlobalConfig.js', targetDir})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

@@ -5,27 +5,14 @@ const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(
   __dirname,
   '../fixtures/testAppCopies/testApp-make-sure-appliConfFile-stays-intact',
 )
-
-async function runCypress(pluginsFile, testFile = 'appliConfFile.js') {
-  return (
-    await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-      {
-        maxBuffer: 10000000,
-      },
-    )
-  ).stdout
-}
-
-// function parseTestResults(){
-
-// }
+const targetDir = 'test/fixtures/testAppCopies/testApp-make-sure-appliConfFile-stays-intact'
 
 describe('make sure appliConfFile stays intact', () => {
   before(async () => {
@@ -34,8 +21,7 @@ describe('make sure appliConfFile stays intact', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-      await pexec(`yarn`, {
+      await pexec(`cd ${targetTestAppPath} && yarn`, {
         maxBuffer: 1000000,
       })
     } catch (ex) {
@@ -54,9 +40,13 @@ describe('make sure appliConfFile stays intact', () => {
       failCypressOnDiff: false,
     }
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err, v] = await presult(runCypress('log-plugin.js', 'appliConfFile.js'))
+    const [err, v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'appliConfFile.js', targetDir}))
     expect(err).to.be.undefined
-    expect(v).to.contain(`first test - config file - browsers: {\"width\":650,\"height\":800,\"name\":\"firefox\"}`)
-    expect(v).to.contain(`second test - config file - browsers: {\"width\":650,\"height\":800,\"name\":\"firefox\"}`)
+    expect(v.stdout).to.contain(
+      `first test - config file - browsers: {\"width\":650,\"height\":800,\"name\":\"firefox\"}`,
+    )
+    expect(v.stdout).to.contain(
+      `second test - config file - browsers: {\"width\":650,\"height\":800,\"name\":\"firefox\"}`,
+    )
   })
 })

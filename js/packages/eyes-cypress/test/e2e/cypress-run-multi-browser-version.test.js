@@ -3,9 +3,11 @@ const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-multi-browser-version')
+const targetDir = 'test/fixtures/testAppCopies/testApp-multi-browser-version'
 
 describe('multi-browser version', () => {
   before(async () => {
@@ -13,8 +15,8 @@ describe('multi-browser version', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
+
+    await pexec(`cd ${targetTestAppPath} && yarn`, {
       maxBuffer: 1000000,
     })
   })
@@ -25,12 +27,7 @@ describe('multi-browser version', () => {
 
   it('works for multi-browser-version.js', async () => {
     try {
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=multi-browser-version.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      )
+      await runCypress({pluginsFile: 'index-run.js', testFile: 'multi-browser-version.js', targetDir})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

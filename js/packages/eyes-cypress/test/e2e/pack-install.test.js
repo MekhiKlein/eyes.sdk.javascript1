@@ -7,9 +7,11 @@ const path = require('path')
 const rootPath = resolve(__dirname, '../..')
 const rootPackageJson = require(resolve(rootPath, 'package.json'))
 const pexec = require('../util/pexec')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-pack-install')
+const targetDir = 'test/fixtures/testAppCopies/testApp-pack-install'
 
 describe('package and install', () => {
   let packageFilePath
@@ -19,18 +21,18 @@ describe('package and install', () => {
       .split('/')
       .map(x => x.replace('@', ''))
       .join('-')
-    process.chdir(rootPath)
+
     packageFilePath = resolve(rootPath, `${packageName}-${version}.tgz`)
-    await pexec(`npm pack`)
+    debugger
+    await pexec(`npm pack --prefix ${rootPath}`)
 
     if (fs.existsSync(targetTestAppPath)) {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
 
-    await pexec(`yarn`)
-    await pexec(`yarn ${packageFilePath}`)
+    await pexec(`cd ${targetDir} && yarn `)
+    await pexec(`cd ${targetDir} && yarn ${packageFilePath}`)
   })
 
   after(async () => {
@@ -40,10 +42,13 @@ describe('package and install', () => {
 
   it('runs properly on installed package', async () => {
     try {
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config integrationFolder=cypress/integration-pack,pluginsFile=cypress/plugins/index-pack.js,supportFile=cypress/support/index-pack.js',
-        {maxBuffer: 10000000},
-      )
+      await runCypress({
+        pluginsFile: 'index-pack.js',
+        testFile: 'pack.js',
+        targetDir,
+        supportFile: 'index-pack.js',
+        integrationFolder: 'integration-pack',
+      })
     } catch (ex) {
       console.error('Error!', JSON.stringify(ex))
       throw ex
@@ -51,7 +56,7 @@ describe('package and install', () => {
   })
 
   it('compiles with ts defenition file on installed package', async () => {
-    const exampleFile = resolve(__dirname, './ts-defs.example.ts --skipLibCheck true')
+    const exampleFile = resolve(__dirname, `./ts-defs.example.ts --skipLibCheck true`)
     try {
       await pexec(`tsc ${exampleFile} --noEmit`, {
         maxBuffer: 10000000,

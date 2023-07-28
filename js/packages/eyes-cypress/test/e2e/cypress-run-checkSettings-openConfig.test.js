@@ -6,20 +6,12 @@ const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
 const {getTestInfo} = require('@applitools/test-utils')
 const {expect} = require('chai')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-checkSettings-openConfig')
+const targetDir = 'test/fixtures/testAppCopies/testApp-checkSettings-openConfig'
 
-async function runCypress(pluginsFile, testFile) {
-  return (
-    await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-      {
-        maxBuffer: 10000000,
-      },
-    )
-  ).stdout
-}
 async function getInfo(stdout) {
   const results = stdout
     .substring(stdout.indexOf('@@START@@') + '@@START@@'.length, stdout.indexOf('@@END@@'))
@@ -51,8 +43,7 @@ describe('works with checkSettings in open', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    process.chdir(targetTestAppPath)
-    await pexec(`yarn`, {
+    await pexec(`cd ${targetTestAppPath} && yarn`, {
       maxBuffer: 1000000,
     })
   })
@@ -63,8 +54,10 @@ describe('works with checkSettings in open', () => {
 
   it('checkSettings works from open file', async () => {
     try {
-      const [_err, stdout] = await presult(runCypress('log-plugin.js', 'checkSettingsOpen.js'))
-      const info = await getInfo(stdout)
+      const [_err, stdout] = await presult(
+        runCypress({pluginsFile: 'log-plugin.js', testFile: 'checkSettingsOpen.js', targetDir}),
+      )
+      const info = await getInfo(stdout.stdout)
       checkProps(info)
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
