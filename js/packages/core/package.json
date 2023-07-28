@@ -1,6 +1,6 @@
 {
   "name": "@applitools/core",
-  "version": "3.6.4",
+  "version": "3.6.5",
   "homepage": "https://applitools.com",
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
@@ -70,7 +70,7 @@
   "dependencies": {
     "@applitools/core-base": "workspace:*",
     "@applitools/dom-capture": "11.2.2",
-    "@applitools/dom-snapshot": "4.7.9",
+    "@applitools/dom-snapshot": "4.7.10",
     "@applitools/driver": "workspace:*",
     "@applitools/ec-client": "workspace:*",
     "@applitools/logger": "workspace:*",
@@ -92,7 +92,6 @@
   },
   "devDependencies": {
     "@applitools/bongo": "workspace:^",
-    "@applitools/sdk-coverage-tests": "workspace:^",
     "@applitools/spec-driver-puppeteer": "workspace:^",
     "@applitools/spec-driver-selenium": "workspace:^",
     "@applitools/spec-driver-webdriverio": "workspace:^",

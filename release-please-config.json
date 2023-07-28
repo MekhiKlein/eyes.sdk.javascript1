@@ -10,6 +10,7 @@
       "type": "rich-workspace",
       "workspaces": ["node", "maven"],
       "synthetic-dependencies": {
+        "java/eyes-universal-core": ["js/core"],
         "java/eyes-universal-core-binaries": ["js/core"],
         "java/eyes-universal-core-linux": ["js/core"],
         "java/eyes-universal-core-alpine": ["js/core"],
@@ -836,24 +837,28 @@
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 14,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "js_images", "group": "images", "params": {"node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 16,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "js_images", "group": "images", "params": {"node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 18,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "js_images", "group": "images", "params": {"node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 20,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "js_images", "group": "images", "params": {"node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         }
       ],
@@ -876,6 +881,7 @@
           "framework-version": 5,
           "node-version": 14,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 5, "node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -884,6 +890,7 @@
           "framework-version": 6,
           "node-version": 14,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 6, "node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -892,6 +899,7 @@
           "framework-version": 7,
           "node-version": 16,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 7, "node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -900,6 +908,7 @@
           "framework-version": 8,
           "node-version": 18,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 8, "node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -908,13 +917,15 @@
           "framework-version": 8,
           "node-version": 20,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 8, "node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
-          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
+          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
           "framework-version": 8,
           "test-type": "sauce",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "sauce"},
           "parallel": 2,
           "semaphore": "sauce",
           "report": {"name": "js_wdio_5", "params": {"framework": 8}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
@@ -939,6 +950,7 @@
           "framework-version": 4.4,
           "node-version": 14,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_selenium_4", "params": {"framework": 4, "node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -947,6 +959,7 @@
           "framework-version": 4.4,
           "node-version": 16,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_selenium_4", "params": {"framework": 4, "node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -955,6 +968,7 @@
           "framework-version": 4.4,
           "node-version": 18,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_selenium_4", "params": {"framework": 4, "node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -963,6 +977,7 @@
           "framework-version": 4.4,
           "node-version": 20,
           "test-type": "local",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_selenium_4", "params": {"framework": 4, "node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
@@ -970,6 +985,7 @@
           "artifacts": ["./logs/**/*"],
           "framework-version": 4.4,
           "test-type": "sauce",
+          "generic": {"config": "../../test/generic/config.mjs", "suite": "sauce"},
           "parallel": 2,
           "semaphore": "sauce",
           "report": {"name": "js_selenium_4", "params": {"framework": 4}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
@@ -992,24 +1008,28 @@
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 14,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "nightwatch", "params": {"node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 16,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "nightwatch", "params": {"node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 18,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "nightwatch", "params": {"node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 20,
+          "generic": {"config": "./test/generic/config.mjs"},
           "report": {"name": "nightwatch", "params": {"node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         }
       ],
@@ -1030,24 +1050,28 @@
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 14,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "playwright", "params": {"node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 16,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "playwright", "params": {"node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 18,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "playwright", "params": {"node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 20,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "playwright", "params": {"node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         }
       ],
@@ -1068,24 +1092,28 @@
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 14,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "puppeteer", "params": {"node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 16,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "puppeteer", "params": {"node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 18,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "puppeteer", "params": {"node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 20,
+          "generic": {"config": "../../test/generic/config.mjs"},
           "report": {"name": "puppeteer", "params": {"node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         }
       ],
@@ -1103,7 +1131,8 @@
       }],
       "tests": [{
         "key": "{{component}}",
-        "artifacts": ["./logs/**/*"]
+        "artifacts": ["./logs/**/*"],
+        "generic": {"config": "./test/generic/config.mjs"}
       }],
       "releases": [{
         "artifacts": ["./bin/*"]
@@ -1532,6 +1561,129 @@
         "profile": "maven",
         "notification": {"name": "java_playwright"}
       }]
+    },
+
+    "python/core_universal": {
+      "release-type": "python",
+      "component": "python/core-universal",
+      "builds": [
+        {
+          "artifacts": ["./dist"],
+          "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
+          "python-version": "3.6",
+          "key": "{{component}}/{{environment}}"
+        }
+      ],
+      "tests": [
+        {"test-type": "eyes_selenium_unit", "python-version": "3.6"}
+      ],
+      "releases": [{}]
+    },
+    "python/eyes_common": {
+      "release-type": "python",
+      "component": "python/eyes-common",
+      "builds": [
+        {
+          "artifacts": ["./dist", "../core_universal/dist"],
+          "builds": ["python/core-universal/{{environment}}"],
+          "key": "{{component}}/{{environment}}",
+          "python-version": "3.6"
+        }
+      ],
+      "tests": [
+        {"test-type": "eyes_selenium_unit", "container": "python:2.7"},
+        {"test-type": "eyes_selenium_unit", "container": "alpine"},
+        {"test-type": "eyes_selenium_unit", "python-version": "3.6"},
+        {"test-type": "eyes_selenium_unit", "python-version": "3.6", "runner": "windows"},
+        {"test-type": "eyes_selenium_unit", "python-version": "3.6", "runner": "macos"},
+        {"test-type": "eyes_selenium_unit", "python-version": "3.11"},
+        {"test-type": "eyes_selenium_unit", "python-version": "3.11", "runner": "windows"},
+        {"test-type": "eyes_selenium_unit", "python-version": "3.11", "runner": "macos"},
+        {"test-type": "eyes_selenium_unit", "runner": "linuxarm"},
+        {"test-type": "eyes_selenium_installation", "container": "python:2.7", "report": {"name": "python", "result-path": "../report.xml"}},
+        {"test-type": "eyes_selenium_installation", "container": "alpine", "report": {"name": "python", "result-path": "../report.xml"}},
+        {"test-type": "eyes_selenium_installation", "python-version": "3.11", "report": {"name": "python", "result-path": "../report.xml"}},
+        {"test-type": "eyes_selenium_installation", "python-version": "3.11", "runner": "windows", "report": {"name": "python", "result-path": "../report.xml"}},
+        {"test-type": "eyes_selenium_installation", "python-version": "3.11", "runner": "macos", "report": {"name": "python", "result-path": "../report.xml"}}
+      ],
+      "releases": [{}]
+    },
+    "python/eyes_images": {
+      "release-type": "python",
+      "component": "python/eyes-images",
+      "builds": [
+        {
+          "artifacts": ["./dist", "../core_universal/dist"],
+          "builds": ["python/core-universal/{{environment}}"],
+          "key": "{{component}}/{{environment}}",
+          "python-version": "3.6"
+        }
+      ],
+      "tests": [
+        {"test-type": "eyes_images_generated", "python-version": "3.11", "report": {"name": "python", "group":  "images", "result-path": "../tests/coverage/images/report.xml", "meta-path": "../tests/coverage/images/meta.json"}},
+        {"test-type": "eyes_images_functional", "container": "python:2.7", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}},
+        {"test-type": "eyes_images_functional", "python-version": "3.6", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}},
+        {"test-type": "eyes_images_functional", "python-version": "3.11", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}},
+        {"test-type": "eyes_images_functional", "python-version": "3.11", "runner": "windows", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}}
+      ],
+      "releases": [{"notification": {"name": "python"}}]
+    },
+    "python/eyes_selenium": {
+      "release-type": "python",
+      "component": "python/eyes-selenium",
+      "builds": [
+        {
+          "artifacts": ["./dist", "../core_universal/dist"],
+          "builds": ["python/core-universal/{{environment}}"],
+          "key": "{{component}}/{{environment}}",
+          "python-version": "3.6"
+        }
+      ],
+      "tests": [
+        {"test-type": "eyes_appium_generated",  "python-version": "3.6", "semaphore": "sauce", "report": {"name": "python_selenium_3", "result-path": "../tests/coverage/appium/report.xml", "meta-path": "../tests/coverage/appium/meta.json"}},
+        {"test-type": "eyes_appium_generated", "python-version": "3.11", "semaphore": "sauce", "report": {"name": "python", "result-path": "../tests/coverage/appium/report.xml", "meta-path": "../tests/coverage/appium/meta.json"}},
+        {"test-type": "eyes_selenium_generated", "python-version": "3.6", "report": {"name": "python_selenium_3", "result-path": "../tests/coverage/selenium/report.xml", "meta-path": "../tests/coverage/selenium/meta.json"}},
+        {"test-type": "eyes_selenium_generated", "python-version": "3.11", "report": {"name": "python", "result-path": "../tests/coverage/selenium/report.xml", "meta-path": "../tests/coverage/selenium/meta.json"}},
+        {"test-type": "eyes_selenium_functional", "python-version": "3.6", "report": {"name": "python_selenium_3", "result-path": "../report.xml"}},
+        {"test-type": "eyes_selenium_functional", "python-version": "3.11", "report": {"name": "python", "result-path": "../report.xml"}},
+        {"test-type": "eyes_selenium_functional", "python-version": "3.11", "runner": "windows", "report": {"name": "python", "result-path": "../report.xml"}}
+      ],
+      "releases": [{}]
+    },
+    "python/eyes_playwright": {
+      "release-type": "python",
+      "component": "python/eyes-playwright",
+      "builds": [
+        {
+          "artifacts": ["./dist", "../core_universal/dist"],
+          "builds": ["python/core-universal/{{environment}}"],
+          "key": "{{component}}/{{environment}}",
+          "python-version": "3.6"
+        }
+      ],
+      "tests": [
+        {"test-type": "eyes_playwright_generated", "python-version": "3.11", "report": {"name": "python_playwright", "result-path": "../tests/coverage/playwright/report.xml", "meta-path": "../tests/coverage/playwright/meta.json"}},
+        {"test-type": "eyes_playwright_functional", "python-version": "3.11", "report": {"name": "python_playwright", "result-path": "../report.xml"}},
+        {"test-type": "eyes_playwright_functional", "python-version": "3.11", "runner": "windows", "report": {"name": "python_playwright", "result-path": "../report.xml"}}
+      ],
+      "releases": [{}]
+    },
+    "python/eyes_robotframework": {
+      "release-type": "python",
+      "component": "python/eyes-robotframework",
+      "builds": [
+        {
+          "artifacts": ["./dist", "../core_universal/dist"],
+          "builds":["python/core-universal/{{environment}}"],
+          "key": "{{component}}/{{environment}}",
+          "python-version": "3.6"
+        }
+      ],
+      "tests": [
+        {"test-type": "eyes_robotframework_functional", "python-version": "3.6", "report": {"name": "robotframework", "result-path": "../report.xml"}},
+        {"test-type": "eyes_robotframework_sauce_functional", "python-version": "3.6", "semaphore": "sauce", "report": {"name": "robotframework", "result-path": "../report.xml"}}
+      ],
+      "releases": [{}]
     }
   }
 }

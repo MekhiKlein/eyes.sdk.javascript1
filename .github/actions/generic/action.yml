@@ -1,0 +1,27 @@
+name: Generic
+description: Generic coverage tests
+inputs:
+  working-directory:
+    description: the path to the directory from repository root
+    type: string
+    required: true
+  config:
+    description: path to the configuration file (local or remote)
+    type: string
+  suite:
+    description: suite name
+    type: string
+  shell:
+    description: shell to use
+    type: string
+    default: bash
+
+runs:
+  using: composite
+  steps:
+    - name: Generating tests
+      working-directory: ${{inputs.working-directory}}
+      shell: ${{inputs.shell}}
+      run: |
+        npx --package=@applitools/generic@latest --yes -- 'NODE_OPTIONS=$(echo --experimental-import-meta-resolve --experimental-loader=$(NODE_PATH=$(echo $PATH | sed "s/.bin.*//") node -pe "require.resolve(\"@applitools/generic/dist/code-loader.js\")")) generic ${{inputs.config}}'
+
