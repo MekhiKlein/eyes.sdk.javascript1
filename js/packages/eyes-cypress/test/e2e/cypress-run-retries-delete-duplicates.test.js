@@ -11,17 +11,6 @@ const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-retries')
 const targetDir = 'test/fixtures/testAppCopies/testApp-retries'
 
-// async function runCypress(pluginsFile, testFile = 'getAllTestResults.js') {
-//   return (
-//     await pexec(
-//       `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-//       {
-//         maxBuffer: 10000000,
-//       },
-//     )
-//   ).stdout
-// }
-
 // skip this test for now as it's flaky on CI
 describe('Retries', () => {
   before(async () => {
