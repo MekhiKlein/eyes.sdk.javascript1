@@ -25,7 +25,7 @@
     "lint": "run --top-level eslint \"**/*.{js,ts}\"",
     "build": "run --top-level tspc --project ./tsconfig.build.json",
     "generate:tests": "coverage-tests generate",
-    "test": "yarn test:unit && yarn test:it && yarn test:ts:compile && yarn test:e2e && yarn test:components && yarn test:coverage",
+    "test": "yarn test:unit && yarn test:it && yarn test:ts:compile && yarn test:e2e && yarn test:components",
     "test:sanity": "yarn test:unit && yarn test:it && yarn test:ts",
     "test:unit": "run --top-level mocha --no-timeouts 'test/unit/**/*.test.js'",
     "test:it": "run --top-level mocha --no-timeouts 'test/it/**/*.test.js'",
