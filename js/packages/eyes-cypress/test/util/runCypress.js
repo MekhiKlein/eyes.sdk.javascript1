@@ -1,4 +1,5 @@
 const pexec = require('../util/pexec')
+const {resolve} = require('path')
 
 async function runCypress({
   pluginsFile,
@@ -19,7 +20,7 @@ async function runCypress({
     {
       maxBuffer: 10000000,
       env: {APPLITOOLS_CONFIG_PATH: targetDir, ...env},
-      workingDir: targetDir,
+      workingDir: resolve(`${process.cwd()}/${targetDir}`),
       ...options,
     },
   )
@@ -30,7 +31,7 @@ async function runCypress10(targetDir = process.cwd()) {
     await pexec(`${targetDir}/node_modules/.bin/cypress run --config-file ${targetDir}/cypress.config.js`, {
       maxBuffer: 10000000,
       env: {APPLITOOLS_CONFIG_PATH: targetDir},
-      workingDir: targetDir,
+      workingDir: resolve(`${process.cwd()}/${targetDir}`),
     })
   ).stdout
 }
