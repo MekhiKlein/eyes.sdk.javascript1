@@ -19,6 +19,7 @@ async function runCypress({
     `${xvfbCommand} ${targetDir}/node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=${targetDir}/cypress/${integrationFolder},pluginsFile=${targetDir}/cypress/plugins/${pluginsFile},supportFile=${targetDir}/cypress/support/${supportFile} --config-file ${targetDir}/cypress.json`,
     {
       maxBuffer: 10000000,
+      timeout: 60000,
       env: {APPLITOOLS_CONFIG_PATH: targetDir, ...env},
       workingDir: resolve(`${process.cwd()}/${targetDir}`),
       ...options,

@@ -42,7 +42,6 @@ describe('parallel run', () => {
           testFile: 'parallel-run-2.js',
           targetDir,
           xvfb: true,
-          options: {timeout: 60000},
         }),
       )
       await Promise.all(runs)
