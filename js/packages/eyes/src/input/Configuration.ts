@@ -1124,10 +1124,6 @@ export class ConfigurationData<TSpec extends Core.SpecType = Core.SpecType> impl
           rotation: this.rotation,
           scaleRatio: this.scaleRatio,
         }),
-        debugImages:
-          this.debugScreenshots?.save && utils.types.has(this.debugScreenshots, 'path')
-            ? this.debugScreenshots
-            : (undefined as any),
       }),
       check: utils.general.removeUndefinedProps({
         renderers: this.browsersInfo?.map(browserInfo => {

@@ -5,7 +5,6 @@ export type Selector = string | {selector: string; type?: string; shadow?: Selec
 
 export type ScreenshotSettings = {
   region?: Region | Selector
-  debugImages?: {path: string; prefix?: string}
   fully?: boolean
   scrollRootElement?: Selector
   hideScrollbars?: boolean

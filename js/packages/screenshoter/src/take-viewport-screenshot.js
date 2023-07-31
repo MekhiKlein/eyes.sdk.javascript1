@@ -27,12 +27,12 @@ async function makeTakeViewportScreenshot(options) {
   return makeTakeDefaultScreenshot(options)
 }
 
-function makeTakeDefaultScreenshot({driver, stabilization = {}, debug, logger}) {
+function makeTakeDefaultScreenshot({driver, stabilization = {}, logger}) {
   return async function takeScreenshot({name} = {}) {
     logger.verbose('Taking screenshot (default)...')
     const viewport = await driver.getViewport()
     const image = makeImage(await driver.takeScreenshot())
-    await image.debug({...debug, name, suffix: 'original'})
+    await image.debug({name, suffix: 'original'})
 
     if (stabilization.scale) image.scale(stabilization.scale)
     else image.scale(1 / viewport.pixelRatio / viewport.viewportScale)
@@ -45,7 +45,7 @@ function makeTakeDefaultScreenshot({driver, stabilization = {}, debug, logger}) 
   }
 }
 
-function makeTakeMainContextScreenshot({driver, stabilization = {}, debug, logger}) {
+function makeTakeMainContextScreenshot({driver, stabilization = {}, logger}) {
   return async function takeScreenshot({name} = {}) {
     logger.verbose('Taking screenshot (with forced main context)...')
     const viewport = await driver.getViewport()
@@ -53,7 +53,7 @@ function makeTakeMainContextScreenshot({driver, stabilization = {}, debug, logge
     await driver.mainContext.focus()
     const image = makeImage(await driver.takeScreenshot())
     await originalContext.focus()
-    await image.debug({...debug, name, suffix: 'original'})
+    await image.debug({name, suffix: 'original'})
 
     if (stabilization.scale) image.scale(stabilization.scale)
     else image.scale(1 / viewport.pixelRatio / viewport.viewportScale)
@@ -66,12 +66,12 @@ function makeTakeMainContextScreenshot({driver, stabilization = {}, debug, logge
   }
 }
 
-function makeTakeSafari11Screenshot({driver, stabilization = {}, debug, logger}) {
+function makeTakeSafari11Screenshot({driver, stabilization = {}, logger}) {
   return async function takeScreenshot({name} = {}) {
     logger.verbose('Taking safari 11 driver screenshot...')
     const viewport = await driver.getViewport()
     const image = makeImage(await driver.takeScreenshot())
-    await image.debug({...debug, name, suffix: 'original'})
+    await image.debug({name, suffix: 'original'})
 
     if (stabilization.scale) image.scale(stabilization.scale)
     else image.scale(1 / viewport.pixelRatio / viewport.viewportScale)
@@ -88,14 +88,14 @@ function makeTakeSafari11Screenshot({driver, stabilization = {}, debug, logger})
   }
 }
 
-function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
+function makeTakeMarkedScreenshot({driver, stabilization = {}, logger}) {
   let viewportRegion
 
   return async function takeScreenshot({name} = {}) {
     logger.verbose('Taking viewport screenshot (using markers)...')
     const viewport = await driver.getViewport()
     const image = makeImage(await driver.takeScreenshot())
-    await image.debug({...debug, name, suffix: 'original'})
+    await image.debug({name, suffix: 'original'})
 
     if (stabilization.scale) image.scale(stabilization.scale)
     else image.scale(1 / viewport.pixelRatio / viewport.viewportScale)
@@ -109,7 +109,7 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
       if (viewportRegion) image.crop(viewportRegion)
     }
 
-    await image.debug({...debug, name, suffix: 'viewport'})
+    await image.debug({name, suffix: 'viewport'})
 
     return image
   }
@@ -131,7 +131,7 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
       if (stabilization.rotate) image.rotate(stabilization.rotate)
       else if (viewport.orientation.startsWith('landscape') && image.width < image.height) image.rotate(-90)
 
-      await image.debug({...debug, name: 'marker'})
+      await image.debug({name: 'marker'})
 
       const markerLocation = findImagePattern(await image.toObject(), {
         ...marker,
@@ -149,12 +149,12 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
   }
 }
 
-function makeTakeNativeScreenshot({driver, stabilization = {}, debug, logger}) {
+function makeTakeNativeScreenshot({driver, stabilization = {}, logger}) {
   return async function takeScreenshot({name, withStatusBar} = {}) {
     logger.verbose('Taking native driver screenshot...')
     const viewport = await driver.getViewport()
     const image = makeImage(await driver.takeScreenshot())
-    await image.debug({...debug, name, suffix: 'original'})
+    await image.debug({name, suffix: 'original'})
 
     if (stabilization.scale) image.scale(stabilization.scale)
     else image.scale(1 / viewport.pixelRatio / viewport.viewportScale)
@@ -172,11 +172,7 @@ function makeTakeNativeScreenshot({driver, stabilization = {}, debug, logger}) {
       image.crop(cropRegion)
     }
 
-    await image.debug({
-      ...debug,
-      name,
-      suffix: `viewport${withStatusBar ? '-with-statusbar' : ''}`,
-    })
+    await image.debug({name, suffix: `viewport${withStatusBar ? '-with-statusbar' : ''}`})
 
     return image
   }

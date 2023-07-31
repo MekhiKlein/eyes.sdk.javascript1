@@ -196,12 +196,13 @@ export function makeImage(data: ImageSource): Image {
       transforms = {crop: undefined, scale: 1, rotate: 0, modifiers: []}
       return image
     },
-    async debug(debug) {
-      if (!debug || !debug.path) return
+    async debug(options) {
+      const dir = utils.general.getEnvValue('DEBUG_SCREENSHOTS_DIR')
+      if (!options || !dir) return
       const timestamp = new Date().toISOString().replace(/[-T:.]/g, '_')
-      const filename = ['screenshot', timestamp, debug.name, debug.suffix].filter(part => part).join('_') + '.png'
+      const filename = ['screenshot', timestamp, options.name, options.suffix].filter(part => part).join('_') + '.png'
       const transformedImage = await transform(image ? await image : size, transforms)
-      return toFile(transformedImage, path.join(debug.path, filename)).catch(() => undefined)
+      return toFile(transformedImage, path.join(dir, filename)).catch(() => undefined)
     },
   }
 }

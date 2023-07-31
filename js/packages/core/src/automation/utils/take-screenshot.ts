@@ -47,8 +47,7 @@ export async function takeScreenshot<TSpec extends SpecType>({
       scale: settings.normalization.scaleRatio,
       rotation: settings.normalization.rotation,
     },
-    debug: settings.debugImages,
-    logger,
     regionsToCalculate: settings.regionsToCalculate,
+    logger,
   })
 }

@@ -13,7 +13,6 @@ async function takeStitchedScreenshot({
   framed,
   wait,
   stabilization,
-  debug,
   lazyLoad,
 }) {
   logger.verbose('Taking full image of...')
@@ -24,7 +23,7 @@ async function takeStitchedScreenshot({
   const environment = await driver.getEnvironment()
   const viewport = await driver.getViewport()
 
-  const takeViewportScreenshot = await makeTakeViewportScreenshot({logger, driver, stabilization, debug})
+  const takeViewportScreenshot = await makeTakeViewportScreenshot({logger, driver, stabilization})
   const scrollerState = await scroller.preserveState()
 
   const initialOffset = region ? utils.geometry.location(region) : {x: 0, y: 0}
@@ -62,7 +61,7 @@ async function takeStitchedScreenshot({
   if (utils.geometry.isEmpty(cropRegion)) throw new Error('Screenshot region is out of viewport')
 
   image.crop(withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: viewport.statusBarSize}) : cropRegion)
-  await image.debug({...debug, name: 'initial', suffix: 'region'})
+  await image.debug({name: 'initial', suffix: 'region'})
 
   const contentRegion = utils.geometry.region({x: 0, y: 0}, contentSize)
   logger.verbose('Scroller size:', contentRegion)
@@ -143,7 +142,7 @@ async function takeStitchedScreenshot({
 
     logger.verbose('cropping...')
     image.crop(cropPartRegion)
-    await image.debug({...debug, name: partName, suffix: 'region'})
+    await image.debug({name: partName, suffix: 'region'})
 
     const pasteOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), initialOffset)
     stitchedImage.copy(image, pasteOffset)
@@ -152,7 +151,7 @@ async function takeStitchedScreenshot({
   logger.verbose('restoring scroller state', scrollerState)
   await scroller.restoreState(scrollerState)
 
-  await stitchedImage.debug({...debug, name: 'stitched'})
+  await stitchedImage.debug({name: 'stitched'})
 
   if (framed) {
     stitchedImage.frame(
@@ -160,7 +159,7 @@ async function takeStitchedScreenshot({
       lastImage,
       withStatusBar ? utils.geometry.offset(cropRegion, {x: 0, y: viewport.statusBarSize}) : cropRegion,
     )
-    await stitchedImage.debug({...debug, name: 'framed'})
+    await stitchedImage.debug({name: 'framed'})
 
     return {
       image: stitchedImage,

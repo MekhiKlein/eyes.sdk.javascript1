@@ -25,16 +25,16 @@ export async function transformTarget({
   const image = makeImage(target.image)
 
   if (settings?.normalization || settings?.region) {
-    await image.debug({...settings.debugImages, suffix: 'original'})
+    await image.debug({suffix: 'original'})
     if (settings.normalization) {
       if (settings.normalization.scaleRatio) image.scale(settings.normalization.scaleRatio)
       if (settings.normalization.rotation) image.rotate(settings.normalization.rotation)
       if (settings.normalization.cut) image.crop(settings.normalization.cut)
-      await image.debug({...settings.debugImages, suffix: 'normalized'})
+      await image.debug({suffix: 'normalized'})
     }
     if (settings.region) {
       image.crop(settings.region)
-      await image.debug({...settings.debugImages, suffix: 'region'})
+      await image.debug({suffix: 'region'})
     }
     if (settings.normalization?.limit) {
       const maxHeight = Math.min(
@@ -43,7 +43,7 @@ export async function transformTarget({
         settings.normalization.limit.maxImageHeight,
       )
       image.crop({left: 0, right: 0, top: 0, bottom: image.height - maxHeight})
-      await image.debug({...settings.debugImages, suffix: 'limited'})
+      await image.debug({suffix: 'limited'})
     }
   }
 

@@ -231,7 +231,6 @@ export interface ImageSettings<TRegion = Region> {
     limit?: {maxImageArea: number; maxImageHeight: number}
   }
   autProxy?: Proxy
-  debugImages?: {path: string; prefix?: string}
 }
 
 type MatchLevel = 'None' | 'Layout' | 'Layout1' | 'Layout2' | 'Content' | 'IgnoreColors' | 'Strict' | 'Exact'

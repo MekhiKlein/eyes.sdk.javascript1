@@ -7,6 +7,7 @@ const extractCoordinatesForSelectorsAndElements = require('./extract-coordinates
 
 async function takeScreenshot({
   driver,
+  webview,
   frames = [],
   region,
   regionsToCalculate = [],
@@ -20,14 +21,9 @@ async function takeScreenshot({
   wait,
   stabilization,
   hooks,
-  debug,
-  logger,
   lazyLoad,
-  webview,
+  logger,
 }) {
-  debug =
-    debug ||
-    (process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR ? {path: process.env.APPLITOOLS_DEBUG_SCREENSHOTS_DIR} : debug)
   logger = logger ? logger.extend({label: 'screenshoter'}) : makeLogger({label: 'screenshoter'})
 
   // screenshot of a window/app was requested (fully or viewport)
@@ -86,18 +82,8 @@ async function takeScreenshot({
 
   const screenshot =
     fully && target.scroller
-      ? await takeStitchedScreenshot({
-          ...target,
-          withStatusBar,
-          overlap,
-          framed,
-          wait,
-          stabilization,
-          debug,
-          logger,
-          lazyLoad,
-        })
-      : await takeSimpleScreenshot({...target, withStatusBar, wait, stabilization, debug, logger})
+      ? await takeStitchedScreenshot({...target, withStatusBar, overlap, framed, wait, stabilization, logger, lazyLoad})
+      : await takeSimpleScreenshot({...target, withStatusBar, wait, stabilization, logger})
 
   const viewport = await driver.getViewport()
 
