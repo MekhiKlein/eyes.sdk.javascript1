@@ -649,25 +649,6 @@ export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
     this._config.setScaleRatio(scaleRatio)
   }
 
-  getSaveDebugScreenshots(): boolean {
-    return this._config.getSaveDebugScreenshots()
-  }
-  setSaveDebugScreenshots(save: boolean) {
-    this._config.setSaveDebugScreenshots(save)
-  }
-  getDebugScreenshotsPath() {
-    return this._config.getDebugScreenshotsPath()
-  }
-  setDebugScreenshotsPath(path: string) {
-    this._config.setDebugScreenshotsPath(path)
-  }
-  getDebugScreenshotsPrefix() {
-    return this._config.getDebugScreenshotsPrefix()
-  }
-  setDebugScreenshotsPrefix(prefix: string) {
-    this._config.setDebugScreenshotsPrefix(prefix)
-  }
-
   addProperty(name: string, value: string) {
     return this._config.addProperty(name, value)
   }

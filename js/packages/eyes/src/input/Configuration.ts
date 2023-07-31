@@ -19,7 +19,6 @@ import {
   ChromeEmulationInfoLegacy,
 } from './RenderInfo'
 import {CutProvider} from './CutProvider'
-import {DebugScreenshotProvider} from './DebugScreenshotProvider'
 import {RectangleSize, RectangleSizeData} from './RectangleSize'
 import {ImageRotation, ImageRotationData} from './ImageRotation'
 import {ProxySettings, ProxySettingsData} from './ProxySettings'
@@ -37,8 +36,6 @@ type RenderInfo =
   | ChromeEmulationInfoLegacy
 
 export type Configuration<TSpec extends Core.SpecType = Core.SpecType> = {
-  /** @undocumented */
-  debugScreenshots?: DebugScreenshotProvider
   agentId?: string
   apiKey?: string
   serverUrl?: string
@@ -132,42 +129,6 @@ export class ConfigurationData<TSpec extends Core.SpecType = Core.SpecType> impl
     for (const [key, value] of Object.entries(config)) {
       ;(this as any)[key] = value
     }
-  }
-
-  /** @undocumented */
-  get debugScreenshots(): DebugScreenshotProvider {
-    return this._config.debugScreenshots!
-  }
-  /** @undocumented */
-  set debugScreenshots(debugScreenshots: DebugScreenshotProvider) {
-    this._config.debugScreenshots = debugScreenshots
-  }
-  /** @undocumented */
-  getSaveDebugScreenshots(): boolean {
-    return this.debugScreenshots?.save ?? false
-  }
-  /** @undocumented */
-  setSaveDebugScreenshots(save: boolean): this {
-    this.debugScreenshots = {...this.debugScreenshots, save}
-    return this
-  }
-  /** @undocumented */
-  getDebugScreenshotsPath(): string {
-    return (this.debugScreenshots as NonNullable<typeof this.debugScreenshots>).path!
-  }
-  /** @undocumented */
-  setDebugScreenshotsPath(path: string): this {
-    this.debugScreenshots = {...this.debugScreenshots, path}
-    return this
-  }
-  /** @undocumented */
-  getDebugScreenshotsPrefix(): string {
-    return (this.debugScreenshots as NonNullable<typeof this.debugScreenshots>).prefix!
-  }
-  /** @undocumented */
-  setDebugScreenshotsPrefix(prefix: string): this {
-    this.debugScreenshots = {...this.debugScreenshots, prefix}
-    return this
   }
 
   get appName(): string {
