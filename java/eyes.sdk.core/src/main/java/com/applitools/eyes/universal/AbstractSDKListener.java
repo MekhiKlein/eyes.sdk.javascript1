@@ -39,6 +39,7 @@ public abstract class AbstractSDKListener implements WebSocketListener {
         put("Eyes.getResults", new TypeReference<ResponseDto<List<CommandEyesGetResultsResponseDto>>>() {});
         put("EyesManager.getResults", new TypeReference<ResponseDto<TestResultsSummaryDto>>() {});
         put("Debug.getHistory", new TypeReference<ResponseDto<DebugHistoryDto>>() {});
+        put("Core.logEvent", new TypeReference<ResponseDto>() {});
     }};
 
     public AbstractSDKListener() {

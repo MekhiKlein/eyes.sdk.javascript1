@@ -13,6 +13,7 @@ import com.applitools.eyes.exceptions.TestFailedException;
 import com.applitools.eyes.locators.TextRegion;
 import com.applitools.eyes.settings.EyesManagerSettings;
 import com.applitools.eyes.settings.GetResultsSettings;
+import com.applitools.eyes.settings.LogEventSettings;
 import com.applitools.eyes.universal.dto.*;
 import com.applitools.eyes.universal.dto.request.*;
 import com.applitools.eyes.universal.dto.response.CommandEyesGetResultsResponseDto;
@@ -46,11 +47,21 @@ public class CommandExecutor implements AutoCloseable {
     makeCore(agentId, GeneralUtils.getPropertyString("user.dir"), spec);
   }
 
-  public void makeCore(String agentId, String cwd, SpecDto spec) {
+  private void makeCore(String agentId, String cwd, SpecDto spec) {
     EventDto<MakeCore> request = new EventDto<>();
     request.setName("Core.makeCore");
     request.setPayload(new MakeCore(agentId, cwd, spec));
     checkedCommand(request);
+  }
+
+  private void logEvent(LogEventSettings settings) {
+    RequestDto<LogEvent> request = new RequestDto<>();
+    request.setName("Core.logEvent");
+    request.setKey(UUID.randomUUID().toString());
+    request.setPayload(new LogEvent(settings));
+
+    SyncTaskListener syncTaskListener = checkedCommand(request);
+    syncTaskListener.get();
   }
 
   public MakeECClientResponsePayload coreMakeECClient() {
@@ -89,6 +100,8 @@ public class CommandExecutor implements AutoCloseable {
   }
 
   public Reference managerOpenEyes(Reference ref, ITargetDto target, OpenSettingsDto settings, ConfigurationDto config) {
+    logJavaVersion(config.getAgentId(), settings);
+
     RequestDto<OpenEyes> request = new RequestDto<>();
     request.setName("EyesManager.openEyes");
     request.setKey(UUID.randomUUID().toString());
@@ -356,6 +369,17 @@ public class CommandExecutor implements AutoCloseable {
       default:
         throw new UnsupportedOperationException("Unsupported exception type: " + reason);
     }
+  }
+
+  private void logJavaVersion(String agentId, OpenSettingsDto settingsDto) {
+    LogEventSettings logEventSettings = new LogEventSettings();
+    logEventSettings.setType("JAVA_VERSION");
+    logEventSettings.setLevel("Notice");
+    logEventSettings.setAgentId(agentId);
+    logEventSettings.setProxy(settingsDto.getProxy());
+    logEventSettings.setApiKey(settingsDto.getApiKey());
+    logEventSettings.setServerUrl(settingsDto.getServerUrl());
+    logEvent(logEventSettings);
   }
 
   @Override

@@ -371,6 +371,7 @@ public class PSDKListener extends AbstractSDKListener {
                 case "Eyes.getResults":
                 case "EyesManager.getResults":
                 case "Debug.getHistory":
+                case "Core.logEvent":
                     handleResponse(payload, typeReferences.get(response.getName()));
                     break;
                 case "Logger.log":
@@ -387,7 +388,6 @@ public class PSDKListener extends AbstractSDKListener {
                         e.printStackTrace();
                     }
                     break;
-
                 default:
                     throw new EyesException("Unknown server command " + response.getName());
             }

@@ -70,6 +70,7 @@ public class USDKListener extends AbstractSDKListener implements WebSocketListen
                 case "Eyes.getResults":
                 case "EyesManager.getResults":
                 case "Debug.getHistory":
+                case "Core.logEvent":
                     handleResponse(payload, typeReferences.get(response.getName()));
                     break;
                 case "Logger.log":
@@ -86,7 +87,6 @@ public class USDKListener extends AbstractSDKListener implements WebSocketListen
                         e.printStackTrace();
                     }
                     break;
-
                 default:
                     throw new EyesException("Unknown server command " + response.getName());
             }
