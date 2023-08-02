@@ -1,27 +1,35 @@
 package com.applitools.eyes.universal.dto;
 
-import com.applitools.eyes.settings.LogEventSettings;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LogEvent {
 
-    private LogEventSettings settings;
+    protected String type;
 
-    public LogEvent(LogEventSettings settings) {
-        this.settings = settings;
+    public LogEvent() {
+        this.type = "JAVA_EVENT";
     }
 
-    public LogEventSettings getSettings() {
-        return settings;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public void setSettings(LogEventSettings settings) {
-        this.settings = settings;
+    public String getType() {
+        return type;
     }
 
-    @Override
-    public String toString() {
-        return "LogEvent{" +
-                "settings=" + settings +
-                '}';
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class LogJavaVersion extends LogEvent {
+
+        private final String javaVersion = System.getProperty("java.version");
+
+        public LogJavaVersion() {
+            super.setType("JAVA_VERSION");
+        }
+
+        public String getJavaVersion() {
+            return javaVersion;
+        }
     }
 }

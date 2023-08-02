@@ -55,10 +55,10 @@ public class CommandExecutor implements AutoCloseable {
   }
 
   private void logEvent(LogEventSettings settings) {
-    RequestDto<LogEvent> request = new RequestDto<>();
+    RequestDto<CommandLogEvent> request = new RequestDto<>();
     request.setName("Core.logEvent");
     request.setKey(UUID.randomUUID().toString());
-    request.setPayload(new LogEvent(settings));
+    request.setPayload(new CommandLogEvent(settings));
 
     SyncTaskListener syncTaskListener = checkedCommand(request);
     syncTaskListener.get();
@@ -373,7 +373,7 @@ public class CommandExecutor implements AutoCloseable {
 
   private void logJavaVersion(String agentId, OpenSettingsDto settingsDto) {
     LogEventSettings logEventSettings = new LogEventSettings();
-    logEventSettings.setType("JAVA_VERSION");
+    logEventSettings.setEvent(new LogEvent.LogJavaVersion());
     logEventSettings.setLevel("Notice");
     logEventSettings.setAgentId(agentId);
     logEventSettings.setProxy(settingsDto.getProxy());

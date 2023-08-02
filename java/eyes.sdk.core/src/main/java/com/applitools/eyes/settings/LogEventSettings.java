@@ -1,5 +1,6 @@
 package com.applitools.eyes.settings;
 
+import com.applitools.eyes.universal.dto.LogEvent;
 import com.applitools.eyes.universal.dto.ProxyDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -10,8 +11,7 @@ public class LogEventSettings {
     private ProxyDto proxy;
     private String agentId;
     private String level;
-    private String type;
-    private final String javaVersion = System.getProperty("java.version");
+    private LogEvent event;
 
     public String getServerUrl() {
         return serverUrl;
@@ -53,16 +53,11 @@ public class LogEventSettings {
         this.level = level;
     }
 
-    public String getType() {
-        return type;
+    public LogEvent getEvent() {
+        return event;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setEvent(LogEvent event) {
+        this.event = event;
     }
-
-    public String getJavaVersion() {
-        return javaVersion;
-    }
-
 }
