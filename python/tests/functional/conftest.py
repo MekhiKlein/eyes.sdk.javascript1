@@ -1,16 +1,10 @@
 import os
+import sys
 
 import pytest
 from six import iteritems
 
 from applitools.common import BatchInfo, Configuration, StdoutLogger
-
-
-@pytest.fixture
-def sauce_driver_url():
-    return "https://{}:{}@ondemand.us-west-1.saucelabs.com:443/wd/hub".format(
-        os.environ["SAUCE_USERNAME"], os.environ["SAUCE_ACCESS_KEY"]
-    )
 
 
 @pytest.fixture(scope="session")

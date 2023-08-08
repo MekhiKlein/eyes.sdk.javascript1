@@ -1,15 +1,21 @@
 {
-  "last-release-sha": "f3c05f30913b8d1fe022ef3b6e7ae82fdc26d5f0",
+  "last-release-sha": "c70428ec83e26b8b5e398ff11814f8376ca97d56",
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
-  "prerelease": true,
   "plugins": [
     "rich-commits",
     {
+      "type": "linked-versions",
+      "groupName": "core",
+      "components": ["js/core", "python/core-universal"],
+      "merge": false
+    },
+    {
       "type": "rich-workspace",
-      "workspaces": ["node", "maven"],
+      "workspaces": ["node", "maven", "python"],
       "synthetic-dependencies": {
+        "python/core-universal": ["js/core"],
         "java/eyes-universal-core": ["js/core"],
         "java/eyes-universal-core-binaries": ["js/core"],
         "java/eyes-universal-core-linux": ["js/core"],
@@ -792,7 +798,7 @@
         "notification": {"name": "core"}
       }]
     },
-    "js/packages/eyes-api": {
+    "js/packages/eyes": {
       "release-type": "node",
       "component": "js/eyes",
       "builds": [{
@@ -867,7 +873,7 @@
         "notification": {"name": "js_images"}
       }]
     },
-    "js/packages/eyes-webdriverio-5": {
+    "js/packages/eyes-webdriverio": {
       "release-type": "node",
       "component": "js/eyes-webdriverio",
       "builds": [{
@@ -890,6 +896,7 @@
           "framework-version": 6,
           "node-version": 14,
           "test-type": "local",
+          "env": {"FIREFOX_IMAGE": "selenium/standalone-firefox:4.1.3-20220427"},
           "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 6, "node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
@@ -1204,9 +1211,9 @@
           "node-version": 18
         },
         {
-          "framework-version": 8,
           "key": "{{component}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
+          "framework-version": 8,
           "node-version": 16,
           "test-type": "ts:run"
         },
@@ -1284,8 +1291,7 @@
         "artifacts": ["./reports/**/*"],
         "runner": "linux",
         "grep": "TestCoreBinaries#testLinuxBinaries",
-        "builds": ["js/core/x64/{{environment}}"],
-        "report": {"name": "java", "group": "core"}
+        "builds": ["js/core/x64/{{environment}}"]
       }],
       "releases": [{
         "profile": "maven"
@@ -1306,8 +1312,7 @@
         "artifacts": ["./reports/**/*"],
         "runner": "linuxarm",
         "grep": "TestCoreBinaries#testArm64Binaries",
-        "builds": ["js/core/arm64/{{environment}}"],
-        "report": {"name": "java", "group": "core"}
+        "builds": ["js/core/arm64/{{environment}}"]
       }],
       "releases": [{
         "profile": "maven"
@@ -1323,17 +1328,14 @@
         "builds": ["js/core/x64/{{environment}}"],
         "build-type": "maven"
       }],
-      "tests": [
-        {
-          "key": "{{component}}/java-{{java-version}}",
-          "artifacts": ["./reports/**/*"],
-          "runner": "linux",
-          "container": "node:lts-alpine",
-          "grep": "TestCoreBinaries#testAlpineBinaries",
-          "builds": ["js/core/x64/{{environment}}"],
-          "report": {"name": "java", "group": "core"}
-        }
-      ],
+      "tests": [{
+        "key": "{{component}}/java-{{java-version}}",
+        "artifacts": ["./reports/**/*"],
+        "builds": ["js/core/x64/{{environment}}"],
+        "runner": "linux",
+        "container": "node:lts-alpine",
+        "grep": "TestCoreBinaries#testAlpineBinaries"
+      }],
       "releases": [{
         "profile": "maven"
       }]
@@ -1353,8 +1355,7 @@
         "artifacts": ["./reports/**/*"],
         "runner": "windows",
         "grep": "TestCoreBinaries#testWindowsBinaries",
-        "builds": ["js/core/x64/{{environment}}"],
-        "report": {"name": "java", "group": "core"}
+        "builds": ["js/core/x64/{{environment}}"]
       }],
       "releases": [{
         "profile": "maven"
@@ -1372,13 +1373,12 @@
         "build-type": "maven"
       }],
       "tests": [{
-          "key": "{{component}}/java-{{java-version}}",
-          "artifacts": ["./reports/**/*"],
-          "runner": "macos",
-          "grep": "TestCoreBinaries#testMacosBinaries",
-          "builds": ["js/core/x64/{{environment}}"],
-          "report": {"name": "java", "group": "core"}
-        }],
+        "key": "{{component}}/java-{{java-version}}",
+        "artifacts": ["./reports/**/*"],
+        "builds": ["js/core/x64/{{environment}}"],
+        "runner": "macos",
+        "grep": "TestCoreBinaries#testMacosBinaries"
+      }],
       "releases": [{
         "profile": "maven"
       }]
@@ -1388,18 +1388,18 @@
       "skip-snapshot": true,
       "component": "java/eyes-sdk-core-java5",
       "builds": [{
-          "build-type": "maven",
-          "artifacts": ["./target", "~/.m2/repository"],
-          "key": "{{component}}/{{environment}}",
-          "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"]
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./target", "~/.m2/repository"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
+        "build-type": "maven"
       }],
       "tests": [{
-          "report": {"name": "java", "format": "raw", "result-path": "./reports/report/*.json"},
-          "artifacts": ["./reports/**/*"],
-          "key": "{{component}}"
-        }],
+        "report": {"name": "java_selenium", "format": "raw", "result-path": "./reports/report/*.json"},
+        "artifacts": ["./reports/**/*"],
+        "key": "{{component}}"
+      }],
       "releases": [{
-          "profile": "maven"
+        "profile": "maven"
       }]
     },
     "java/eyes.connectivity.java": {
@@ -1468,7 +1468,7 @@
       "tests": [{
         "key": "{{component}}",
         "artifacts": ["./reports/**/*"],
-        "report": {"name": "java_images", "format": "raw","result-path": "./reports/report/*.json"}
+        "report": {"name": "java_images", "group": "images", "format": "raw","result-path": "./reports/report/*.json"}
       }],
       "releases": [{
         "profile": "maven",
@@ -1566,122 +1566,240 @@
     "python/core_universal": {
       "release-type": "python",
       "component": "python/core-universal",
-      "builds": [
-        {
-          "artifacts": ["./dist"],
-          "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
-          "python-version": "3.6",
-          "key": "{{component}}/{{environment}}"
-        }
-      ],
-      "tests": [
-        {"test-type": "eyes_selenium_unit", "python-version": "3.6"}
-      ],
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./dist"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
+        "python-version": "3.6"
+      }],
+      "tests": [{
+        "python-version": "3.6",
+        "test-type": "eyes_selenium_unit"
+      }],
       "releases": [{}]
     },
     "python/eyes_common": {
       "release-type": "python",
       "component": "python/eyes-common",
-      "builds": [
-        {
-          "artifacts": ["./dist", "../core_universal/dist"],
-          "builds": ["python/core-universal/{{environment}}"],
-          "key": "{{component}}/{{environment}}",
-          "python-version": "3.6"
-        }
-      ],
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./dist", "../core_universal/dist"],
+        "builds": ["python/core-universal/{{environment}}"],
+        "python-version": "3.6"
+      }],
       "tests": [
-        {"test-type": "eyes_selenium_unit", "container": "python:2.7"},
-        {"test-type": "eyes_selenium_unit", "container": "alpine"},
-        {"test-type": "eyes_selenium_unit", "python-version": "3.6"},
-        {"test-type": "eyes_selenium_unit", "python-version": "3.6", "runner": "windows"},
-        {"test-type": "eyes_selenium_unit", "python-version": "3.6", "runner": "macos"},
-        {"test-type": "eyes_selenium_unit", "python-version": "3.11"},
-        {"test-type": "eyes_selenium_unit", "python-version": "3.11", "runner": "windows"},
-        {"test-type": "eyes_selenium_unit", "python-version": "3.11", "runner": "macos"},
-        {"test-type": "eyes_selenium_unit", "runner": "linuxarm"},
-        {"test-type": "eyes_selenium_installation", "container": "python:2.7", "report": {"name": "python", "result-path": "../report.xml"}},
-        {"test-type": "eyes_selenium_installation", "container": "alpine", "report": {"name": "python", "result-path": "../report.xml"}},
-        {"test-type": "eyes_selenium_installation", "python-version": "3.11", "report": {"name": "python", "result-path": "../report.xml"}},
-        {"test-type": "eyes_selenium_installation", "python-version": "3.11", "runner": "windows", "report": {"name": "python", "result-path": "../report.xml"}},
-        {"test-type": "eyes_selenium_installation", "python-version": "3.11", "runner": "macos", "report": {"name": "python", "result-path": "../report.xml"}}
+        {
+          "container": "python:2.7",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "container": "alpine",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "runner": "windows",
+          "python-version": "3.6",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "runner": "macos",
+          "python-version": "3.6",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "runner": "windows",
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "runner": "macos",
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "runner": "linuxarm",
+          "test-type": "eyes_selenium_unit"
+        },
+        {
+          "container": "python:2.7",
+          "test-type": "eyes_selenium_installation",
+          "report": {"name": "python", "result-path": "../report.xml"}
+        },
+        {
+          "container": "alpine",
+          "test-type": "eyes_selenium_installation",
+          "report": {"name": "python", "result-path": "../report.xml"}
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_installation",
+          "report": {"name": "python", "result-path": "../report.xml"}
+        },
+        {
+          "runner": "windows",
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_installation",
+          "report": {"name": "python", "result-path": "../report.xml"}
+        },
+        {
+          "test-type": "eyes_selenium_installation",
+          "python-version": "3.11",
+          "runner": "macos",
+          "report": {"name": "python", "result-path": "../report.xml"}
+        }
       ],
       "releases": [{}]
     },
     "python/eyes_images": {
       "release-type": "python",
       "component": "python/eyes-images",
-      "builds": [
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./dist", "../core_universal/dist"],
+        "builds": ["python/core-universal/{{environment}}"],
+        "python-version": "3.6"
+      }],
+      "tests": [
         {
-          "artifacts": ["./dist", "../core_universal/dist"],
-          "builds": ["python/core-universal/{{environment}}"],
-          "key": "{{component}}/{{environment}}",
-          "python-version": "3.6"
+          "python-version": "3.11",
+          "test-type": "eyes_images_generated",
+          "report": {"name": "python", "group":  "images", "result-path": "../tests/coverage/images/report.xml", "meta-path": "../tests/coverage/images/meta.json"}
+        },
+        {
+          "container": "python:2.7",
+          "test-type": "eyes_images_functional",
+          "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}
+        },
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_images_functional",
+          "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_images_functional",
+          "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}
+        },
+        {
+          "runner": "windows",
+          "python-version": "3.11",
+          "test-type": "eyes_images_functional",
+          "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}
         }
       ],
-      "tests": [
-        {"test-type": "eyes_images_generated", "python-version": "3.11", "report": {"name": "python", "group":  "images", "result-path": "../tests/coverage/images/report.xml", "meta-path": "../tests/coverage/images/meta.json"}},
-        {"test-type": "eyes_images_functional", "container": "python:2.7", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}},
-        {"test-type": "eyes_images_functional", "python-version": "3.6", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}},
-        {"test-type": "eyes_images_functional", "python-version": "3.11", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}},
-        {"test-type": "eyes_images_functional", "python-version": "3.11", "runner": "windows", "report": {"name": "python", "group":  "images", "result-path": "../report.xml"}}
-      ],
-      "releases": [{"notification": {"name": "python"}}]
+      "releases": [{
+        "notification": {"name": "python"}
+      }]
     },
     "python/eyes_selenium": {
       "release-type": "python",
       "component": "python/eyes-selenium",
-      "builds": [
-        {
-          "artifacts": ["./dist", "../core_universal/dist"],
-          "builds": ["python/core-universal/{{environment}}"],
-          "key": "{{component}}/{{environment}}",
-          "python-version": "3.6"
-        }
-      ],
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./dist", "../core_universal/dist"],
+        "builds": ["python/core-universal/{{environment}}"],
+        "python-version": "3.6"
+      }],
       "tests": [
-        {"test-type": "eyes_appium_generated",  "python-version": "3.6", "semaphore": "sauce", "report": {"name": "python_selenium_3", "result-path": "../tests/coverage/appium/report.xml", "meta-path": "../tests/coverage/appium/meta.json"}},
-        {"test-type": "eyes_appium_generated", "python-version": "3.11", "semaphore": "sauce", "report": {"name": "python", "result-path": "../tests/coverage/appium/report.xml", "meta-path": "../tests/coverage/appium/meta.json"}},
-        {"test-type": "eyes_selenium_generated", "python-version": "3.6", "report": {"name": "python_selenium_3", "result-path": "../tests/coverage/selenium/report.xml", "meta-path": "../tests/coverage/selenium/meta.json"}},
-        {"test-type": "eyes_selenium_generated", "python-version": "3.11", "report": {"name": "python", "result-path": "../tests/coverage/selenium/report.xml", "meta-path": "../tests/coverage/selenium/meta.json"}},
-        {"test-type": "eyes_selenium_functional", "python-version": "3.6", "report": {"name": "python_selenium_3", "result-path": "../report.xml"}},
-        {"test-type": "eyes_selenium_functional", "python-version": "3.11", "report": {"name": "python", "result-path": "../report.xml"}},
-        {"test-type": "eyes_selenium_functional", "python-version": "3.11", "runner": "windows", "report": {"name": "python", "result-path": "../report.xml"}}
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_appium_generated", 
+          "semaphore": "sauce",
+          "report": {"name": "python_selenium_3", "result-path": "../tests/coverage/appium/report.xml", "meta-path": "../tests/coverage/appium/meta.json"}
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_appium_generated", 
+          "semaphore": "sauce",
+          "report": {"name": "python", "result-path": "../tests/coverage/appium/report.xml", "meta-path": "../tests/coverage/appium/meta.json"}
+        },
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_selenium_generated", 
+          "report": {"name": "python_selenium_3", "result-path": "../tests/coverage/selenium/report.xml", "meta-path": "../tests/coverage/selenium/meta.json"}
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_generated", 
+          "report": {"name": "python", "result-path": "../tests/coverage/selenium/report.xml", "meta-path": "../tests/coverage/selenium/meta.json"}
+        },
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_selenium_functional", 
+          "report": {"name": "python_selenium_3", "result-path": "../report.xml"}
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_functional", 
+          "report": {"name": "python", "result-path": "../report.xml"}
+        },
+        {
+          "runner": "windows",
+          "python-version": "3.11",
+          "test-type": "eyes_selenium_functional", 
+          "report": {"name": "python", "result-path": "../report.xml"}
+        }
       ],
       "releases": [{}]
     },
     "python/eyes_playwright": {
       "release-type": "python",
       "component": "python/eyes-playwright",
-      "builds": [
-        {
-          "artifacts": ["./dist", "../core_universal/dist"],
-          "builds": ["python/core-universal/{{environment}}"],
-          "key": "{{component}}/{{environment}}",
-          "python-version": "3.6"
-        }
-      ],
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./dist", "../core_universal/dist"],
+        "builds": ["python/core-universal/{{environment}}"],
+        "python-version": "3.6"
+      }],
       "tests": [
-        {"test-type": "eyes_playwright_generated", "python-version": "3.11", "report": {"name": "python_playwright", "result-path": "../tests/coverage/playwright/report.xml", "meta-path": "../tests/coverage/playwright/meta.json"}},
-        {"test-type": "eyes_playwright_functional", "python-version": "3.11", "report": {"name": "python_playwright", "result-path": "../report.xml"}},
-        {"test-type": "eyes_playwright_functional", "python-version": "3.11", "runner": "windows", "report": {"name": "python_playwright", "result-path": "../report.xml"}}
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_playwright_generated",
+          "report": {"name": "python_playwright", "result-path": "../tests/coverage/playwright/report.xml", "meta-path": "../tests/coverage/playwright/meta.json"}
+        },
+        {
+          "python-version": "3.11",
+          "test-type": "eyes_playwright_functional",
+          "report": {"name": "python_playwright", "result-path": "../report.xml"}
+        },
+        {
+          "runner": "windows",
+          "python-version": "3.11",
+          "test-type": "eyes_playwright_functional",
+          "report": {"name": "python_playwright", "result-path": "../report.xml"}
+        }
       ],
       "releases": [{}]
     },
     "python/eyes_robotframework": {
       "release-type": "python",
       "component": "python/eyes-robotframework",
-      "builds": [
-        {
-          "artifacts": ["./dist", "../core_universal/dist"],
-          "builds":["python/core-universal/{{environment}}"],
-          "key": "{{component}}/{{environment}}",
-          "python-version": "3.6"
-        }
-      ],
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./dist", "../core_universal/dist"],
+        "builds":["python/core-universal/{{environment}}"],
+        "python-version": "3.6"
+      }],
       "tests": [
-        {"test-type": "eyes_robotframework_functional", "python-version": "3.6", "report": {"name": "robotframework", "result-path": "../report.xml"}},
-        {"test-type": "eyes_robotframework_sauce_functional", "python-version": "3.6", "semaphore": "sauce", "report": {"name": "robotframework", "result-path": "../report.xml"}}
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_robotframework_functional",
+          "report": {"name": "robotframework", "result-path": "../report.xml"}
+        },
+        {
+          "python-version": "3.6",
+          "test-type": "eyes_robotframework_sauce_functional",
+          "semaphore": "sauce",
+          "report": {"name": "robotframework", "result-path": "../report.xml"}
+        }
       ],
       "releases": [{}]
     }

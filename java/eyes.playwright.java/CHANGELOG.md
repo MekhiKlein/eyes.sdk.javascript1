@@ -1,6 +1,122 @@
 # Changelog
 
 
+## [5.64.0](https://github.com/applitools/eyes.sdk.javascript1/compare/java/eyes-playwright-java5@5.63.6...java/eyes-playwright-java5@5.64.0) (2023-08-08)
+
+
+### Features
+
+* rework log event on opent eyes ([#1842](https://github.com/applitools/eyes.sdk.javascript1/issues/1842)) ([532756b](https://github.com/applitools/eyes.sdk.javascript1/commit/532756b75c1023967c3781316148c890dbcfaac8))
+
+
+### Dependencies
+
+* @applitools/core bumped to 3.8.0
+  #### Features
+
+  * rework log event on opent eyes ([#1842](https://github.com/applitools/eyes.sdk.javascript1/issues/1842)) ([532756b](https://github.com/applitools/eyes.sdk.javascript1/commit/532756b75c1023967c3781316148c890dbcfaac8))
+* com.applitools:eyes-universal-core bumped to 5.63.7
+
+* com.applitools:eyes-sdk-core-java5 bumped to 5.64.0
+  #### Features
+
+  * rework log event on opent eyes ([#1842](https://github.com/applitools/eyes.sdk.javascript1/issues/1842)) ([532756b](https://github.com/applitools/eyes.sdk.javascript1/commit/532756b75c1023967c3781316148c890dbcfaac8))
+
+
+
+
+## [5.63.6](https://github.com/applitools/eyes.sdk.javascript1/compare/java/eyes-playwright-java5@5.63.5...java/eyes-playwright-java5@5.63.6) (2023-08-08)
+
+
+### Dependencies
+
+* @applitools/ufg-client bumped to 1.7.0
+  #### Features
+
+  * allow providing custom headers for resource fetching  ([#1852](https://github.com/applitools/eyes.sdk.javascript1/issues/1852)) ([372cb96](https://github.com/applitools/eyes.sdk.javascript1/commit/372cb96b905a0661c36e2fa10a7855208fb55bb0))
+* @applitools/core bumped to 3.7.0
+  #### Features
+
+  * allow providing custom headers for resource fetching  ([#1852](https://github.com/applitools/eyes.sdk.javascript1/issues/1852)) ([372cb96](https://github.com/applitools/eyes.sdk.javascript1/commit/372cb96b905a0661c36e2fa10a7855208fb55bb0))
+
+
+
+* com.applitools:eyes-universal-core bumped to 5.63.6
+
+* com.applitools:eyes-sdk-core-java5 bumped to 5.63.6
+
+
+## [5.63.5](https://github.com/applitools/eyes.sdk.javascript1/compare/java/eyes-playwright-java5@5.63.4...java/eyes-playwright-java5@5.63.5) (2023-08-03)
+
+
+### Bug Fixes
+
+* fix incorrect version in agentId ([08dc940](https://github.com/applitools/eyes.sdk.javascript1/commit/08dc94082594f10d8e6b39ddde74baae0553510b))
+
+
+### Dependencies
+
+* com.applitools:eyes-sdk-core-java5 bumped to 5.63.5
+  #### Bug Fixes
+
+  * fix incorrect version in agentId ([08dc940](https://github.com/applitools/eyes.sdk.javascript1/commit/08dc94082594f10d8e6b39ddde74baae0553510b))
+
+
+
+* @applitools/core bumped to 3.6.6
+  #### Bug Fixes
+
+  * populate log event settings with env vars ([#1840](https://github.com/applitools/eyes.sdk.javascript1/issues/1840)) ([0a6af60](https://github.com/applitools/eyes.sdk.javascript1/commit/0a6af60b5b988f59b7adb03f6606b3417fbeb537))
+
+
+
+* @applitools/core-base bumped to 1.5.0
+  #### Features
+
+  * add stuck request retries to all requests to UFG and Eyes ([#1826](https://github.com/applitools/eyes.sdk.javascript1/issues/1826)) ([5884d42](https://github.com/applitools/eyes.sdk.javascript1/commit/5884d428b230e3a832a2110a388ebe63a94006fc))
+  * mark session as component ([#1841](https://github.com/applitools/eyes.sdk.javascript1/issues/1841)) ([c579bb6](https://github.com/applitools/eyes.sdk.javascript1/commit/c579bb69de8f3bffc64e73ac8bd4fa646e96eb01))
+
+
+  #### Bug Fixes
+
+  * populate log event settings with env vars ([#1840](https://github.com/applitools/eyes.sdk.javascript1/issues/1840)) ([0a6af60](https://github.com/applitools/eyes.sdk.javascript1/commit/0a6af60b5b988f59b7adb03f6606b3417fbeb537))
+* @applitools/driver bumped to 1.13.4
+  #### Bug Fixes
+
+  * extract device orientation from a browser for web executions ([d8d4e91](https://github.com/applitools/eyes.sdk.javascript1/commit/d8d4e919965fb9105915e762c397ec2cc57a8a71))
+
+
+
+* @applitools/snippets bumped to 2.4.22
+  #### Bug Fixes
+
+  * improve orientation extraction for ios devices ([378d989](https://github.com/applitools/eyes.sdk.javascript1/commit/378d9894e4fbc7247087ccb8c46266dc4737e2e5))
+* @applitools/ufg-client bumped to 1.6.0
+  #### Features
+
+  * add stuck request retries to all requests to UFG and Eyes ([#1826](https://github.com/applitools/eyes.sdk.javascript1/issues/1826)) ([5884d42](https://github.com/applitools/eyes.sdk.javascript1/commit/5884d428b230e3a832a2110a388ebe63a94006fc))
+
+
+  #### Bug Fixes
+
+  * improve fetch error experience when fetching from tunnel ([e7d8b49](https://github.com/applitools/eyes.sdk.javascript1/commit/e7d8b49947c07beb27f110cb4952e8c3206469af))
+* com.applitools:eyes-universal-core bumped to 5.63.5
+
+* @applitools/ec-client bumped to 1.7.4
+
+* @applitools/spec-driver-webdriver bumped to 1.0.41
+
+* @applitools/nml-client bumped to 1.5.6
+
+* @applitools/spec-driver-webdriverio bumped to 1.5.10
+
+* @applitools/screenshoter bumped to 3.8.7
+
+* @applitools/spec-driver-puppeteer bumped to 1.1.72
+
+* @applitools/spec-driver-selenium bumped to 1.5.55
+
+
 ## [5.63.4](https://github.com/applitools/eyes.sdk.javascript1/compare/java/eyes-playwright-java5@5.63.3...java/eyes-playwright-java5@5.63.4) (2023-07-27)
 
 

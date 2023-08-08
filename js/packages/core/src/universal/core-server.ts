@@ -11,6 +11,7 @@ import os from 'os'
 import path from 'path'
 
 export type Options = ServerOptions & {
+  environment?: Record<string, any>
   debug?: boolean
   shutdownMode?: 'lazy' | 'stdin'
   idleTimeout?: number
@@ -19,6 +20,7 @@ export type Options = ServerOptions & {
 }
 
 export async function makeCoreServer({
+  environment: defaultEnvironment,
   debug = false,
   shutdownMode = 'lazy',
   idleTimeout = 900000, // 15min
@@ -37,6 +39,7 @@ export async function makeCoreServer({
     shutdownMode,
     idleTimeout,
     printStdout,
+    defaultEnvironment,
     ...handlerOptions,
   })
   const {server, port} = await makeServer({...handlerOptions, debug})
@@ -98,11 +101,17 @@ export async function makeCoreServer({
 
     logger.console.log(`Logs saved in: ${logDirname}`)
 
-    const corePromise = socket.wait('Core.makeCore', ({agentId, cwd, spec}) => {
+    const corePromise = socket.wait('Core.makeCore', ({spec, agentId, environment, cwd}) => {
       return makeMainCore<CustomSpecType | WDSpecType>({
-        agentId: `eyes-universal/${require('../../package.json').version}/${agentId}`,
         spec: spec === 'webdriver' ? wdSpec : makeSpec({socket, spec}),
+        agentId: `eyes-universal/${require('../../package.json').version}/${agentId}`,
         cwd,
+        environment: {
+          ...defaultEnvironment,
+          ...environment,
+          versions: {...defaultEnvironment?.versions, ...environment?.versions},
+          universal: true,
+        },
         logger,
       })
     })
@@ -126,6 +135,10 @@ export async function makeCoreServer({
     socket.command('Core.deleteTest', async options => {
       const core = await corePromise
       return core.deleteTest(options)
+    })
+    socket.command('Core.logEvent', async ({settings}) => {
+      const core = await corePromise
+      return core.logEvent({settings})
     })
     socket.command('Core.locate', async options => {
       const core = await corePromise
@@ -186,11 +199,6 @@ export async function makeCoreServer({
 
     socket.command('Debug.getHistory', async () => {
       return getHistory()
-    })
-
-    socket.command('Core.logEvent', async ({settings}) => {
-      const core = await corePromise
-      core.logEvent({settings})
     })
   })
 

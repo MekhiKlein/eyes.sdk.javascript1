@@ -122,9 +122,9 @@ Cypress.Commands.add('eyesOpen', function (args = {}) {
       socket.connect(`wss://localhost:${Cypress.config('eyesPort')}/eyes`)
       connectedToUniversal = true
       socket.emit('Core.makeCore', {
+        spec: Object.keys(spec).concat(['isSelector', 'isDriver', 'isElement']), // TODO fix spec.isSelector and spec.isDriver and spec.isElement in driver
         agentId: `eyes.cypress/${require('../../package.json').version}`,
         cwd: Cypress.config('projectRoot'),
-        spec: Object.keys(spec).concat(['isSelector', 'isDriver', 'isElement']), // TODO fix spec.isSelector and spec.isDriver and spec.isElement in driver
       })
 
       manager =
@@ -140,7 +140,11 @@ Cypress.Commands.add('eyesOpen', function (args = {}) {
 
     const appliConfFile = Cypress.config('appliConfFile')
     const mergedConfig = mergeCypressConfigs({globalConfig: appliConfFile, openConfig: {testName, ...args}})
-    openAndGlobalConfig = transformCypressConfig({...mergedConfig, shouldUseBrowserHooks})
+    openAndGlobalConfig = transformCypressConfig({
+      ...mergedConfig,
+      shouldUseBrowserHooks,
+      isComponentTest: Cypress.config('isComponent'),
+    })
 
     eyes = await socket.request('EyesManager.openEyes', {manager, target, config: openAndGlobalConfig})
   })

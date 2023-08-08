@@ -33,7 +33,6 @@ export interface Core {
   getAccountInfo(options: {settings: EyesServerSettings; logger?: Logger}): Promise<Account>
   closeBatch(options: {settings: MaybeArray<CloseBatchSettings>; logger?: Logger}): Promise<void>
   deleteTest(options: {settings: MaybeArray<DeleteTestSettings>; logger?: Logger}): Promise<void>
-  /** @internal */
   logEvent(options: {settings: MaybeArray<LogEventSettings>; logger?: Logger}): Promise<void>
 }
 
@@ -169,6 +168,8 @@ export interface OpenSettings extends EyesServerSettings {
   connectionTimeout?: number
   removeSession?: boolean
   isFunctionalTest?: boolean
+  /** @internal */
+  isComponentTest?: boolean
 }
 
 export interface LocateSettings<TLocator extends string, TRegion = Region>

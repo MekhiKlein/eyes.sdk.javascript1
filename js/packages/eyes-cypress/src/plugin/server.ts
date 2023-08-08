@@ -9,6 +9,7 @@ import {type Logger} from '@applitools/logger'
 import {AddressInfo} from 'net'
 import {promisify} from 'util'
 import {EyesPluginConfig} from './index'
+import {extractEnvironment} from '../plugin/extractEnvironment'
 
 export type StartServerReturn = {
   server: Omit<SocketWithUniversal, 'disconnect' | 'ref' | 'unref' | 'send' | 'request' | 'setPassthroughListener'>
@@ -17,16 +18,8 @@ export type StartServerReturn = {
   closeBatches: (settings: CloseBatchSettings | CloseBatchSettings[]) => Promise<void>
   closeUniversalServer: () => void
 }
-const PUBLIC_CLOUD = 'https://eyesapi.applitools.com'
-export default function makeStartServer({
-  logger,
-  eyesConfig,
-  config,
-}: {
-  logger: Logger
-  eyesConfig: EyesPluginConfig
-  config: any
-}) {
+
+export default function makeStartServer({logger, eyesConfig}: {logger: Logger; eyesConfig: EyesPluginConfig}) {
   return async function startServer(options?: Cypress.PluginConfigOptions): Promise<StartServerReturn> {
     const key = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.key'))
     const cert = fs.readFileSync(path.resolve(__dirname, '../../src/pem/server.cert'))
@@ -44,11 +37,13 @@ export default function makeStartServer({
       closeUniversalServer()
     })
 
+    const environment = extractEnvironment(options)
     const {port: universalPort, close: closeUniversalServer} = await makeCoreServer({
       idleTimeout: 0,
       printStdout: true,
       singleton: false,
       portResolutionMode: 'random',
+      environment,
       debug: eyesConfig.universalDebug,
     })
 
@@ -71,35 +66,7 @@ export default function makeStartServer({
       socketWithClient.on('message', (message: string) => {
         const msg = JSON.parse(message)
         logger.log('==> ', message.toString().slice(0, 1000))
-        if (msg.name === 'Core.makeCore') {
-          logger.log('==> ', 'Core.logEvent')
-          socketWithUniversal.request('Core.logEvent', {
-            settings: {
-              eyesServerUrl: config.serverUrl ? config.serverUrl : PUBLIC_CLOUD,
-              apiKey: config.apiKey,
-              agentId: `eyes.cypress/${require('../../package.json').version}`,
-              proxy: config.proxy,
-              level: 'Notice',
-              event: {
-                type: 'CypressTestingType',
-                testingType: options?.testingType === 'component' ? 'component' : 'e2e',
-                cypressVersion: require('cypress/package.json').version,
-              },
-            },
-            logger,
-          })
-        }
-        if (msg.name === 'Core.makeSDK') {
-          const newMessage = Buffer.from(
-            JSON.stringify({
-              name: msg.name,
-              key: msg.key,
-              payload: Object.assign(msg.payload, {cwd: process.cwd()}),
-            }),
-            'utf-8',
-          )
-          socketWithUniversal.send(newMessage)
-        } else if (msg.name === 'Test.printTestResults') {
+        if (msg.name === 'Test.printTestResults') {
           try {
             if (msg.payload.resultConfig.tapDirPath && msg.payload.resultConfig.shouldCreateTapFile) {
               handleTestResults.handleBatchResultsFile(msg.payload.testResults, {

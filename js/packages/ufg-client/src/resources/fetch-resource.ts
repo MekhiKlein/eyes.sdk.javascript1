@@ -23,11 +23,10 @@ type Options = {
 }
 
 export type FetchResourceSettings = {
-  referer?: string
   proxy?: Proxy
   autProxy?: Proxy & {mode?: 'Allow' | 'Block'; domains?: string[]}
   cookies?: Cookie[]
-  userAgent?: string
+  headers?: Record<string, string | undefined>
 }
 
 export type FetchResource = (options: {
@@ -73,9 +72,11 @@ export function makeFetchResource({
 
     runningRequest = req(resource.url, {
       headers: {
-        Referer: settings.referer,
         Cookie: settings.cookies && createCookieHeader({url: resource.url, cookies: settings.cookies}),
-        'User-Agent': (resource.renderer && createUserAgentHeader({renderer: resource.renderer})) ?? settings.userAgent,
+        ...settings.headers,
+        'User-Agent':
+          (resource.renderer && createUserAgentHeader({renderer: resource.renderer})) ??
+          settings.headers?.['User-Agent'],
       },
       proxy: resourceUrl => {
         const {proxy, autProxy} = settings
@@ -142,17 +143,19 @@ function handleTunneledResource({
       }
     },
     afterResponse({response}) {
-      const headers: Record<string, string> = {}
-      for (const [name, value] of response.headers) {
-        if (name.startsWith('x-fetch-response-header')) {
-          headers[name.replace('x-fetch-response-header-', '')] = value
+      if (response.headers.has('x-fetch-status-code')) {
+        const headers: Record<string, string> = {}
+        for (const [name, value] of response.headers) {
+          if (name.startsWith('x-fetch-response-header')) {
+            headers[name.replace('x-fetch-response-header-', '')] = value
+          }
         }
-      }
-      return {
-        body: response.body,
-        status: Number(response.headers.get('x-fetch-status-code')),
-        statusText: response.headers.get('x-fetch-status-text')!,
-        headers,
+        return {
+          body: response.body,
+          status: Number(response.headers.get('x-fetch-status-code')),
+          statusText: response.headers.get('x-fetch-status-text')!,
+          headers,
+        }
       }
     },
   }

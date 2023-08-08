@@ -26,6 +26,6 @@ export function makeCloseBatch({core, logger: mainLogger}: Options) {
       settings.apiKey ??= utils.general.getEnvValue('API_KEY')
     })
 
-    await core.base.closeBatch({settings, logger})
+    return core.base.closeBatch({settings, logger})
   }
 }

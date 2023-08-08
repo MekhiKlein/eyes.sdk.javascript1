@@ -57928,9 +57928,15 @@ var core = __nccwpck_require__(2186);
 
 
 
-if (process.platform === 'linux' && (0,external_node_fs_namespaceObject.existsSync)('/etc/alpine-release')) {
-    core.debug('alpine system is detected, installing necessary dependencies');
-    (0,external_node_child_process_namespaceObject.execSync)('apk add --no-cache zstd tar');
+if (process.platform === 'linux') {
+    if ((0,external_node_fs_namespaceObject.existsSync)('/etc/alpine-release')) {
+        core.debug('alpine system is detected, installing necessary dependencies');
+        (0,external_node_child_process_namespaceObject.execSync)('apk add --no-cache zstd tar');
+    }
+    else if ((0,external_node_child_process_namespaceObject.execSync)('cat /etc/*release | grep ^ID=', { encoding: 'utf-8' }).includes('debian')) {
+        core.debug('debian system is detected, installing necessary dependencies');
+        (0,external_node_child_process_namespaceObject.execSync)('apt-get update && apt-get install -y zstd');
+    }
 }
 main()
     .then(results => {
@@ -57947,20 +57953,22 @@ async function main() {
     return Promise.all(names.map(async (compositeName) => {
         const [name, paths] = compositeName.split('$');
         const fallbacks = latest ? [name.replace(/(?<=#).+$/, '')] : [];
-        return restore({ paths: paths.split(';'), name, fallbacks, wait });
+        return restore({ paths: paths.split(';'), name, fallbacks, wait: wait ? 600000 : 0 });
     }));
     async function restore(options) {
-        // NOTE: restoreCache mutates paths argument, that makes it impossible to reuse
-        const paths = [...options.paths];
-        const restoredName = await (0,cache.restoreCache)(options.paths, options.name, options.fallbacks, {}, true);
+        options.startedAt ??= Date.now();
+        const restoredName = await (0,cache.restoreCache)([...options.paths], options.name, options.fallbacks, {}, true);
         if (restoredName) {
             core.info(`cache was successfully restored with ${options.name}`);
             return restoredName;
         }
-        else if (wait) {
+        else if (options.wait) {
+            if (options.startedAt + options.wait <= Date.now()) {
+                throw new Error(`Failed to restore artifact during ${options.wait} ms`);
+            }
             core.info(`waiting for cache with name ${options.name} to appear`);
             await (0,promises_namespaceObject.setTimeout)(20000);
-            return restore({ ...options, paths });
+            return restore(options);
         }
     }
 }
