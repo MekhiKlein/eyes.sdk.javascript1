@@ -36,6 +36,7 @@
   "java/eyes.universal.core/eyes-universal-core-linux": "5.63.8",
   "java/eyes.universal.core/eyes-universal-core-alpine": "5.63.8",
   "java/eyes.universal.core/eyes-universal-core-arm": "5.63.8",
+  "java/eyes.sdk.parent": "5.63.0",
   "java/eyes.sdk.core": "5.64.1",
   "java/eyes.connectivity.java": "5.63.3",
   "java/eyes.ufg.java": "5.63.3",

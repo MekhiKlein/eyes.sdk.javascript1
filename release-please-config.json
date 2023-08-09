@@ -1257,6 +1257,19 @@
       }]
     },
 
+    "java/eyes.sdk.parent": {
+      "release-type": "maven",
+      "skip-snapshot": true,
+      "component": "java/eyes-sdk-parent-java5",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./target", "~/.m2/repository"],
+        "build-type": "maven"
+      }],
+      "releases": [{
+        "profile": "maven"
+      }]
+    },
     "java/eyes.universal.core/eyes-universal-core": {
       "release-type": "maven",
       "skip-snapshot": true,

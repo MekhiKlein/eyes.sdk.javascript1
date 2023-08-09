@@ -1,19 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+        https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>eyes-selenium-java5</artifactId>
-    <version>5.64.1</version>
-    <name>eyes-selenium-java5</name>
-
-    <parent>
-        <groupId>com.applitools</groupId>
-        <artifactId>eyes-sdk-java5-parent</artifactId>
-        <version>5.63.0</version>
-        <relativePath>../eyes.sdk.parent/pom.xml</relativePath>
-    </parent>
-
+    <groupId>com.applitools</groupId>
+    <artifactId>eyes-sdk-java5-parent</artifactId>
+    <version>5.63.0</version>
+    <packaging>pom</packaging>
+    <name>eyes-sdk-java5-parent</name>
     <url>http://www.applitools.com</url>
-    <description>Applitools Eyes SDK for Selenium Java WebDriver</description>
+    <description>Applitools Eyes SDK base for Java</description>
     <licenses>
         <license>
             <name>Applitools License</name>
@@ -42,71 +39,51 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.applitools</groupId>
-            <artifactId>eyes-selenium-common-java5</artifactId>
-            <version>5.63.8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.applitools</groupId>
-            <artifactId>eyes-sdk-core-java5</artifactId>
-            <version>5.64.1</version>
-            <type>test-jar</type>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.7.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.applitools</groupId>
-            <artifactId>eyes-connectivity-java5</artifactId>
-            <version>5.63.3</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.helger</groupId>
-            <artifactId>ph-css</artifactId>
-            <version>6.1.1</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.6.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.appium</groupId>
-            <artifactId>java-client</artifactId>
-            <version>8.3.0</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.6.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>2.0.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>2.0.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>1.2.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <properties>
-        <unitSuiteFile>unitTestsSuite.xml</unitSuiteFile>
-        <integrationSuiteFile>integrationTestsSuite.xml</integrationSuiteFile>
-        <e2eSuiteFile>e2eTestsSuite.xml</e2eSuiteFile>
-
-        <defaultSuiteFile>${unitSuiteFile},${integrationSuiteFile},${e2eSuiteFile}</defaultSuiteFile>
-        <suiteFile>${defaultSuiteFile}</suiteFile>
-    </properties>
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>${suiteFile}</suiteXmlFile>
-                    </suiteXmlFiles>
-                    <useFile>false</useFile>
-                    <trimStackTrace>false</trimStackTrace>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -117,13 +94,26 @@
                 </configuration>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
+
+    <modules>
+        <module>../eyes.common.java</module>
+        <module>../eyes.connectivity.java</module>
+        <module>../eyes.ufg.java</module>
+        <module>../eyes.sdk.core</module>
+        <module>../eyes.selenium.java</module>
+        <module>../eyes.selenium.common</module>
+        <module>../eyes.appium.java</module>
+        <module>../eyes.images.java</module>
+        <module>../eyes.playwright.java</module>
+        <module>../eyes.universal.core/eyes-universal-core</module>
+        <module>../eyes.universal.core/eyes-universal-core-win</module>
+        <module>../eyes.universal.core/eyes-universal-core-mac</module>
+        <module>../eyes.universal.core/eyes-universal-core-linux</module>
+        <module>../eyes.universal.core/eyes-universal-core-arm</module>
+        <module>../eyes.universal.core/eyes-universal-core-alpine</module>
+        <module>../eyes.universal.core/eyes-universal-core-binaries</module>
+    </modules>
 
     <distributionManagement>
         <snapshotRepository>
