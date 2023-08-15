@@ -19,8 +19,9 @@ group :test, :development do
   end
 
   source "file://#{ENV['PWD']}/pkg" do
-    gem 'eyes_selenium'
+    gem 'eyes_universal'
     gem 'eyes_core'
+    gem 'eyes_selenium'
   end
 
 end

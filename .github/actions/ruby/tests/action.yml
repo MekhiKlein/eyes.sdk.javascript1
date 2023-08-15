@@ -44,12 +44,12 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        pwd
+        # pwd
         # gem list eyes
-        ls ../eyes_universal/pkg/
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
-        gem update --system
-        ls pkg/
+        # ls ../eyes_universal/pkg/
+        # gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        # gem update --system
+        # ls pkg/
         # gem install pkg/eyes_core-*.gem
         # gem install pkg/eyes_selenium-*.gem
         bundle install

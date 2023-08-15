@@ -46,6 +46,8 @@ runs:
       shell: bash
       run: |
         cd ..
+        ls eyes_universal/pkg/
+        cp eyes_universal/pkg/eyes_universal-3.6.1.gem eyes_appium/pkg/eyes_universal-3.6.1.gem
         bundle install
         rake build
         cp pkg/eyes_core-5.0.1.gem eyes_appium/pkg/eyes_core-5.0.1.gem
