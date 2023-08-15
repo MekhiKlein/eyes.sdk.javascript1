@@ -11,16 +11,16 @@ group :test, :development do
   gem 'parallel_tests'
   gem 'rspec_junit_formatter'
 
-  source "file://#{ENV['PWD']}/pkg" do
-    gem 'eyes_selenium'
-    gem 'eyes_core'
-  end
-
   if RUBY_VERSION < '2.7' # 2.6
     gem 'oj', '<= 3.14.2'
     gem 'selenium-webdriver', ['>= 3', '<= 4.1.0']
   elsif RUBY_VERSION < '3' # 2.7
     gem 'selenium-webdriver', ['>= 3', '<= 4.9.0']
+  end
+
+  source "file://#{ENV['PWD']}/pkg" do
+    gem 'eyes_selenium'
+    gem 'eyes_core'
   end
 
 end
