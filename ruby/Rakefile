@@ -29,7 +29,7 @@ ALL_GEMS = [
   :eyes_selenium,
   :eyes_calabash,
   :eyes_capybara,
-  :eyes_appium,
+  # :eyes_appium,
   # :eyes_universal
 ]
 
