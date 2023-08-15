@@ -18,6 +18,7 @@ runs:
   steps:
 
     - name: Setting up dependencies
+      if: ${{inputs.test-type != 'eyes_appium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
@@ -47,8 +48,10 @@ runs:
       run: |
         pwd
         ls pkg/
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
         gem install pkg/eyes_core-*.gem
         gem install pkg/eyes_selenium-*.gem
+        bundle install
 
     - name: Test
       if: ${{inputs.test-type != 'eyes_universal'}}
