@@ -20,6 +20,7 @@ group :test, :development do
   end
 
   # coverage tests fix
+  puts "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg"
   source "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg" do
     gem 'eyes_universal'
     gem 'eyes_core'
