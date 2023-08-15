@@ -41,6 +41,7 @@ runs:
       run: |
         rake build
     - name: Temporary Fix
+      if: ${{inputs.working-directory == 'ruby/eyes_appium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
