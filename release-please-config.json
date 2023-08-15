@@ -1710,10 +1710,10 @@
       "release-type": "ruby",
       "component": "ruby/eyes_appium",
       "builds": [{
-        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
+        "builds": ["ruby/eyes_universal/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": true,
-        "artifacts": ["./pkg"]
+        "artifacts": ["./pkg", "../eyes_universal/pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_appium"},
