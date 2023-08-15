@@ -18,7 +18,6 @@ runs:
   steps:
 
     - name: Setting up dependencies
-      if: ${{inputs.test-type != 'eyes_appium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
@@ -44,9 +43,9 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        bundle install
         yarn install
         yarn generate:eyes_appium
+        gem list eyes
         yarn parallel:local:eyes_appium
 
     - name: Test
