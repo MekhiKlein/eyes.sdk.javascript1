@@ -6,11 +6,7 @@ module.exports = {
         'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/ruby/overrides.js',
     ],
     emitOnly: test => {
-        let env = test.env || {}
-        let features = test.features || []
-        return !("device" in env) &&
-          !features.includes("image") &&
-          !features.includes("cached-selectors");
+        return 'env' in test && 'device' in test.env;
     },
     template: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/ruby/template.hbs',
     tests: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/universal-sdk/coverage-tests.js',

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require_relative '../../../coverage_tests/spec/spec_helper.rb'
 require 'eyes_appium'
 require 'logger'
 

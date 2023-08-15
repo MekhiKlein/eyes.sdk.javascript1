@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'driver_capabilities'
+require_relative 'driver_capabilities'
 
 
 DEFAULT = {

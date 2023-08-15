@@ -46,3 +46,13 @@ runs:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
         bundle exec rake --tasks
+
+    - name: Test
+      if: ${{inputs.test-type == 'eyes_appium'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      env:
+        TEST_TYPE: ${{ inputs.test-type }}
+      run: |
+        pwd
+        bundle exec rake --tasks

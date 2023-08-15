@@ -15,8 +15,13 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.applitools.com'
   spec.license       = 'Applitools'
 
-  spec.files         = `git ls-files lib/applitools/appium`.split($RS) +
-    ['lib/eyes_appium.rb', 'lib/applitools/version.rb']
+  spec.files         = `git ls-files lib/applitools/appium`.split($RS) + [
+    'lib/eyes_appium.rb',
+    'lib/applitools/version.rb',
+    'CHANGELOG.md',
+    'eyes_appium.gemspec',
+    'Rakefile',
+  ]
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = %w(lib)

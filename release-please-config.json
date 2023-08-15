@@ -1704,6 +1704,25 @@
         {"ruby-version": "3.2", "test-type": "eyes_universal"}
       ],
       "releases": [{}]
+    },
+
+    "ruby/eyes_appium": {
+      "release-type": "ruby",
+      "component": "ruby/eyes_appium",
+      "builds": [{
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
+        "key": "{{component}}/{{environment}}",
+        "server-build": true,
+        "artifacts": ["./pkg"]
+      }],
+      "tests": [
+        {"ruby-version": "2.6", "test-type": "eyes_appium"},
+        {"ruby-version": "2.7", "test-type": "eyes_appium"},
+        {"ruby-version": "3.0", "test-type": "eyes_appium"},
+        {"ruby-version": "3.1", "test-type": "eyes_appium"},
+        {"ruby-version": "3.2", "test-type": "eyes_appium"}
+      ],
+      "releases": [{}]
     }
   }
 }
