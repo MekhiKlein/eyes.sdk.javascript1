@@ -50,3 +50,4 @@ runs:
         rake build
         cp pkg/eyes_core-5.0.1.gem eyes_appium/pkg/eyes_core-5.0.1.gem
         cp pkg/eyes_selenium-5.0.1.gem eyes_appium/pkg/eyes_selenium-5.0.1.gem
+        cd eyes_appium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
