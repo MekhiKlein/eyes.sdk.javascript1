@@ -22,7 +22,7 @@ runs:
       shell: bash
       run: |
         bundle install
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        # gem install ../eyes_universal/pkg/eyes_universal-*.gem
 
     - name: Setup Python
       if: ${{inputs.test-type == 'eyes_universal'}}

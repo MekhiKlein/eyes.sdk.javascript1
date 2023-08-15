@@ -11,6 +11,7 @@ group :test, :development do
   gem 'parallel_tests'
   gem 'rspec_junit_formatter'
 
+  # older ruby versions fix
   if RUBY_VERSION < '2.7' # 2.6
     gem 'oj', '<= 3.14.2'
     gem 'selenium-webdriver', ['>= 3', '<= 4.1.0']
@@ -18,7 +19,8 @@ group :test, :development do
     gem 'selenium-webdriver', ['>= 3', '<= 4.9.0']
   end
 
-  source "file://#{ENV['PWD']}/pkg" do
+  # coverage tests fix
+  source "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg" do
     gem 'eyes_universal'
     gem 'eyes_core'
     gem 'eyes_selenium'

@@ -3,7 +3,10 @@
 require 'eyes_selenium'
 require 'appium_lib'
 
-Applitools.require_dir('appium')
+# Applitools.require_dir('appium')
+Dir[File.join(File.dirname(File.expand_path(__FILE__)), 'applitools', 'appium', '*.rb')].sort.each do |f|
+  require f
+end
 
 if defined? Appium::Driver
   Appium::Core::Base::Driver.class_eval do
