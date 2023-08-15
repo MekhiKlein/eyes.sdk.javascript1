@@ -8,6 +8,7 @@ require 'securerandom'
 require 'colorize'
 require 'websocket'
 require 'uri'
+require 'eyes_universal'
 
 
 module Applitools::Connectivity
@@ -343,7 +344,7 @@ module Applitools::Connectivity
 
 
     def prepare_socket
-      @universal_server_control = Applitools::Connectivity::UniversalServerControl.instance
+      @universal_server_control = Applitools::EyesUniversal::UniversalServerControl.instance
       @web_socket = @universal_server_control.new_server_socket_connection
       socket_handshake
       session_init
