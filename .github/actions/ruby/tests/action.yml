@@ -18,6 +18,7 @@ runs:
   steps:
 
     - name: Setting up dependencies
+      if: ${{inputs.test-type == 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
@@ -43,11 +44,10 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        bundle install
         yarn install
         yarn generate:eyes_appium
-        gem list eyes
-        bundle install
-        gem list eyes
         yarn parallel:local:eyes_appium
 
     - name: Test
