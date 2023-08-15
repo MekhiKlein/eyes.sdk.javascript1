@@ -38,16 +38,7 @@ runs:
         pip install pytest psutil
         pytest -vv spec/eyes_universal/universal_bindings_termination_test.py
 
-    - name: Test
-      if: ${{inputs.test-type != 'eyes_universal'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      env:
-        TEST_TYPE: ${{ inputs.test-type }}
-      run: |
-        bundle exec rake --tasks
-
-    - name: Test
+    - name: path and deps checks
       if: ${{inputs.test-type == 'eyes_appium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
@@ -55,4 +46,15 @@ runs:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
         pwd
+        ls pkg/
+        gem install pkg/eyes_core-*.gem
+        gem install pkg/eyes_selenium-*.gem
+
+    - name: Test
+      if: ${{inputs.test-type != 'eyes_universal'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      env:
+        TEST_TYPE: ${{ inputs.test-type }}
+      run: |
         bundle exec rake --tasks
