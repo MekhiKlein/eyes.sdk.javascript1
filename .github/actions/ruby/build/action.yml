@@ -45,6 +45,7 @@ runs:
       shell: bash
       run: |
         cd ..
+        bundle install
         rake build
         cp pkg/eyes_core-5.0.1.gem eyes_appium/pkg/eyes_core-5.0.1.gem
         cp pkg/eyes_selenium-5.0.1.gem eyes_appium/pkg/eyes_selenium-5.0.1.gem
