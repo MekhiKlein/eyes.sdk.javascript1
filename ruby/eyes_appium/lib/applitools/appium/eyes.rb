@@ -12,7 +12,7 @@ class Applitools::Appium::Eyes < Applitools::Selenium::SeleniumEyes
     super
     self.dont_get_title = true
     self.runner = Applitools::ClassicRunner.new unless runner
-    self.base_agent_id = "eyes.appium.ruby/#{Applitools::VERSION}".freeze
+    self.base_agent_id = "eyes.appium.ruby/#{Applitools::EyesAppium::VERSION}".freeze
     self.status_bar_height = 0
     self.utils = Applitools::Appium::Utils
   end

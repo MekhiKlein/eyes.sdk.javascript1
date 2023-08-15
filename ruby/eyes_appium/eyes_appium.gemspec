@@ -3,11 +3,11 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
-require 'applitools/version'
+require 'applitools/eyes_appium/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'eyes_appium'
-  spec.version       = Applitools::VERSION
+  spec.version       = Applitools::EyesAppium::VERSION
   spec.authors       = ['Applitools Team']
   spec.email         = ['team@applitools.com']
   spec.description   = 'Appium support for Applitools Ruby SDK'
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files lib/applitools/appium`.split($RS) + [
     'lib/eyes_appium.rb',
-    'lib/applitools/version.rb',
+    'lib/applitools/eyes_appium/version.rb',
     'CHANGELOG.md',
     'eyes_appium.gemspec',
     'Rakefile',
@@ -25,6 +25,6 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = %w(lib)
-  spec.add_dependency 'eyes_selenium', "= #{Applitools::VERSION}"
+  spec.add_dependency 'eyes_selenium', "= #{Applitools::EyesAppium::VERSION}"
   spec.add_dependency 'appium_lib', '>= 10.6.0'
 end
