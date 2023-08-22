@@ -5584,6 +5584,21 @@ async function main() {
                     releases: packageConfig.releases ?? [],
                 }));
             }
+            if (packageConfig.component.startsWith('dotnet/')) {
+                const packageManifestPath = (await promises_namespaceObject.readdir(packagePath)).filter((fn) => fn.endsWith('.csproj'))[0];
+                const manifest = ini.parse(await promises_namespaceObject.readFile(packageManifestPath, 'utf-8'));
+                return promise.then(packages => packages.concat({
+                    index,
+                    lang: 'csharp',
+                    name: manifest.metadata.name,
+                    version: manifest.metadata.version,
+                    component: packageConfig.component,
+                    path: packagePath,
+                    tests: packageConfig.tests ?? [],
+                    builds: packageConfig.builds ?? [],
+                    releases: packageConfig.releases ?? [],
+                }));
+            }
             return promise;
         }, Promise.resolve([]));
     }
