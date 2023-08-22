@@ -1786,6 +1786,98 @@
         }
       ],
       "releases": [{}]
+    },
+
+    "dotnet/Eyes.Image.Core.DotNet": {
+      "release-type": "dotnet",
+      "component": "dotnet/eyes-image-core",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["../PackagesOutput"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"]
+      }],
+      "releases": [{
+        "profile": "dotnet"
+      }]
+    },
+    "dotnet/Eyes.Images.DotNet": {
+      "release-type": "dotnet",
+      "component": "dotnet/eyes-images",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["../PackagesOutput"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"]
+      }],
+      "tests": [{
+        "key": "{{component}}",
+        "artifacts": ["./reports/**/*"],
+        "report": {"name": "dotnet_images", "group": "images", "result-path": "./coverage-test-report.xml", "meta-path": "./coverage-tests-metadata.json"}
+        }],
+      "releases": [{
+        "profile": "dotnet",
+        "notification": {"name": "dotnet_images"}
+      }]
+    },
+    "dotnet/Eyes.Selenium.DotNet": {
+      "release-type": "dotnet",
+      "component": "dotnet/eyes-selenium",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["../PackagesOutput"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"]
+      }],
+      "tests": [
+        {
+          "key": "{{component}}/{{test-type}}",
+          "artifacts": ["./reports/**/*"],
+          "report": {"name": "dotnet_selenium", "result-path": "./coverage-test-report.xml", "meta-path": "./coverage-tests-metadata.json"}
+        }
+      ],
+      "releases": [{
+        "profile": "dotnet",
+        "notification": {"name": "dotnet_selenium"}
+      }]
+    },
+    "dotnet/Eyes.Appium.DotNet": {
+      "release-type": "dotnet",
+      "component": "dotnet/eyes-appium",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["../PackagesOutput"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"]
+      }],
+      "tests": [
+        {
+          "key": "{{component}}/{{test-type}}",
+          "artifacts": ["./reports/**/*"],
+          "report": {"name": "dotnet_appium", "group": "appium", "result-path": "./coverage-test-report.xml", "meta-path": "./coverage-tests-metadata.json"}
+        }
+      ],
+      "releases": [{
+        "profile": "dotnet",
+        "notification": {"name": "dotnet_appium"}
+      }]
+    },
+    "dotnet/Eyes.Playwright.DotNet": {
+      "release-type": "dotnet",
+      "skip-snapshot": true,
+      "component": "dotnet/eyes-playwright",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["./target", "~/.m2/repository"],
+        "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"]
+      }],
+      "tests": [
+        {
+          "key": "{{component}}/{{test-type}}",
+          "artifacts": ["./reports/**/*"],
+          "report": {"name": "dotnet_playwright", "result-path": "./coverage-test-report.xml", "meta-path": "./coverage-tests-metadata.json"}
+        }
+      ],
+      "releases": [{
+        "profile": "dotnet",
+        "notification": {"name": "dotnet_playwright"}
+      }]
     }
   }
 }
