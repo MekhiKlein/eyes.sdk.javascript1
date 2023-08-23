@@ -1,5 +1,5 @@
-name: DotNet build
-description: Build DotNet SDK Packages
+name: DotNet tests
+description: Run DotNet SDKs tests
 
 inputs:
   working-directory:
@@ -10,7 +10,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Clean Install (skip tests)
+    - name: Test and report
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: chmod +x ./build.sh && ./build.sh
+      run: chmod +x ./runTests.sh && ./runTests.sh
+      env:
+        TEST_TYPE: ${{ inputs.test-type }}
+        REPORT_DIR: "reports"

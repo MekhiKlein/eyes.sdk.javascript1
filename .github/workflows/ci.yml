@@ -485,9 +485,11 @@ jobs:
         run: |
           if [ -f "/etc/alpine-release" ]; then
             apk update
-            apk add --no-cache git git-lfs github-cli maven openjdk11 libstdc++ bash;
-            echo "JAVA_HOME=$(readlink -f /usr/bin/javac | sed 's:/bin/javac::')" >> $GITHUB_ENV
+            apk add --no-cache git git-lfs github-cli libstdc++ bash;
           fi
+          cd dotnet
+          chmod +x ./dotnet-install.sh
+          ./dotnet-install.sh -c 6.0 --install-dir /usr/share/dotnet
       - name: Check-out repository
         uses: actions/checkout@v3
         with:
@@ -497,12 +499,6 @@ jobs:
         if: ${{matrix.container}}
         run: |
           git config --system --add safe.directory "*"
-      - name: Set up Java
-        if: ${{!matrix.container}}
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: ${{matrix.java-version || 11}}
       - name: Restore build artifacts
         if: ${{join(matrix.builds)}}
         uses: ./.github/actions/storage/restore
@@ -515,7 +511,7 @@ jobs:
           name: ${{matrix.semaphore}}
           max-parallel: 4
       - name: Run Tests
-        uses: ./.github/actions/java/tests/
+        uses: ./.github/actions/dotnet/tests/
         with:
           working-directory: ${{matrix.working-directory}}
           test-type: ${{matrix.test-type}}
@@ -547,8 +543,13 @@ jobs:
 
 
   report:
-    needs: [setup, js-test, java-test, python-test]
-    if: always() && contains(fromJSON('["success", "failed"]'), needs.js-test.result) || contains(fromJSON('["success", "failed"]'), needs.java-test.result)
+    needs: [setup, js-test, java-test, python-test, dotnet-test]
+    if: |
+      always() && 
+      contains(fromJSON('["success", "failed"]'), needs.js-test.result) || 
+      contains(fromJSON('["success", "failed"]'), needs.java-test.result) ||
+      contains(fromJSON('["success", "failed"]'), needs.python-test.result) ||
+      contains(fromJSON('["success", "failed"]'), needs.dotnet-test.result)
     name: Report
     runs-on: ubuntu-latest
     steps:
