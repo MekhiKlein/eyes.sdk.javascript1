@@ -46,12 +46,12 @@ runs:
       shell: bash
       run: |
         cd ..
-        cp eyes_universal/pkg/eyes_universal-*.gem eyes_appium/pkg/eyes_universal-*.gem
+        cp eyes_universal/pkg/eyes_universal-*.gem eyes_appium/pkg/
         ls eyes_selenium/pkg/gems
-        cp eyes_selenium/pkg/gems/eyes_selenium-*.gem eyes_appium/pkg/eyes_selenium-*.gem
+        cp eyes_selenium/pkg/gems/eyes_selenium-*.gem eyes_appium/pkg/
         bundle install
         rake build
-        cp pkg/eyes_core-*.gem eyes_appium/pkg/eyes_core-*.gem
+        cp pkg/eyes_core-*.gem eyes_appium/pkg/
         ls eyes_appium/pkg
         cd eyes_appium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
     - name: Temporary Fix
@@ -60,9 +60,9 @@ runs:
       shell: bash
       run: |
         cd ..
-        cp eyes_universal/pkg/eyes_universal-*.gem eyes_selenium/pkg/eyes_universal-*.gem
+        cp eyes_universal/pkg/eyes_universal-*.gem eyes_selenium/pkg/
         bundle install
         rake build
-        cp pkg/eyes_core-*.gem eyes_selenium/pkg/eyes_core-*.gem
+        cp pkg/eyes_core-*.gem eyes_selenium/pkg/
         ls eyes_selenium/pkg
         cd eyes_selenium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
