@@ -49,5 +49,12 @@
   "python/eyes_images": "5.20.4",
   "python/eyes_playwright": "5.20.4",
   "python/eyes_robotframework": "5.12.5",
-  "python/eyes_selenium": "5.20.4"
+  "python/eyes_selenium": "5.20.4",
+  "dotnet/eyes.image.core": "3.9.0",
+  "dotnet/eyes.images": "3.41.0",
+  "dotnet/eyes.selenium": "3.70.0",
+  "dotnet/eyes.selenium4": "3.70.0",
+  "dotnet/eyes.appium": "5.68.0",
+  "dotnet/eyes.appium2": "5.68.0-beta04",
+  "dotnet/eyes.playwright": "1.18.0"
 }
