@@ -47,6 +47,7 @@ runs:
       run: |
         cd ..
         cp eyes_universal/pkg/eyes_universal-3.6.1.gem eyes_appium/pkg/eyes_universal-3.6.1.gem
+        ls eyes_selenium/pkg
         cp eyes_selenium/pkg/eyes_selenium-5.0.1.gem eyes_appium/pkg/eyes_selenium-5.0.1.gem
         bundle install
         rake build

@@ -1712,7 +1712,7 @@
       "builds": [{
         "builds": ["ruby/eyes_universal/{{environment}}"],
         "key": "{{component}}/{{environment}}",
-        "server-build": true,
+        "server-build": false,
         "artifacts": ["./pkg", "../eyes_universal/pkg"]
       }],
       "tests": [
@@ -1730,8 +1730,8 @@
       "builds": [{
         "builds": ["ruby/eyes_selenium/{{environment}}"],
         "key": "{{component}}/{{environment}}",
-        "server-build": true,
-        "artifacts": ["./pkg", "../eyes_universal/pkg"]
+        "server-build": false,
+        "artifacts": ["./pkg", "../eyes_universal/pkg", "../eyes_selenium/pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_appium"},
