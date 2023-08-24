@@ -71,4 +71,6 @@ runs:
       env:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        bundle install
         bundle exec rake --tasks
