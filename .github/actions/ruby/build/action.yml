@@ -53,6 +53,18 @@ runs:
         ls eyes_calabash/pkg
         cd eyes_calabash/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
     - name: Temporary Fix
+      if: ${{inputs.working-directory == 'ruby/eyes_images'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        cd ..
+        cp eyes_universal/pkg/eyes_universal-*.gem eyes_images/pkg/
+        bundle install
+        rake build
+        cp pkg/eyes_core-*.gem eyes_images/pkg/
+        ls eyes_images/pkg
+        cd eyes_images/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
+    - name: Temporary Fix
       if: ${{inputs.working-directory == 'ruby/eyes_appium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash

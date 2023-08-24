@@ -1710,7 +1710,7 @@
       "release-type": "ruby",
       "component": "ruby/eyes_calabash",
       "builds": [{
-        "builds": ["ruby/eyes_selenium/{{environment}}"],
+        "builds": ["ruby/eyes_universal/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
         "artifacts": ["./pkg", "../eyes_universal/pkg"]
@@ -1724,7 +1724,24 @@
       ],
       "releases": [{}]
     },
-
+    "ruby/eyes_images": {
+      "release-type": "ruby",
+      "component": "ruby/eyes_images",
+      "builds": [{
+        "builds": ["ruby/eyes_universal/{{environment}}"],
+        "key": "{{component}}/{{environment}}",
+        "server-build": false,
+        "artifacts": ["./pkg", "../eyes_universal/pkg"]
+      }],
+      "tests": [
+        {"ruby-version": "2.6", "test-type": "eyes_images"},
+        {"ruby-version": "2.7", "test-type": "eyes_images"},
+        {"ruby-version": "3.0", "test-type": "eyes_images"},
+        {"ruby-version": "3.1", "test-type": "eyes_images"},
+        {"ruby-version": "3.2", "test-type": "eyes_images"}
+      ],
+      "releases": [{}]
+    },
     "ruby/eyes_selenium": {
       "release-type": "ruby",
       "component": "ruby/eyes_selenium",
