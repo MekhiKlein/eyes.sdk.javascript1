@@ -187,3 +187,41 @@ jobs:
           name: ${{matrix.notification.name}}
           report-id: ${{matrix.name}}@${{matrix.package-version}}
           release-version: ${{matrix.package-version}}
+
+  dotnet-release:
+    needs: [setup]
+    if: ${{fromJSON(needs.setup.outputs.releases).dotnet}}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJSON(needs.setup.outputs.releases).dotnet}}
+    name: Release / ${{matrix.display-name}}
+    runs-on: ${{matrix.runner || 'ubuntu-latest'}}
+    env: ${{matrix.env}}
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Set up DotNet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "6.0"
+      - name: Restore build artifacts
+        if: ${{join(matrix.builds)}}
+        uses: ./.github/actions/storage/restore
+        with:
+          name: ${{join(matrix.builds)}}
+          latest: true
+      - name: Publish DotNet SDKs
+        uses: ./.github/actions/dotnet/publish
+      - name: Sending notification
+        if: ${{matrix.notification}}
+        uses: ./.github/actions/bongo
+        with:
+          working-directory: ${{matrix.working-directory}}
+          shell: ${{matrix.shell || 'bash'}}
+          command: notification
+          name: ${{matrix.notification.name}}
+          report-id: ${{matrix.name}}@${{matrix.package-version}}
+          release-version: ${{matrix.package-version}}
