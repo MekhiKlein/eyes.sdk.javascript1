@@ -17,6 +17,8 @@ group :test, :development do
     gem 'selenium-webdriver', ['>= 3', '<= 4.1.0']
   elsif RUBY_VERSION < '3' # 2.7
     gem 'selenium-webdriver', ['>= 3', '<= 4.9.0']
+  else
+    gem 'selenium-webdriver', ['>= 3', '<= 4.10.0']
   end
 
   # coverage tests fix
