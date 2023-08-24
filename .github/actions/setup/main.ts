@@ -122,12 +122,12 @@ async function main() {
       }
       if (packageConfig.component.startsWith('dotnet/')) {
         const packageManifestPath = (await fs.readdir(packagePath)).filter((fn: string) => fn.endsWith('.csproj'))[0];
-        const manifest = ini.parse(await fs.readFile(packageManifestPath, 'utf-8'))
+        const manifest = xml.xml2js(await fs.readFile(packageManifestPath, 'utf-8'), { compact: true }) as xml.ElementCompact
         return promise.then(packages => packages.concat({
           index,
           lang: 'csharp',
-          name: manifest.metadata.name,
-          version: manifest.metadata.version,
+          name: manifest.Project.PropertyGroup.PackageId._text,
+          version: manifest.Project.PropertyGroup.Version._text,
           component: packageConfig.component,
           path: packagePath,
           tests: packageConfig.tests ?? [],
