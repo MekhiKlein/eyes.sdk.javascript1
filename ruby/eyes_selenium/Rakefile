@@ -32,6 +32,45 @@ namespace 'github' do
     puts "Batch NAME: #{ENV['APPLITOOLS_BATCH_NAME']}"
   end
 
+  # require 'rspec/core/rake_task'
+  # namespace :unit_tests do
+  #   RSpec::Core::RakeTask.new(:core) do |t|
+  #     t.pattern = 'spec/core'
+  #   end
+  #
+  #   RSpec::Core::RakeTask.new(:visual_grid) do |t|
+  #     t.pattern = 'spec/visual_grid'
+  #   end
+  #
+  #   RSpec::Core::RakeTask.new(:selenium) do |t|
+  #     t.pattern = 'spec/selenium'
+  #   end
+  #
+  #   RSpec::Core::RakeTask.new(:regression) do |t|
+  #     t.pattern = 'spec/regression'
+  #   end
+  #
+  #   RSpec::Core::RakeTask.new(:bugfix) do |t|
+  #     t.pattern = 'spec/bugfix'
+  #   end
+  #
+  #   RSpec::Core::RakeTask.new(:calabash) do |t|
+  #     t.pattern = 'spec/calabash'
+  #   end
+  #
+  #   RSpec::Core::RakeTask.new(:images) do |t|
+  #     t.pattern = 'spec/images'
+  #   end
+  #
+  #   task :github => [:regression, :bugfix, :core, :selenium, :visual_grid, :calabash, :images]
+  # end
+  #
+  # task :unit_tests => [:set_batch_info, :check, 'unit_tests:github']
+  #
+  # task :vg_tests => [:set_batch_info, :check] do
+  #   sh('bundle exec parallel_rspec -n 1 -- --tag visual_grid -- spec/integration/*_spec.rb')
+  # end
+
   # task :travis_selenium => ['webdrivers:chromedriver:update', :set_batch_info, :check] do
   #   sh('bundle exec parallel_rspec -n 4 -- --tag selenium -- spec/integration/*_spec.rb')
   # end

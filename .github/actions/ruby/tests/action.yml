@@ -12,7 +12,8 @@ inputs:
     default: all
     required: false
 
-
+#platform-test:
+#alpine-test
 runs:
   using: composite
   steps:
@@ -61,6 +62,8 @@ runs:
       run: |
         gem install ../eyes_universal/pkg/eyes_universal-*.gem
         bundle install
+#        bundle exec rake github:unit_tests
+#        bundle exec rake github:vg_tests
         yarn install
         yarn generate:eyes_selenium
         yarn parallel:local:eyes_selenium
