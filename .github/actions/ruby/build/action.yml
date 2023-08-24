@@ -95,6 +95,7 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
+        gem install builder
         cd ..
         ls eyes_selenium/pkg/gems
         cp eyes_selenium/pkg/gems/eyes_*.gem eyes_capybara/pkg/
