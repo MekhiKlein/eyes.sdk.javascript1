@@ -25,10 +25,10 @@ end
 
 ALL_GEMS = [
   :eyes_core,
-  :eyes_images,
+  # :eyes_images,
   # :eyes_selenium,
-  :eyes_calabash,
-  :eyes_capybara,
+  # :eyes_calabash,
+  # :eyes_capybara,
   # :eyes_appium,
   # :eyes_universal
 ]
