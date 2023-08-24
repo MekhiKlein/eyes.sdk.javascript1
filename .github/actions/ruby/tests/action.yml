@@ -39,7 +39,7 @@ runs:
         pip install pytest psutil
         pytest -vv spec/eyes_universal/universal_bindings_termination_test.py
 
-    - name: Setting up a-dependencies
+    - name: Setting up a-dependencies and run test
       if: ${{inputs.test-type == 'eyes_appium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
@@ -50,10 +50,14 @@ runs:
         yarn generate:eyes_appium
         yarn parallel:local:eyes_appium
 
-    - name: Setting up s-dependencies
+    - name: Setting up s-dependencies and run test
       if: ${{inputs.test-type == 'eyes_selenium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
+      env:
+        APPLITOOLS_SHOW_LOGS: true
+        APPLITOOLS_DONT_CLOSE_BATCHES: true
+        MOZ_HEADLESS: 1
       run: |
         gem install ../eyes_universal/pkg/eyes_universal-*.gem
         bundle install
@@ -62,15 +66,10 @@ runs:
         yarn parallel:local:eyes_selenium
 
     - name: Test
-      if: ${{inputs.test-type != 'eyes_universal'}}
+      if: ${{inputs.test-type != 'eyes_universal' && inputs.test-type != 'eyes_appium' && inputs.test-type != 'eyes_selenium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       env:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
-        echo "CHROMEWEBDRIVER:"
-        echo $CHROMEWEBDRIVER
-        echo "Selenium::WebDriver::Chrome::Service.chrome.executable_path:"
-        ruby -e "require 'selenium-webdriver'; puts Selenium::WebDriver::Chrome::Service.chrome.executable_path"
-        echo "bundle exec rake --tasks"
         bundle exec rake --tasks
