@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
     'lib/eyes_images.rb',
     'lib/applitools/eyes_images/version.rb',
     'CHANGELOG.md',
-    'eyes_capybara.gemspec',
+    'eyes_images.gemspec',
     'Rakefile',
   ]
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
