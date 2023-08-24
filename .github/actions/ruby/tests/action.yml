@@ -68,4 +68,9 @@ runs:
       env:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
+        echo "CHROMEWEBDRIVER:"
+        echo $CHROMEWEBDRIVER
+        echo "Selenium::WebDriver::Chrome::Service.chrome.executable_path:"
+        ruby -e "require 'selenium-webdriver'; puts Selenium::WebDriver::Chrome::Service.chrome.executable_path"
+        echo "bundle exec rake --tasks"
         bundle exec rake --tasks
