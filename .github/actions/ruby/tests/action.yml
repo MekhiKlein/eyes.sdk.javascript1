@@ -50,6 +50,17 @@ runs:
         yarn generate:eyes_appium
         yarn parallel:local:eyes_appium
 
+    - name: Setting up s-dependencies
+      if: ${{inputs.test-type == 'eyes_selenium'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        bundle install
+        yarn install
+        yarn generate:eyes_selenium
+        yarn parallel:local:eyes_selenium
+
     - name: Test
       if: ${{inputs.test-type != 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}

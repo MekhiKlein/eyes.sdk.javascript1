@@ -53,3 +53,15 @@ runs:
         cp pkg/eyes_selenium-5.0.1.gem eyes_appium/pkg/eyes_selenium-5.0.1.gem
         ls eyes_appium/pkg
         cd eyes_appium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
+    - name: Temporary Fix
+      if: ${{inputs.working-directory == 'ruby/eyes_selenium'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        cd ..
+        cp eyes_universal/pkg/eyes_universal-3.6.1.gem eyes_selenium/pkg/eyes_universal-3.6.1.gem
+        bundle install
+        rake build
+        cp pkg/eyes_core-5.0.1.gem eyes_selenium/pkg/eyes_core-5.0.1.gem
+        ls eyes_selenium/pkg
+        cd eyes_selenium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
