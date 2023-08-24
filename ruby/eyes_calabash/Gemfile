@@ -24,7 +24,7 @@ group :test, :development do
   # coverage tests fix
   puts "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg"
   source "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg" do
-    gem 'eyes_selenium'
+    gem 'eyes_core'
   end
 
 end
