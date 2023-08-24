@@ -12,8 +12,11 @@ module Applitools
   module Selenium
     extend Applitools::RequireUtils
     class UnsupportedCoordinateType < EyesError; end
-    def self.load_dir
-      File.dirname(File.expand_path(__FILE__))
+    def self.require_dir(dir)
+      load_dir = File.dirname(File.expand_path(__FILE__))
+      Dir[File.join(load_dir, 'applitools', dir, '*.rb')].sort.each do |f|
+        require f
+      end
     end
   end
 end
