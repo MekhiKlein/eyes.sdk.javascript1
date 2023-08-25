@@ -46,7 +46,7 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        gem install builder
+        gem install builder rspec
         rake build
     - name: Temporary Fix
       if: ${{inputs.working-directory == 'ruby/eyes_calabash'}}
