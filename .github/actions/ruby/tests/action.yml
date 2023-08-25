@@ -28,6 +28,12 @@ runs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
+    - name: Setup binary server from gem
+      if: ${{inputs.test-type == 'eyes_universal'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        gem install ../pkg/eyes_universal-*.gem
     - name: Run server gem tests
       if: ${{inputs.test-type == 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
