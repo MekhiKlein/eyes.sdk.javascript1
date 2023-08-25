@@ -1728,10 +1728,10 @@
       "release-type": "ruby",
       "component": "ruby/eyes_images",
       "builds": [{
-        "builds": ["ruby/eyes_universal/{{environment}}"],
+        "builds": ["ruby/eyes_selenium/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
-        "artifacts": ["./pkg", "../eyes_universal/pkg"]
+        "artifacts": ["./pkg", "../eyes_universal/pkg", "../eyes_selenium/pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_images"},

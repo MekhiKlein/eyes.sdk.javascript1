@@ -14,18 +14,18 @@ group :test, :development do
   # older ruby versions fix
   if RUBY_VERSION < '2.7' # 2.6
     gem 'oj', '<= 3.14.2'
-    # gem 'selenium-webdriver', ['>= 3', '<= 4.1.0']
+    gem 'selenium-webdriver', ['>= 3', '<= 4.1.0'] # for specs
   elsif RUBY_VERSION < '3' # 2.7
-    # gem 'selenium-webdriver', ['>= 3', '<= 4.9.0']
+    gem 'selenium-webdriver', ['>= 3', '<= 4.9.0'] # for specs
   else
-    # gem 'selenium-webdriver', ['>= 3', '<= 4.10.0']
+    gem 'selenium-webdriver', ['>= 3', '<= 4.10.0'] # for specs
   end
 
   # coverage tests fix
   puts "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg"
   source "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg" do
     gem 'eyes_core'
-    # gem 'eyes_selenium' for specs
+    gem 'eyes_selenium' # for specs
   end
 
 end

@@ -64,8 +64,20 @@ runs:
         yarn generate:eyes_selenium
         yarn parallel:local:eyes_selenium
 
+    - name: Setting up a-dependencies and run test
+      if: ${{inputs.test-type == 'eyes_images'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        bundle install
+        yarn install
+        yarn generate:eyes_images
+        yarn parallel:local:eyes_images
+        bundle exec rake github:images
+
     - name: Test
-      if: ${{inputs.test-type != 'eyes_universal' && inputs.test-type != 'eyes_appium' && inputs.test-type != 'eyes_selenium'}}
+      if: ${{inputs.test-type != 'eyes_universal' && inputs.test-type != 'eyes_appium' && inputs.test-type != 'eyes_selenium' && inputs.test-type != 'eyes_images'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       env:

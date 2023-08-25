@@ -58,10 +58,8 @@ runs:
       shell: bash
       run: |
         cd ..
-        cp eyes_universal/pkg/eyes_universal-*.gem eyes_images/pkg/
-        bundle install
-        rake build
-        cp pkg/eyes_core-*.gem eyes_images/pkg/
+        ls eyes_selenium/pkg/gems
+        cp eyes_selenium/pkg/gems/eyes_*.gem eyes_images/pkg/
         ls eyes_images/pkg
         cd eyes_images/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
     - name: Temporary Fix
