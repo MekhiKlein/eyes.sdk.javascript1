@@ -36,13 +36,13 @@ runs:
           ./ruby/eyes_universal/ext/eyes-universal/core-linux --version
         fi
     - name: Build Gems
-      if: ${{inputs.test-type != 'eyes_images'}}
+      if: ${{inputs.working-directory != 'eyes_images'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
         rake build
     - name: Build Gems
-      if: ${{inputs.test-type == 'eyes_images'}}
+      if: ${{inputs.working-directory == 'eyes_images'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
