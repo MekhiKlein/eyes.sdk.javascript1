@@ -37,7 +37,6 @@ runs:
         fi
 
     - name: Get dependencies
-      if: ${{inputs.working-directory == 'ruby/eyes_images' || inputs.working-directory == 'ruby/eyes_capybara'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
