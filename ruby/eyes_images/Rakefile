@@ -2,6 +2,7 @@
 
 require 'rake/clean'
 require 'securerandom'
+require 'rspec/core/rake_task'
 
 require 'bundler/gem_helper'
 # Monkey patch the Bundler release class to change tags for eyes_images
@@ -30,6 +31,10 @@ namespace 'github' do
   task :check do
     puts "Batch ID: #{ENV['APPLITOOLS_BATCH_ID']}"
     puts "Batch NAME: #{ENV['APPLITOOLS_BATCH_NAME']}"
+  end
+
+  RSpec::Core::RakeTask.new(:images) do |t|
+    t.pattern = 'spec/images'
   end
 
 end
