@@ -33,7 +33,7 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        gem install ../pkg/eyes_universal-*.gem
+        gem install ../pkg/gems/eyes_universal-*.gem
     - name: Run server gem tests
       if: ${{inputs.test-type == 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
