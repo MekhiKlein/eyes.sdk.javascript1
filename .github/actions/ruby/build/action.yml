@@ -35,11 +35,6 @@ runs:
           chmod +x ./ruby/eyes_universal/ext/eyes-universal/core-linux
           ./ruby/eyes_universal/ext/eyes-universal/core-linux --version
         fi
-    - name: Build Gems
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        rake build
     - name: Temporary Fix
       if: ${{inputs.working-directory == 'ruby/eyes_calabash'}}
       working-directory: ${{inputs.working-directory}}
@@ -57,6 +52,7 @@ runs:
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
+        bundle install
         cd ..
         ls eyes_selenium/pkg/gems
         cp eyes_selenium/pkg/gems/eyes_*.gem eyes_images/pkg/
@@ -99,3 +95,8 @@ runs:
         cp eyes_selenium/pkg/gems/eyes_*.gem eyes_capybara/pkg/
         ls eyes_capybara/pkg
         cd eyes_capybara/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
+    - name: Build Gems
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        rake build
