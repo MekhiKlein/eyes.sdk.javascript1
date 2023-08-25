@@ -3,15 +3,12 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'applitools/version'
 
-module_files = `git ls-files lib/applitools/images`.split($RS) + `git ls-files lib/applitools/selenium`.split($RS) +
-  ['lib/eyes_images', 'lib/applitools/capybara', 'lib/eyes_selenium'] +
-  ['lib/applitools/universal_sdk/universal_server_downloader.rb']
+require 'applitools/eyes_core/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'eyes_core'
-  spec.version       = Applitools::VERSION
+  spec.version       = Applitools::EyesCore::VERSION
   spec.authors       = ['Applitools Team']
   spec.email         = ['team@applitools.com']
   spec.description   = "Don't use it directly, take a look at eyes_selenium, eyes_images or eyes_calabash gems instead."
@@ -19,8 +16,13 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://www.applitools.com'
   spec.license       = 'Applitools'
 
-  spec.files         = `git ls-files lib/applitools`.split($RS) + `git ls-files ext/eyes_core`.split($RS) +
-    ['lib/require_utils.rb', 'lib/eyes_core.rb', 'lib/eyes_rspec.rb', 'lib/eyes_consts.rb'] - module_files
+  spec.files         = `git ls-files lib/applitools`.split($RS) + [
+    'lib/require_utils.rb',
+    'lib/eyes_core.rb',
+    'CHANGELOG.md',
+    'eyes_capybara.gemspec',
+    'Rakefile',
+  ]
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
 
@@ -39,7 +41,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'colorize'
   spec.add_dependency 'websocket'
   spec.add_dependency 'sorted_set'
-  spec.add_dependency 'eyes_universal', "~> #{Applitools::UNIVERSAL_VERSION}"
+  spec.add_dependency 'eyes_universal', "~> #{Applitools::EyesCore::UNIVERSAL_VERSION}"
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'
