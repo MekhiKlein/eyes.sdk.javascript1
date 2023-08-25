@@ -5,4 +5,6 @@ module Applitools
     VERSION = '5.0.1'.freeze
     UNIVERSAL_VERSION = '3.6.2'.freeze
   end
+
+  VERSION = Applitools::EyesCore::VERSION
 end

@@ -20,14 +20,13 @@ Gem::Specification.new do |spec|
     'lib/require_utils.rb',
     'lib/eyes_core.rb',
     'CHANGELOG.md',
-    'eyes_capybara.gemspec',
+    'eyes_core.gemspec',
     'Rakefile',
   ]
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
 
-  spec.extensions    = ['ext/eyes_core/extconf.rb']
-  spec.require_paths = %w(lib ext)
+  spec.require_paths = %w(lib)
 
   spec.metadata['yard.run'] = 'yri' # use "yard" to build full HTML docs.
 
