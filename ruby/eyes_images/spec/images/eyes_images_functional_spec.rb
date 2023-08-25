@@ -18,11 +18,11 @@ RSpec.describe 'Eyes Images' do
   let(:image_url_png) { 'https://raw.githubusercontent.com/applitools/eyes.sdk.javascript1/master/python/tests/resources/png.png' }
   let(:image_url_bmp) { 'https://raw.githubusercontent.com/applitools/eyes.sdk.javascript1/master/python/tests/resources/bmp.bmp' }
 
-  let(:image_path_jpeg) { './spec/images/resources/jpg.jpg' }
-  let(:image_path_png) { './spec/images/resources/png.png' }
-  let(:image_path_bmp) { './spec/images/resources/bmp.bmp' }
+  let(:image_path_jpeg) { '../../python/tests/resources/jpg.jpg' }
+  let(:image_path_png) { '../../python/tests/resources/png.png' }
+  let(:image_path_bmp) { '../../python/tests/resources/bmp.bmp' }
 
-  let(:ocr_image) { './spec/images/resources/extractText.png' }
+  let(:ocr_image) { '../../python/tests/functional/eyes_images/resources/extractText.png' }
 
 
   let(:eyes) { Applitools::Images::Eyes.new }
