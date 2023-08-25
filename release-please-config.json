@@ -1694,7 +1694,7 @@
           "builds": ["js/core/x64/{{environment}}", "js/core/arm64/{{environment}}"],
           "key": "{{component}}/{{environment}}",
           "server-build": true,
-          "artifacts": ["./pkg"]
+          "artifacts": ["../pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_universal"},
@@ -1705,15 +1705,26 @@
       ],
       "releases": [{}]
     },
-
-    "ruby/eyes_calabash": {
+    "ruby/eyes_core": {
       "release-type": "ruby",
-      "component": "ruby/eyes_calabash",
+      "component": "ruby/eyes_core",
       "builds": [{
         "builds": ["ruby/eyes_universal/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
-        "artifacts": ["./pkg", "../eyes_universal/pkg"]
+        "artifacts": ["../pkg"]
+      }],
+      "tests": [],
+      "releases": [{}]
+    },
+    "ruby/eyes_calabash": {
+      "release-type": "ruby",
+      "component": "ruby/eyes_calabash",
+      "builds": [{
+        "builds": ["ruby/eyes_core/{{environment}}"],
+        "key": "{{component}}/{{environment}}",
+        "server-build": false,
+        "artifacts": ["../pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_calabash"},
@@ -1731,7 +1742,7 @@
         "builds": ["ruby/eyes_selenium/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
-        "artifacts": ["./pkg", "../eyes_universal/pkg", "../eyes_selenium/pkg"]
+        "artifacts": ["../pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_images"},
@@ -1746,10 +1757,10 @@
       "release-type": "ruby",
       "component": "ruby/eyes_selenium",
       "builds": [{
-        "builds": ["ruby/eyes_universal/{{environment}}"],
+        "builds": ["ruby/eyes_core/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
-        "artifacts": ["./pkg", "../eyes_universal/pkg"]
+        "artifacts": ["../pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_selenium"},
@@ -1767,7 +1778,7 @@
         "builds": ["ruby/eyes_selenium/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
-        "artifacts": ["./pkg", "../eyes_universal/pkg", "../eyes_selenium/pkg"]
+        "artifacts": ["../pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_appium"},
@@ -1785,7 +1796,7 @@
         "builds": ["ruby/eyes_selenium/{{environment}}"],
         "key": "{{component}}/{{environment}}",
         "server-build": false,
-        "artifacts": ["./pkg", "../eyes_universal/pkg", "../eyes_selenium/pkg"]
+        "artifacts": ["../pkg"]
       }],
       "tests": [
         {"ruby-version": "2.6", "test-type": "eyes_capybara"},

@@ -17,19 +17,18 @@ runs:
   steps:
 
     - name: Setting up dependencies
-      if: ${{inputs.test-type == 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
         bundle install
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
+        yarn install
 
     - name: Setup Python
       if: ${{inputs.test-type == 'eyes_universal'}}
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
-    - name: Test
+    - name: Run server gem tests
       if: ${{inputs.test-type == 'eyes_universal'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
@@ -38,18 +37,7 @@ runs:
         pip install pytest psutil
         pytest -vv spec/eyes_universal/universal_bindings_termination_test.py
 
-    - name: Setting up a-dependencies and run test
-      if: ${{inputs.test-type == 'eyes_appium'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
-        bundle install
-        yarn install
-        yarn generate:eyes_appium
-        yarn parallel:local:eyes_appium
-
-    - name: Setting up s-dependencies and run test
+    - name: Run eyes_selenium generic tests
       if: ${{inputs.test-type == 'eyes_selenium'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
@@ -58,31 +46,38 @@ runs:
         APPLITOOLS_DONT_CLOSE_BATCHES: true
         MOZ_HEADLESS: 1
       run: |
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
-        bundle install
-        yarn install
         yarn generate:eyes_selenium
         yarn parallel:local:eyes_selenium
 
-    - name: Setting up a-dependencies and run test
+    - name: Run eyes_appium generic tests
+      if: ${{inputs.test-type == 'eyes_appium'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        yarn generate:eyes_appium
+        yarn parallel:local:eyes_appium
+
+    - name: Run eyes_images generic tests
       if: ${{inputs.test-type == 'eyes_images'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
-        bundle install
-        yarn install
         yarn generate:eyes_images
         yarn parallel:local:eyes_images
         bundle exec rake github:images
 
+    - name: Run eyes_images spec tests
+      if: ${{inputs.test-type == 'eyes_images'}}
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
+        bundle exec rake github:images
+
     - name: Test
-      if: ${{inputs.test-type != 'eyes_universal' && inputs.test-type != 'eyes_appium' && inputs.test-type != 'eyes_selenium' && inputs.test-type != 'eyes_images'}}
+      if: ${{inputs.test-type == 'eyes_core' || inputs.test-type == 'eyes_calabash' || inputs.test-type == 'eyes_capybara'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       env:
         TEST_TYPE: ${{ inputs.test-type }}
       run: |
-        gem install ../eyes_universal/pkg/eyes_universal-*.gem
-        bundle install
         bundle exec rake --tasks

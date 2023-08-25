@@ -35,75 +35,23 @@ runs:
           chmod +x ./ruby/eyes_universal/ext/eyes-universal/core-linux
           ./ruby/eyes_universal/ext/eyes-universal/core-linux --version
         fi
-    - name: Build Gems
-      if: ${{inputs.working-directory != 'ruby/eyes_images'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        rake build
-    - name: Build Gems
-      if: ${{inputs.working-directory == 'ruby/eyes_images'}}
+
+    - name: Get dependencies
+      if: ${{inputs.working-directory == 'ruby/eyes_images' || inputs.working-directory == 'ruby/eyes_capybara'}}
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
         gem install builder rspec
+    - name: Build Gems
+      working-directory: ${{inputs.working-directory}}
+      shell: bash
+      run: |
         rake build
-    - name: Temporary Fix
-      if: ${{inputs.working-directory == 'ruby/eyes_calabash'}}
+    - name: Prepare to serving gems statically
       working-directory: ${{inputs.working-directory}}
       shell: bash
       run: |
-        cd ..
-        cp eyes_universal/pkg/eyes_universal-*.gem eyes_calabash/pkg/
-        bundle install
-        rake build
-        cp pkg/eyes_core-*.gem eyes_calabash/pkg/
-        ls eyes_calabash/pkg
-        cd eyes_calabash/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
-    - name: Temporary Fix
-      if: ${{inputs.working-directory == 'ruby/eyes_images'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        cd ..
-        ls eyes_selenium/pkg/gems
-        cp eyes_selenium/pkg/gems/eyes_*.gem eyes_images/pkg/
-        ls eyes_images/pkg
-        cd eyes_images/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
-    - name: Temporary Fix
-      if: ${{inputs.working-directory == 'ruby/eyes_appium'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        cd ..
-        cp eyes_universal/pkg/eyes_universal-*.gem eyes_appium/pkg/
-        ls eyes_selenium/pkg/gems
-        cp eyes_selenium/pkg/gems/eyes_selenium-*.gem eyes_appium/pkg/
-        bundle install
-        rake build
-        cp pkg/eyes_core-*.gem eyes_appium/pkg/
-        ls eyes_appium/pkg
-        cd eyes_appium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
-    - name: Temporary Fix
-      if: ${{inputs.working-directory == 'ruby/eyes_selenium'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        cd ..
-        cp eyes_universal/pkg/eyes_universal-*.gem eyes_selenium/pkg/
-        bundle install
-        rake build
-        cp pkg/eyes_core-*.gem eyes_selenium/pkg/
-        ls eyes_selenium/pkg
-        cd eyes_selenium/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
-    - name: Temporary Fix
-      if: ${{inputs.working-directory == 'ruby/eyes_capybara'}}
-      working-directory: ${{inputs.working-directory}}
-      shell: bash
-      run: |
-        gem install builder
-        cd ..
-        ls eyes_selenium/pkg/gems
-        cp eyes_selenium/pkg/gems/eyes_*.gem eyes_capybara/pkg/
-        ls eyes_capybara/pkg
-        cd eyes_capybara/pkg; mkdir gems; mv ./*.gem ./gems; gem generate_index
+        mkdir -p ../pkg/gems
+        mv pkg/*.gem ../pkg/gems
+        cd ../pkg
+        gem generate_index
