@@ -22,10 +22,10 @@ group :test, :development do
   end
 
   # coverage tests fix
-  puts "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg"
-  source "file://#{ENV['PWD'].chomp('coverage_tests')}/pkg" do
+  puts "file://#{ENV['PWD'].chomp('/coverage_tests').chomp('/eyes_images')}/pkg"
+  source "file://#{ENV['PWD'].chomp('/coverage_tests').chomp('/eyes_images')}/pkg" do
     gem 'eyes_core'
-    gem 'eyes_selenium' # for specs
+    gem 'eyes_selenium', require: false # for specs
   end
 
 end
