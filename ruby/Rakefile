@@ -24,7 +24,7 @@ module Bundler
 end
 
 ALL_GEMS = [
-  :eyes_core,
+  # :eyes_core,
   # :eyes_images,
   # :eyes_selenium,
   # :eyes_calabash,
