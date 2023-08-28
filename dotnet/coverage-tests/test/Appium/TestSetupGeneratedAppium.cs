@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Applitools.Metadata;
-using Applitools.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Android;
 using OpenQA.Selenium.Appium.iOS;
@@ -14,10 +11,8 @@ using Applitools.Tests.Utils;
 using Applitools.Utils;
 using NUnit.Framework;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.IE;
-using OpenQA.Selenium.Safari;
+using Eyes = Applitools.Appium.Eyes;
 
 namespace Applitools.Generated.Appium.Tests
 {
@@ -59,40 +54,41 @@ namespace Applitools.Generated.Appium.Tests
             //eyes.SetLogHandler(logHandler);
         }
 
-        protected void InitDriver(string device, string app)
+        protected void InitDriver(string device, string app, bool setMobileCaps = false)
         {
             AppiumOptions options = new AppiumOptions();
             //options.AddAdditionalCapability(MobileCapabilityType.AppiumVersion, "1.17.1");
             options.AddAdditionalCapability(MobileCapabilityType.PlatformName,
                 MobileEmulation.Devices[device]["platformName"]);
-            options.AddAdditionalCapability(MobileCapabilityType.PlatformVersion,
+            options.AddAdditionalCapability("appium:platformVersion",
                 MobileEmulation.Devices[device]["platformVersion"]);
-            options.AddAdditionalCapability(MobileCapabilityType.DeviceName,
+            options.AddAdditionalCapability("appium:deviceName",
                 MobileEmulation.Devices[device]["deviceName"]);
-            options.AddAdditionalCapability("deviceOrientation",
+            options.AddAdditionalCapability("appium:deviceOrientation",
                 MobileEmulation.Devices[device].ContainsKey("deviceOrientation")
                     ? MobileEmulation.Devices[device]["deviceOrientation"]
                     : "portrait");
 
-            options.AddAdditionalCapability("phoneOnly", false);
-            options.AddAdditionalCapability("tabletOnly", false);
-            options.AddAdditionalCapability("privateDevicesOnly", false);
-
-            options.AddAdditionalCapability(MobileCapabilityType.App, app);
+            options.AddAdditionalCapability("appium:app", app);
 
             string url = null;
             if (MobileEmulation.Devices[device].ContainsKey("sauce"))
             {
-                options.AddAdditionalCapability("username", MobileEmulation.Credentials["sauce"]["username"]);
-                options.AddAdditionalCapability("accesskey", MobileEmulation.Credentials["sauce"]["access_key"]);
+                options.AddAdditionalCapability("sauce:username", MobileEmulation.Credentials["sauce"]["username"]);
+                options.AddAdditionalCapability("sauce:accesskey", MobileEmulation.Credentials["sauce"]["access_key"]);
                 url = MobileEmulation.SauceServerUrl;
             }
 
             string platformName = (string)MobileEmulation.Devices[device]["platformName"];
-            options.AddAdditionalCapability("name", $"{platformName} Demo");
+            options.AddAdditionalCapability("sauce:name", $"{platformName} Demo");
 
             options.AddAdditionalCapability("idleTimeout", 300);
 
+            if (setMobileCaps)
+            {
+                Eyes.SetMobileCapabilities(options);
+            }
+            
             switch (platformName)
             {
                 case "Android":
