@@ -5,6 +5,8 @@ import {type DomSnapshot, type Renderer} from '@applitools/ufg-client'
 import {takeDomSnapshot, type DomSnapshotSettings} from './take-dom-snapshot'
 import * as utils from '@applitools/utils'
 import chalk from 'chalk'
+import {type CalculateRegionsOptions, calculateRegions as _calculateRegions} from './calculate-regions'
+import {SnapshotResult} from '../types'
 
 export * from './take-dom-snapshot'
 
@@ -12,6 +14,7 @@ export type DomSnapshotsSettings = DomSnapshotSettings & {
   renderers: Renderer[]
   waitBeforeCapture?: number | (() => void)
   layoutBreakpoints?: {breakpoints: number[] | boolean; reload?: boolean}
+  calculateRegionsOptions?: CalculateRegionsOptions
 }
 
 export async function takeDomSnapshots<TSpec extends SpecType>({
@@ -29,7 +32,7 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
     getIOSDevices(): Promise<Record<string, Record<string, Size>>>
   }
   logger: Logger
-}): Promise<DomSnapshot[]> {
+}): Promise<SnapshotResult<DomSnapshot>[]> {
   const currentContext = driver.currentContext
   const waitBeforeCapture = async () => {
     if (utils.types.isFunction(settings.waitBeforeCapture)) {
@@ -45,7 +48,7 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
     await hooks?.beforeEachSnapshot?.()
     await waitBeforeCapture()
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
-    return Array(settings.renderers.length).fill(snapshot)
+    return (Array(settings.renderers.length) as SnapshotResult<DomSnapshot>[]).fill({snapshot})
   }
 
   const isStrictBreakpoints = utils.types.isArray(settings.layoutBreakpoints?.breakpoints)
@@ -80,13 +83,13 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
   logger.log(`taking multiple dom snapshots for breakpoints:`, settings.layoutBreakpoints.breakpoints)
   logger.log(`required widths: ${[...requiredWidths.keys()].join(', ')}`)
   const viewportSize = await driver.getViewportSize()
-  const snapshots = Array(settings.renderers.length)
+  const snapshots: SnapshotResult<DomSnapshot>[] = Array(settings.renderers.length)
   if (requiredWidths.has(viewportSize.width)) {
     logger.log(`taking dom snapshot for existing width ${viewportSize.width}`)
     await hooks?.beforeEachSnapshot?.()
     await waitBeforeCapture()
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
-    requiredWidths.get(viewportSize.width)!.forEach(({index}) => (snapshots[index] = snapshot))
+    requiredWidths.get(viewportSize.width)!.forEach(({index}) => (snapshots[index] = {snapshot}))
   }
   for (const [requiredWidth, browsersInfo] of requiredWidths.entries()) {
     logger.log(`taking dom snapshot for width ${requiredWidth}`)
@@ -118,7 +121,7 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
     await hooks?.beforeEachSnapshot?.()
     await waitBeforeCapture()
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
-    browsersInfo.forEach(({index}) => (snapshots[index] = snapshot))
+    browsersInfo.forEach(({index}) => (snapshots[index] = {snapshot}))
   }
 
   await driver.setViewportSize(viewportSize)
