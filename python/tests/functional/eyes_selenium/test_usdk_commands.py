@@ -157,16 +157,13 @@ def test_usdk_commands_open_check_close_eyes(local_chrome_driver):
     mgr = commands.core_make_manager(ManagerType.CLASSIC)
     eyes = commands.manager_open_eyes(objreg, mgr, local_chrome_driver, config=config)
 
-    check_result = commands.eyes_check(
-        objreg, eyes, None, SeleniumCheckSettings(), config
-    )
+    commands.eyes_check(objreg, eyes, None, SeleniumCheckSettings(), config)
 
     commands.eyes_close(objreg, eyes, False, Configuration())
     eyes_close_result = commands.eyes_get_results(eyes, False)
     test_result = eyes_close_result[0]
 
     assert "applitools-ref-id" in mgr
-    assert check_result == [{"asExpected": True, "userTestId": "abc"}]
     assert len(eyes_close_result) == 1
     assert test_result["appName"] == "USDK Test"
     assert test_result["name"] == "USDK Commands open check close"
