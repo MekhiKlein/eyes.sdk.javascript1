@@ -6,11 +6,7 @@ from six import string_types
 
 from .. import common
 from ..common.command_executor import CommandExecutor
-from ..common.schema import (
-    demarshal_locate_result,
-    demarshal_match_result,
-    demarshal_test_results,
-)
+from ..common.schema import demarshal_locate_result, demarshal_test_results
 from . import EyesError, FailureReports, RectangleSize, TestFailedError, deprecated
 from .config import Configuration
 from .fluent.check_settings import CheckSettings
@@ -203,7 +199,7 @@ class WebEyes(EyesBase):
 
     @overload
     def check(self, name, check_settings):
-        # type: (Text, CheckSettings) -> MatchResult
+        # type: (Text, CheckSettings) -> None
         """
         Takes a snapshot and matches it with the expected output.
 
@@ -223,7 +219,7 @@ class WebEyes(EyesBase):
         pass
 
     def check(self, check_settings, name=None):
-        # type: (CheckSettings, Optional[Text]) -> Optional[MatchResult]
+        # type: (CheckSettings, Optional[Text]) -> None
         if isinstance(name, CheckSettings) or isinstance(check_settings, string_types):
             check_settings, name = name, check_settings
         if check_settings is None:
@@ -232,34 +228,18 @@ class WebEyes(EyesBase):
             check_settings = check_settings.with_name(name)
 
         if self.configuration.is_disabled:
-            return None
+            return
         if not self.is_open:
             self.abort()
             raise EyesError("you must call open() before checking")
 
-        results = self._commands.eyes_check(
+        self._commands.eyes_check(
             self._object_registry,
             self._eyes_ref,
             None,
             check_settings,
             self.configuration,
         )
-        if results:
-            # Original API only returns one result
-            results = demarshal_match_result(results[0])
-            if (
-                not results.as_expected
-                and self.configuration.failure_reports is FailureReports.IMMEDIATE
-            ):
-                raise TestFailedError(
-                    "Mismatch found in '{}' of '{}'".format(
-                        self.configuration.test_name, self.configuration.app_name
-                    )
-                )
-            else:
-                return results
-        else:
-            return None
 
     def locate(self, visual_locator_settings):
         # type: (VisualLocatorSettings) -> LOCATORS_TYPE
@@ -340,7 +320,7 @@ class WebEyes(EyesBase):
         cmd.core_set_viewport_size(driver, viewport_size)
 
     def check_window(self, tag=None, match_timeout=-1, fully=None):
-        # type: (Optional[Text], int, Optional[bool]) -> MatchResult
+        # type: (Optional[Text], int, Optional[bool]) -> None
         """
         Takes a snapshot of the application under test and matches it with the expected
          output.
@@ -352,7 +332,7 @@ class WebEyes(EyesBase):
         return self.check(tag, self.Target.window().timeout(match_timeout).fully(fully))
 
     def check_frame(self, frame_reference, tag=None, match_timeout=-1):
-        # type: (FrameReference, Optional[Text], int) -> MatchResult
+        # type: (FrameReference, Optional[Text], int) -> None
         """
         Check frame.
 
@@ -372,7 +352,7 @@ class WebEyes(EyesBase):
         match_timeout=-1,  # type: int
         stitch_content=False,  # type: bool
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Takes a snapshot of the given region from the browser using the web driver
         and matches it with the expected output. If the current context is a frame,
@@ -397,7 +377,7 @@ class WebEyes(EyesBase):
         tag=None,  # type: Optional[Text]
         match_timeout=-1,  # type: int
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Takes a snapshot of the given region from the browser using the web driver
         and matches it with the expected output. If the current context is a frame,
@@ -422,7 +402,7 @@ class WebEyes(EyesBase):
         match_timeout=-1,  # type: int
         stitch_content=False,  # type: bool
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Checks a region within a frame, and returns to the current frame.
 

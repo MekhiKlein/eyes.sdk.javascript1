@@ -57,6 +57,7 @@ class MatchLevel(Enum):
         return self.IGNORE_COLORS
 
 
+# Obsolete type, Eyes.check doesn't return it anymore, kept for compatibility
 @attr.s
 class MatchResult(object):
     as_expected = attr.ib(

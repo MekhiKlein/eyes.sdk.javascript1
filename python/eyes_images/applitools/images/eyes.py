@@ -6,10 +6,7 @@ from six import string_types
 
 from applitools.common import FailureReports, Region, TestFailedError
 from applitools.common.eyes import EyesBase
-from applitools.common.schema import (
-    demarshal_locate_text_result,
-    demarshal_match_result,
-)
+from applitools.common.schema import demarshal_locate_text_result
 from applitools.common.selenium import Configuration
 from applitools.common.target import ImageTarget
 
@@ -53,7 +50,7 @@ class Eyes(EyesBase):
         pass
 
     def check(self, check_settings, name=None):
-        # type: (ImagesCheckSettings, Optional[Text]) -> bool
+        # type: (ImagesCheckSettings, Optional[Text]) -> None
         if isinstance(name, ImagesCheckSettings) or isinstance(
             check_settings, string_types
         ):
@@ -61,26 +58,13 @@ class Eyes(EyesBase):
         if name:
             check_settings = check_settings.with_name(name)
 
-        results = self._commands.eyes_check(
+        self._commands.eyes_check(
             self._object_registry,
             self._eyes_ref,
             ImageTarget(check_settings.values.image, check_settings.values.dom),
             check_settings,
             self.configuration,
         )
-        # Original API only returns one result
-        results = demarshal_match_result(results[0])
-        if (
-            not results.as_expected
-            and self.configuration.failure_reports is FailureReports.IMMEDIATE
-        ):
-            raise TestFailedError(
-                "Mismatch found in '{}' of '{}'".format(
-                    self.configuration.test_name, self.configuration.app_name
-                )
-            )
-        else:
-            return results.as_expected
 
     def check_image(self, image, tag=None):
         # type: (Union[ByteString, Text, Image], Optional[Text]) -> bool

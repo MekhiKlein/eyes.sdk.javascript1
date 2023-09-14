@@ -22,7 +22,6 @@ from applitools.common import (
     IosDeviceName,
     IosVersion,
     MatchLevel,
-    MatchResult,
     ProxySettings,
     RectangleSize,
     Region,
@@ -437,15 +436,6 @@ def test_delete_test_settings_marshall():
         "serverUrl": "server url",
         "testId": "results is",
     }
-
-
-def test_match_result_demarshal():
-    deserializer = schema.MatchResult()
-
-    loaded, errors = deserializer.load({"asExpected": True, "windowId": "w"})
-
-    assert errors == {}
-    assert loaded == MatchResult(as_expected=True, window_id="w", screenshot=None)
 
 
 def test_locate_result_demarshal():

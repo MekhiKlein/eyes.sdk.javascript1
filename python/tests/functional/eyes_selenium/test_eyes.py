@@ -16,24 +16,6 @@ from applitools.selenium import (
 )
 
 
-def test_create_open_check_close_eyes(local_chrome_driver):
-    local_chrome_driver.get(
-        "https://applitools.github.io/demo/TestPages/SimpleTestPage"
-    )
-    eyes = Eyes()
-    eyes.configure.set_hide_scrollbars(False)
-    eyes.open(
-        local_chrome_driver,
-        "USDK Test",
-        "Test create open eyes",
-        {"width": 800, "height": 600},
-    )
-    check_result = eyes.check_window()
-    eyes.close(False)
-
-    assert check_result.as_expected
-
-
 def test_create_open_check_close_vg_eyes(local_chrome_driver):
     local_chrome_driver.get(
         "https://applitools.github.io/demo/TestPages/SimpleTestPage"

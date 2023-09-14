@@ -522,15 +522,6 @@ class StepInfo(Schema):
         return common.test_results.StepInfo(**data)
 
 
-class MatchResult(Schema):
-    as_expected = Boolean(load_from="asExpected")
-    window_id = String(load_from="windowId")
-
-    @post_load
-    def to_python(self, data, **_):
-        return common.MatchResult(**data)
-
-
 class LocateTextResponse(Schema):
     left = Integer(load_from="x")
     top = Integer(load_from="y")
@@ -610,11 +601,6 @@ class TestResultsSummary(Schema):
     @post_load
     def to_python(self, data, **_):
         return common.TestResultsSummary(**data)
-
-
-def demarshal_match_result(results_dict):
-    # type: (dict) -> MatchResult
-    return check_error(MatchResult().load(results_dict))
 
 
 def demarshal_locate_result(results):

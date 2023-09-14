@@ -8,7 +8,6 @@ from robot.libraries.BuiltIn import BuiltIn
 from selenium.webdriver.remote.webelement import WebElement as SeleniumWebElement
 from six import string_types as basestring
 
-from applitools.common import MatchResult
 from applitools.common.utils import argument_guard
 from applitools.selenium import Target
 
@@ -43,7 +42,7 @@ class CheckRegionKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Check specified region
 
@@ -70,7 +69,7 @@ class CheckRegionKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Check specified region by element
 
@@ -98,7 +97,7 @@ class CheckRegionKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Check specified region by selector
 
@@ -126,7 +125,7 @@ class CheckRegionKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
         Check specified region by selector
 
@@ -151,7 +150,7 @@ class CheckFrameKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
          Check specified frame by element
 
@@ -175,7 +174,7 @@ class CheckFrameKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
          Check specified frame by index
 
@@ -199,7 +198,7 @@ class CheckFrameKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
          Check specified frame by name
 
@@ -223,7 +222,7 @@ class CheckFrameKeywords(LibraryComponent):
         tag=None,  # type: Optional[Text]
         *check_settings_keywords  # type: tuple[Any]
     ):
-        # type: (...) -> MatchResult
+        # type: (...) -> None
         """
          Check specified frame by name
 
@@ -246,7 +245,7 @@ class CheckFrameKeywords(LibraryComponent):
 class CheckKeywords(CheckRegionKeywords, CheckFrameKeywords):
     @keyword("Eyes Check Window", types=(str,), tags=(CHECK_FLOW,))
     def check_window(self, tag=None, *check_settings_keywords):
-        # type: (Optional[Text], tuple[Any]) -> Optional[MatchResult]
+        # type: (Optional[Text], tuple[Any]) -> None
         """
         Check current browser window
 
