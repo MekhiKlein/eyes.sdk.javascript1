@@ -31,6 +31,7 @@ class Eyes(EyesBase):
 
     def open(self, app_name=None, test_name=None, dimension=None):
         # type: (Text, Text, Optional[ViewPort]) -> None
+        dimension = dimension or {"width": 0, "height": 0}
         if not self.configure.is_disabled:
             self._prepare_open(app_name, test_name, dimension)
             self._eyes_ref = self._commands.manager_open_eyes(
