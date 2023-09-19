@@ -1845,7 +1845,7 @@
       "extra-files": [
         {
           "type": "xml",
-          "path": "dotnet/Eyes.Image.Core.DotNet/Eyes.Image.Core.DotNet.csproj",
+          "path": "Eyes.Image.Core.DotNet.csproj",
           "xpath": "//Project/PropertyGroup/Version"
         }
       ]
