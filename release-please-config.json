@@ -1832,7 +1832,7 @@
     },
 
     "dotnet/Eyes.Image.Core.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "component": "dotnet/eyes-image-core",
       "builds": [{
         "key": "{{component}}/{{environment}}",
@@ -1851,7 +1851,7 @@
       ]
     },
     "dotnet/Eyes.Images.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "component": "dotnet/eyes-images",
       "builds": [{
         "key": "{{component}}/{{environment}}",
@@ -1876,7 +1876,7 @@
       ]
     },
     "dotnet/Eyes.Selenium.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "component": "dotnet/eyes-selenium",
       "builds": [{
         "key": "{{component}}/{{environment}}",
@@ -1903,7 +1903,7 @@
       ]
     },
     "dotnet/Eyes.Selenium4.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "component": "dotnet/eyes-selenium4",
       "builds": [{
         "key": "{{component}}/{{environment}}",
@@ -1930,7 +1930,7 @@
       ]
     },
     "dotnet/Eyes.Appium.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "component": "dotnet/eyes-appium",
       "builds": [{
         "key": "{{component}}/{{environment}}",
@@ -1957,7 +1957,7 @@
       ]
     },
     "dotnet/Eyes.Appium2.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "component": "dotnet/eyes-appium2",
       "builds": [{
         "key": "{{component}}/{{environment}}",
@@ -1984,7 +1984,7 @@
       ]
     },
     "dotnet/Eyes.Playwright.DotNet": {
-      "release-type": "dotnet",
+      "release-type": "simple",
       "skip-snapshot": true,
       "component": "dotnet/eyes-playwright",
       "builds": [{
