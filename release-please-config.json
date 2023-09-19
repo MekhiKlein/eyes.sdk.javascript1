@@ -1841,7 +1841,14 @@
       }],
       "releases": [{
         "profile": "dotnet"
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Image.Core.DotNet/Eyes.Image.Core.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     },
     "dotnet/Eyes.Images.DotNet": {
       "release-type": "dotnet",
@@ -1859,7 +1866,14 @@
       "releases": [{
         "profile": "dotnet",
         "notification": {"name": "dotnet_images"}
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Images.DotNet/Eyes.Images.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     },
     "dotnet/Eyes.Selenium.DotNet": {
       "release-type": "dotnet",
@@ -1879,7 +1893,14 @@
       "releases": [{
         "profile": "dotnet",
         "notification": {"name": "dotnet_selenium"}
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Selenium.DotNet/Eyes.Selenium.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     },
     "dotnet/Eyes.Selenium4.DotNet": {
       "release-type": "dotnet",
@@ -1899,7 +1920,14 @@
       "releases": [{
         "profile": "dotnet",
         "notification": {"name": "dotnet_selenium4"}
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Selenium4.DotNet/Eyes.Selenium4.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     },
     "dotnet/Eyes.Appium.DotNet": {
       "release-type": "dotnet",
@@ -1919,7 +1947,14 @@
       "releases": [{
         "profile": "dotnet",
         "notification": {"name": "dotnet_appium"}
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Appium.DotNet/Eyes.Appium.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     },
     "dotnet/Eyes.Appium2.DotNet": {
       "release-type": "dotnet",
@@ -1939,7 +1974,14 @@
       "releases": [{
         "profile": "dotnet",
         "notification": {"name": "dotnet_appium2"}
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Appium2.DotNet/Eyes.Appium2.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     },
     "dotnet/Eyes.Playwright.DotNet": {
       "release-type": "dotnet",
@@ -1960,7 +2002,14 @@
       "releases": [{
         "profile": "dotnet",
         "notification": {"name": "dotnet_playwright"}
-      }]
+      }],
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "dotnet/Eyes.Playwright.DotNet/Eyes.Playwright.DotNet.csproj",
+          "xpath": "//Project/PropertyGroup/Version"
+        }
+      ]
     }
   }
 }
