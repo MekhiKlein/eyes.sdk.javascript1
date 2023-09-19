@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.1.10](https://github.com/applitools/eyes.sdk.javascript1/compare/js/socket@1.1.9...js/socket@1.1.10) (2023-09-04)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+* @applitools/logger bumped to 2.0.10
+
+
+## [1.1.9](https://github.com/applitools/eyes.sdk.javascript1/compare/js/socket@1.1.8...js/socket@1.1.9) (2023-08-30)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.2
+  #### Bug Fixes
+
+  * fixed some types ([498b1d7](https://github.com/applitools/eyes.sdk.javascript1/commit/498b1d7c547df04773b64b66ee39cccb402c093e))
+* @applitools/logger bumped to 2.0.9
+
+
 ## [1.1.8](https://github.com/applitools/eyes.sdk.javascript1/compare/js/socket@1.1.7...js/socket@1.1.8) (2023-08-18)
 
 

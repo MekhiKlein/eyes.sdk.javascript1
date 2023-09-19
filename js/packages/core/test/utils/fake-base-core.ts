@@ -92,6 +92,7 @@ export function makeFakeCore({
             initializedAt: new Date().toISOString(),
             keepIfDuplicate: !!options.settings.baselineEnvName,
             account: account as Account,
+            renderer: options.settings.environment?.renderer,
             ufgServer: {
               ufgServerUrl: options.settings?.eyesServerUrl,
               accessToken: '',
@@ -103,6 +104,7 @@ export function makeFakeCore({
             },
             uploadUrl: '',
             stitchingServiceUrl: '',
+            renderEnvironmentsUrl: '',
           },
           core,
           get running() {
@@ -133,7 +135,6 @@ export function makeFakeCore({
                 environment,
               }
               steps.push(result)
-              return [result]
             } finally {
               emitter.emit('afterCheck', options)
             }

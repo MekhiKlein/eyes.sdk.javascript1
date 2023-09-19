@@ -1,7 +1,12 @@
 import type {Region} from '@applitools/utils'
-import type {DriverTarget, Target, Eyes, CheckSettings, CloseSettings} from './types'
-import type {Eyes as BaseEyes} from '@applitools/core-base'
-import {type Renderer, type DomSnapshot, type AndroidSnapshot, type IOSSnapshot} from '@applitools/ufg-client'
+import type {DriverTarget, Target, Eyes, CheckSettings, CloseSettings, Renderer, SnapshotResult} from './types'
+import {
+  type Renderer as UFGRenderer,
+  type DomSnapshot,
+  type AndroidSnapshot,
+  type IOSSnapshot,
+} from '@applitools/ufg-client'
+import {type Renderer as NMLRenderer} from '@applitools/nml-client'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
 import {
@@ -16,16 +21,16 @@ import {
 import {takeDomSnapshots} from './utils/take-dom-snapshots'
 import {waitForLazyLoad} from '../automation/utils/wait-for-lazy-load'
 import {toBaseCheckSettings} from '../automation/utils/to-base-check-settings'
-import {generateSafeSelectors} from './utils/generate-safe-selectors'
-import {uniquifyRenderers} from './utils/uniquify-renderers'
+import {uniquifyRenderers} from '../automation/utils/uniquify-renderers'
+import {extractRendererKey} from '../automation/utils/extract-renderer-key'
 import {AbortError} from '../errors/abort-error'
 import * as utils from '@applitools/utils'
 import chalk from 'chalk'
 
 type Options<TSpec extends SpecType> = {
   eyes: Eyes<TSpec>
-  storage: Map<string, Promise<{renderer: Renderer; eyes: BaseEyes}>[]>
   target?: DriverTarget<TSpec>
+  renderers?: Renderer[]
   spec?: SpecDriver<TSpec>
   signal?: AbortSignal
   logger: Logger
@@ -33,8 +38,8 @@ type Options<TSpec extends SpecType> = {
 
 export function makeCheckAndClose<TSpec extends SpecType>({
   eyes,
-  storage,
   target: defaultTarget,
+  renderers: defaultRenderers = [],
   spec,
   signal,
   logger: mainLogger,
@@ -59,123 +64,104 @@ export function makeCheckAndClose<TSpec extends SpecType>({
     const {elementReferencesToCalculate, elementReferenceToTarget, getBaseCheckSettings} = toBaseCheckSettings({
       settings,
     })
-
-    const uniqueRenderers = uniquifyRenderers(settings.renderers ?? [])
+    const uniqueRenderers = uniquifyRenderers(settings.renderers ?? defaultRenderers)
     const ufgClient = await eyes.core.getUFGClient({
       settings: {
         ...eyes.test.ufgServer,
         eyesServerUrl: eyes.test.eyesServer.eyesServerUrl,
         apiKey: eyes.test.eyesServer.apiKey,
+        asyncCache: settings.asyncCache,
       },
       logger,
     })
 
-    let snapshots: DomSnapshot[] | AndroidSnapshot[] | IOSSnapshot[]
+    let snapshotResults: SnapshotResult<DomSnapshot | AndroidSnapshot | IOSSnapshot>[]
     let snapshotUrl: string | undefined
     let snapshotTitle: string | undefined
     let userAgent: string | undefined
-    let regionToTarget: Selector | Region | undefined
-    let scrollRootSelector: Selector | undefined
-    let selectorsToCalculate: {safeSelector: Selector | null; originalSelector: Selector | null}[]
-
     const driver =
       spec && isDriver(target, spec)
         ? await makeDriver({spec, driver: target, reset: target === defaultTarget, logger})
         : null
     if (driver) {
       const environment = await driver.getEnvironment()
-      if (uniqueRenderers.length === 0) {
-        if (environment.isWeb) {
-          const viewportSize = await driver.getViewportSize()
-          uniqueRenderers.push({name: 'chrome', ...viewportSize})
-        } else {
-          // TODO add default nmg renderers
-        }
-      }
-      let cleanupGeneratedSelectors
+      const currentContext = driver.currentContext
+      await currentContext.setScrollingElement(settings.scrollRootElement ?? null)
+
       if (environment.isWeb) {
         userAgent = await driver.getUserAgentLegacy()
-        const generated = await generateSafeSelectors({
-          context: driver.currentContext,
-          elementReferences: [
-            ...(elementReferenceToTarget ? [elementReferenceToTarget] : []),
-            ...(settings.scrollRootElement ? [settings.scrollRootElement] : []),
-            ...elementReferencesToCalculate,
-          ],
-        })
-        cleanupGeneratedSelectors = generated.cleanupGeneratedSelectors
-        selectorsToCalculate = generated.selectors
-        if (elementReferenceToTarget) {
-          if (!selectorsToCalculate[0]?.safeSelector) throw new Error('Target element not found')
-          regionToTarget = selectorsToCalculate[0].safeSelector
-          selectorsToCalculate = selectorsToCalculate.slice(1)
-        }
-        if (settings.scrollRootElement) {
-          scrollRootSelector = selectorsToCalculate[0].safeSelector ?? undefined
-          selectorsToCalculate = selectorsToCalculate.slice(1)
-        }
-      } else {
-        regionToTarget = isSelector(elementReferenceToTarget)
-          ? spec?.toSimpleCommonSelector?.(settings.scrollRootElement) ?? undefined
-          : undefined
-        scrollRootSelector = isSelector(settings.scrollRootElement)
-          ? spec?.toSimpleCommonSelector?.(settings.scrollRootElement) ?? undefined
-          : undefined
-      }
-
-      const currentContext = driver.currentContext
-
-      const snapshotOptions = {
-        settings: {
-          ...eyes.test.eyesServer,
-          waitBeforeCapture: settings.waitBeforeCapture,
-          disableBrowserFetching: settings.disableBrowserFetching,
-          layoutBreakpoints: settings.layoutBreakpoints,
-          renderers: uniqueRenderers,
-          skipResources: ufgClient.getCachedResourceUrls(),
-        },
-        hooks: {
-          async beforeSnapshots() {
-            if (settings.lazyLoad && environment.isWeb) {
-              await waitForLazyLoad({
-                context: driver.currentContext,
-                settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
-                logger,
-              })
-            }
+        snapshotResults = await takeDomSnapshots({
+          driver,
+          settings: {
+            ...eyes.test.eyesServer,
+            waitBeforeCapture: settings.waitBeforeCapture,
+            disableBrowserFetching: settings.disableBrowserFetching,
+            layoutBreakpoints: settings.layoutBreakpoints,
+            renderers: uniqueRenderers as UFGRenderer[],
+            skipResources: ufgClient.getCachedResourceUrls(),
+            calculateRegionsOptions: {
+              elementReferencesToCalculate,
+              elementReferenceToTarget,
+              scrollRootElement: settings.scrollRootElement,
+            },
           },
-        },
-        provides: {
-          getChromeEmulationDevices: ufgClient.getChromeEmulationDevices,
-          getIOSDevices: ufgClient.getIOSDevices,
-        },
-      }
-      if (environment.isWeb) {
-        snapshots = await takeDomSnapshots({driver, ...snapshotOptions, logger})
+          hooks: {
+            async beforeSnapshots() {
+              if (settings.lazyLoad && environment.isWeb) {
+                await waitForLazyLoad({
+                  context: driver.currentContext,
+                  settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
+                  logger,
+                })
+              }
+            },
+          },
+          provides: {
+            getChromeEmulationDevices: ufgClient.getChromeEmulationDevices,
+            getIOSDevices: ufgClient.getIOSDevices,
+          },
+          logger,
+        })
       } else {
-        const nmlClient = await eyes.core.getNMLClient({config: eyes.test.eyesServer, driver, logger})
-        snapshots = (await nmlClient.takeSnapshots({...snapshotOptions, logger})) as AndroidSnapshot[] | IOSSnapshot[]
+        const nmlClient = await eyes.core.getNMLClient({
+          driver,
+          settings: {...eyes.test.eyesServer, renderEnvironmentsUrl: eyes.test.renderEnvironmentsUrl},
+          logger,
+        })
+        const snapshots = (await nmlClient.takeSnapshots({
+          settings: {
+            ...eyes.test.eyesServer,
+            waitBeforeCapture: settings.waitBeforeCapture,
+            renderers: uniqueRenderers as NMLRenderer[],
+          },
+          logger,
+        })) as AndroidSnapshot[] | IOSSnapshot[]
+
+        snapshotResults = snapshots.map(snapshot => ({
+          snapshot,
+          regionToTarget: isSelector(elementReferenceToTarget)
+            ? spec?.toSimpleCommonSelector?.(settings.scrollRootElement) ?? undefined
+            : undefined,
+          scrollRootSelector: isSelector(settings.scrollRootElement)
+            ? spec?.toSimpleCommonSelector?.(settings.scrollRootElement) ?? undefined
+            : undefined,
+        }))
       }
 
       await currentContext.focus()
       snapshotUrl = await driver.getUrl()
       snapshotTitle = await driver.getTitle()
-
-      await cleanupGeneratedSelectors?.()
     } else {
-      snapshots = !utils.types.isArray(target) ? Array(uniqueRenderers.length).fill(target) : target
-      snapshotUrl = utils.types.has(snapshots[0], 'url') ? snapshots[0].url : undefined
+      snapshotResults = !utils.types.isArray(target) ? Array(uniqueRenderers.length).fill(target) : target
+      snapshotUrl = utils.types.has(snapshotResults[0]?.snapshot, 'url') ? snapshotResults[0].snapshot.url : undefined
     }
-    regionToTarget ??= (elementReferenceToTarget as Selector) ?? (settings.region as Region)
-    selectorsToCalculate ??= elementReferencesToCalculate.map(selector => ({
-      originalSelector: selector as Selector,
-      safeSelector: selector as Selector,
-    }))
 
-    const promises = uniqueRenderers.map(async ({properties, ...renderer}, index) => {
+    const promises = uniqueRenderers.map(async (renderer, index) => {
       const rendererLogger = logger.extend({tags: [`renderer-${utils.general.shortid()}`]})
 
-      if (utils.types.has(renderer, 'name') && renderer.name === 'edge') {
+      const ufgRenderer = renderer as UFGRenderer
+
+      if (utils.types.has(ufgRenderer, 'name') && ufgRenderer.name === 'edge') {
         const message = chalk.yellow(
           `The 'edge' option that is being used in your browsers' configuration will soon be deprecated. Please change it to either 'edgelegacy' for the legacy version or to 'edgechromium' for the new Chromium-based version. Please note, when using the built-in BrowserType enum, then the values are BrowserType.EDGE_LEGACY and BrowserType.EDGE_CHROMIUM, respectively.`,
         )
@@ -188,16 +174,32 @@ export function makeCheckAndClose<TSpec extends SpecType>({
           throw new AbortError('Command "check" was aborted before rendering')
         }
 
-        const {cookies, ...snapshot} = snapshots[index] as (typeof snapshots)[number] & {cookies: Cookie[]}
+        const {
+          snapshot: snapshotFromResult,
+          selectorsToCalculate: selectorsToCalculateFromSnapshot,
+          regionToTarget,
+          scrollRootSelector,
+        } = snapshotResults[index]
+        const {cookies, ...snapshot} = snapshotFromResult as (typeof snapshotResults)[number]['snapshot'] & {
+          cookies: Cookie[]
+        }
 
-        if (utils.types.has(renderer, 'iosDeviceInfo') || utils.types.has(renderer, 'androidDeviceInfo')) {
-          renderer.type = utils.types.has(snapshot, 'cdt') ? 'web' : 'native'
+        const region = regionToTarget ?? (elementReferenceToTarget as Selector) ?? (settings.region as Region)
+        const selectorsToCalculate =
+          selectorsToCalculateFromSnapshot ??
+          elementReferencesToCalculate.map(selector => ({
+            originalSelector: selector as Selector,
+            safeSelector: selector as Selector,
+          }))
+
+        if (utils.types.has(ufgRenderer, 'iosDeviceInfo') || utils.types.has(ufgRenderer, 'androidDeviceInfo')) {
+          ufgRenderer.type = utils.types.has(snapshot, 'cdt') ? 'web' : 'native'
         }
 
         const renderTargetPromise = ufgClient.createRenderTarget({
           snapshot,
           settings: {
-            renderer,
+            renderer: ufgRenderer,
             cookies,
             headers: {
               Referer: snapshotUrl,
@@ -210,8 +212,7 @@ export function makeCheckAndClose<TSpec extends SpecType>({
           logger: rendererLogger,
         })
 
-        const [baseEyes] = await eyes.getBaseEyes({settings: {renderer, properties}, logger})
-
+        const baseEyes = await eyes.getBaseEyes({settings: {renderer}, logger})
         try {
           if (signal?.aborted) {
             rendererLogger.warn('Command "check" was aborted before rendering')
@@ -243,11 +244,11 @@ export function makeCheckAndClose<TSpec extends SpecType>({
             target: renderTarget,
             settings: {
               ...settings,
-              region: regionToTarget,
+              region,
               scrollRootElement: scrollRootSelector,
               selectorsToCalculate: selectorsToCalculate.flatMap(({safeSelector}) => safeSelector ?? []),
               includeFullPageSize: !!settings.pageId,
-              renderer,
+              renderer: ufgRenderer,
               renderEnvironmentId: baseEyes.test.renderEnvironmentId!,
               uploadUrl: baseEyes.test.uploadUrl,
               stitchingServiceUrl: baseEyes.test.stitchingServiceUrl,
@@ -283,8 +284,6 @@ export function makeCheckAndClose<TSpec extends SpecType>({
             settings: baseSettings,
             logger: rendererLogger,
           })
-
-          return {eyes: baseEyes, renderer}
         } catch (error: any) {
           rendererLogger.error(
             `Render on environment with id "${baseEyes.test.renderEnvironmentId}" failed due to an error`,
@@ -295,15 +294,23 @@ export function makeCheckAndClose<TSpec extends SpecType>({
           throw error
         }
       } catch (error: any) {
-        rendererLogger.error(`Renderer with id ${renderer.id} failed before rendering started due to an error`, error)
-        error.info = {...error.info, userTestId: eyes.test.userTestId, renderer}
+        rendererLogger.error(
+          `Renderer with id ${ufgRenderer.id} failed before rendering started due to an error`,
+          error,
+        )
+        error.info = {...error.info, userTestId: eyes.test.userTestId, renderer: ufgRenderer}
         throw error
       }
     })
 
     uniqueRenderers.forEach((renderer, index) => {
-      const key = JSON.stringify(renderer)
-      storage.set(key, [...(storage.get(key) ?? []), promises[index]])
+      const key = extractRendererKey(renderer)
+      let item = eyes.storage.get(key)
+      if (!item) {
+        item = {eyes: utils.promises.makeControlledPromise(), jobs: []}
+        eyes.storage.set(key, item)
+      }
+      item.jobs.push(promises[index])
     })
   }
 }

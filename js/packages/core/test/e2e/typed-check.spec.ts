@@ -68,6 +68,7 @@ describe('typed check', () => {
     await eyes.getResults({settings: {throwErr: true}})
   })
 
+  // NOTE: this test is skipped because there is currently no implementation to convert EnvironmentRenderer to the kind of renderer that ufg supports
   it.skip('performs ufg check during classic test', async () => {
     await driver.navigateTo('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
 
@@ -79,15 +80,27 @@ describe('typed check', () => {
     })
 
     await eyes.check({
-      settings: {name: 'default classic step', fully: false},
+      settings: {
+        name: 'default classic step',
+        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        fully: false,
+      },
     })
     await eyes.check({
       type: 'ufg',
-      settings: {name: 'ufg step', fully: false},
+      settings: {
+        name: 'ufg step',
+        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        fully: false,
+      },
     })
     await eyes.check({
       type: 'classic',
-      settings: {name: 'classic step', fully: false},
+      settings: {
+        name: 'classic step',
+        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        fully: false,
+      },
     })
 
     await eyes.close()

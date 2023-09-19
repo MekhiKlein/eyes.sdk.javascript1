@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-selenium",
-  "version": "4.67.3",
+  "version": "4.68.1",
   "description": "Applitools Eyes SDK for Selenium WebDriver",
   "keywords": [
     "eyes-selenium",
@@ -17,15 +17,7 @@
     "webdriver",
     "webdriverjs"
   ],
-  "homepage": "https://applitools.com",
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/applitools/eyes.sdk.javascript1.git",
-    "directory": "js/packages/eyes-selenium"
-  },
+  "homepage": "https://applitools.com/docs/api-ref/sdk-api/selenium/javascript/",
   "license": "SEE LICENSE IN LICENSE",
   "author": {
     "name": "Applitools Team",

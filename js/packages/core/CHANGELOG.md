@@ -1,5 +1,158 @@
 # Changelog
 
+## [3.11.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.10.4...js/core@3.11.0) (2023-09-13)
+
+
+### Features
+
+* change cache to support distributed cache ([#1913](https://github.com/applitools/eyes.sdk.javascript1/issues/1913)) ([32cc257](https://github.com/applitools/eyes.sdk.javascript1/commit/32cc2574500ac512167f4199c456d8b0349954f7))
+
+
+### Bug Fixes
+
+* upgrade dom-capture to get font-family in DOM ([f62cee4](https://github.com/applitools/eyes.sdk.javascript1/commit/f62cee495ba3b301dda04160e4e13c7e380ef40b))
+
+
+### Dependencies
+
+* @applitools/ufg-client bumped to 1.9.0
+  #### Features
+
+  * change cache to support distributed cache ([#1913](https://github.com/applitools/eyes.sdk.javascript1/issues/1913)) ([32cc257](https://github.com/applitools/eyes.sdk.javascript1/commit/32cc2574500ac512167f4199c456d8b0349954f7))
+
+## [3.10.4](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.10.3...js/core@3.10.4) (2023-09-12)
+
+
+### Bug Fixes
+
+* update dom-snapshot to support xml pages and parens inside css URLs ([0715d56](https://github.com/applitools/eyes.sdk.javascript1/commit/0715d56c675b23be017c1985cbba3a51aba052b1))
+
+## [3.10.3](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.10.2...js/core@3.10.3) (2023-09-11)
+
+
+### Bug Fixes
+
+* suppport coded regions with layoutBreakpoints reload ([7903347](https://github.com/applitools/eyes.sdk.javascript1/commit/79033472b9475992a44cf3828ff334c958ae2066))
+
+## [3.10.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.10.1...js/core@3.10.2) (2023-09-05)
+
+
+### Dependencies
+
+* @applitools/ec-client bumped to 1.7.8
+
+* @applitools/core-base bumped to 1.6.0
+  #### Features
+
+  * show aborted tests in Eyes dashboard ([#1877](https://github.com/applitools/eyes.sdk.javascript1/issues/1877)) ([f9840d4](https://github.com/applitools/eyes.sdk.javascript1/commit/f9840d494222ccc6c6f262896771e28da2565bc6))
+
+## [3.10.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.10.0...js/core@3.10.1) (2023-09-04)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+* @applitools/logger bumped to 2.0.10
+
+* @applitools/socket bumped to 1.1.10
+
+* @applitools/req bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+  * update testcafe ([#1884](https://github.com/applitools/eyes.sdk.javascript1/issues/1884)) ([104f1b6](https://github.com/applitools/eyes.sdk.javascript1/commit/104f1b6cc0d4f107ba46404383de2fa11fe99dcf))
+
+
+
+* @applitools/spec-driver-puppeteer bumped to 1.2.0
+  #### Features
+
+  * update testcafe ([#1884](https://github.com/applitools/eyes.sdk.javascript1/issues/1884)) ([104f1b6](https://github.com/applitools/eyes.sdk.javascript1/commit/104f1b6cc0d4f107ba46404383de2fa11fe99dcf))
+
+
+
+* @applitools/spec-driver-webdriver bumped to 1.0.44
+
+* @applitools/spec-driver-selenium bumped to 1.5.58
+
+* @applitools/driver bumped to 1.14.0
+  #### Features
+
+  * update testcafe ([#1884](https://github.com/applitools/eyes.sdk.javascript1/issues/1884)) ([104f1b6](https://github.com/applitools/eyes.sdk.javascript1/commit/104f1b6cc0d4f107ba46404383de2fa11fe99dcf))
+
+
+
+* @applitools/ufg-client bumped to 1.8.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+
+
+
+* @applitools/image bumped to 1.1.5
+
+* @applitools/screenshoter bumped to 3.8.10
+
+* @applitools/nml-client bumped to 1.5.10
+
+* @applitools/tunnel-client bumped to 1.2.2
+
+* @applitools/ec-client bumped to 1.7.7
+
+* @applitools/core-base bumped to 1.5.3
+
+
+## [3.10.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.9.1...js/core@3.10.0) (2023-08-30)
+
+
+### Features
+
+* allowed running multiple classic test with different devices for applitoolsified native apps  ([#1891](https://github.com/applitools/eyes.sdk.javascript1/issues/1891)) ([a84311f](https://github.com/applitools/eyes.sdk.javascript1/commit/a84311f88e6f532268543a96f841ae5ad87d5659))
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.2
+  #### Bug Fixes
+
+  * fixed some types ([498b1d7](https://github.com/applitools/eyes.sdk.javascript1/commit/498b1d7c547df04773b64b66ee39cccb402c093e))
+* @applitools/nml-client bumped to 1.5.9
+  #### Bug Fixes
+
+  * update broker url when server respond with error ([#1882](https://github.com/applitools/eyes.sdk.javascript1/issues/1882)) ([ab5a6ae](https://github.com/applitools/eyes.sdk.javascript1/commit/ab5a6ae8976b061bda8b56a9cc11c149e47d6dea))
+
+
+
+* @applitools/logger bumped to 2.0.9
+
+* @applitools/socket bumped to 1.1.9
+
+* @applitools/req bumped to 1.5.4
+
+* @applitools/image bumped to 1.1.4
+
+* @applitools/spec-driver-webdriver bumped to 1.0.43
+
+* @applitools/spec-driver-selenium bumped to 1.5.57
+
+* @applitools/spec-driver-puppeteer bumped to 1.1.74
+
+* @applitools/driver bumped to 1.13.6
+
+* @applitools/screenshoter bumped to 3.8.9
+
+* @applitools/tunnel-client bumped to 1.2.1
+
+* @applitools/ufg-client bumped to 1.7.2
+
+* @applitools/ec-client bumped to 1.7.6
+
+* @applitools/core-base bumped to 1.5.2
+
+
 ## [3.9.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.9.0...js/core@3.9.1) (2023-08-18)
 
 

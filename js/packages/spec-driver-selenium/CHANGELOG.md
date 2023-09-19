@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.5.58](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-selenium@1.5.57...js/spec-driver-selenium@1.5.58) (2023-09-04)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+* @applitools/logger bumped to 2.0.10
+
+* @applitools/driver bumped to 1.14.0
+  #### Features
+
+  * update testcafe ([#1884](https://github.com/applitools/eyes.sdk.javascript1/issues/1884)) ([104f1b6](https://github.com/applitools/eyes.sdk.javascript1/commit/104f1b6cc0d4f107ba46404383de2fa11fe99dcf))
+
+
+
+
+## [1.5.57](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-selenium@1.5.56...js/spec-driver-selenium@1.5.57) (2023-08-30)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.2
+  #### Bug Fixes
+
+  * fixed some types ([498b1d7](https://github.com/applitools/eyes.sdk.javascript1/commit/498b1d7c547df04773b64b66ee39cccb402c093e))
+* @applitools/logger bumped to 2.0.9
+
+* @applitools/driver bumped to 1.13.6
+
+
 ## [1.5.56](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-selenium@1.5.55...js/spec-driver-selenium@1.5.56) (2023-08-18)
 
 

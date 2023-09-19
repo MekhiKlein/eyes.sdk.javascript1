@@ -1,6 +1,6 @@
 {
   "name": "@applitools/req",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "Applitools fetch-based request library",
   "keywords": [
     "applitools",
@@ -69,7 +69,7 @@
     "nock": "^13.3.2"
   },
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=16.13.0"
   },
   "publishConfig": {
     "access": "public"

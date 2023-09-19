@@ -83,6 +83,7 @@ namespace Applitools
 
             var openConfig = mapper.Map<OpenConfig>(configuration);
             openConfig.Properties = properties_;
+            openConfig.Batch.Properties = Batch.Properties;
             var screenshotConfig = mapper.Map<ScreenshotConfig>(configuration);
             var checkConfig = mapper.Map<CheckConfig>(configuration);
             var closeConfig = mapper.Map<CloseConfig>(configuration);
@@ -218,17 +219,20 @@ namespace Applitools
 
         protected virtual ICollection<CodedRegionReference> CollectRegions(IGetRegions[] regions)
         {
-            return regions.Select(r => r.ToRegion()).ToArray();
+            var arr = regions.Select(r => r.ToRegion()).ToArray();
+            return arr.Length == 0 ? null : arr;
         }
 
         protected virtual ICollection<TFloatingRegion> CollectRegions(IGetFloatingRegion[] regions)
         {
-            return regions.Select(r => r.ToRegion()).ToArray();
+            var arr = regions.Select(r => r.ToRegion()).ToArray();
+            return arr.Length == 0 ? null : arr;
         }
                 
         protected virtual ICollection<TAccessibilityRegion> CollectRegions(IGetAccessibilityRegion[] regions)
         {
-            return regions.Select(r => r.ToRegion()).ToArray();
+            var arr = regions.Select(r => r.ToRegion()).ToArray();
+            return arr.Length == 0 ? null : arr;
         }
 
         protected virtual TRegion GetUniversalRegion(ICheckSettingsInternal checkSettings)
