@@ -43,9 +43,6 @@ describe('works with checkSettings in open', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -55,7 +52,12 @@ describe('works with checkSettings in open', () => {
   it('checkSettings works from open file', async () => {
     try {
       const [_err, stdout] = await presult(
-        runCypress({pluginsFile: 'log-plugin.js', testFile: 'checkSettingsOpen.js', targetDir}),
+        runCypress({
+          pluginsFile: 'log-plugin.js',
+          testFile: 'checkSettingsOpen.js',
+          targetDir,
+          shouldRunFromRoot: true,
+        }),
       )
       const info = await getInfo(stdout.stdout)
       checkProps(info)

@@ -21,9 +21,6 @@ describe('make sure appliConfFile stays intact', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -40,7 +37,9 @@ describe('make sure appliConfFile stays intact', () => {
       failCypressOnDiff: false,
     }
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err, v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'appliConfFile.js', targetDir}))
+    const [err, v] = await presult(
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'appliConfFile.js', targetDir, shouldRunFromRoot: true}),
+    )
     expect(err).to.be.undefined
     expect(v.stdout).to.contain(
       `first test - config file - browsers: {\"width\":650,\"height\":800,\"name\":\"firefox\"}`,

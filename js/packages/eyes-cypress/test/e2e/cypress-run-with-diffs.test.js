@@ -18,16 +18,6 @@ describe('works for diffs with global hooks', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-
-      const packageJsonPath = path.resolve(targetTestAppPath, 'package.json')
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath))
-
-      packageJson.devDependencies['cypress'] = '9.7.0'
-      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
-
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -40,7 +30,7 @@ describe('works for diffs with global hooks', () => {
 
   it('works for diffs with global hooks', async () => {
     const [err, _v] = await presult(
-      runCypress({pluginsFile: 'global-hooks.js', testFile: 'helloworldDiffs.js', targetDir}),
+      runCypress({pluginsFile: 'global-hooks.js', testFile: 'helloworldDiffs.js', targetDir, shouldRunFromRoot: true}),
     )
     expect(err.stdout).to.includes('Eyes-Cypress detected diffs')
   })

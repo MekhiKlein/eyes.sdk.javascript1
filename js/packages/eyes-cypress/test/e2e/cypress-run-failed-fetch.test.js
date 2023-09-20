@@ -15,9 +15,6 @@ describe('failed-fetch', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -26,7 +23,7 @@ describe('failed-fetch', () => {
 
   it('works for failed-fetch.js', async () => {
     try {
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'failed-fetch.js', targetDir})
+      await runCypress({pluginsFile: 'index-run.js', testFile: 'failed-fetch.js', targetDir, shouldRunFromRoot: true})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

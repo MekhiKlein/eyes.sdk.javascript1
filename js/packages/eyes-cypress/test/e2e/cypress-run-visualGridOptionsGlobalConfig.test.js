@@ -18,9 +18,6 @@ describe('works with visualGridOptions from global config', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -31,7 +28,12 @@ describe('works with visualGridOptions from global config', () => {
     const config = {...applitoolsConfig, visualGridOptions: {polyfillAdoptedStyleSheets: true}}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     const [err, _stdout] = await presult(
-      runCypress({pluginsFile: 'index-run.js', testFile: 'visualGridOptionsGlobalConfig.js', targetDir}),
+      runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'visualGridOptionsGlobalConfig.js',
+        targetDir,
+        shouldRunFromRoot: true,
+      }),
     )
     try {
       console.log(err)

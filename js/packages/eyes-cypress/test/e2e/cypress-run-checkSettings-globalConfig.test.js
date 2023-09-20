@@ -43,9 +43,6 @@ describe('works with checkSettings in config file', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -59,7 +56,12 @@ describe('works with checkSettings in config file', () => {
     )
     try {
       const [_err, stdout] = await presult(
-        runCypress({pluginsFile: 'log-plugin.js', testFile: 'checkSettingsInGlobalConfig.js', targetDir}),
+        runCypress({
+          pluginsFile: 'log-plugin.js',
+          testFile: 'checkSettingsInGlobalConfig.js',
+          targetDir,
+          shouldRunFromRoot: true,
+        }),
       )
 
       const info = await getInfo(stdout.stdout)

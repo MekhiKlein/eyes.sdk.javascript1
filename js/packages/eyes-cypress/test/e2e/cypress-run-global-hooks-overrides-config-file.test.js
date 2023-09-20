@@ -42,9 +42,6 @@ describe('global hooks override in cypress.config.js file', () => {
 
     packageJson.devDependencies['cypress'] = latestCypressVersion
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -64,7 +61,7 @@ describe('global hooks override in cypress.config.js file', () => {
       return null;
     });`
     updateGlobalHooks(globalHooks)
-    const [err, output] = await presult(runCypress10(targetTestAppPath))
+    const [err, output] = await presult(runCypress10({targetTestAppPath, shouldRunFromRoot: true}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
     expect(output).to.contain('@@@ after:run @@@')

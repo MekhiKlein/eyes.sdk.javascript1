@@ -25,9 +25,6 @@ describe('handle batchId property', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     try {
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
     }
@@ -42,10 +39,14 @@ describe('handle batchId property', () => {
   })
 
   it('works with batchId from env var with global hooks', async () => {
-    await pexec(`cd ${targetTestAppPath} && yarn add cypress@9`)
     process.env.APPLITOOLS_BATCH_ID = 'batchId1234'
     try {
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'batchIdProperty.js', targetDir})
+      await runCypress({
+        pluginsFile: `index-run.js`,
+        testFile: `batchIdProperty.js`,
+        targetDir,
+        shouldRunFromRoot: true,
+      })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex
@@ -54,11 +55,15 @@ describe('handle batchId property', () => {
     }
   })
   it('works with batchId from config file with global hooks', async () => {
-    await pexec(`cd ${targetTestAppPath} && yarn add cypress@9`)
     const config = {...applitoolsConfig, batchId: 'batchId123456'}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'batchIdProperty.js', targetDir})
+      await runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'batchIdProperty.js',
+        targetDir,
+        shouldRunFromRoot: true,
+      })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

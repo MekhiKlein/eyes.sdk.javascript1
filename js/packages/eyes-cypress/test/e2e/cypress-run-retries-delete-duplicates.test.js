@@ -19,10 +19,6 @@ describe('Retries', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -34,7 +30,9 @@ describe('Retries', () => {
   })
 
   it('remove duplicate tests on retry', async () => {
-    const [err, _v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'retries.js', targetDir}))
+    const [err, _v] = await presult(
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'retries.js', targetDir, shouldRunFromRoot: true}),
+    )
     expect(err).to.be.undefined
   })
 })

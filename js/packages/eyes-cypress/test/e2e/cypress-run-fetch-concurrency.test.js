@@ -30,9 +30,6 @@ describe('works with fetchConcurrency', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -44,7 +41,7 @@ describe('works with fetchConcurrency', () => {
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
       const [_err, stdout] = await presult(
-        runCypress({pluginsFile: 'log-plugin.js', testFile: 'fetchConcurrency.js', targetDir}),
+        runCypress({pluginsFile: 'log-plugin.js', testFile: 'fetchConcurrency.js', targetDir, shouldRunFromRoot: true}),
       )
       const fetchConcurrency = await getInfo(stdout.stdout)
       expect(fetchConcurrency).to.eq(5)

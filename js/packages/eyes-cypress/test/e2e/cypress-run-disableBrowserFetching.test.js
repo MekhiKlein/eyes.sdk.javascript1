@@ -25,11 +25,6 @@ describe('disableBrowserFetching', () => {
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
     fs.unlinkSync(`${targetTestAppPath}/cypress.json`)
-
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
-    await pexec(`cd ${targetTestAppPath} && yarn add cypress@latest`)
   })
 
   after(async () => {
@@ -39,7 +34,7 @@ describe('disableBrowserFetching', () => {
   it('works for disableBrowserFetching.js', async () => {
     try {
       await updateConfigFile({pluginFileName: 'index-run.js', testFile: 'disableBrowserFetching.js', targetTestAppPath})
-      await runCypress10(targetTestAppPath)
+      await runCypress10({targetTestAppPath, shouldRunFromRoot: true})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

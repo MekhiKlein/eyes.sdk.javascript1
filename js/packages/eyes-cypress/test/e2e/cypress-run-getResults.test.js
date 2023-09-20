@@ -25,9 +25,6 @@ describe('get results', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -39,7 +36,9 @@ describe('get results', () => {
   })
 
   it('return test results using eyesGetResults', async () => {
-    const [err, v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResults.js', targetDir}))
+    const [err, v] = await presult(
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResults.js', targetDir, shouldRunFromRoot: true}),
+    )
     expect(err).to.be.undefined
     const [results] = parseResults(v.stdout)
     expect(results.appName).to.equal('test result 2')
@@ -50,7 +49,12 @@ describe('get results', () => {
     const config = {...applitoolsConfig, failCypressOnDiff: false}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     const [err, _v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResultsWithDiffs.js', targetDir}),
+      runCypress({
+        pluginsFile: 'log-plugin.js',
+        testFile: 'getResultsWithDiffs.js',
+        targetDir,
+        shouldRunFromRoot: true,
+      }),
     )
     snap(err.stdout, 'getResults fail test when throwErr is not false')
   })

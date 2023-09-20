@@ -16,10 +16,6 @@ describe('parallel run', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -34,7 +30,13 @@ describe('parallel run', () => {
     try {
       const runs = []
       runs.push(
-        runCypress({pluginsFile: 'index-run.js', testFile: 'parallel-run-1.js', targetDir, options: {timeout: 60000}}),
+        runCypress({
+          pluginsFile: 'index-run.js',
+          testFile: 'parallel-run-1.js',
+          targetDir,
+          options: {timeout: 60000},
+          shouldRunFromRoot: true,
+        }),
       )
       runs.push(
         runCypress({

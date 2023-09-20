@@ -19,9 +19,6 @@ describe('getAllTestResults', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      await pexec(`cd ${targetTestAppPath} && yarn`, {
-        maxBuffer: 1000000,
-      })
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -34,7 +31,7 @@ describe('getAllTestResults', () => {
 
   it('return test results for all managers', async () => {
     const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getAllTestResults.js', targetDir}),
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getAllTestResults.js', targetDir, shouldRunFromRoot: true}),
     )
     expect(err).to.be.undefined
     expect(v.stdout).to.contain('This is the first test')
@@ -44,7 +41,12 @@ describe('getAllTestResults', () => {
   it('return test results for all managers without duplicates', async () => {
     // removeDuplicateTests opted into in test/fixtures/testApp/applitools.config.js
     const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getAllTestResultsWithDuplicates.js', targetDir}),
+      runCypress({
+        pluginsFile: 'log-plugin.js',
+        testFile: 'getAllTestResultsWithDuplicates.js',
+        targetDir,
+        shouldRunFromRoot: true,
+      }),
     )
     expect(err).to.be.undefined
     expect(v.stdout).to.contain('This is the first test')
@@ -56,7 +58,7 @@ describe('getAllTestResults', () => {
     const config = {...applitoolsConfig, showLogs: true}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'deleteTestResults.js', targetDir}),
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'deleteTestResults.js', targetDir, shouldRunFromRoot: true}),
     )
     expect(err).to.be.undefined
     expect(v.stdout).to.contain('Core.deleteTest')

@@ -16,10 +16,6 @@ describe('works with layoutbreakpoing in global config', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -30,7 +26,12 @@ describe('works with layoutbreakpoing in global config', () => {
     const config = {...applitoolsConfig, layoutBreakpoints: [500, 1000]}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'layoutBreakpointsGlobalConfig.js', targetDir})
+      await runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'layoutBreakpointsGlobalConfig.js',
+        targetDir,
+        shouldRunFromRoot: true,
+      })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex
