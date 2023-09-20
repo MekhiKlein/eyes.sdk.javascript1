@@ -13,8 +13,9 @@ async function runCypress({
   shouldRunFromRoot = false,
 }) {
   const xvfbCommand = xvfb ? 'xvfb-run -a' : ''
-  const command = shouldRunFromRoot ? `'../../node_modules/.bin/cypress'` : `${targetDir}/node_modules/.bin/cypress`
-
+  const command = shouldRunFromRoot
+    ? `'../../node_modules/cypress9/bin/cypress'`
+    : `${targetDir}/node_modules/.bin/cypress`
   return await pexec(
     `${xvfbCommand} ${command} run --headless --config testFiles=${testFile},integrationFolder=${targetDir}/cypress/${integrationFolder},pluginsFile=${targetDir}/cypress/plugins/${pluginsFile},supportFile=${targetDir}/cypress/support/${supportFile} --config-file ${targetDir}/cypress.json`,
     {

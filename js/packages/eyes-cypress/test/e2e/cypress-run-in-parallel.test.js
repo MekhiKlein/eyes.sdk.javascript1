@@ -44,6 +44,7 @@ describe('parallel run', () => {
           testFile: 'parallel-run-2.js',
           targetDir,
           xvfb: true,
+          shouldRunFromRoot: true,
         }),
       )
       await Promise.all(runs)
