@@ -57,13 +57,12 @@ describe('global hooks', () => {
   })
 
   it('works with cypress version 4: < 6.2.0 no global hooks available', async () => {
+    await pexec(`cd ${targetTestAppPath} && yarn && yarn add cypress@4`)
     const [err, _stdout] = await presult(
       runCypress({
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
-        shouldRunFromRoot: true,
-        cypressVersion: '4',
       }),
     )
     expect(err).not.to.be.undefined

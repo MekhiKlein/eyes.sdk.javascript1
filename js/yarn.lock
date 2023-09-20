@@ -388,9 +388,6 @@ __metadata:
     cypress10: "npm:cypress@^10.0.0"
     cypress11: "npm:cypress@^11.0.0"
     cypress12: "npm:cypress@^12.0.0"
-    cypress4: "npm:cypress@^4.0.0"
-    cypress6: "npm:cypress@6.0.0"
-    cypress6.3: "npm:cypress@6.3.0"
     cypress6.5: "npm:cypress@6.5.0"
     cypress8: "npm:cypress@^8.7.0"
     cypress9: "npm:cypress@^9.0.0"
@@ -11033,7 +11030,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cli-table3@npm:^0.5.1, cli-table3@npm:~0.5.1":
+"cli-table3@npm:^0.5.1":
   version: 0.5.1
   resolution: "cli-table3@npm:0.5.1"
   dependencies:
@@ -12350,101 +12347,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress4@npm:cypress@^4.0.0":
-  version: 4.12.1
-  resolution: "cypress@npm:4.12.1"
-  dependencies:
-    "@cypress/listr-verbose-renderer": ^0.4.1
-    "@cypress/request": ^2.88.5
-    "@cypress/xvfb": ^1.2.4
-    "@types/sinonjs__fake-timers": ^6.0.1
-    "@types/sizzle": ^2.3.2
-    arch: ^2.1.2
-    bluebird: ^3.7.2
-    cachedir: ^2.3.0
-    chalk: ^2.4.2
-    check-more-types: ^2.24.0
-    cli-table3: ~0.5.1
-    commander: ^4.1.1
-    common-tags: ^1.8.0
-    debug: ^4.1.1
-    eventemitter2: ^6.4.2
-    execa: ^1.0.0
-    executable: ^4.1.1
-    extract-zip: ^1.7.0
-    fs-extra: ^8.1.0
-    getos: ^3.2.1
-    is-ci: ^2.0.0
-    is-installed-globally: ^0.3.2
-    lazy-ass: ^1.6.0
-    listr: ^0.14.3
-    lodash: ^4.17.19
-    log-symbols: ^3.0.0
-    minimist: ^1.2.5
-    moment: ^2.27.0
-    ospath: ^1.2.2
-    pretty-bytes: ^5.3.0
-    ramda: ~0.26.1
-    request-progress: ^3.0.0
-    supports-color: ^7.1.0
-    tmp: ~0.1.0
-    untildify: ^4.0.0
-    url: ^0.11.0
-    yauzl: ^2.10.0
-  bin:
-    cypress: bin/cypress
-  checksum: 3aaf43aec98a3b72539e41b887713e309824a3c8a15e2dc401b9f1226d27d0afca70849dced9b1c8eaec7b25a1df6478ac96bd3ba21df4efd2a312b7f572c104
-  languageName: node
-  linkType: hard
-
-"cypress6.3@npm:cypress@6.3.0":
-  version: 6.3.0
-  resolution: "cypress@npm:6.3.0"
-  dependencies:
-    "@cypress/listr-verbose-renderer": ^0.4.1
-    "@cypress/request": ^2.88.5
-    "@cypress/xvfb": ^1.2.4
-    "@types/sinonjs__fake-timers": ^6.0.1
-    "@types/sizzle": ^2.3.2
-    arch: ^2.1.2
-    blob-util: 2.0.2
-    bluebird: ^3.7.2
-    cachedir: ^2.3.0
-    chalk: ^4.1.0
-    check-more-types: ^2.24.0
-    cli-table3: ~0.6.0
-    commander: ^5.1.0
-    common-tags: ^1.8.0
-    debug: ^4.1.1
-    eventemitter2: ^6.4.2
-    execa: ^4.0.2
-    executable: ^4.1.1
-    extract-zip: ^1.7.0
-    fs-extra: ^9.0.1
-    getos: ^3.2.1
-    is-ci: ^2.0.0
-    is-installed-globally: ^0.3.2
-    lazy-ass: ^1.6.0
-    listr: ^0.14.3
-    lodash: ^4.17.19
-    log-symbols: ^4.0.0
-    minimist: ^1.2.5
-    moment: ^2.27.0
-    ospath: ^1.2.2
-    pretty-bytes: ^5.4.1
-    ramda: ~0.26.1
-    request-progress: ^3.0.0
-    supports-color: ^7.2.0
-    tmp: ~0.2.1
-    untildify: ^4.0.0
-    url: ^0.11.0
-    yauzl: ^2.10.0
-  bin:
-    cypress: bin/cypress
-  checksum: beaf86d7b88828569105e9458e23d7e52821424fcf231d4155a10ac5ed26568239157b24465f7cb8d6a66e708f4cc81b511689d05c5a4377f694b3c3e82676dd
-  languageName: node
-  linkType: hard
-
 "cypress6.5@npm:cypress@6.5.0":
   version: 6.5.0
   resolution: "cypress@npm:6.5.0"
@@ -12492,54 +12394,6 @@ __metadata:
   bin:
     cypress: bin/cypress
   checksum: 621ce29a3b7cb5dc3a9801b422cecd4ce6d7f689e375fa4f44ec132d9a738d543457e5e2ceff927e6d2ce54734a860dd0f4dffb9e3ce6197347eb42e82ecc81a
-  languageName: node
-  linkType: hard
-
-"cypress6@npm:cypress@6.0.0":
-  version: 6.0.0
-  resolution: "cypress@npm:6.0.0"
-  dependencies:
-    "@cypress/listr-verbose-renderer": ^0.4.1
-    "@cypress/request": ^2.88.5
-    "@cypress/xvfb": ^1.2.4
-    "@types/sinonjs__fake-timers": ^6.0.1
-    "@types/sizzle": ^2.3.2
-    arch: ^2.1.2
-    blob-util: 2.0.2
-    bluebird: ^3.7.2
-    cachedir: ^2.3.0
-    chalk: ^4.1.0
-    check-more-types: ^2.24.0
-    cli-table3: ~0.6.0
-    commander: ^5.1.0
-    common-tags: ^1.8.0
-    debug: ^4.1.1
-    eventemitter2: ^6.4.2
-    execa: ^4.0.2
-    executable: ^4.1.1
-    extract-zip: ^1.7.0
-    fs-extra: ^9.0.1
-    getos: ^3.2.1
-    is-ci: ^2.0.0
-    is-installed-globally: ^0.3.2
-    lazy-ass: ^1.6.0
-    listr: ^0.14.3
-    lodash: ^4.17.19
-    log-symbols: ^4.0.0
-    minimist: ^1.2.5
-    moment: ^2.27.0
-    ospath: ^1.2.2
-    pretty-bytes: ^5.4.1
-    ramda: ~0.26.1
-    request-progress: ^3.0.0
-    supports-color: ^7.2.0
-    tmp: ~0.2.1
-    untildify: ^4.0.0
-    url: ^0.11.0
-    yauzl: ^2.10.0
-  bin:
-    cypress: bin/cypress
-  checksum: 4c7a787516156dc131d71fdae53db9a4138f797bb6d6f4ac1a69781a43aaadae6aa33f72d8e53a161f7da6b9930190d7fc80863fd52812bdb624931259f4fc7c
   languageName: node
   linkType: hard
 
@@ -19563,15 +19417,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "log-symbols@npm:3.0.0"
-  dependencies:
-    chalk: ^2.4.2
-  checksum: f2322e1452d819050b11aad247660e1494f8b2219d40a964af91d5f9af1a90636f1b3d93f2952090e42af07cc5550aecabf6c1d8ec1181207e95cb66ba112361
-  languageName: node
-  linkType: hard
-
 "log-update@npm:^2.3.0":
   version: 2.3.0
   resolution: "log-update@npm:2.3.0"
@@ -20604,7 +20449,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.24.0, moment@npm:^2.27.0, moment@npm:^2.29.1, moment@npm:^2.29.4":
+"moment@npm:^2.24.0, moment@npm:^2.29.1, moment@npm:^2.29.4":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
   checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
@@ -22882,7 +22727,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pretty-bytes@npm:^5.3.0, pretty-bytes@npm:^5.4.1, pretty-bytes@npm:^5.6.0":
+"pretty-bytes@npm:^5.4.1, pretty-bytes@npm:^5.6.0":
   version: 5.6.0
   resolution: "pretty-bytes@npm:5.6.0"
   checksum: 9c082500d1e93434b5b291bd651662936b8bd6204ec9fa17d563116a192d6d86b98f6d328526b4e8d783c07d5499e2614a807520249692da9ec81564b2f439cd
@@ -26766,15 +26611,6 @@ __metadata:
   dependencies:
     rimraf: ^3.0.0
   checksum: 8b1214654182575124498c87ca986ac53dc76ff36e8f0e0b67139a8d221eaecfdec108c0e6ec54d76f49f1f72ab9325500b246f562b926f85bcdfca8bf35df9e
-  languageName: node
-  linkType: hard
-
-"tmp@npm:~0.1.0":
-  version: 0.1.0
-  resolution: "tmp@npm:0.1.0"
-  dependencies:
-    rimraf: ^2.6.3
-  checksum: 6bab8431de9d245d4264bd8cd6bb216f9d22f179f935dada92a11d1315572c8eb7c3334201e00594b4708608bd536fad3a63bfb037e7804d827d66aa53a1afcd
   languageName: node
   linkType: hard
 
