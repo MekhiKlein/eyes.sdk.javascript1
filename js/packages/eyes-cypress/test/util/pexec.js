@@ -12,7 +12,9 @@ const env = {...process.env}
 function pexecWarpper(cmd, options = {}) {
   let cypressVersion
   try {
-    cypressVersion = require(`${options.workingDir || process.cwd()}/node_modules/cypress/package.json`).version
+    cypressVersion =
+      options.cypressVersion ||
+      require(`${options.workingDir || process.cwd()}/node_modules/cypress/package.json`).version
   } catch (_e) {}
   if (cypressVersion && getMajorVersion(cypressVersion) < 9 && nodeMajorVersion >= 18) {
     env.NODE_OPTIONS = '--openssl-legacy-provider'

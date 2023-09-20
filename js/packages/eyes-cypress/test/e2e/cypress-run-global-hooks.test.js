@@ -18,9 +18,6 @@ describe('global hooks', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
@@ -30,7 +27,15 @@ describe('global hooks', () => {
   it('works with experimentalRunEvents flag', async () => {
     const config = {...cypressConfig, experimentalRunEvents: true}
     fs.writeFileSync(`${targetTestAppPath}/cypress.json`, JSON.stringify(config, 2, null))
-    const [err, _stdout] = await presult(runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir}))
+    const [err, _stdout] = await presult(
+      runCypress({
+        pluginsFile: 'global-hooks.js',
+        testFile: 'fail.js',
+        targetDir,
+        shouldRunFromRoot: true,
+        cypressVersion: '6.5',
+      }),
+    )
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })
@@ -38,21 +43,37 @@ describe('global hooks', () => {
   it('does not fail without experimentalRunEvents flag', async () => {
     const config = {...cypressConfig, experimentalRunEvents: false}
     fs.writeFileSync(`${targetTestAppPath}/cypress.json`, JSON.stringify(config, 2, null))
-    const [err, _stdout] = await presult(runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir}))
+    const [err, _stdout] = await presult(
+      runCypress({
+        pluginsFile: 'global-hooks.js',
+        testFile: 'fail.js',
+        targetDir,
+        shouldRunFromRoot: true,
+        cypressVersion: '6.5',
+      }),
+    )
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })
 
   it('works with cypress version 4: < 6.2.0 no global hooks available', async () => {
-    await pexec(`cd ${targetTestAppPath} && yarn add cypress@4`)
-    const [err, _stdout] = await presult(runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir}))
+    const [err, _stdout] = await presult(
+      runCypress({
+        pluginsFile: 'global-hooks.js',
+        testFile: 'fail.js',
+        targetDir,
+        shouldRunFromRoot: true,
+        cypressVersion: '4',
+      }),
+    )
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })
 
   it('works with cypress 6.7.0 or greater without flag', async () => {
-    await pexec(`cd ${targetTestAppPath} && yarn add cypress@9 `)
-    const [err, _stdout] = await presult(runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir}))
+    const [err, _stdout] = await presult(
+      runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir, shouldRunFromRoot: true}),
+    )
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })

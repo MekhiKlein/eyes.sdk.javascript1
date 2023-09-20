@@ -11,18 +11,21 @@ async function runCypress({
   integrationFolder = 'integration-run',
   supportFile = 'index-run.js',
   shouldRunFromRoot = false,
+  cypressVersion = '9',
 }) {
   const xvfbCommand = xvfb ? 'xvfb-run -a' : ''
   const command = shouldRunFromRoot
-    ? `'../../node_modules/cypress9/bin/cypress'`
+    ? `'../../node_modules/cypress${cypressVersion}/bin/cypress'`
     : `${targetDir}/node_modules/.bin/cypress`
+  const workingDir = shouldRunFromRoot ? resolve(`${process.cwd()}/../..`) : resolve(`${process.cwd()}/${targetDir}`)
   return await pexec(
     `${xvfbCommand} ${command} run --headless --config testFiles=${testFile},integrationFolder=${targetDir}/cypress/${integrationFolder},pluginsFile=${targetDir}/cypress/plugins/${pluginsFile},supportFile=${targetDir}/cypress/support/${supportFile} --config-file ${targetDir}/cypress.json`,
     {
       maxBuffer: 10000000,
       timeout: 100000,
       env: {APPLITOOLS_CONFIG_PATH: targetDir, ...env},
-      workingDir: resolve(`${process.cwd()}/${targetDir}`),
+      workingDir,
+      cypressVersion,
       ...options,
     },
   )
