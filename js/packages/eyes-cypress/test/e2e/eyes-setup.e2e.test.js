@@ -74,11 +74,7 @@ describe('eyes-setup script', () => {
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    await pexec(`cd ${targetTestAppPath} && yarn`)
-
     const [err, result] = await presult(runSetupScript())
-    console.log('err', err)
-    console.log('result', result)
     expect(err).to.be.undefined
 
     expect(removeStyleFromText(result.stdout)).to.equal(
@@ -165,8 +161,6 @@ No configuration file found at ${targetTestAppPath}. This is usually caused by s
     const cypressVersion = '9.7.0'
     packageJson.dependencies.cypress = cypressVersion
     writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
-
-    await pexec(`cd ${targetTestAppPath} && yarn`)
 
     unlinkSync(cypressJsonPath)
 
