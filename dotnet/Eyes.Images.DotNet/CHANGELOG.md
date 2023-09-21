@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* Fixed `BatchInfo.SequenceName` serialization. ([Trello 3284](https://trello.com/c/ClIXAtyv/))
+
 ## [3.44](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/images@3.43...dotnet/images@3.44) (2023-09-14)
 
 ### Features
