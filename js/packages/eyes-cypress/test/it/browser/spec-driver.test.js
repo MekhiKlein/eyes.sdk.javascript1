@@ -4,12 +4,12 @@ const cypress = require('cypress')
 const targetDir = `test/it/browser/fixtures/`
 const cypressConfig = spec => {
   return {
-    integrationFolder: 'test/it/browser/fixtures/cypress/integration',
+    integrationFolder: `${targetDir}cypress/integration`,
     testFiles: `${spec}.spec.js`,
     video: false,
     screenshotOnRunFailure: false,
-    pluginsFile: 'test/it/browser/fixtures/cypress/plugins/index-spec-driver-plugin.js',
-    supportFile: 'test/it/browser/fixtures/cypress/support/index-spec-driver-support.js',
+    pluginsFile: `${targetDir}cypress/plugins/index-spec-driver-plugin.js`,
+    supportFile: `${targetDir}cypress/support/index-spec-driver-support.js`,
   }
 }
 

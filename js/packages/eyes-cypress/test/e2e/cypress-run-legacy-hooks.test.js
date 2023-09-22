@@ -15,33 +15,21 @@ describe('legacy hooks', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    await pexec(`cd ${targetTestAppPath} && yarn`, {
-      maxBuffer: 1000000,
-    })
   })
 
   after(async () => {
     fs.rmdirSync(targetTestAppPath, {recursive: true})
   })
 
-  it('works with older versions without legacyHooks flag', async () => {
-    await pexec(`cd ${targetTestAppPath} && yarn add cypress@6.0.0`, {
-      maxBuffer: 1000000,
-    })
+  it('works without legacyHooks flag', async () => {
     try {
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'simple.js', targetDir})
-    } catch (ex) {
-      console.error('Error during test!', ex.stdout)
-      throw ex
-    }
-  })
-
-  it('works with newer versions without legacyHooks flag', async () => {
-    try {
-      await pexec(`cd ${targetTestAppPath} && yarn add cypress@6.3.0`, {
-        maxBuffer: 1000000,
+      await runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'simple.js',
+        targetDir,
+        shouldRunFromRoot: true,
+        cypressVersion: '6.5',
       })
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'simple.js', targetDir})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex
