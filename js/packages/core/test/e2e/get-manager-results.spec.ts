@@ -1,4 +1,4 @@
-import * as spec from '@applitools/spec-driver-webdriverio'
+import * as spec from '@applitools/spec-driver-webdriver'
 import {makeCore} from '../../src/index'
 import {getTestInfo} from '@applitools/test-utils'
 import assert from 'assert'
@@ -24,6 +24,7 @@ describe('get manager results', () => {
 
     await eyes.check({settings: {fully: false}})
     const summary = await manager.getResults()
+
     assert.ok(summary.results)
     assert.ok(summary.results.length === 1)
     assert.ok(summary.results[0].result?.isAborted)
@@ -33,7 +34,7 @@ describe('get manager results', () => {
     const core = makeCore({spec})
     const manager = await core.makeManager()
 
-    await driver.url('https://applitools.com/helloworld')
+    await driver.navigateTo('https://applitools.com/helloworld')
 
     const eyes = await manager.openEyes({
       target: driver,
@@ -50,7 +51,7 @@ describe('get manager results', () => {
     const core = makeCore({spec})
     const manager = await core.makeManager()
 
-    await driver.url('https://applitools.com/helloworld')
+    await driver.navigateTo('https://applitools.com/helloworld')
 
     const eyes = await manager.openEyes({
       target: driver,
@@ -80,7 +81,7 @@ describe('get manager results', () => {
     const core = makeCore({spec})
     const manager = await core.makeManager()
 
-    await driver.url('https://applitools.com/helloworld')
+    await driver.navigateTo('https://applitools.com/helloworld')
 
     let eyes
     eyes = await manager.openEyes({
@@ -119,7 +120,7 @@ describe('get manager results', () => {
     const core = makeCore({spec})
     const manager = await core.makeManager()
 
-    await driver.url('https://applitools.com/helloworld')
+    await driver.navigateTo('https://applitools.com/helloworld')
 
     let eyes
     eyes = await manager.openEyes({

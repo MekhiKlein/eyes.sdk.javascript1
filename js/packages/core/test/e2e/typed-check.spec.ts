@@ -1,4 +1,4 @@
-import * as spec from '@applitools/spec-driver-webdriverio'
+import * as spec from '@applitools/spec-driver-webdriver'
 import {makeCore} from '../../src/index'
 
 describe('typed check', () => {
@@ -13,7 +13,7 @@ describe('typed check', () => {
   })
 
   it('performs classic check during ufg test', async () => {
-    await driver.url('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
+    await driver.navigateTo('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
 
     const core = makeCore({spec})
     const manager = await core.makeManager({type: 'ufg'})
@@ -68,8 +68,9 @@ describe('typed check', () => {
     await eyes.getResults({settings: {throwErr: true}})
   })
 
+  // NOTE: this test is skipped because there is currently no implementation to convert EnvironmentRenderer to the kind of renderer that ufg supports
   it.skip('performs ufg check during classic test', async () => {
-    await driver.url('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
+    await driver.navigateTo('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
 
     const core = makeCore({spec})
     const manager = await core.makeManager({type: 'classic'})
@@ -79,15 +80,27 @@ describe('typed check', () => {
     })
 
     await eyes.check({
-      settings: {name: 'default classic step', fully: false},
+      settings: {
+        name: 'default classic step',
+        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        fully: false,
+      },
     })
     await eyes.check({
       type: 'ufg',
-      settings: {name: 'ufg step', fully: false},
+      settings: {
+        name: 'ufg step',
+        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        fully: false,
+      },
     })
     await eyes.check({
       type: 'classic',
-      settings: {name: 'classic step', fully: false},
+      settings: {
+        name: 'classic step',
+        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        fully: false,
+      },
     })
 
     await eyes.close()

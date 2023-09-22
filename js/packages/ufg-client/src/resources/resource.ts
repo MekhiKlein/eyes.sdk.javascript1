@@ -5,6 +5,9 @@ import * as utils from '@applitools/utils'
 
 const UFG_MAX_RESOURCE_SIZE = 34.5 * 1024 * 1024
 
+// Note: when using async cache, we whitelist the properties of KnownResource in order to not save anything that we don't want in the cache.
+// It's not possible to reference the type in runtime, so please make sure that if properties are added here, they need to be added to the callback
+// of asyncCache.getCachedResource
 export type KnownResource = {
   hash: HashedResource | {errorStatusCode: number}
   dependencies?: string[]
@@ -27,7 +30,7 @@ export type RawContenfulResource = {
 export type ContentfulResource = {
   id: string
   url: string
-  value: Buffer
+  value: Uint8Array
   contentType: string
   hash: HashedResource
   dependencies?: string[]
@@ -118,6 +121,6 @@ function extractRendererName({renderer}: UrlResource) {
   return browserName
 }
 
-function getResourceValue(value: Buffer | string | undefined): Buffer {
-  return value ? (utils.types.isString(value) ? Buffer.from(value, 'base64') : value) : Buffer.alloc(0)
+function getResourceValue(value: Uint8Array | string | undefined): Uint8Array {
+  return value ? (utils.types.isString(value) ? Buffer.from(value, 'base64') : value) : new Uint8Array(0)
 }

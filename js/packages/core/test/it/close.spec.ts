@@ -4,8 +4,10 @@ import {makeCore} from '../../src/core'
 import {generateScreenshot} from '../utils/generate-screenshot'
 import {MockDriver, spec} from '@applitools/driver/fake'
 import {makeFakeCore} from '../utils/fake-base-core'
+import {makeFakeClient} from '../utils/fake-ufg-client'
+import assert from 'assert'
 
-describe('get results', async () => {
+describe('close', async () => {
   let driver: MockDriver, core: Core<SpecType<MockDriver>, 'classic' | 'ufg'>
 
   async function destroyDriver(driver: MockDriver) {
@@ -14,7 +16,7 @@ describe('get results', async () => {
     })
   }
 
-  before(async () => {
+  beforeEach(async () => {
     driver = new MockDriver()
     driver.takeScreenshot = generateScreenshot
     driver.mockElements([
@@ -26,7 +28,8 @@ describe('get results', async () => {
     ])
 
     const fakeCore = makeFakeCore()
-    core = makeCore({spec, base: fakeCore})
+    const fakeClient = makeFakeClient()
+    core = makeCore({spec, base: fakeCore, clients: {ufg: fakeClient}})
   })
 
   it('should not throw if driver is destroyed before close', async () => {
@@ -34,5 +37,97 @@ describe('get results', async () => {
     await eyes.check()
     await destroyDriver(driver)
     await eyes.close()
+  })
+
+  it('should return results of classic eyes if no check was called', async () => {
+    const eyes = await core.openEyes({type: 'classic', target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.close()
+    const results = await eyes.getResults()
+
+    assert.strictEqual(results.length, 1)
+  })
+
+  it('should return results of classic eyes for renderers if no check was called', async () => {
+    const eyes = await core.openEyes({type: 'classic', target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.close({
+      settings: {
+        renderers: [
+          {environment: {viewportSize: {width: 100, height: 100}}},
+          {environment: {viewportSize: {width: 200, height: 200}}},
+        ],
+      },
+    })
+    const results = await eyes.getResults()
+
+    assert.strictEqual(results.length, 2)
+  })
+
+  it('should return results of classic eyes for renderers from open config if no check was called', async () => {
+    const eyes = await core.openEyes({
+      type: 'classic',
+      target: driver,
+      settings: {appName: 'App', testName: 'Test'},
+      config: {
+        open: {},
+        screenshot: {},
+        check: {
+          renderers: [
+            {environment: {viewportSize: {width: 100, height: 100}}},
+            {environment: {viewportSize: {width: 200, height: 200}}},
+          ],
+        },
+        close: {},
+      },
+    })
+    await eyes.close()
+    const results = await eyes.getResults()
+
+    assert.strictEqual(results.length, 2)
+  })
+
+  it('should not return results of ufg eyes if no check was called', async () => {
+    const eyes = await core.openEyes({type: 'ufg', target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.close()
+    const results = await eyes.getResults()
+
+    assert.strictEqual(results.length, 0)
+  })
+
+  it('should return results of ufg eyes for renderers if no check was called', async () => {
+    const eyes = await core.openEyes({type: 'ufg', target: driver, settings: {appName: 'App', testName: 'Test'}})
+    await eyes.close({
+      settings: {
+        renderers: [
+          {name: 'chrome', width: 100, height: 100},
+          {name: 'chrome', width: 200, height: 200},
+        ],
+      },
+    })
+    const results = await eyes.getResults()
+
+    assert.strictEqual(results.length, 2)
+  })
+
+  it('should not return results of ufg eyes for renderers from open config if no check was called', async () => {
+    const eyes = await core.openEyes({
+      type: 'ufg',
+      target: driver,
+      settings: {appName: 'App', testName: 'Test'},
+      config: {
+        open: {},
+        screenshot: {},
+        check: {
+          renderers: [
+            {name: 'chrome', width: 100, height: 100},
+            {name: 'chrome', width: 200, height: 200},
+          ],
+        },
+        close: {},
+      },
+    })
+    await eyes.close()
+    const results = await eyes.getResults()
+
+    assert.strictEqual(results.length, 0)
   })
 })

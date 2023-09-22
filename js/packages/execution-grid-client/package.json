@@ -1,6 +1,6 @@
 {
   "name": "@applitools/ec-client",
-  "version": "1.7.4",
+  "version": "1.7.9",
   "homepage": "https://applitools.com",
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
@@ -61,7 +61,7 @@
     "@applitools/tunnel-client": "workspace:*",
     "@applitools/utils": "workspace:*",
     "abort-controller": "3.0.0",
-    "webdriver": "7.30.0",
+    "webdriver": "7.31.1",
     "yargs": "^17.7.2"
   },
   "devDependencies": {

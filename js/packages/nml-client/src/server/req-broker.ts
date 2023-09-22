@@ -1,10 +1,7 @@
+import type {BrokerServerSettings} from '../types'
 import {type Logger} from '@applitools/logger'
-import globalReq, {makeReq, type Req, type Options, type Proxy, type Hooks} from '@applitools/req'
-
-export type ReqBrokerConfig = {
-  proxy?: Proxy
-  agentId?: string
-}
+import globalReq, {makeReq, type Req, type Options, type Hooks} from '@applitools/req'
+import * as utils from '@applitools/utils'
 
 export type ReqBrokerOptions = Options & {
   name: string
@@ -19,14 +16,14 @@ export type ReqBrokerOptions = Options & {
 
 export type ReqBroker = Req<ReqBrokerOptions>
 
-export function makeReqBroker({config, logger}: {config: ReqBrokerConfig; logger?: Logger}) {
+export function makeReqBroker({settings, logger}: {settings: Partial<BrokerServerSettings>; logger?: Logger}) {
   return makeReq<ReqBrokerOptions>({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent': config.agentId,
+      'User-Agent': settings.agentId,
     },
-    proxy: config.proxy,
+    proxy: settings.proxy,
     connectionTimeout: 300000 /* 5min */,
     retry: {
       limit: 5,
@@ -91,11 +88,17 @@ function handleUnexpectedResponse(): Hooks<ReqBrokerOptions> {
       } else {
         const body = await response.text()
         const result = JSON.parse(body)
-        if (result?.payload?.error) {
-          const error = result.payload.error
-          throw new Error(
-            `There was a problem when interacting with the mobile application. The provided error message was "${error.message}" and had a stack trace of "${error.stack}"`,
-          )
+        if (result?.payload) {
+          const error = utils.types.isArray(result.payload)
+            ? (result.payload as any[]).find(payload => payload.error)
+            : result.payload.error
+          if (error) {
+            const nmlError: any = new Error(
+              `There was a problem when interacting with the mobile application. The provided error message was "${error.message}" and had a stack trace of "${error.stack}"`,
+            )
+            nmlError.nextPath = result.nextPath
+            throw nmlError
+          }
         }
         return {response, body}
       }

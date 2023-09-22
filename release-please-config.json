@@ -4,26 +4,48 @@
   "include-v-in-tag": false,
   "tag-separator": "@",
   "plugins": [
-    "rich-commits",
     {
-      "type": "linked-versions",
-      "groupName": "core",
-      "components": ["js/core", "python/core-universal"],
-      "merge": false
+      "type": "rich-commits",
+      "scope-groups": {
+        "js/internal": [
+          "js/utils",
+          "js/logger",
+          "js/socket",
+          "js/req",
+          "js/image",
+          "js/snippets",
+          "js/spec-driver-webdriver",
+          "js/spec-driver-selenium",
+          "js/spec-driver-playwright",
+          "js/spec-driver-puppeteer",
+          "js/spec-driver-browser-extension",
+          "js/driver",
+          "js/screenshoter",
+          "js/nml-client",
+          "js/tunnel-client",
+          "js/ufg-client",
+          "js/ec-client",
+          "js/core-base",
+          "js/core"
+        ]
+      }
     },
     {
       "type": "rich-workspace",
       "workspaces": ["node", "maven", "python"],
-      "synthetic-dependencies": {
-        "python/core-universal": ["js/core"],
-        "java/eyes-universal-core": ["js/core"],
-        "java/eyes-universal-core-binaries": ["js/core"],
-        "java/eyes-universal-core-linux": ["js/core"],
-        "java/eyes-universal-core-alpine": ["js/core"],
-        "java/eyes-universal-core-arm": ["js/core"],
-        "java/eyes-universal-core-mac": ["js/core"],
-        "java/eyes-universal-core-win": ["js/core"]
-      }
+      "synthetic-dependencies": [{
+        "dependency": "js/core",
+        "dependents": [
+          "java/eyes-universal-core",
+          "java/eyes-universal-core-binaries",
+          "java/eyes-universal-core-linux",
+          "java/eyes-universal-core-alpine",
+          "java/eyes-universal-core-arm",
+          "java/eyes-universal-core-mac",
+          "java/eyes-universal-core-win",
+          {"component": "python/core-universal", "inherit-version": true}
+        ]
+      }]
     }
   ],
   "changelog-sections": [
@@ -229,45 +251,6 @@
         "artifacts": ["../*/dist", "../*/types"]
       }],
       "tests": [
-        {
-          "key": "{{component}}/node-{{node-version}}",
-          "artifacts": ["./logs/**/*"],
-          "node-version": 14
-        },
-        {
-          "key": "{{component}}/node-{{node-version}}",
-          "artifacts": ["./logs/**/*"],
-          "node-version": 16
-        },
-        {
-          "key": "{{component}}/node-{{node-version}}",
-          "artifacts": ["./logs/**/*"],
-          "node-version": 18
-        },
-        {
-          "key": "{{component}}/node-{{node-version}}",
-          "artifacts": ["./logs/**/*"],
-          "node-version": 20
-        }
-      ],
-      "releases": [{
-        "npm": {"registry-url": "https://registry.npmjs.org"}
-      }]
-    },
-    "js/packages/spec-driver-webdriverio": {
-      "release-type": "node",
-      "component": "js/spec-driver-webdriverio",
-      "builds": [{
-        "key": "{{component}}/{{environment}}",
-        "artifacts": ["../*/dist", "../*/types"]
-      }],
-      "tests": [
-        {
-          "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}",
-          "artifacts": ["./logs/**/*"],
-          "framework-version": 5,
-          "node-version": 14
-        },
         {
           "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
@@ -894,29 +877,20 @@
           "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "framework-version": 6,
-          "node-version": 14,
+          "node-version": 16,
           "test-type": "local",
           "env": {"FIREFOX_IMAGE": "selenium/standalone-firefox:4.1.3-20220427"},
           "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
-          "report": {"name": "js_wdio_5", "params": {"framework": 6, "node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+          "report": {"name": "js_wdio_5", "params": {"framework": 6, "node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "framework-version": 7,
-          "node-version": 16,
-          "test-type": "local",
-          "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
-          "report": {"name": "js_wdio_5", "params": {"framework": 7, "node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
-        },
-        {
-          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
-          "artifacts": ["./logs/**/*"],
-          "framework-version": 8,
           "node-version": 18,
           "test-type": "local",
           "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
-          "report": {"name": "js_wdio_5", "params": {"framework": 8, "node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+          "report": {"name": "js_wdio_5", "params": {"framework": 7, "node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
@@ -926,6 +900,16 @@
           "test-type": "local",
           "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
           "report": {"name": "js_wdio_5", "params": {"framework": 8, "node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+        },
+        {
+          "key": "{{component}}/{{test-type}}/protocol-cdp/framework-{{framework-version}}/node-{{node-version}}",
+          "artifacts": ["./logs/**/*"],
+          "framework-version": 8,
+          "node-version": 20,
+          "test-type": "local:cdp",
+          "env": {"APPLITOOLS_WEBDRIVERIO_PROTOCOL": "cdp"},
+          "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
+          "report": {"name": "js_wdio_5", "params": {"protocol": "cdp", "framework": 8, "node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
           "key": "{{component}}/{{test-type}}/framework-{{framework-version}}",
@@ -1012,32 +996,50 @@
       }],
       "tests": [
         {
-          "key": "{{component}}/node-{{node-version}}",
+          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
+          "framework-version": 2,
           "node-version": 14,
-          "generic": {"config": "./test/generic/config.mjs"},
+          "test-type": "local",
+          "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
           "report": {"name": "nightwatch", "params": {"node": 14}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
-          "key": "{{component}}/node-{{node-version}}",
+          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
+          "framework-version": 3,
           "node-version": 16,
-          "generic": {"config": "./test/generic/config.mjs"},
+          "test-type": "local",
+          "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
           "report": {"name": "nightwatch", "params": {"node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
-          "key": "{{component}}/node-{{node-version}}",
+          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
+          "framework-version": 3,
           "node-version": 18,
-          "generic": {"config": "./test/generic/config.mjs"},
+          "test-type": "local",
+          "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
           "report": {"name": "nightwatch", "params": {"node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         },
         {
-          "key": "{{component}}/node-{{node-version}}",
+          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
+          "framework-version": 3,
           "node-version": 20,
-          "generic": {"config": "./test/generic/config.mjs"},
+          "test-type": "local",
+          "generic": {"config": "./test/generic/config.mjs", "suite": "local"},
           "report": {"name": "nightwatch", "params": {"node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+        },
+        {
+          "key": "{{component}}/{{test-type}}/framework-{{framework-version}}",
+          "artifacts": ["./logs/**/*"],
+          "framework-version": 3,
+          "test-type": "sauce",
+          "generic": {"config": "./test/generic/config.mjs", "suite": "sauce"},
+          "parallel": 2,
+          "semaphore": "sauce",
+          "report": {"name": "nightwatch", "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
         }
       ],
       "releases": [{
@@ -1129,6 +1131,44 @@
         "notification": {"name": "puppeteer"}
       }]
     },
+    "js/packages/eyes-testcafe": {
+      "release-type": "node",
+      "component": "js/eyes-testcafe",
+      "builds": [{
+        "key": "{{component}}/{{environment}}",
+        "artifacts": ["../*/dist", "../*/types"]
+      }],
+      "tests": [
+        {
+          "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}",
+          "artifacts": ["./logs/**/*"],
+          "framework-version": 1,
+          "node-version": 16,
+          "generic": {"config": "./test/generic/config.mjs"},
+          "report": {"name": "testcafe", "params": {"framework": 1, "node": 16}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+        },
+        {
+          "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}",
+          "artifacts": ["./logs/**/*"],
+          "framework-version": 2,
+          "node-version": 18,
+          "generic": {"config": "./test/generic/config.mjs"},
+          "report": {"name": "testcafe", "params": {"framework": 2, "node": 18}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+        },
+        {
+          "key": "{{component}}/framework-{{framework-version}}/node-{{node-version}}",
+          "artifacts": ["./logs/**/*"],
+          "framework-version": 3,
+          "node-version": 20,
+          "generic": {"config": "./test/generic/config.mjs"},
+          "report": {"name": "testcafe", "params": {"framework": 3, "node": 20}, "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+        }
+      ],
+      "releases": [{
+        "npm": {"registry-url": "https://registry.npmjs.org"},
+        "notification": {"name": "testcafe"}
+      }]
+    },
     "js/packages/eyes-browser-extension": {
       "release-type": "node",
       "component": "js/eyes-browser-extension",
@@ -1136,13 +1176,17 @@
         "key": "{{component}}/{{environment}}",
         "artifacts": ["../*/dist", "../*/types", "./bin"]
       }],
-      "tests": [{
-        "key": "{{component}}",
-        "artifacts": ["./logs/**/*"],
-        "generic": {"config": "./test/generic/config.mjs"}
-      }],
+      "tests": [
+        {
+          "key": "{{component}}",
+          "artifacts": ["./logs/**/*"],
+          "generic": {"config": "./test/generic/config.mjs"},
+          "report": {"name": "browser_extension", "result-path": "./logs/report.xml", "meta-path": "./logs/meta.json"}
+        }
+      ],
       "releases": [{
-        "artifacts": ["./bin/*"]
+        "artifacts": ["./bin/*"],
+        "jfrog": {"url": "https://applitools.jfrog.io", "repository": "eyes-browser-extension"}
       }]
     },
     "js/packages/eyes-storybook": {
@@ -1198,17 +1242,20 @@
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
-          "node-version": 14
+          "node-version": 14,
+          "generic": {"config": "./test/generic/config.mjs"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
-          "node-version": 16
+          "node-version": 16,
+          "generic": {"config": "./test/generic/config.mjs"}
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
-          "node-version": 18
+          "node-version": 18,
+          "generic": {"config": "./test/generic/config.mjs"}
         },
         {
           "key": "{{component}}/framework-{{framework-version}}",
@@ -1791,6 +1838,11 @@
       "tests": [
         {
           "python-version": "3.6",
+          "test-type": "eyes_robotframework_functional",
+          "report": {"name": "robotframework", "result-path": "../report.xml"}
+        },
+        {
+          "python-version": "3.11",
           "test-type": "eyes_robotframework_functional",
           "report": {"name": "robotframework", "result-path": "../report.xml"}
         },

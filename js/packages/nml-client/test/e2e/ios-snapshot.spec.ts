@@ -1,12 +1,12 @@
 import type {IOSSnapshot} from '../../src/types'
 import {makeNMLClient} from '../../src/client'
 import {makeProxyServer} from '@applitools/test-server'
-import * as spec from '@applitools/spec-driver-webdriverio'
+import * as spec from '@applitools/spec-driver-webdriver'
 import assert from 'assert'
 
 async function extractBrokerUrl(driver: spec.Driver): Promise<string> {
-  const element = await driver.$('accessibility id:Applitools_View')
-  const payload = await element.getText()
+  const element = await driver.findElement('accessibility id', 'Applitools_View')
+  const payload = await driver.getElementText(element['element-6066-11e4-a52e-4f735466cecf'])
   const result = JSON.parse(payload)
   return result.nextPath
 }
@@ -14,6 +14,7 @@ async function extractBrokerUrl(driver: spec.Driver): Promise<string> {
 describe('ios snapshot', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
   let proxyServer: any
+  const renderEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
 
   beforeEach(async () => {
     ;[driver, destroyDriver] = await spec.build({
@@ -33,7 +34,7 @@ describe('ios snapshot', () => {
 
   it('works', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeSnapshots} = makeNMLClient({config: {brokerUrl}})
+    const {takeSnapshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
     const snapshots = await takeSnapshots<IOSSnapshot>({
       settings: {renderers: [{iosDeviceInfo: {deviceName: 'iPhone 12'}}]},
     })
@@ -45,7 +46,9 @@ describe('ios snapshot', () => {
 
   it('works with a proxy server', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeSnapshots} = makeNMLClient({config: {brokerUrl, proxy: {url: `http://localhost:${proxyServer.port}`}}})
+    const {takeSnapshots} = makeNMLClient({
+      settings: {brokerUrl, renderEnvironmentsUrl, proxy: {url: `http://localhost:${proxyServer.port}`}},
+    })
     const snapshots = await takeSnapshots({
       settings: {
         renderers: [{iosDeviceInfo: {deviceName: 'iPhone 12'}}],

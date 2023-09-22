@@ -1,5 +1,84 @@
 # Changelog
 
+## [1.2.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/tunnel-client@1.2.1...js/tunnel-client@1.2.2) (2023-09-04)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+* @applitools/socket bumped to 1.1.10
+
+* @applitools/req bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+  * update testcafe ([#1884](https://github.com/applitools/eyes.sdk.javascript1/issues/1884)) ([104f1b6](https://github.com/applitools/eyes.sdk.javascript1/commit/104f1b6cc0d4f107ba46404383de2fa11fe99dcf))
+
+
+
+* @applitools/logger bumped to 2.0.10
+
+
+## [1.2.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/tunnel-client@1.2.0...js/tunnel-client@1.2.1) (2023-08-30)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.2
+  #### Bug Fixes
+
+  * fixed some types ([498b1d7](https://github.com/applitools/eyes.sdk.javascript1/commit/498b1d7c547df04773b64b66ee39cccb402c093e))
+* @applitools/logger bumped to 2.0.9
+
+* @applitools/socket bumped to 1.1.9
+
+* @applitools/req bumped to 1.5.4
+
+
+## [1.2.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/tunnel-client@1.1.3...js/tunnel-client@1.2.0) (2023-08-18)
+
+
+### Features
+
+* replace and destroy tunnels by tunnel id ([#1878](https://github.com/applitools/eyes.sdk.javascript1/issues/1878)) ([22bcc15](https://github.com/applitools/eyes.sdk.javascript1/commit/22bcc15b31457e3da56cdb6f73bee3dcb7e051a1))
+
+
+### Code Refactoring
+
+* refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.1
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+* @applitools/logger bumped to 2.0.8
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+
+* @applitools/socket bumped to 1.1.8
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+
+* @applitools/req bumped to 1.5.3
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+
+
 ## [1.1.3](https://github.com/applitools/eyes.sdk.javascript1/compare/js/tunnel-client@1.1.2...js/tunnel-client@1.1.3) (2023-07-21)
 
 

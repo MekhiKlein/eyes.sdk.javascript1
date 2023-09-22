@@ -1,14 +1,14 @@
 import browser from 'webextension-polyfill'
 import {makeSDK} from '@applitools/eyes-sdk-core'
 import {makeMessenger} from './messenger'
-import {spec, makeRefer} from '@applitools/spec-driver-browser-extension'
+import spec, {makeRefer} from '@applitools/spec-driver-browser-extension'
 
 globalThis.browser = browser
 globalThis.spec = spec
 globalThis.sdk = makeSDK({
   name: 'eyes.browser-extension',
   version: require('../package.json').version,
-  spec,
+  spec: {...spec, transformSelector: spec.toSelector},
 })
 
 browser.tabs.onUpdated.addListener((tabId, change) => {
@@ -26,6 +26,8 @@ const messenger = makeMessenger({
   sendMessage: (message, receiver) =>
     browser.tabs.sendMessage(receiver.tabId ?? receiver.tab.id, message, {frameId: receiver.frameId}),
 })
+
+messenger.command('Extension.heartbeat', () => true)
 
 messenger.command('Core.makeManager', async (config, sender) => {
   const manager = await globalThis.sdk.makeManager(config)

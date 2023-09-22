@@ -1,5 +1,88 @@
 # Changelog
 
+## [1.0.45](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-webdriver@1.0.44...js/spec-driver-webdriver@1.0.45) (2023-09-21)
+
+
+### Dependencies
+
+* @applitools/snippets bumped to 2.4.24
+  #### Bug Fixes
+
+  * add support to shadow dom iframe ([#1925](https://github.com/applitools/eyes.sdk.javascript1/issues/1925)) ([a06b955](https://github.com/applitools/eyes.sdk.javascript1/commit/a06b9555a3b37918fe43a90e92c0a94f765151cc))
+* @applitools/driver bumped to 1.14.1
+
+
+## [1.0.44](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-webdriver@1.0.43...js/spec-driver-webdriver@1.0.44) (2023-09-04)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.0
+  #### Features
+
+  * add support for fallback in `req` ([#1899](https://github.com/applitools/eyes.sdk.javascript1/issues/1899)) ([d69c4b5](https://github.com/applitools/eyes.sdk.javascript1/commit/d69c4b5830370c471dfc25b6e2caddca8b458df9))
+* @applitools/logger bumped to 2.0.10
+
+* @applitools/driver bumped to 1.14.0
+  #### Features
+
+  * update testcafe ([#1884](https://github.com/applitools/eyes.sdk.javascript1/issues/1884)) ([104f1b6](https://github.com/applitools/eyes.sdk.javascript1/commit/104f1b6cc0d4f107ba46404383de2fa11fe99dcf))
+
+
+
+
+## [1.0.43](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-webdriver@1.0.42...js/spec-driver-webdriver@1.0.43) (2023-08-30)
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.2
+  #### Bug Fixes
+
+  * fixed some types ([498b1d7](https://github.com/applitools/eyes.sdk.javascript1/commit/498b1d7c547df04773b64b66ee39cccb402c093e))
+* @applitools/logger bumped to 2.0.9
+
+* @applitools/driver bumped to 1.13.6
+
+
+## [1.0.42](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-webdriver@1.0.41...js/spec-driver-webdriver@1.0.42) (2023-08-18)
+
+
+### Code Refactoring
+
+* refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.5.1
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+* @applitools/logger bumped to 2.0.8
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+
+* @applitools/snippets bumped to 2.4.23
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+* @applitools/driver bumped to 1.13.5
+  #### Bug Fixes
+
+  * optimize driver usage in close ([#1867](https://github.com/applitools/eyes.sdk.javascript1/issues/1867)) ([60dff6b](https://github.com/applitools/eyes.sdk.javascript1/commit/60dff6b160e69d3893c91a1125d668fa18b43072))
+
+
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+
+
+
+
 ## [1.0.41](https://github.com/applitools/eyes.sdk.javascript1/compare/js/spec-driver-webdriver@1.0.40...js/spec-driver-webdriver@1.0.41) (2023-08-03)
 
 

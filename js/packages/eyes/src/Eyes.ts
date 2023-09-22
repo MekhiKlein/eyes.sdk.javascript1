@@ -241,7 +241,7 @@ export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
     viewportSizeOrSessionType?: RectangleSize | SessionType,
     sessionType?: SessionType,
   ): Promise<TSpec['driver'] | void> {
-    if (this._spec?.isDriver?.(driverOrConfigOrAppName)) {
+    if (this._spec?.isDriver?.(driverOrConfigOrAppName) || this._spec?.isSecondaryDriver?.(driverOrConfigOrAppName)) {
       this._driver = driverOrConfigOrAppName
     } else {
       sessionType = viewportSizeOrSessionType as SessionType
@@ -276,9 +276,9 @@ export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
     }
     if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.open.sessionType = sessionType
 
-    config.open.keepPlatformNameAsIs = true
-
     this._state.appName = config.open?.appName
+
+    config.open.keepPlatformNameAsIs = true
 
     this._eyes = await this._runner.openEyes({
       target: this._driver,
@@ -349,9 +349,9 @@ export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
       settings.screenshotMode = 'default'
     }
 
-    const [result] = await this._eyes!.check({type, target, settings, config})
+    await this._eyes!.check({type, target, settings, config})
 
-    return new MatchResultData(result)
+    return new MatchResultData({})
   }
 
   /** @deprecated */

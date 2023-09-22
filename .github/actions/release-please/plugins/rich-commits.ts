@@ -1,15 +1,35 @@
+import {type GitHub} from 'release-please/build/src/github'
 import {type Strategy} from 'release-please/build/src/strategy'
 import {type BaseStrategy} from 'release-please/build/src/strategies/base'
 import {type Commit, type ConventionalCommit} from 'release-please/build/src/commit'
 import {type Release} from 'release-please/build/src/release'
+import {type RepositoryConfig} from 'release-please/build/src/manifest'
+import {type Logger} from 'release-please/build/src/util/logger'
+
 import {ManifestPlugin} from 'release-please/build/src/plugin'
+
+export interface RichCommitsOptions {
+  'scope-groups': Record<string, string[]>
+  logger?: Logger
+}
 
 export class RichCommits extends ManifestPlugin {
   private index = -1
+  protected scopeGroups: Record<string, string[]>
   protected componentsByPath: Record<string, string> = {}
   protected strategiesByPath: Record<string, Strategy> = {}
   protected commitsByPath: Record<string, Commit[]> = {}
   protected releasesByPath: Record<string, Release> = {}
+
+  constructor(
+    github: GitHub,
+    targetBranch: string,
+    repositoryConfig: RepositoryConfig,
+    options: RichCommitsOptions
+  ) {
+    super(github, targetBranch, repositoryConfig, options.logger);
+    this.scopeGroups = options['scope-groups']
+  }
 
   async preconfigure(
     strategiesByPath: Record<string, Strategy>,
@@ -47,15 +67,35 @@ export class RichCommits extends ManifestPlugin {
   }
 
   protected filterRedundantCommits(commits: ConventionalCommit[], component: string): ConventionalCommit[] {
-    // if empty commit has scope it should contain component in order to be attached to the path
+    const matchScope = (scope: string) => {
+      let invert = false
+      if (scope.startsWith('!')) {
+        invert = true
+        scope = scope.slice(1)
+      }
+      let result: boolean
+      if (scope.startsWith('#')) result = this.scopeGroups[scope.slice(1)]?.includes(component)
+      else if (scope.startsWith('*')) result = component.endsWith(scope.slice(1))
+      else if (scope.endsWith('*')) result = component.startsWith(scope.slice(0, -1))
+      else result = component === scope
+      return invert ? !result : result
+    }
+    
+    // if empty commit has scope it should match the component in order to be attached to be applied
     return commits.reduce((commits, commit) => {
       if (commit.scope) {
-        const matches = commit.scope.split(/[,\s]+/g).some(scope => {
-          if (scope.startsWith('*')) return component.endsWith(scope.slice(1))
-          else if (scope.endsWith('*')) return component.startsWith(scope.slice(0, -1))
-          else return component === scope
-        })
-        if (matches) commits.push({...commit, scope: null})
+        let scopes = commit.scope
+        let operation: 'some' | 'every' = 'some'
+        if (scopes.startsWith('| ')) {
+          operation = 'some'
+          scopes = scopes.slice(2)
+        } else if (scopes.startsWith('& ')) {
+          operation = 'every'
+          scopes = scopes.slice(2)
+        } else if (scopes.startsWith('!')) {
+          operation = 'every'
+        }
+        if (scopes.split(/[,\s]+/g)[operation](matchScope)) commits.push({...commit, scope: null})
       } else {
         commits.push(commit)
       }

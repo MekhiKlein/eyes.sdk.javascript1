@@ -19,7 +19,7 @@ on:
         description: core version
         required: false
         type: string
-        default: "3.6.0"
+        default: "3.8.1"
       generic:
         type: boolean
         required: false
@@ -35,7 +35,7 @@ env:
   APPLITOOLS_API_KEY_READ: ${{ secrets.APPLITOOLS_API_KEY_READ }}
   SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
   SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-  CORE_VERSION: ${{ inputs.core_version || '3.6.0' }}
+  CORE_VERSION: ${{ inputs.core_version || '3.8.1' }}
 
 jobs:
 
@@ -47,7 +47,7 @@ jobs:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{inputs.ref || github.ref}}
       - uses: actions/setup-dotnet@v2
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     container: "alpine:latest"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{inputs.ref || github.ref}}
       - run: apk add bash icu-libs krb5-libs libgcc libintl libssl1.1 libstdc++ zlib curl
@@ -85,7 +85,7 @@ jobs:
   
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{inputs.ref || github.ref}}
       - uses: actions/setup-node@v3
@@ -104,4 +104,4 @@ jobs:
           name: test-report
           path: |
             dotnet/coverage-tests/coverage-test-*.xml
-            dotnet/coverage-tests/meta.json
+            dotnet/coverage-tests/meta*.json

@@ -219,7 +219,7 @@ async function main() {
             if (recursive) {
               const dependencyJobs = prepareBuildJobs(
                 jobs,
-                filteredJob => !selectedJobs.includes(filteredJob) && selectedJob.builds!.includes(filteredJob.key!),
+                filteredJob => !selectedJobs.some(selectedJob => selectedJob.key === filteredJob.key) && selectedJob.builds!.includes(filteredJob.key!),
                 recursive
               )
               selectedJobs.push(...dependencyJobs)
@@ -278,7 +278,7 @@ async function main() {
         else if (name === 'component') return job.name
         else return job[name as keyof Job] as string
       })
-      if (options?.filename) result = result.replace(/[\/\s]+/g, '-')
+      if (options?.filename) result = result.replace(/[\/\s:]+/g, '-')
       if (options?.sha) result += `#${sha}`
       return result
     }

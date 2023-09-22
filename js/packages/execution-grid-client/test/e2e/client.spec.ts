@@ -33,7 +33,7 @@ describe('client', () => {
     )
   })
 
-  it.skip('works in australia', async () => {
+  it('works in australia', async () => {
     client = await makeECClient({settings: {options: {useSelfHealing: false}}})
     driver = await new Builder()
       .withCapabilities({browserName: 'chrome', 'applitools:region': 'australia'})
@@ -57,15 +57,14 @@ describe('client', () => {
       .usingServer(client.url)
       .build()
 
-    await driver.get(`https://demo.applitools.com?${Math.random()}`)
-    await driver.findElement({css: '#log-in'})
-    await driver.executeScript("document.querySelector('#log-in').id = 'log-inn'")
-    await driver.findElement({css: '#log-in'})
+    await driver.get('https://applitools.github.io/demo/TestPages/SelfHealingPage/')
+    // NOTE: This selector doesn't exist on the page
+    await driver.findElement({css: '#heal-me'})
 
     const result: any[] = await driver.executeScript('applitools:metadata')
     assert.deepStrictEqual(result.length, 1)
     assert.ok(result[0].successfulSelector)
-    assert.deepStrictEqual(result[0].originalSelector, {using: 'css selector', value: '#log-in'})
+    assert.deepStrictEqual(result[0].originalSelector, {using: 'css selector', value: '#heal-me'})
     const noResult: any[] = await driver.executeScript('applitools:metadata')
     assert.deepStrictEqual(noResult, [])
   })

@@ -30,16 +30,6 @@ namespace Applitools
         public AutProxy AutProxy { get; set; }
         public Hooks Hooks { get; set; }
         public string UserCommandId { get; set; }
-
-        public UniversalCheckSettings()
-        {
-            IgnoreRegions = new List<CodedRegionReference>();
-            LayoutRegions = new List<CodedRegionReference>();
-            StrictRegions = new List<CodedRegionReference>();
-            ContentRegions = new List<CodedRegionReference>();
-            FloatingRegions = new List<TFloatingRegion>();
-            AccessibilityRegions = new List<TAccessibilityRegion>();
-            Renders = new List<Renderer>();
-        }
+        public string ScreenshotMode { get; set; }
     }
 }

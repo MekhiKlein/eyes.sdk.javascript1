@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using Applitools.Fluent;
 using Applitools.Utils;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
-using OpenQA.Selenium.Remote;
 
 namespace Applitools.Appium
 {
@@ -12,10 +10,6 @@ namespace Applitools.Appium
     {
         private readonly Selenium.Eyes seleniumEyes_;
         private IWebDriver driver_;
-
-        //public IDictionary<string, object> CachedSessionDetails { get; private set; }
-
-        //public static Func<IWebDriver, bool> IsLandscapeOrientation = IsLandscapeOrientationImpl_;
 
         #region Constructors
 
@@ -81,16 +75,16 @@ namespace Applitools.Appium
             string eyesServerUrl = null,
             ProxySettings proxySettings = null)
         {
-            var iosCapsKey = "processArguments";
+            var iosCapsKey = "appium:processArguments";
             var iosCapValue = "{\"args\": [], \"env\":"
                               // ReSharper disable once StringLiteralTypo
                               + "{\"DYLD_INSERT_LIBRARIES\":\"@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64/UFG_lib.framework/UFG_lib"
                               + ":"
-                              + "@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib\",";
+                              + "@executable_path/Frameworks/UFG_lib.xcframework/ios-arm64_x86_64-simulator/UFG_lib.framework/UFG_lib\"";
 
             var iosCapValueSuffix = "}}";
 
-            var androidCapKey = "optionalIntentArguments";
+            var androidCapKey = "appium:optionalIntentArguments";
             var androidCapValue = "--es APPLITOOLS \'{";
             var androidCapValueSuffix = "}\'";
 
@@ -104,8 +98,8 @@ namespace Applitools.Appium
                 }
             }
 
-            androidCapValue += "\"NML_API_KEY\":\"" + apiKey + "\",";
-            iosCapValue += "\"NML_API_KEY\":\"" + apiKey + "\",";
+            androidCapValue += "\"NML_API_KEY\":\"" + apiKey + "\"";
+            iosCapValue += ",\"NML_API_KEY\":\"" + apiKey + "\"";
 
             // Check for the server URL in the env variable. (might still be null and this is fine.
             if (eyesServerUrl == null)
@@ -115,8 +109,8 @@ namespace Applitools.Appium
 
             if (!string.IsNullOrEmpty(eyesServerUrl))
             {
-                androidCapValue += "\"NML_SERVER_URL\":\"" + eyesServerUrl + "\",";
-                iosCapValue += "\"NML_SERVER_URL\":\"" + eyesServerUrl + "\",";
+                androidCapValue += ",\"NML_SERVER_URL\":\"" + eyesServerUrl + "\"";
+                iosCapValue += ",\"NML_SERVER_URL\":\"" + eyesServerUrl + "\"";
             }
 
             if (proxySettings == null)
@@ -130,8 +124,8 @@ namespace Applitools.Appium
 
             if (proxySettings != null)
             {
-                androidCapValue += "\"NML_PROXY_URL\":\"" + proxySettings + "\",";
-                iosCapValue += "\"NML_PROXY_URL\":\"" + proxySettings + "\",";
+                androidCapValue += ",\"NML_PROXY_URL\":\"" + proxySettings + "\"";
+                iosCapValue += ",\"NML_PROXY_URL\":\"" + proxySettings + "\"";
             }
 
             androidCapValue += androidCapValueSuffix;
@@ -146,16 +140,16 @@ namespace Applitools.Appium
             string eyesServerUrl = null,
             ProxySettings proxySettings = null)
         {
-            var iosCapsKey = "processArguments";
+            var iosCapsKey = "appium:processArguments";
             var iosCapValue = "{\"args\": [], \"env\":"
                               // ReSharper disable once StringLiteralTypo
                               + "{\"DYLD_INSERT_LIBRARIES\":\"@executable_path/Frameworks/Applitools_iOS.xcframework/ios-arm64/Applitools_iOS.framework/Applitools_iOS"
                               + ":"
-                              + "@executable_path/Frameworks/Applitools_iOS.xcframework/ios-arm64_x86_64-simulator/Applitools_iOS.framework/Applitools_iOS\",";
+                              + "@executable_path/Frameworks/Applitools_iOS.xcframework/ios-arm64_x86_64-simulator/Applitools_iOS.framework/Applitools_iOS\"";
 
             var iosCapValueSuffix = "}}";
 
-            var androidCapKey = "optionalIntentArguments";
+            var androidCapKey = "appium:optionalIntentArguments";
             var androidCapValue = "--es APPLITOOLS \'{";
             var androidCapValueSuffix = "}\'";
 
@@ -169,8 +163,8 @@ namespace Applitools.Appium
                 }
             }
 
-            androidCapValue += "\"APPLITOOLS_API_KEY\":\"" + apiKey + "\",";
-            iosCapValue += "\"APPLITOOLS_API_KEY\":\"" + apiKey + "\",";
+            androidCapValue += "\"APPLITOOLS_API_KEY\":\"" + apiKey + "\"";
+            iosCapValue += ",\"APPLITOOLS_API_KEY\":\"" + apiKey + "\"";
 
             // Check for the server URL in the env variable. (might still be null and this is fine.
             if (eyesServerUrl == null)
@@ -180,8 +174,8 @@ namespace Applitools.Appium
 
             if (!string.IsNullOrEmpty(eyesServerUrl))
             {
-                androidCapValue += "\"APPLITOOLS_SERVER_URL\":\"" + eyesServerUrl + "\",";
-                iosCapValue += "\"APPLITOOLS_SERVER_URL\":\"" + eyesServerUrl + "\",";
+                androidCapValue += ",\"APPLITOOLS_SERVER_URL\":\"" + eyesServerUrl + "\"";
+                iosCapValue += ",\"APPLITOOLS_SERVER_URL\":\"" + eyesServerUrl + "\"";
             }
 
             if (proxySettings == null)
@@ -195,8 +189,8 @@ namespace Applitools.Appium
 
             if (proxySettings != null)
             {
-                androidCapValue += "\"APPLITOOLS_PROXY_URL\":\"" + proxySettings + "\",";
-                iosCapValue += "\"APPLITOOLS_PROXY_URL\":\"" + proxySettings + "\",";
+                androidCapValue += ",\"APPLITOOLS_PROXY_URL\":\"" + proxySettings + "\"";
+                iosCapValue += ",\"APPLITOOLS_PROXY_URL\":\"" + proxySettings + "\"";
             }
 
             androidCapValue += androidCapValueSuffix;
@@ -253,6 +247,7 @@ namespace Applitools.Appium
             var request = seleniumEyes_.CreateCheckRequest(checkSettings);
             request.Payload.Settings.Webview = (object) appiumCheckTarget.GetWebview() ??
                                               appiumCheckTarget.IsDefaultWebview();
+            request.Payload.Settings.ScreenshotMode = ToScreenshotMode_(appiumCheckTarget.GetScreenshotMode());
             seleniumEyes_.SendCheckRequest(request);
         }
 
@@ -295,6 +290,14 @@ namespace Applitools.Appium
         public override TestResults Close(bool throwEx = true)
         {
             return seleniumEyes_.Close(throwEx);
+        }
+        
+        private static string ToScreenshotMode_(bool? screenshotMode) {
+            if (screenshotMode == null) {
+                return null;
+            }
+
+            return screenshotMode.Value ? "default" : "applitools-lib";
         }
     }
 }

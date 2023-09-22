@@ -44,7 +44,15 @@ export function isInteger(value: any): value is number {
   return isNumber(value) && Number.isInteger(value)
 }
 
-export function isArray(value: any): value is any[] {
+export function isAnyArrayBuffer(value: any): value is ArrayBufferLike {
+  return !!value && (value[Symbol.toStringTag] === 'ArrayBuffer' || value[Symbol.toStringTag] === 'SharedArrayBuffer')
+}
+
+export function isUint8Array(value: any): value is Uint8Array | Uint8ClampedArray {
+  return !!value && value[Symbol.toStringTag] === 'Uint8Array'
+}
+
+export function isArray<T = any>(value: any): value is T[] {
   return Array.isArray(value)
 }
 
@@ -83,10 +91,7 @@ export function isEnumValue<TEnum extends Record<string, string | number>, TValu
   return values.has(value)
 }
 
-export function has<TKey extends PropertyKey>(
-  value: any,
-  keys: TKey | readonly TKey[],
-): value is Record<TKey, unknown> {
+export function has<TKey extends PropertyKey>(value: any, keys: TKey | readonly TKey[]): value is Record<TKey, any> {
   if (!isObject(value)) return false
 
   if (!isArray(keys)) keys = [keys as TKey]

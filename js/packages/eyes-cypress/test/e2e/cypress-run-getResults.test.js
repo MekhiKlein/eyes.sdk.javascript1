@@ -6,8 +6,8 @@ const pexec = require('../util/pexec')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
-const snap = require('@applitools/snaptdout')
 const {runCypress} = require('../util/runCypress')
+const stripAnsi = require('strip-ansi')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-getResults')
@@ -56,6 +56,8 @@ describe('get results', () => {
         shouldRunFromRoot: true,
       }),
     )
-    snap(err.stdout, 'getResults fail test when throwErr is not false')
+    const normalizedStdout = stripAnsi(err.stdout)
+    expect(normalizedStdout).to.contain('✓ Test with diffs and throwErr set to false')
+    expect(normalizedStdout).to.contain('1) Test with diffs and throwErr not set')
   })
 })

@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-puppeteer",
-  "version": "1.18.0",
+  "version": "1.19.1",
   "description": "Applitools Eyes SDK for Puppeteer",
   "keywords": [
     "eyes-puppeteer",
@@ -13,15 +13,7 @@
     "tests",
     "puppeteer"
   ],
-  "homepage": "https://applitools.com",
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:applitools/eyes.sdk.javascript1.git",
-    "directory": "js/packages/eyes-puppeteer"
-  },
+  "homepage": "https://applitools.com/docs/api-ref/sdk-api/puppeteer/javascript/",
   "license": "SEE LICENSE IN LICENSE",
   "author": {
     "name": "Applitools Team",
@@ -39,7 +31,7 @@
     "generate:tests": "NODE_OPTIONS='--experimental-import-meta-resolve --experimental-loader=@applitools/generic/dist/code-loader.js' generic ./test/generic/config.mjs",
     "test": "yarn test:coverage",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-puppeteer' APPLITOOLS_BATCH_ID=$(uuidgen) MOCHA_GROUP=coverage run --top-level mocha './test/generated-coverage/*.spec.js' --parallel --jobs ${MOCHA_JOBS:-15} --exit",
-    "up:framework": "run --top-level add-silent puppeteer"
+    "up:framework": "yarn add --dev --caret puppeteer${APPLITOOLS_FRAMEWORK_VERSION:+@$APPLITOOLS_FRAMEWORK_VERSION}"
   },
   "dependencies": {
     "@applitools/eyes": "workspace:*",

@@ -1,5 +1,4 @@
-options=$(getopt -o p:,t:,D: -l platform:,tag:,dir -- "$@")
-
+argv=$(getopt -o p:,t:,D:,o: -l platform:,tag:,dir:,output: -- "$@")
 while [ $# -gt 0 ]
 do
   case $1 in
@@ -12,6 +11,9 @@ do
   -D|--dir)
     dir="$2"
     shift 2 ;;
+  -o|--output)
+    output="$2"
+    shift 2 ;;
   (--) 
     shift; break;;
   (-*)
@@ -21,9 +23,16 @@ do
   esac
 done
 
+
+if [[ "$output" == "version" ]]
+then
+  exec 3>&1
+  exec 1>/dev/null
+fi
+
 if [[ -z "$tag" ]]
 then
-  tag=$(git ls-remote --tags origin 'js/core@*' | tail -n 1 | cut -f 2 | sed -e "s/^refs\/tags\///")
+  tag=$(git ls-remote --tags origin 'js/core@*' | cut -f 2 | sed -e "s/^refs\/tags\///" | sort -V | tail -n 1)
 fi
 echo "Downloading from release - '$tag'"
 
@@ -56,3 +65,8 @@ echo "Downloading binary - '$binary'"
 echo "Downloading in directory - '${dir:-.}'"
 
 gh release download $tag --clobber --pattern "$binary" --dir "${dir:-.}"
+
+if [[ "$output" == "version" ]]
+then
+  echo $tag | sed -e "s/^js\/core@//" >&3
+fi

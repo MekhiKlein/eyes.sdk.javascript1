@@ -1,5 +1,5 @@
 import {makeCore} from '../../src/index'
-import * as spec from '@applitools/spec-driver-webdriverio'
+import * as spec from '@applitools/spec-driver-webdriver'
 
 describe('native android (@sauce)', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
@@ -22,7 +22,7 @@ describe('native android (@sauce)', () => {
     await destroyDriver?.()
   })
 
-  it('works in classic mode', async () => {
+  it('works in applitools-lib mode', async () => {
     const core = makeCore({spec, concurrency: 10})
     const eyes = await core.openEyes({
       type: 'classic',

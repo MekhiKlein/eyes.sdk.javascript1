@@ -1,16 +1,17 @@
 import {makeNMLClient} from '../../src/client'
-import * as spec from '@applitools/spec-driver-webdriverio'
+import * as spec from '@applitools/spec-driver-webdriver'
 import assert from 'assert'
 
 async function extractBrokerUrl(driver: spec.Driver): Promise<string> {
-  const element = await driver.$('accessibility id:Applitools_View')
-  const payload = await element.getText()
+  const element = await driver.findElement('accessibility id', 'Applitools_View')
+  const payload = await driver.getElementText(element['element-6066-11e4-a52e-4f735466cecf'])
   const result = JSON.parse(payload)
   return result.nextPath
 }
 
 describe('android screenshot', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
+  const renderEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
 
   beforeEach(async () => {
     ;[driver, destroyDriver] = await spec.build({
@@ -33,8 +34,10 @@ describe('android screenshot', () => {
 
   it('works', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeScreenshot} = makeNMLClient({config: {brokerUrl}})
-    const screenshot = await takeScreenshot({settings: {fully: true}})
-    assert.strictEqual(typeof screenshot.image, 'string')
+    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
+    const screenshots = await takeScreenshots({settings: {renderers: [{environment: {}}], fully: true}})
+
+    assert.strictEqual(screenshots.length, 1)
+    assert.strictEqual(typeof screenshots[0].image, 'string')
   })
 })

@@ -20,7 +20,6 @@ import type {
   FunctionalTest,
   Account,
   LocateResult,
-  CheckResult,
   LocateTextResult,
   TestResult,
   GetResultsSettings,
@@ -124,11 +123,11 @@ export function makeCoreRequests({
           environment:
             settings.environment &&
             (settings.environment.rawEnvironment ?? {
+              deviceInfo: settings.environment.deviceName,
               os: settings.environment.os,
               osInfo: settings.environment.osInfo,
               hostingApp: settings.environment.hostingApp,
               hostingAppInfo: settings.environment.hostingAppInfo,
-              deviceInfo: settings.environment.deviceName,
               displaySize: settings.environment.viewportSize && utils.geometry.round(settings.environment.viewportSize),
               inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
             }),
@@ -167,7 +166,9 @@ export function makeCoreRequests({
         eyesServer: account.eyesServer,
         ufgServer: account.ufgServer,
         uploadUrl: account.uploadUrl,
+        renderEnvironmentsUrl: account.renderEnvironmentsUrl,
         stitchingServiceUrl: account.stitchingServiceUrl,
+        testName: settings.testName,
         account,
       } satisfies VisualTest
     })
@@ -219,11 +220,11 @@ export function makeCoreRequests({
           environment:
             settings.environment &&
             (settings.environment.rawEnvironment ?? {
+              deviceInfo: settings.environment.deviceName,
               os: settings.environment.os,
               osInfo: settings.environment.osInfo,
               hostingApp: settings.environment.hostingApp,
               hostingAppInfo: settings.environment.hostingAppInfo,
-              deviceInfo: settings.environment.deviceName,
               displaySize: settings.environment.viewportSize && utils.geometry.round(settings.environment.viewportSize),
               inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
             }),
@@ -273,7 +274,7 @@ export function makeCoreRequests({
     const account = await getAccountInfoWithCache({settings})
     const upload = makeUpload({settings: {uploadUrl: account.uploadUrl, proxy: settings.proxy}, logger})
 
-    target.image = await upload({name: 'image', resource: target.image as Buffer})
+    target.image = await upload({name: 'image', resource: target.image})
     const response = await req('/api/locators/locate', {
       name: 'locate',
       method: 'POST',
@@ -316,7 +317,7 @@ export function makeCoreRequests({
     const upload = makeUpload({settings: {uploadUrl: account.uploadUrl, proxy: settings.proxy}, logger})
 
     ;[target.image, target.dom] = await Promise.all([
-      upload({name: 'image', resource: target.image as Buffer}),
+      upload({name: 'image', resource: target.image}),
       target.dom && upload({name: 'dom', resource: target.dom, gzip: true}),
     ])
     const response = await req('/api/sessions/running/images/textregions', {
@@ -360,7 +361,7 @@ export function makeCoreRequests({
     const upload = makeUpload({settings: {uploadUrl: account.uploadUrl, proxy: settings.proxy}, logger})
 
     ;[target.image, target.dom] = await Promise.all([
-      upload({name: 'image', resource: target.image as Buffer}),
+      upload({name: 'image', resource: target.image}),
       target.dom && upload({name: 'dom', resource: target.dom, gzip: true}),
     ])
     const response = await req('/api/sessions/running/images/text', {
@@ -403,7 +404,13 @@ export function makeCoreRequests({
       logger,
     })
     const result: Account = await response.json().then((result: any) => {
-      const {serviceUrl: ufgServerUrl, accessToken, resultsUrl: uploadUrl, ...rest} = result
+      const {
+        serviceUrl: ufgServerUrl,
+        accessToken,
+        mobileDevicesListUrl: renderEnvironmentsUrl,
+        resultsUrl: uploadUrl,
+        ...rest
+      } = result
       return {
         eyesServer: {
           eyesServerUrl: settings.eyesServerUrl,
@@ -419,6 +426,7 @@ export function makeCoreRequests({
           proxy: settings.proxy,
           useDnsCache: settings.useDnsCache,
         },
+        renderEnvironmentsUrl,
         uploadUrl,
         ...rest,
       } satisfies Account
@@ -553,12 +561,12 @@ export function makeEyesRequests({
     target: ImageTarget
     settings: CheckSettings
     logger?: Logger
-  }): Promise<CheckResult[]> {
+  }): Promise<void> {
     logger = logger.extend(mainLogger, {tags: [`core-request-${utils.general.shortid()}`]})
 
     logger.log('Request "check" called for target', target, 'with settings', settings)
     ;[target.image, target.dom] = await Promise.all([
-      upload({name: 'image', resource: target.image as Buffer}),
+      upload({name: 'image', resource: target.image}),
       target.dom && upload({name: 'dom', resource: target.dom, gzip: true}),
     ])
     const response = await req(`/api/sessions/running/${encodeURIComponent(test.testId)}`, {
@@ -571,7 +579,6 @@ export function makeEyesRequests({
     const result: any = await response.json()
     result.userTestId = test.userTestId
     logger.log('Request "check" finished successfully with body', result)
-    return [result]
   }
 
   async function checkAndClose({
@@ -592,7 +599,7 @@ export function makeEyesRequests({
     }
     logger.log('Request "checkAndClose" called for target', target, 'with settings', settings)
     ;[target.image, target.dom] = await Promise.all([
-      upload({name: 'image', resource: target.image as Buffer}),
+      upload({name: 'image', resource: target.image}),
       target.dom && upload({name: 'dom', resource: target.dom, gzip: true}),
     ])
     const matchOptions = transformCheckOptions({target, settings})

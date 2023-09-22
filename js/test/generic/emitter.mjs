@@ -40,6 +40,8 @@ export function emitter(tracker, test) {
   addSyntax('cast', ({target, currentType, castType}) => {
     if (castType.name === 'JSON' && currentType && currentType.toJSON) {
       return currentType.toJSON(target, currentType.generic)
+    } else if (castType.name === 'Element' && currentType && currentType.toElement) {
+      return currentType.toElement(target)
     }
     return target
   })
@@ -57,6 +59,9 @@ export function emitter(tracker, test) {
   addType('Region', {
     toJSON: target => `{left: ${target}.x, top: ${target}.y, width: ${target}.width, height: ${target}.height}`,
   })
+  addType('Selector', {
+    toElement: target => `await spec.findElement(transformedDriver, spec.toSelector(${target}))`,
+  })
 
   addCommand(`const path = require('path')`, {group: 'deps'})
   addCommand(`const assert = require('assert')`, {group: 'deps'})
@@ -68,33 +73,38 @@ export function emitter(tracker, test) {
     if (process.env.SPEC_DRIVER) addCommand(`const spec = require('${process.env.SPEC_DRIVER}')`, {group: 'deps'})
     else addCommand(`const spec = require(path.resolve('./dist/spec-driver'))`, {group: 'deps'})
   }
-  if (!process.env.NO_SDK) addCommand(`const sdk = require(process.cwd())`, {group: 'deps'})
+  if (!process.env.NO_SDK) {
+    if (process.env.SDK) addCommand(`const sdk = require('${process.env.SDK}')`, {group: 'deps'})
+    else addCommand(`const sdk = require(process.cwd())`, {group: 'deps'})
+  }
 
   addCommand(`let driver, transformedDriver, destroyDriver, eyes`, {group: 'vars'})
 
   if (!process.env.NO_DRIVER) {
-    const env = test.env || {browser: 'chrome'}
-    addCommand(
-      js`
-      let attempt = 0
-      while (!driver) {
-        try {
-          ;[driver, destroyDriver] = await spec.build(${{
-            ...env,
-            url: useRef(
-              process.env.APPLITOOLS_TEST_REMOTE === 'ec' && env.browser === 'chrome' && !env.device
-                ? js`await sdk.Eyes.getExecutionCloudUrl()`
-                : undefined,
-            ),
-          }})
-        } catch (err) {
-          if (attempt++ > 7) throw err
+    if (!process.env.NO_BUILD_DRIVER) {
+      const env = test.env || {browser: 'chrome'}
+      addCommand(
+        js`
+        let attempt = 0
+        while (!driver) {
+          try {
+            ;[driver, destroyDriver] = await spec.build(${{
+              ...env,
+              url: useRef(
+                process.env.APPLITOOLS_TEST_REMOTE === 'ec' && env.browser === 'chrome' && !env.device
+                  ? js`await sdk.Eyes.getExecutionCloudUrl()`
+                  : undefined,
+              ),
+            }})
+          } catch (err) {
+            if (attempt++ > 7) throw err
+          }
         }
-      }
-      transformedDriver = spec.transformDriver ? spec.transformDriver(driver) : driver
-    `,
-      {group: 'beforeEach'},
-    )
+      `,
+        {group: 'beforeEach'},
+      )
+    }
+    addCommand(js`transformedDriver = spec.toDriver ? spec.toDriver(driver) : driver`, {group: 'beforeEach'})
   }
   addCommand(
     js`
@@ -139,25 +149,38 @@ export function emitter(tracker, test) {
       addCommand(js`await spec.mainContext(transformedDriver)`)
     },
     findElement(selector, parent) {
-      return addExpression(
-        js`await spec.findElement(transformedDriver, spec.transformSelector(${selector}), ${parent})`,
+      return addExpression(js`await spec.findElement(transformedDriver, spec.toSelector(${selector}), ${parent})`).type(
+        'Element',
       )
     },
     findElements(selector, parent) {
       return addExpression(
-        js`await spec.findElements(transformedDriver, spec.transformSelector(${selector}), ${parent})`,
-      )
+        js`await spec.findElements(transformedDriver, spec.toSelector(${selector}), ${parent})`,
+      ).type('Array<Element>')
     },
     click(element) {
-      addCommand(
-        js`await spec.click(transformedDriver, await spec.findElement(transformedDriver, spec.transformSelector(${element})))`,
-      )
+      if (typeof element === 'string' || 'selector' in element) {
+        element = addExpression(js`${element}`)
+          .type('Selector')
+          .as('Element')
+      }
+      addCommand(js`await spec.click(transformedDriver, ${element})`)
     },
     type(element, keys) {
-      addCommand(js`await spec.setElementText(transformedDriver, spec.transformSelector(${element}), ${keys})`)
+      if (typeof element === 'string' || 'selector' in element) {
+        element = addExpression(js`${element}`)
+          .type('Selector')
+          .as('Element')
+      }
+      addCommand(js`await spec.setElementText(transformedDriver, ${element}, ${keys})`)
     },
     hover(element, offset) {
-      addCommand(js`await spec.hover(transformedDriver, spec.transformSelector(${element}), ${offset})`)
+      if (typeof element === 'string' || 'selector' in element) {
+        element = addExpression(js`${element}`)
+          .type('Selector')
+          .as('Element')
+      }
+      addCommand(js`await spec.hover(transformedDriver, ${element}, ${offset})`)
     },
   }
 

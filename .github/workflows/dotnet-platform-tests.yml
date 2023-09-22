@@ -11,7 +11,7 @@ on:
         description: core version
         required: false
         type: string
-        default: "3.6.2"
+        default: "3.8.1"
 
 env:
   DRIVER_PATH: /usr/bin
@@ -19,7 +19,7 @@ env:
   APPLITOOLS_API_KEY_READ: ${{ secrets.APPLITOOLS_API_KEY_READ }}
   SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
   SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
-  CORE_VERSION: ${{ inputs.core_version || '3.6.2' }}
+  CORE_VERSION: ${{ inputs.core_version || '3.8.1' }}
 
 jobs:
 
@@ -27,10 +27,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os:
+          [ 
+            ubuntu-latest,
+            macos-latest,
+            windows-latest 
+          ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{inputs.ref || github.ref}}
       - uses: actions/setup-node@v3
@@ -53,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     container: "alpine:latest"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{inputs.ref || github.ref}}
       - run: apk add bash icu-libs krb5-libs libgcc libintl libssl1.1 libstdc++ zlib curl

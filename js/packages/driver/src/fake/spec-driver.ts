@@ -20,10 +20,10 @@ export function isSelector(selector: any): selector is Selector {
     utils.types.isString(selector) || utils.types.has(selector, ['using', 'value']) || selector?.forceSelector === true
   )
 }
-export function transformSelector(selector: Selector | {selector: Selector}): Selector {
+export function toSelector(selector: Selector | {selector: Selector}): Selector {
   return utils.types.has(selector, 'selector') ? selector.selector : selector
 }
-export function untransformSelector(selector: Selector): CommonSelector | null {
+export function toSimpleCommonSelector(selector: Selector): CommonSelector | null {
   if (utils.types.isString(selector)) {
     return {type: 'css', selector: selector}
   } else if (utils.types.has(selector, ['using', 'value'])) {
@@ -65,7 +65,7 @@ export async function parentContext(driver: Driver): Promise<Driver> {
 export async function childContext(driver: Driver, element: Element): Promise<Driver> {
   return driver.switchToFrame(element)
 }
-export async function takeScreenshot(driver: Driver): Promise<Buffer | string> {
+export async function takeScreenshot(driver: Driver): Promise<Uint8Array | string> {
   return driver.takeScreenshot()
 }
 export async function getDriverInfo(driver: Driver): Promise<DriverInfo> {

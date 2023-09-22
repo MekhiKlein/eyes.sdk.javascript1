@@ -16,21 +16,21 @@ if (process.platform === 'linux') {
 
 main()
   .then(results => {
-    core.debug(`successfully restored caches ${results}`)
+    core.info(`successfully restored caches ${results}`)
   })
   .catch(err => {
-    core.error(err)
+    console.error(err)
     core.setFailed(err.message)
   })
 
-async function main(): Promise<(string | undefined)[]> {
+async function main(): Promise<string[]> {
   const names = core.getMultilineInput('name', {required: true}).flatMap(name => name ? name.split(/[\s\n,]+/) : [])
   const latest = core.getBooleanInput('latest')
   const wait = core.getBooleanInput('wait')
-  return Promise.all(names.map(async compositeName => {
+
+  return Promise.all(names.map(compositeName => {
     const [name, paths] = compositeName.split('$')
     const fallbacks = latest ? [name.replace(/(?<=#).+$/, '')] : []
-
     return restore({paths: paths.split(';'), name, fallbacks, wait: wait ? 600_000 : 0})
   }))
 
@@ -40,7 +40,7 @@ async function main(): Promise<(string | undefined)[]> {
     fallbacks: string[],
     wait?: number,
     startedAt?: number
-  }): Promise<string | undefined> {
+  }): Promise<string> {
     options.startedAt ??= Date.now()
     const restoredName = await restoreCache([...options.paths], options.name, options.fallbacks, {}, true)
     if (restoredName) {
@@ -48,11 +48,13 @@ async function main(): Promise<(string | undefined)[]> {
       return restoredName
     } else if (options.wait) {
       if (options.startedAt + options.wait <= Date.now()) {
-        throw new Error(`Failed to restore artifact during ${options.wait} ms`)
+        throw new Error(`Failed to restore artifact ${options.name} (with fallbacks ${options.fallbacks?.join(', ') || '-'}) during ${options.wait} ms`)
       }
       core.info(`waiting for cache with name ${options.name} to appear`)
       await setTimeout(20_000)
       return restore(options)
+    } else {
+      throw new Error(`Failed to restore artifact ${options.name} (with fallbacks ${options.fallbacks?.join(', ') || '-'})`)
     }
   }
 }
