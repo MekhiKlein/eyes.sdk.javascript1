@@ -7,20 +7,10 @@ const {presult} = require('@applitools/functional-commons')
 const applitoolsConfig = require('../fixtures/testApp/applitools.config.js')
 const {expect} = require('chai')
 const stripAnsi = require('strip-ansi')
+const {runCypress} = require('../util/runCypress')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-failCypressAfterAllSpecs')
-
-async function runCypress(pluginsFile, testFile) {
-  return (
-    await pexec(
-      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-      {
-        maxBuffer: 10000000,
-      },
-    )
-  ).stdout
-}
 
 describe('CypressFailOnDiffAfterAllSpecs', () => {
   before(async () => {
@@ -29,11 +19,6 @@ describe('CypressFailOnDiffAfterAllSpecs', () => {
     }
     try {
       await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-      process.chdir(targetTestAppPath)
-      await pexec(`yarn`, {
-        maxBuffer: 1000000,
-      })
-      await pexec(`yarn add cypress@9`)
     } catch (ex) {
       console.log(ex)
       throw ex
@@ -47,7 +32,14 @@ describe('CypressFailOnDiffAfterAllSpecs', () => {
   it('failCypressOnDiffAfterAllSpecs', async () => {
     const config = {...applitoolsConfig, failCypressAfterAllSpecs: true}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err, _v] = await presult(runCypress('index-run.js', 'helloworldDiffs.js'))
+    const [err, _v] = await presult(
+      runCypress({
+        pluginsFile: 'index-run.js',
+        testFile: 'helloworldDiffs.js',
+        targetDir: targetTestAppPath,
+        shouldRunFromRoot: true,
+      }),
+    )
     const normalizedStdout = stripAnsi(err.stdout)
     expect(normalizedStdout).to.contain('✓ shows how to use Applitools Eyes with Cypress')
     expect(normalizedStdout).to.contain('Eyes-Cypress detected diffs')
