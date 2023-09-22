@@ -6,6 +6,7 @@ const config = {
   parentBranchName: 'master',
   branchName: 'master',
   testConcurrency: 100,
+  failCypressAfterAllSpecs: true,
 };
 
 module.exports = config;
