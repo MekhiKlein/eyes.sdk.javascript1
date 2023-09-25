@@ -299,7 +299,7 @@ type GetHistoryResponsePayload = Record<string, any>
 The `locate` method historically was implemented under the `Eyes` namespace, which require `Core.eyesOpen` call in order to use it. But since server doesn't require a test to start to be able to use this functionality there is no reason for us to do it neither. It doesn't mean user-facing  api should change. Pay attention that there is one new required field added - `appName`, that should be provided either in `settings` or in `config.open`.
 ```jsonc
 {
-  "serverUrl": "https://eyesapi.applitools.com/",
+  "eyesServerUrl": "https://eyesapi.applitools.com/",
   "apiKey": "DFH$HJD%77333J355",
   "proxy": {
     "url": "http://localhost:8080",
@@ -332,7 +332,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
 ### LocateTextSettings
 ```jsonc
 {
-  "serverUrl": "https://eyesapi.applitools.com/",
+  "eyesServerUrl": "https://eyesapi.applitools.com/",
   "apiKey": "DFH$HJD%77333J355",
   "proxy": {
     "url": "http://localhost:8080",
@@ -366,7 +366,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
 ### ExtractTextSettings
 ```jsonc
 {
-  "serverUrl": "https://eyesapi.applitools.com/",
+  "eyesServerUrl": "https://eyesapi.applitools.com/",
   "apiKey": "DFH$HJD%77333J355",
   "proxy": {
     "url": "http://localhost:8080",
@@ -400,8 +400,8 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
 
 ```jsonc
 {
-  "options": { // default options that will be used if user do not provide `applitools:` caps
-    "serverUrl": "https://eyesapi.applitools.com/",
+  "capabilities": { // default options that will be used if user do not provide `applitools:` caps
+    "eyesServerUrl": "https://eyesapi.applitools.com/",
     "apiKey": "DFH$HJD%77333J355",
   },
   "proxy": {
@@ -415,7 +415,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
 ### OpenSettings
 ```jsonc
 {
-  "serverUrl": "https://eyesapi.applitools.com/",
+  "eyesServerUrl": "https://eyesapi.applitools.com/",
   "apiKey": "DFH$HJD%77333J355",
   "proxy": {
     "url": "http://localhost:8080",
@@ -443,9 +443,9 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
   "environmentName": "Env name",
   "environment": {
     "os": "OS name",
-    "osInfo": "OS info",
+    "displayOs": "OS info",
     "hostingApp": "Host app name",
-    "hostingAppInfo": "Host app info",
+    "displayHostingApp": "Host app info",
     "deviceName": "Device name",
     "viewportSize": {"width": 210, "height": 700},
   },
@@ -568,7 +568,7 @@ New config structure represents the fact that it just provides a default values 
 ```jsonc
 {
   "open": {
-    "serverUrl": "https://eyesapi.applitools.com/",
+    "eyesServerUrl": "https://eyesapi.applitools.com/",
     "apiKey": "DFH$HJD%77333J355",
     "proxy": {
       "url": "http://localhost:8080",
@@ -596,9 +596,9 @@ New config structure represents the fact that it just provides a default values 
     "environmentName": "Env name",
     "environment": {
       "os": "OS name",
-      "osInfo": "OS info",
+      "displayOs": "OS info",
       "hostingApp": "Host app name",
-      "hostingAppInfo": "Host app info",
+      "displayHostingApp": "Host app info",
       "deviceName": "Device name",
       "viewportSize": {"width": 210, "height": 700},
     },
