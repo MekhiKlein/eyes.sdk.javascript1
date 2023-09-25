@@ -1098,9 +1098,9 @@ export class ConfigurationData<TSpec extends Core.SpecType = Core.SpecType> impl
         environmentName: this.environmentName,
         environment: utils.general.removeUndefinedProps({
           hostingApp: this.hostApp,
-          hostingAppInfo: this.hostAppInfo,
+          displayHostingApp: this.hostAppInfo,
           os: this.hostOS,
-          osInfo: this.hostOSInfo,
+          displayOs: this.hostOSInfo,
           deviceName: this.deviceInfo,
           viewportSize: this.viewportSize,
         }),

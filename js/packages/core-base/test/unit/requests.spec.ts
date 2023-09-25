@@ -77,9 +77,9 @@ describe('requests', () => {
         baselineEnvName: 'Baseline environment name',
         environment: {
           os: 'Linux',
-          osInfo: 'Arch Linux',
+          displayOs: 'Arch Linux',
           hostingApp: 'Chromium',
-          hostingAppInfo: 'Chromium 105.0',
+          displayHostingApp: 'Chromium 105.0',
           deviceName: 'Desktop',
           viewportSize: {width: 100.25, height: 200.75},
           userAgent: 'UserAgent string',
@@ -146,9 +146,9 @@ describe('requests', () => {
         testName: 'test-name',
         environment: {
           os: 'Linux',
-          osInfo: 'Arch Linux',
+          displayOs: 'Arch Linux',
           hostingApp: 'Chromium',
-          hostingAppInfo: 'Chromium 105.0',
+          displayHostingApp: 'Chromium 105.0',
           deviceName: 'Desktop',
           viewportSize: {width: 100.25, height: 200.75},
           userAgent: 'UserAgent string',

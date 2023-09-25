@@ -125,9 +125,9 @@ export function makeCoreRequests({
             (settings.environment.rawEnvironment ?? {
               deviceInfo: settings.environment.deviceName,
               os: settings.environment.os,
-              osInfo: settings.environment.osInfo,
+              osInfo: settings.environment.displayOs,
               hostingApp: settings.environment.hostingApp,
-              hostingAppInfo: settings.environment.hostingAppInfo,
+              hostingAppInfo: settings.environment.displayHostingApp,
               displaySize: settings.environment.viewportSize
                 ? utils.geometry.round(settings.environment.viewportSize)
                 : {width: 0, height: 0},
@@ -224,10 +224,12 @@ export function makeCoreRequests({
             (settings.environment.rawEnvironment ?? {
               deviceInfo: settings.environment.deviceName,
               os: settings.environment.os,
-              osInfo: settings.environment.osInfo,
+              osInfo: settings.environment.displayOs,
               hostingApp: settings.environment.hostingApp,
-              hostingAppInfo: settings.environment.hostingAppInfo,
-              displaySize: settings.environment.viewportSize && utils.geometry.round(settings.environment.viewportSize),
+              hostingAppInfo: settings.environment.displayHostingApp,
+              displaySize: settings.environment.viewportSize
+                ? utils.geometry.round(settings.environment.viewportSize)
+                : {width: 0, height: 0},
               inferred: settings.environment.userAgent && `useragent:${settings.environment.userAgent}`,
             }),
           timeout: settings.abortIdleTestTimeout,

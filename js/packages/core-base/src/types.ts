@@ -135,11 +135,9 @@ export type Environment = {
   renderEnvironmentId?: string
   ecSessionId?: string
   os?: string
-  // TODO: rename to displayOs
-  osInfo?: string
+  displayOs?: string
   hostingApp?: string
-  // TODO: rename to displayHostingApp
-  hostingAppInfo?: string
+  displayHostingApp?: string
   deviceName?: string
   viewportSize?: Size
   userAgent?: string
