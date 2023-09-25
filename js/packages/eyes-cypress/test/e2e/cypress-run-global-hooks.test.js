@@ -32,7 +32,6 @@ describe('global hooks', () => {
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
-        shouldRunFromRoot: true,
         cypressVersion: '6.5',
       }),
     )
@@ -48,7 +47,6 @@ describe('global hooks', () => {
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
-        shouldRunFromRoot: true,
         cypressVersion: '6.5',
       }),
     )
@@ -63,6 +61,7 @@ describe('global hooks', () => {
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
+        shouldRunFromRoot: false,
       }),
     )
     expect(err).not.to.be.undefined
@@ -70,9 +69,7 @@ describe('global hooks', () => {
   })
 
   it('works with cypress 6.7.0 or greater without flag', async () => {
-    const [err, _stdout] = await presult(
-      runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir, shouldRunFromRoot: true}),
-    )
+    const [err, _stdout] = await presult(runCypress({pluginsFile: 'global-hooks.js', testFile: 'fail.js', targetDir}))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('Eyes-Cypress detected diffs or errors')
   })

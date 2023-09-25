@@ -60,7 +60,6 @@ describe('works with checkSettings in config file', () => {
           pluginsFile: 'log-plugin.js',
           testFile: 'checkSettingsInGlobalConfig.js',
           targetDir,
-          shouldRunFromRoot: true,
         }),
       )
 

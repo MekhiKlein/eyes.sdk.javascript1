@@ -50,9 +50,7 @@ describe('tap file', () => {
     const outputLine = `[PASSED TEST] Test: '${helloWorldAppData.testName}', Application: '${helloWorldAppData.appName}'`
     const config = {...applitoolsConfig, tapDirPath: targetDir}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err] = await presult(
-      runCypress({pluginsFile: 'index-run.js', testFile: 'helloworld.js', targetDir, shouldRunFromRoot: true}),
-    )
+    const [err] = await presult(runCypress({pluginsFile: 'index-run.js', testFile: 'helloworld.js', targetDir}))
     expect(err).to.be.undefined
     const dirCont = fs.readdirSync(targetTestAppPath)
     const files = dirCont.filter(function (elm) {
@@ -84,7 +82,6 @@ describe('tap file', () => {
         testFile: '*.js',
         integrationFolder: 'integration-tap-files',
         targetDir,
-        shouldRunFromRoot: true,
       }),
     )
     const dirCont = fs.readdirSync(targetTestAppPath)

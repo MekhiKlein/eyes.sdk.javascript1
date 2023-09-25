@@ -32,7 +32,6 @@ describe('eyes configurations', () => {
         targetDir,
         integrationFolder: `integration-play`,
         env: {APPLITOOLS_IS_DISABLED: 1},
-        shouldRunFromRoot: true,
       })
       expect(stdout, 'cypress ran with eyes disabled but concurrency msg is shown').to.not.have.string(concurrencyMsg)
     } catch (ex) {
@@ -49,7 +48,6 @@ describe('eyes configurations', () => {
         targetDir,
         integrationFolder: `integration-play`,
         env: {APPLITOOLS_FAIL_CYPRESS_ON_DIFF: false},
-        shouldRunFromRoot: true,
       })
     } catch (ex) {
       console.error(

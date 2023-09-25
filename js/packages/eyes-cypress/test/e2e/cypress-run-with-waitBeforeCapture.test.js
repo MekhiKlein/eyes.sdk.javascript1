@@ -30,7 +30,6 @@ describe('works with waitBeforeCapture', () => {
         pluginsFile: 'index-run.js',
         testFile: 'waitBeforeCaptureConfigFile.js',
         targetDir,
-        shouldRunFromRoot: true,
       })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)

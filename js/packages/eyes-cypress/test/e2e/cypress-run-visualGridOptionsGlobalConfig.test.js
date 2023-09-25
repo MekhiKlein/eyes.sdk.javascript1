@@ -32,7 +32,6 @@ describe('works with visualGridOptions from global config', () => {
         pluginsFile: 'index-run.js',
         testFile: 'visualGridOptionsGlobalConfig.js',
         targetDir,
-        shouldRunFromRoot: true,
       }),
     )
     try {

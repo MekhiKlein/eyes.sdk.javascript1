@@ -56,7 +56,6 @@ describe('works with checkSettings in open', () => {
           pluginsFile: 'log-plugin.js',
           testFile: 'checkSettingsOpen.js',
           targetDir,
-          shouldRunFromRoot: true,
         }),
       )
       const info = await getInfo(stdout.stdout)

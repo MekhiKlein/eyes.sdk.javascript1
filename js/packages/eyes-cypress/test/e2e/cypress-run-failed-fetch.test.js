@@ -23,7 +23,7 @@ describe('failed-fetch', () => {
 
   it('works for failed-fetch.js', async () => {
     try {
-      await runCypress({pluginsFile: 'index-run.js', testFile: 'failed-fetch.js', targetDir, shouldRunFromRoot: true})
+      await runCypress({pluginsFile: 'index-run.js', testFile: 'failed-fetch.js', targetDir})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

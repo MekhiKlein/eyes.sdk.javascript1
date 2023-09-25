@@ -27,7 +27,6 @@ describe('multi-browser version', () => {
         pluginsFile: 'index-run.js',
         testFile: 'multi-browser-version.js',
         targetDir,
-        shouldRunFromRoot: true,
       })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)

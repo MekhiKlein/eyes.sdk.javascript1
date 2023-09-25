@@ -61,7 +61,7 @@ describe('global hooks override in cypress.config.js file', () => {
       return null;
     });`
     updateGlobalHooks(globalHooks)
-    const [err, output] = await presult(runCypress10({targetTestAppPath, shouldRunFromRoot: true}))
+    const [err, output] = await presult(runCypress10({targetTestAppPath}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
     expect(output).to.contain('@@@ after:run @@@')

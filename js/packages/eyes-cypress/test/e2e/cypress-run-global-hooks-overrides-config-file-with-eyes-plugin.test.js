@@ -59,7 +59,7 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
       console.log('@@@ after:run @@@');
     });`
     updateGlobalHooks(globalHooks)
-    const [err, output] = await presult(runCypress10({targetTestAppPath, shouldRunFromRoot: true}))
+    const [err, output] = await presult(runCypress10({targetTestAppPath}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
     expect(output).to.contain('@@@ after:run @@@')
@@ -76,7 +76,7 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
       console.log('@@@ after:run @@@');
     });`
     updateGlobalHooks(globalHooks)
-    const [err] = await presult(runCypress10({targetTestAppPath, shouldRunFromRoot: true}))
+    const [err] = await presult(runCypress10({targetTestAppPath}))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('@@@ before:run error @@@')
     expect(err.stdout).not.to.contain('@@@ after:run @@@')
@@ -93,7 +93,7 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
       console.log('@@@ after:run @@@');
     });`
     updateGlobalHooks(globalHooks)
-    const [err] = await presult(runCypress10({targetTestAppPath, shouldRunFromRoot: true}))
+    const [err] = await presult(runCypress10({targetTestAppPath}))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('@@@ before:run @@@')
     expect(err.stdout).to.contain('@@@ after:run error @@@')
@@ -106,7 +106,7 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
       console.log('@@@ after:run @@@');
     });`
     updateGlobalHooks(globalHooks)
-    const [err, output] = await presult(runCypress10({targetTestAppPath, shouldRunFromRoot: true}))
+    const [err, output] = await presult(runCypress10({targetTestAppPath}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ after:run @@@')
   })

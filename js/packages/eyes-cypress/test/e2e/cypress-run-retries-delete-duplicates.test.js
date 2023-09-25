@@ -30,9 +30,7 @@ describe('Retries', () => {
   })
 
   it('remove duplicate tests on retry', async () => {
-    const [err, _v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'retries.js', targetDir, shouldRunFromRoot: true}),
-    )
+    const [err, _v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'retries.js', targetDir}))
     expect(err).to.be.undefined
   })
 })

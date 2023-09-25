@@ -36,9 +36,7 @@ describe('get results', () => {
   })
 
   it('return test results using eyesGetResults', async () => {
-    const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResults.js', targetDir, shouldRunFromRoot: true}),
-    )
+    const [err, v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'getResults.js', targetDir}))
     expect(err).to.be.undefined
     const [results] = parseResults(v.stdout)
     expect(results.appName).to.equal('test result 2')
@@ -53,7 +51,6 @@ describe('get results', () => {
         pluginsFile: 'log-plugin.js',
         testFile: 'getResultsWithDiffs.js',
         targetDir,
-        shouldRunFromRoot: true,
       }),
     )
     const normalizedStdout = stripAnsi(err.stdout)

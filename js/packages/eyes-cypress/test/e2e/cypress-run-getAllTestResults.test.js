@@ -31,7 +31,7 @@ describe('getAllTestResults', () => {
 
   it('return test results for all managers', async () => {
     const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getAllTestResults.js', targetDir, shouldRunFromRoot: true}),
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'getAllTestResults.js', targetDir}),
     )
     expect(err).to.be.undefined
     expect(v.stdout).to.contain('This is the first test')
@@ -45,7 +45,6 @@ describe('getAllTestResults', () => {
         pluginsFile: 'log-plugin.js',
         testFile: 'getAllTestResultsWithDuplicates.js',
         targetDir,
-        shouldRunFromRoot: true,
       }),
     )
     expect(err).to.be.undefined
@@ -58,7 +57,7 @@ describe('getAllTestResults', () => {
     const config = {...applitoolsConfig, showLogs: true}
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'deleteTestResults.js', targetDir, shouldRunFromRoot: true}),
+      runCypress({pluginsFile: 'log-plugin.js', testFile: 'deleteTestResults.js', targetDir}),
     )
     expect(err).to.be.undefined
     expect(v.stdout).to.contain('Core.deleteTest')

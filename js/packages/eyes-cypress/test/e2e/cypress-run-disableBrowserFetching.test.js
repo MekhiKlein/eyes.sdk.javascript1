@@ -34,7 +34,7 @@ describe('disableBrowserFetching', () => {
   it('works for disableBrowserFetching.js', async () => {
     try {
       await updateConfigFile({pluginFileName: 'index-run.js', testFile: 'disableBrowserFetching.js', targetTestAppPath})
-      await runCypress10({targetTestAppPath, shouldRunFromRoot: true})
+      await runCypress10({targetTestAppPath})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

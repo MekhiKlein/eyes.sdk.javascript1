@@ -37,9 +37,7 @@ describe('make sure appliConfFile stays intact', () => {
       failCypressOnDiff: false,
     }
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
-    const [err, v] = await presult(
-      runCypress({pluginsFile: 'log-plugin.js', testFile: 'appliConfFile.js', targetDir, shouldRunFromRoot: true}),
-    )
+    const [err, v] = await presult(runCypress({pluginsFile: 'log-plugin.js', testFile: 'appliConfFile.js', targetDir}))
     expect(err).to.be.undefined
     expect(v.stdout).to.contain(
       `first test - config file - browsers: {\"width\":650,\"height\":800,\"name\":\"firefox\"}`,

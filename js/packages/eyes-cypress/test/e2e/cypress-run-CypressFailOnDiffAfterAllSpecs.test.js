@@ -37,7 +37,6 @@ describe('CypressFailOnDiffAfterAllSpecs', () => {
         pluginsFile: 'index-run.js',
         testFile: 'helloworldDiffs.js',
         targetDir: targetTestAppPath,
-        shouldRunFromRoot: true,
       }),
     )
     const normalizedStdout = stripAnsi(err.stdout)

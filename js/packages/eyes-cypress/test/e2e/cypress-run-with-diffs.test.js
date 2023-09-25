@@ -30,7 +30,7 @@ describe('works for diffs with global hooks', () => {
 
   it('works for diffs with global hooks', async () => {
     const [err, _v] = await presult(
-      runCypress({pluginsFile: 'global-hooks.js', testFile: 'helloworldDiffs.js', targetDir, shouldRunFromRoot: true}),
+      runCypress({pluginsFile: 'global-hooks.js', testFile: 'helloworldDiffs.js', targetDir}),
     )
     expect(err.stdout).to.includes('Eyes-Cypress detected diffs')
   })

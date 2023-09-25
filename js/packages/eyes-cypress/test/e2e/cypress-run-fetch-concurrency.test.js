@@ -41,7 +41,7 @@ describe('works with fetchConcurrency', () => {
     fs.writeFileSync(`${targetTestAppPath}/applitools.config.js`, 'module.exports =' + JSON.stringify(config, 2, null))
     try {
       const [_err, stdout] = await presult(
-        runCypress({pluginsFile: 'log-plugin.js', testFile: 'fetchConcurrency.js', targetDir, shouldRunFromRoot: true}),
+        runCypress({pluginsFile: 'log-plugin.js', testFile: 'fetchConcurrency.js', targetDir}),
       )
       const fetchConcurrency = await getInfo(stdout.stdout)
       expect(fetchConcurrency).to.eq(5)

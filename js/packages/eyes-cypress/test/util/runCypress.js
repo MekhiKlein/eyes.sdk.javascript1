@@ -10,7 +10,7 @@ async function runCypress({
   env = {},
   integrationFolder = 'integration-run',
   supportFile = 'index-run.js',
-  shouldRunFromRoot = false,
+  shouldRunFromRoot = true,
   cypressVersion = '9',
 }) {
   const xvfbCommand = xvfb ? 'xvfb-run -a' : ''
@@ -31,7 +31,7 @@ async function runCypress({
   )
 }
 
-async function runCypress10({targetTestAppPath = process.cwd(), shouldRunFromRoot = false}) {
+async function runCypress10({targetTestAppPath = process.cwd(), shouldRunFromRoot = true}) {
   let command = shouldRunFromRoot
     ? `../../node_modules/cypress10/bin/cypress`
     : `${targetTestAppPath}/node_modules/.bin/cypress`

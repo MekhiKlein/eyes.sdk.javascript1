@@ -27,7 +27,6 @@ describe('legacy hooks', () => {
         pluginsFile: 'index-run.js',
         testFile: 'simple.js',
         targetDir,
-        shouldRunFromRoot: true,
         cypressVersion: '6.5',
       })
     } catch (ex) {

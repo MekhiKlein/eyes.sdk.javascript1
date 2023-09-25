@@ -30,7 +30,6 @@ describe('works with layoutbreakpoing in global config', () => {
         pluginsFile: 'index-run.js',
         testFile: 'layoutBreakpointsGlobalConfig.js',
         targetDir,
-        shouldRunFromRoot: true,
       })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)

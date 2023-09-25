@@ -35,7 +35,6 @@ describe('parallel run', () => {
           testFile: 'parallel-run-1.js',
           targetDir,
           options: {timeout: 60000},
-          shouldRunFromRoot: true,
         }),
       )
       runs.push(
@@ -44,7 +43,6 @@ describe('parallel run', () => {
           testFile: 'parallel-run-2.js',
           targetDir,
           xvfb: true,
-          shouldRunFromRoot: true,
         }),
       )
       await Promise.all(runs)
