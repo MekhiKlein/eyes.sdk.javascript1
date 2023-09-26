@@ -1,4 +1,5 @@
 import pytest
+from appium.version import version as appium_version
 
 from applitools.common import EyesError, ProxySettings
 from applitools.selenium import Eyes
@@ -21,6 +22,66 @@ def test_mobile_capabilities_explicit():
         '"APPLITOOLS_PROXY_URL": "http://proxy:1234", '
         '"APPLITOOLS_SERVER_URL": "https://server"}\'',
         "processArguments": {
+            "args": [],
+            "env": {
+                "DYLD_INSERT_LIBRARIES": LIBRARY_PATH,
+                "APPLITOOLS_API_KEY": "abc",
+                "APPLITOOLS_PROXY_URL": "http://proxy:1234",
+                "APPLITOOLS_SERVER_URL": "https://server",
+            },
+        },
+    }
+
+
+@pytest.mark.skipif(appium_version.startswith("1"), reason="No options in Appium<2")
+def test_mobile_options_ios_explicit():
+    from appium.options.ios import XCUITestOptions
+
+    options = XCUITestOptions()
+
+    Eyes.set_mobile_options(options, "abc", "https://server", "http://proxy:1234")
+
+    assert options.to_capabilities() == {
+        "automationName": "XCUITest",
+        "platformName": "iOS",
+        "appium:optionalIntentArguments": (
+            "--es APPLITOOLS '{"
+            '"APPLITOOLS_API_KEY": "abc", '
+            '"APPLITOOLS_PROXY_URL": "http://proxy:1234", '
+            '"APPLITOOLS_SERVER_URL": "https://server"'
+            "}'"
+        ),
+        "appium:processArguments": {
+            "args": [],
+            "env": {
+                "DYLD_INSERT_LIBRARIES": LIBRARY_PATH,
+                "APPLITOOLS_API_KEY": "abc",
+                "APPLITOOLS_PROXY_URL": "http://proxy:1234",
+                "APPLITOOLS_SERVER_URL": "https://server",
+            },
+        },
+    }
+
+
+@pytest.mark.skipif(appium_version.startswith("1"), reason="No options in Appium<2")
+def test_mobile_options_android_explicit():
+    from appium.options.android import UiAutomator2Options
+
+    options = UiAutomator2Options()
+
+    Eyes.set_mobile_options(options, "abc", "https://server", "http://proxy:1234")
+
+    assert options.to_capabilities() == {
+        "automationName": "UIAutomator2",
+        "platformName": "Android",
+        "appium:optionalIntentArguments": (
+            "--es APPLITOOLS '{"
+            '"APPLITOOLS_API_KEY": "abc", '
+            '"APPLITOOLS_PROXY_URL": "http://proxy:1234", '
+            '"APPLITOOLS_SERVER_URL": "https://server"'
+            "}'"
+        ),
+        "appium:processArguments": {
             "args": [],
             "env": {
                 "DYLD_INSERT_LIBRARIES": LIBRARY_PATH,

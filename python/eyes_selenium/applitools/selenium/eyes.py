@@ -27,6 +27,8 @@ from applitools.common.utils.general_utils import get_env_with_prefix
 if TYPE_CHECKING:
     from typing import Optional, Text, Union
 
+    from appium.options.common import AppiumOptions
+
 
 class Eyes(WebEyes):
     _Configuration = Configuration
@@ -90,6 +92,18 @@ class Eyes(WebEyes):
         caps["optionalIntentArguments"] = "--es APPLITOOLS '{}'".format(
             json.dumps(env_caps, sort_keys=True)
         )
+
+    @staticmethod
+    def set_mobile_options(
+        options,  # type: AppiumOptions
+        api_key=None,  # type: Optional[Text]
+        eyes_server_url=None,  # type: Optional[Text]
+        proxy_settings=None,  # type: Optional[Union[Text, ProxySettings]]
+    ):
+        # type: (...) -> None
+        caps = {}
+        Eyes.set_mobile_capabilities(caps, api_key, eyes_server_url, proxy_settings)
+        options.load_capabilities(caps)
 
     @staticmethod
     def set_nmg_capabilities(
