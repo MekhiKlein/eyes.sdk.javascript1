@@ -1242,19 +1242,23 @@
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
-          "node-version": 14,
-          "generic": {"config": "./test/generic/config.mjs"}
+          "node-version": 14
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
-          "node-version": 16,
-          "generic": {"config": "./test/generic/config.mjs"}
+          "node-version": 16
+        },
+        {
+          "key": "{{component}}/node-{{node-version}}",
+          "artifacts": ["./logs/**/*"],
+          "node-version": 18
         },
         {
           "key": "{{component}}/node-{{node-version}}",
           "artifacts": ["./logs/**/*"],
           "node-version": 18,
+          "test-type": "test:coverage",
           "generic": {"config": "./test/generic/config.mjs"}
         },
         {
