@@ -12,8 +12,9 @@ async function runCypress({
   supportFile = 'index-run.js',
   cypressVersion = 9,
 }) {
+  const cypressVersionStr = cypressVersion.toString()
   if (cypressVersion >= 10) {
-    runCypress10({targetTestAppPath: targetDir})
+    return await runCypress10({targetDir, cypressVersion: cypressVersionStr})
   } else {
     let command = `'../../node_modules/cypress${cypressVersion}/bin/cypress'`,
       workingDir = resolve(`${process.cwd()}/../..`)
@@ -30,21 +31,22 @@ async function runCypress({
         timeout: 100000,
         env: {APPLITOOLS_CONFIG_PATH: targetDir, ...env},
         workingDir,
-        cypressVersion: cypressVersion.toString(),
+        cypressVersion: cypressVersionStr,
         ...options,
       },
     )
   }
 }
 
-async function runCypress10({targetTestAppPath = process.cwd()}) {
+async function runCypress10({targetDir = process.cwd(), cypressVersion}) {
   const command = `../../node_modules/cypress10/bin/cypress`
 
   return (
-    await pexec(`${command} run --config-file ${targetTestAppPath}/cypress.config.js`, {
+    await pexec(`${command} run --config-file ${targetDir}/cypress.config.js`, {
       maxBuffer: 10000000,
-      env: {APPLITOOLS_CONFIG_PATH: targetTestAppPath},
-      workingDir: resolve(`${process.cwd()}/${targetTestAppPath}`),
+      env: {APPLITOOLS_CONFIG_PATH: targetDir},
+      workingDir: targetDir,
+      cypressVersion,
     })
   ).stdout
 }
