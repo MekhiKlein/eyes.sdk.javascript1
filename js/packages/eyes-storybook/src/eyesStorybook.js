@@ -110,7 +110,7 @@ async function eyesStorybook({
 
   const doTakeDomSnapshots = async ({
     page,
-    renderers,
+    environments,
     layoutBreakpoints,
     waitBeforeCapture,
     disableBrowserFetching,
@@ -124,7 +124,7 @@ async function eyesStorybook({
         config,
         options: {
           layoutBreakpoints,
-          renderers,
+          environments,
           waitBeforeCapture,
           skipResources,
           disableBrowserFetching,

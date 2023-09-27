@@ -74,8 +74,8 @@ function generateConfig({argv = {}, defaultConfig = {}, externalConfigParams = [
   }
 
   transformConfig(result);
-  if (!result.renderers) {
-    result.renderers = [{name: 'chrome', width: 1024, height: 768}];
+  if (!result.environments) {
+    result.environments = [{name: 'chrome', width: 1024, height: 768}];
   }
 
   return result;
@@ -88,11 +88,11 @@ function transformConfig(result) {
 
 function transformBrowser(result) {
   if (result.browser) {
-    result.renderers = [];
+    result.environments = [];
     if (!Array.isArray(result.browser)) {
       result.browser = [result.browser];
     }
-    result.renderers = result.browser.map(browser => {
+    result.environments = result.browser.map(browser => {
       if (browser.deviceName) {
         return {chromeEmulationInfo: browser};
       } else if (!browser.name) {

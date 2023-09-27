@@ -12,14 +12,14 @@ describe('prepare-settings', () => {
       const result = prepareTakeDomSnapshotsSettings({
         config,
         options: {
-          renderers: [],
+          environments: [],
           waitBeforeCapture: 1000,
           skipResources: [],
         },
       });
       assert.deepStrictEqual(result, {
         layoutBreakpoints: [500, 1000],
-        renderers: [],
+        environments: [],
         waitBeforeCapture: 1000,
         skipResources: [],
         disableBrowserFetching: true,
@@ -34,14 +34,14 @@ describe('prepare-settings', () => {
         config,
         options: {
           layoutBreakpoints: false,
-          renderers: [],
+          environments: [],
           waitBeforeCapture: 1000,
           skipResources: [],
         },
       });
       assert.deepStrictEqual(result, {
         layoutBreakpoints: false,
-        renderers: [],
+        environments: [],
         waitBeforeCapture: 1000,
         skipResources: [],
         disableBrowserFetching: true,

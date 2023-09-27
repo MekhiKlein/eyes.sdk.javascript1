@@ -39,7 +39,7 @@ function makeRenderStory({
       visualGridOptions,
       useDom,
       enablePatterns,
-      renderers,
+      environments,
       keepBatchOpen,
       batch,
       branchName,
@@ -101,7 +101,7 @@ function makeRenderStory({
       strictRegions,
       contentRegions,
       accessibilityRegions: mapAccessibilityRegions(accessibilityRegions),
-      renderers,
+      environments,
       hooks: scriptHooks,
       sizeMode,
       region: target === 'region' ? selector : undefined,
@@ -139,7 +139,7 @@ function makeRenderStory({
               const results = await eyes.getResults();
               resolve(results);
             } else {
-              await eyes.abort({settings: {renderers}});
+              await eyes.abort({settings: {environments}});
               reject(
                 new Error(`Failed to get story data for ${openParams.testName}, test was aborted`),
               );

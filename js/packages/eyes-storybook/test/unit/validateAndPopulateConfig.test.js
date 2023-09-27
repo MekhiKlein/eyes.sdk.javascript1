@@ -149,7 +149,7 @@ describe('validateAndPopulateConfig', () => {
       storybookUrl: 'url',
       appName: 'bla',
       runInDocker: true,
-      renderers: [{name: 'chrome'}],
+      environments: [{name: 'chrome'}],
       fakeIE: true,
     };
     console.log = txt => (warningMessage = txt);

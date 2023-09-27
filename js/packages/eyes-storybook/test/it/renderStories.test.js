@@ -68,7 +68,7 @@ describe('renderStories', () => {
         config: {
           bla: true,
           fakeIE: true,
-          renderers: [{name: 'ie'}],
+          environemnts: [{name: 'ie'}],
         },
       },
     ];
@@ -110,7 +110,7 @@ describe('renderStories', () => {
         kind: 'k1',
         config: {
           bla: true,
-          renderers: [{name: 'chrome'}, {name: 'ie'}],
+          environemnts: [{name: 'chrome'}, {name: 'ie'}],
         },
       },
     ];

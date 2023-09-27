@@ -52,7 +52,7 @@ describe('renderStory', () => {
       storyTitle: title,
       baselineName,
       config: {
-        renderers: [{name: 'chrome', width: 800, height: 600}],
+        environments: [{name: 'chrome', width: 800, height: 600}],
       },
     };
 
@@ -83,7 +83,7 @@ describe('renderStory', () => {
       },
       checkParams: {
         settings: {
-          renderers: [{name: 'chrome', width: 800, height: 600}],
+          environments: [{name: 'chrome', width: 800, height: 600}],
           url: 'url',
         },
         target: 'snapshot',
@@ -617,7 +617,7 @@ describe('renderStory', () => {
       storyTitle: title,
       baselineName,
       config: {
-        renderers: [{name: 'chrome', width: 800, height: 600}],
+        environments: [{name: 'chrome', width: 800, height: 600}],
       },
     };
 

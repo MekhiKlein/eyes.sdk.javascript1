@@ -12,7 +12,7 @@ describe('executeRenders', () => {
         {
           hello: 'world',
           config: {
-            renderers: [{name: 'chrome', ...viewport}],
+            environments: [{name: 'chrome', ...viewport}],
           },
         },
       ],
@@ -20,7 +20,7 @@ describe('executeRenders', () => {
         {
           hello: 'world',
           config: {
-            renderers: [{name: 'ie', ...viewport}],
+            environments: [{name: 'ie', ...viewport}],
           },
         },
       ],
@@ -59,7 +59,7 @@ describe('executeRenders', () => {
         {
           hello: 'world',
           config: {
-            renderers: [{name: 'chrome', ...viewport}],
+            environments: [{name: 'chrome', ...viewport}],
           },
         },
       ],
@@ -67,7 +67,7 @@ describe('executeRenders', () => {
         {
           hello: 'world',
           config: {
-            renderers: [{name: 'ie', ...viewport}],
+            environments: [{name: 'ie', ...viewport}],
             fakeIE: true,
           },
         },
@@ -108,7 +108,7 @@ describe('executeRenders', () => {
         {
           hello: 'world',
           config: {
-            renderers: [
+            environments: [
               {name: 'chrome', ...viewport},
               {name: 'firefox', ...viewport},
             ],
@@ -119,7 +119,7 @@ describe('executeRenders', () => {
         {
           hello: 'world',
           config: {
-            renderers: [{name: 'ie', ...viewport}],
+            environments: [{name: 'ie', ...viewport}],
             fakeIE: true,
           },
         },

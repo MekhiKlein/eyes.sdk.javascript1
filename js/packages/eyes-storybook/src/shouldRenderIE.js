@@ -1,7 +1,7 @@
 function splitConfigsByBrowser(config) {
-  const renderers = validateBrowsers(config);
-  if (renderers.length) {
-    const result = renderers.reduce(
+  const environments = validateBrowsers(config);
+  if (environments.length) {
+    const result = environments.reduce(
       ([nonIE, IE], browser) => {
         if (isIE(browser)) {
           IE.push(browser);
@@ -14,7 +14,7 @@ function splitConfigsByBrowser(config) {
     );
 
     return result.reduce(
-      (acc, browser) => (browser.length > 0 ? acc.concat({...config, renderers: browser}) : acc),
+      (acc, browser) => (browser.length > 0 ? acc.concat({...config, environments: browser}) : acc),
       [],
     );
   } else {
@@ -35,8 +35,8 @@ function isIE(browser) {
 }
 
 function validateBrowsers(config) {
-  if (config.renderers) {
-    return Array.isArray(config.renderers) ? config.renderers : [config.renderers];
+  if (config.environments) {
+    return Array.isArray(config.environments) ? config.environments : [config.environments];
   } else {
     return [];
   }

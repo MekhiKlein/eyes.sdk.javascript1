@@ -33,14 +33,14 @@ describe('getStoriesWithConfig', () => {
     const expectedSubConfig = {
       waitBeforeCapture: 20,
       matchLevel: 'strict',
-      renderers: [{width: 400, height: 400, name: 'chrome'}],
+      environments: [{width: 400, height: 400, name: 'chrome'}],
     };
 
     const config = {
       matchLevel: 'layout',
       waitBeforeCapture: 1000,
       batchName: 'this is an example',
-      renderers: [{name: 'chrome', width: 800, height: 600}],
+      environments: [{name: 'chrome', width: 800, height: 600}],
       properties: [],
       storyConfiguration: {
         stories: ({kind}) => {
@@ -102,7 +102,7 @@ describe('getStoriesWithConfig', () => {
 
     const expectedSubConfig1 = {
       matchLevel: 'strict',
-      renderers: [{name: 'chrome', width: 400, height: 400}],
+      environments: [{name: 'chrome', width: 400, height: 400}],
     };
 
     const subConfig2 = {
@@ -111,7 +111,7 @@ describe('getStoriesWithConfig', () => {
     };
 
     const expectedSubConfig2 = {
-      renderers: [{name: 'chrome', width: 1000, height: 800}],
+      environments: [{name: 'chrome', width: 1000, height: 800}],
       layoutBreakpoints: {breakpoints: true},
     };
 
@@ -120,7 +120,7 @@ describe('getStoriesWithConfig', () => {
       matchLevel: 'layout',
       waitBeforeCapture: 1000,
       batchName: 'this is an example',
-      renderers: [{width: 800, height: 600, name: 'chrome'}],
+      environments: [{width: 800, height: 600, name: 'chrome'}],
       serverUrl: 'https://myeyes.applitools.com',
       storyConfiguration: [
         {
@@ -182,7 +182,7 @@ describe('getStoriesWithConfig', () => {
       matchLevel: 'layout',
       waitBeforeCapture: 1000,
       batchName: 'this is an example',
-      renderers: [{name: 'chrome', width: 800, height: 600}],
+      environments: [{name: 'chrome', width: 800, height: 600}],
       storyConfiguration: [
         {
           stories: ({storyTitle}) => storyTitle.includes('text'), // this will catch "text--with-some-text" AND "button--with-text"
@@ -229,7 +229,7 @@ describe('getStoriesWithConfig', () => {
             ...expectedConfig,
             waitBeforeCapture: 20,
             matchLevel: 'strict',
-            renderers: [{width: 400, height: 400, name: 'chrome'}],
+            environments: [{width: 400, height: 400, name: 'chrome'}],
             useDom: true,
             layoutBreakpoints: {breakpoints: true},
           },
@@ -262,7 +262,7 @@ describe('getStoriesWithConfig', () => {
 
     const expectedSubConfig = {
       matchLevel: 'strict',
-      renderers: [{width: 400, height: 400, name: 'chrome'}],
+      environments: [{width: 400, height: 400, name: 'chrome'}],
       layoutRegions: [{selector: '.layout-region'}],
     };
 
@@ -271,7 +271,7 @@ describe('getStoriesWithConfig', () => {
       matchLevel: 'layout',
       waitBeforeCapture: 1000,
       batchName: 'this is an example',
-      renderers: [{name: 'chrome', width: 800, height: 600}],
+      environments: [{name: 'chrome', width: 800, height: 600}],
       storyConfiguration: [
         {
           stories: ({kind}) => {
@@ -315,7 +315,7 @@ describe('getStoriesWithConfig', () => {
           id: 'text--with-some-text',
           config: {
             ...expectedConfig,
-            renderers: [{name: 'chrome', width: 800, height: 600}],
+            environments: [{name: 'chrome', width: 800, height: 600}],
             fakeIE: true,
           },
         },
@@ -334,7 +334,7 @@ describe('getStoriesWithConfig', () => {
           config: {
             ...expectedConfig,
             fakeIE: true,
-            renderers: [{width: 400, height: 400, name: 'ie'}],
+            environments: [{width: 400, height: 400, name: 'ie'}],
           },
         },
       ].map(story => {
@@ -356,7 +356,7 @@ describe('getStoriesWithConfig', () => {
       matchLevel: 'layout',
       waitBeforeCapture: 1000,
       batchName: 'this is an example',
-      renderers: [{width: 800, height: 600}],
+      environments: [{width: 800, height: 600}],
       storyConfiguration: {
         stories: () => {
           throw new Error(`some error message`);
@@ -410,7 +410,7 @@ describe('getStoriesWithConfig', () => {
       matchLevel: 'layout',
       waitBeforeCapture: 1000,
       batchName: 'this is an example',
-      renderers: [{width: 800, height: 600}],
+      environments: [{width: 800, height: 600}],
       storyConfiguration: {
         stories: ({kind}) => {
           return kind === 'MissingStories';

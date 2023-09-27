@@ -8,7 +8,7 @@ const sideEffectConfig = {
   storyDataGap: 10,
   eyesServerUrl: undefined,
   viewportSize: {width: 1024, height: 600},
-  renderers: [{name: 'chrome', width: 1024, height: 768}],
+  environments: [{name: 'chrome', width: 1024, height: 768}],
   saveNewTests: true,
   keepBatchOpen: undefined,
   fully: true,
@@ -106,8 +106,8 @@ describe('generateConfig', function () {
     expect(config.showLogs).to.be.true;
   });
 
-  it('populate default renderers in not provided', () => {
+  it('populate default environments in not provided', () => {
     const config = generateConfig({argv: {}});
-    expect(config.renderers).to.eql([{name: 'chrome', width: 1024, height: 768}]);
+    expect(config.environments).to.eql([{name: 'chrome', width: 1024, height: 768}]);
   });
 });

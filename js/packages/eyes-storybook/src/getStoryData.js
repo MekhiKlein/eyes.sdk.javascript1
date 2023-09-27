@@ -57,7 +57,7 @@ function makeGetStoryData({logger, takeDomSnapshots, reloadPagePerStory}) {
     logger.log(`running takeDomSnapshot(s) for story ${title}`);
     const domSnapshotsPromise = takeDomSnapshots({
       page,
-      renderers: story.config.renderers,
+      environments: story.config.environments,
       layoutBreakpoints: story.config.layoutBreakpoints,
       waitBeforeCapture: wait
         ? async () => {
