@@ -35,7 +35,7 @@ describe('eyes open mapping', () => {
         ignoreDisplacements: true,
         matchLevel: 'Layout',
         useDom: true,
-        renderers: [
+        environments: [
           {width: 1200, height: 1000, name: 'chrome'},
           {width: 800, height: 1000, name: 'chrome'},
         ],

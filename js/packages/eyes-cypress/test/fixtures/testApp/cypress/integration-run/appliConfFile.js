@@ -25,7 +25,7 @@ describe('Hello world', () => {
     cy.eyesGetAllTestResults().then(summary => {
       let res = ''
       for (const result of summary.getAllResults()) {
-        res += result.getTestResults().getName() + ' - browsers: ' + JSON.stringify(result._container.renderer) + '\n'
+        res += result.getTestResults().getName() + ' - browsers: ' + JSON.stringify(result._container.environment.requested) + '\n'
       }
 
       cy.task('log', res)

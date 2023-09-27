@@ -53,7 +53,7 @@ describe('eyes check mapping', () => {
       },
       ignoreRegions: [{region: 'some ignore region selector'}],
       layoutRegions: [{region: 'some layout region selector'}],
-      renderers: undefined,
+      environments: undefined,
       strictRegions: [{region: 'some strict region selector'}],
       contentRegions: [{region: 'some content region selector'}],
       accessibilityRegions: [{region: 'some accessibility region selector', type: 'RegularText'}],
@@ -117,7 +117,7 @@ describe('eyes check mapping', () => {
       contentRegions: undefined,
       accessibilityRegions: undefined,
       region: {'applitools-ref-id': '1234', type: 'element'},
-      renderers: undefined,
+      environments: undefined,
     }
 
     const refer = {

@@ -28,7 +28,7 @@ export function transformCypressCheckSettings(
   }
   const target = settings.target === 'region' ? transformTargetRegion(settings) : undefined
   return {
-    renderers: transformBrowsers(settings.browser),
+    environments: transformBrowsers(settings.browser),
     hooks: settings.scriptHooks,
     disableBrowserFetching: settings.disableBrowserFetching,
     layoutBreakpoints: settings.layoutBreakpoints

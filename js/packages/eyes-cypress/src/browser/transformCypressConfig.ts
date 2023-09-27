@@ -35,7 +35,7 @@ export function transformCypressConfig(config: appliConfFile): Config<SpecType, 
       isComponentTest: config.isComponentTest,
     },
     check: {
-      renderers: transformBrowsers(config.browser),
+      environments: transformBrowsers(config.browser),
       matchLevel: config.matchLevel,
       ignoreCaret: config.ignoreCaret,
       ignoreDisplacements: config.ignoreDisplacements,

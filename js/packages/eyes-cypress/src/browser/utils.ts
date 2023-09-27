@@ -2,13 +2,13 @@ import * as utils from '@applitools/utils'
 
 import type {CypressEyesConfig, MaybeArray, DeviceName, ScreenOrientationPlain} from '../expose'
 import type {SpecType, Config} from '@applitools/core'
-import type {Renderer} from '@applitools/core'
+import type {Environment} from '@applitools/core'
 
 type CypressBrowser = MaybeArray<
-  Renderer | {deviceName: DeviceName; screenOrientation?: ScreenOrientationPlain; name?: string}
+  Environment | {deviceName: DeviceName; screenOrientation?: ScreenOrientationPlain; name?: string}
 >
 
-export function transformBrowsers(browsers: CypressBrowser): Renderer[] {
+export function transformBrowsers(browsers: CypressBrowser): Environment[] {
   if (!browsers) return
   if (!Array.isArray(browsers)) browsers = [browsers]
 
