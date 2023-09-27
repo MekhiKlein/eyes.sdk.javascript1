@@ -1,4 +1,4 @@
-let ref = "universal-sdk";
+let ref = "nml_generic_tests_python";
 let dir = `https://raw.githubusercontent.com/applitools/sdk.coverage.tests/${ref}`
 module.exports = {
     name: "py-appium",
