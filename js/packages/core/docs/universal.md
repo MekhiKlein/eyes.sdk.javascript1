@@ -181,7 +181,14 @@ interface GetManagerResultsResponsePayload {
   results: {
     error?: Error
     result?: TestResult
-    renderer?: TType extends 'ufg' ? Renderer : never
+    environment: {
+      requested?: DesktopBrowserEnvironment | ChromeEmulationDeviceEnvironment | AndroidDeviceEnvironment | IOSDeviceEnvironment
+      environmentId?: string
+      os?: string
+      hostingApp?: string
+      deviceName?: string
+      viewportSize?: {width: number, height: number}
+    }
     userTestId: string
   }[]
   passed: number
@@ -522,7 +529,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
   "layoutBreakpoints": [365, 568, 724, 1080],
   "disableBrowserFetching": true,
   "retryTimeout": 0,
-  "renderers": [
+  "environments": [
     {"name": "firefox", "width": 210, "height": 700},
     {"chromeEmulationInfo": {"deviceName": "Pixel 4 XL", "screenOrientation": "landscape"}},
     {"iosDeviceInfo": {"deviceName": "iPhone 12", "screenOrientation": "portrait", "version": "latest-1"}},
@@ -684,7 +691,7 @@ New config structure represents the fact that it just provides a default values 
       "domains": ["https://applitools.com", "https://github.com"],
       "mode": "Allow"
     },
-    "renderers": [
+    "environments": [
       {"name": "firefox", "width": 210, "height": 700},
       {"chromeEmulationInfo": {"deviceName": "Pixel 4 XL", "screenOrientation": "landscape"}},
       {"iosDeviceInfo": {"deviceName": "iPhone 12", "screenOrientation": "portrait", "iosVersion": "latest-1"}},
