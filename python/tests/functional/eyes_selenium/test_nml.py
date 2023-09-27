@@ -8,7 +8,7 @@ from applitools.selenium import Eyes, Target
 @fixture
 def ios_app_driver(sauce_mac_vm):
     caps = {
-        "app": "storage:filename=UFGTestApp.app.zip",
+        "app": "https://applitools.jfrog.io/artifactory/ufg-mobile/UFGTestApp_x86.app.zip",
         "platformName": "iOS",
         "appium:deviceName": "iPhone XS Simulator",
         "appium:platformVersion": "16.2",
@@ -22,7 +22,7 @@ def ios_app_driver(sauce_mac_vm):
 @fixture
 def android_app_driver(sauce_vm):
     caps = {
-        "app": "storage:filename=SimpleApp.apk",
+        "app": "https://applitools.jfrog.io/artifactory/Examples/SimpleApp26Sep.apk",
         "platformName": "Android",
         "appium:platformVersion": "10.0",
         "appium:deviceName": "Google Pixel 3a XL GoogleAPI Emulator",
