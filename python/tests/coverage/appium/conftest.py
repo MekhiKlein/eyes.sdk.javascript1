@@ -80,6 +80,11 @@ def eyes_runner_class():
 
 
 @fixture
+def has_nml(request):
+    return request.node.get_closest_marker("setmobilecaps") is not None
+
+
+@fixture
 def eyes(eyes_runner_class, stitch_mode):
     """
     Basic Eyes setup. It'll abort test if wasn't closed properly.
