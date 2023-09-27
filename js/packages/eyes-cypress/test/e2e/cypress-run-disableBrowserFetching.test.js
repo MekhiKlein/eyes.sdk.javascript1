@@ -3,7 +3,7 @@ const {describe, it, before, after} = require('mocha')
 const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
-const {runCypress10} = require('../util/runCypress')
+const {runCypress} = require('../util/runCypress')
 const updateConfigFile = require('../util/updateConfigFile')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
@@ -34,7 +34,7 @@ describe('disableBrowserFetching', () => {
   it('works for disableBrowserFetching.js', async () => {
     try {
       await updateConfigFile({pluginFileName: 'index-run.js', testFile: 'disableBrowserFetching.js', targetTestAppPath})
-      await runCypress10({targetTestAppPath})
+      await runCypress({targetTestAppPath, cypressVersion: 10})
     } catch (ex) {
       console.error('Error during test!', ex.stdout)
       throw ex

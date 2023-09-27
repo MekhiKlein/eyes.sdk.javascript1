@@ -23,7 +23,6 @@ describe('package and install', () => {
       .join('-')
 
     packageFilePath = resolve(rootPath, `${packageName}-${version}.tgz`)
-    debugger
     await pexec(`npm pack --prefix ${rootPath}`)
 
     if (fs.existsSync(targetTestAppPath)) {

@@ -5,7 +5,7 @@ const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
-const {runCypress10} = require('../util/runCypress')
+const {runCypress} = require('../util/runCypress')
 const updateConfigFile = require('../util/updateConfigFile')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
@@ -106,7 +106,7 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
       console.log('@@@ after:run @@@');
     });`
     updateGlobalHooks(globalHooks)
-    const [err, output] = await presult(runCypress10({targetTestAppPath}))
+    const [err, output] = await presult(runCypress({targetTestAppPath, cypressVersion: 10}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ after:run @@@')
   })

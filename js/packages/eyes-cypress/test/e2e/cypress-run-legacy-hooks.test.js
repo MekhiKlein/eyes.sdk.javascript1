@@ -27,7 +27,7 @@ describe('legacy hooks', () => {
         pluginsFile: 'index-run.js',
         testFile: 'simple.js',
         targetDir,
-        cypressVersion: '6.5',
+        cypressVersion: 6.5,
       })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)

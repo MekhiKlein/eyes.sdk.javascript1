@@ -45,7 +45,6 @@ describe('handle batchId property', () => {
         pluginsFile: `index-run.js`,
         testFile: `batchIdProperty.js`,
         targetDir,
-        shouldRunFromRoot: true,
       })
     } catch (ex) {
       console.error('Error during test!', ex.stdout)

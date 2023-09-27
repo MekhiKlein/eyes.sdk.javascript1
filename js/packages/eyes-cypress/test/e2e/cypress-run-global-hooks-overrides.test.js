@@ -5,7 +5,7 @@ const path = require('path')
 const pexec = require('../util/pexec')
 const fs = require('fs')
 const {presult} = require('@applitools/functional-commons')
-const {runCypress10} = require('../util/runCypress')
+const {runCypress} = require('../util/runCypress')
 const updateConfigFile = require('../util/updateConfigFile')
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
@@ -41,7 +41,7 @@ describe('global hooks override', () => {
       testFile: 'global-hooks-overrides.js',
       targetTestAppPath,
     })
-    const [err, output] = await presult(runCypress10({targetTestAppPath}))
+    const [err, output] = await presult(runCypress({targetTestAppPath, cypressVersion: 10}))
     console.log(err)
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
@@ -54,7 +54,7 @@ describe('global hooks override', () => {
       testFile: 'global-hooks-overrides.js',
       targetTestAppPath,
     })
-    const [err, output] = await presult(runCypress10({targetTestAppPath}))
+    const [err, output] = await presult(runCypress({targetTestAppPath, cypressVersion: 10}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ before:run @@@')
     expect(output).to.contain('@@@ after:run @@@')
@@ -66,7 +66,7 @@ describe('global hooks override', () => {
       testFile: 'global-hooks-overrides.js',
       targetTestAppPath,
     })
-    const [err] = await presult(runCypress10({targetTestAppPath}))
+    const [err] = await presult(runCypress({targetTestAppPath, cypressVersion: 10}))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('@@@ before:run error @@@')
     expect(err.stdout).not.to.contain('@@@ after:run @@@')
@@ -78,7 +78,7 @@ describe('global hooks override', () => {
       testFile: 'global-hooks-overrides.js',
       targetTestAppPath,
     })
-    const [err] = await presult(runCypress10({targetTestAppPath}))
+    const [err] = await presult(runCypress({targetTestAppPath, cypressVersion: 10}))
     expect(err).not.to.be.undefined
     expect(err.stdout).to.contain('@@@ before:run @@@')
     expect(err.stdout).to.contain('@@@ after:run error @@@')
@@ -90,7 +90,7 @@ describe('global hooks override', () => {
       testFile: 'helloworld.js',
       targetTestAppPath,
     })
-    const [err, output] = await presult(runCypress10({targetTestAppPath}))
+    const [err, output] = await presult(runCypress({targetTestAppPath, cypressVersion: 10}))
     expect(err).to.be.undefined
     expect(output).to.contain('@@@ after:run @@@')
   })

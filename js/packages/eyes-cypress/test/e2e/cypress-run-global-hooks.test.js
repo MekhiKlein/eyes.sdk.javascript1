@@ -32,7 +32,7 @@ describe('global hooks', () => {
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
-        cypressVersion: '6.5',
+        cypressVersion: 6.5,
       }),
     )
     expect(err).not.to.be.undefined
@@ -47,7 +47,7 @@ describe('global hooks', () => {
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
-        cypressVersion: '6.5',
+        cypressVersion: 6.5,
       }),
     )
     expect(err).not.to.be.undefined
@@ -61,7 +61,7 @@ describe('global hooks', () => {
         pluginsFile: 'global-hooks.js',
         testFile: 'fail.js',
         targetDir,
-        shouldRunFromRoot: false,
+        cypressVersion: 4,
       }),
     )
     expect(err).not.to.be.undefined

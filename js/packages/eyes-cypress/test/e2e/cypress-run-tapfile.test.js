@@ -14,18 +14,6 @@ const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp')
 const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-tapfile')
 const targetDir = 'test/fixtures/testAppCopies/testApp-tapfile'
 
-// async function runCypress(pluginsFile, testFile = 'helloworld.js', integrationFolder = 'integration-run') {
-//   return (
-//     await pexec(
-//       `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/${integrationFolder},pluginsFile=cypress/plugins/${pluginsFile},supportFile=cypress/support/index-run.js`,
-//       {
-//         maxBuffer: 10000000,
-//         timeout: 120000,
-//       },
-//     )
-//   ).stdout
-// }
-
 const readTapFile = async tapFilePath => {
   return await readFile(tapFilePath, 'utf8')
 }
