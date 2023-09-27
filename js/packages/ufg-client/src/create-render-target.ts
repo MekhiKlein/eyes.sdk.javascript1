@@ -51,7 +51,7 @@ export function makeCreateRenderTarget({processResources, logger: mainLogger}: O
       processResources({
         resources: Object.fromEntries([
           ...((snapshot as DomSnapshot).resourceUrls ?? []).map(url => {
-            return [url, makeResource({url, renderer: settings?.renderer})]
+            return [url, makeResource({url, environment: settings?.environment})]
           }),
           ...Object.entries((snapshot as DomSnapshot).resourceContents ?? {}).map(([url, resource]) => {
             return [

@@ -43,7 +43,7 @@ describe('works', () => {
       settings: {
         name: 'first',
         fully: true,
-        renderers: [
+        environments: [
           {width: 640, height: 480, name: 'chrome'},
           {width: 800, height: 600, name: 'firefox'},
           {chromeEmulationInfo: {deviceName: 'iPhone X'}},
@@ -152,7 +152,7 @@ describe('works', () => {
       settings: {
         name: 'first',
         fully: true,
-        renderers: [
+        environments: [
           {width: 640, height: 480, name: 'chrome'},
           {width: 800, height: 600, name: 'firefox'},
           {chromeEmulationInfo: {deviceName: 'iPhone X'}},
@@ -194,7 +194,7 @@ describe('works', () => {
       settings: {
         name: 'first',
         fully: true,
-        renderers: [
+        environments: [
           {width: 640, height: 480, name: 'chrome'},
           {width: 800, height: 600, name: 'firefox'},
           {chromeEmulationInfo: {deviceName: 'iPhone X'}},
@@ -239,7 +239,7 @@ describe('works', () => {
       settings: {
         name: 'first',
         fully: true,
-        renderers: [
+        environments: [
           {width: 640, height: 480, name: 'chrome'},
           {width: 800, height: 600, name: 'firefox'},
           {chromeEmulationInfo: {deviceName: 'iPhone X'}},

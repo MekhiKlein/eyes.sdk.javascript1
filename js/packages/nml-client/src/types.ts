@@ -8,12 +8,12 @@ export interface NMLClient {
     settings: SnapshotSettings
     logger?: Logger
   }): Promise<TSnapshot[]>
-  getSupportedRenderEnvironments(options: {logger?: Logger}): Promise<Record<string, any>>
+  getSupportedEnvironments(options: {logger?: Logger}): Promise<Record<string, any>>
 }
 
 export interface BrokerServerSettings {
   brokerUrl: string
-  renderEnvironmentsUrl: string
+  supportedEnvironmentsUrl: string
   agentId?: string
   proxy?: Proxy
   useDnsCache?: boolean
@@ -21,37 +21,40 @@ export interface BrokerServerSettings {
 
 export type NMLClientSettings = BrokerServerSettings
 
-export interface IOSDeviceRenderer {
+export interface IOSDeviceEnvironment {
   iosDeviceInfo: {
     deviceName: string
     version?: string
     screenOrientation?: string
   }
 }
-export interface AndroidDeviceRenderer {
+export interface AndroidDeviceEnvironment {
   androidDeviceInfo: {
     deviceName: string
     version?: string
     screenOrientation?: string
   }
 }
-export interface EnvironmentRenderer {
-  environment: any
-}
-export type Renderer = IOSDeviceRenderer | AndroidDeviceRenderer | EnvironmentRenderer
-
-export interface RenderEnvironment {
+export interface LocalEnvironment {
   os: string
   deviceName: string
   viewportSize: Size
-  renderEnvironmentId: string
-  renderer: Renderer
+}
+
+export type Environment = IOSDeviceEnvironment | AndroidDeviceEnvironment | LocalEnvironment
+
+export interface ActualEnvironment {
+  requested?: IOSDeviceEnvironment | AndroidDeviceEnvironment
+  environmentId: string
+  os: string
+  deviceName: string
+  viewportSize: Size
 }
 
 export type Selector = string | {selector: string; type?: string; shadow?: Selector; frame?: Selector}
 
 export type ScreenshotSettings = {
-  renderers: Renderer[]
+  environments: Environment[]
   webview?: boolean | string
   region?: Region | Selector
   fully?: boolean
@@ -83,11 +86,11 @@ export type Screenshot = {
   locationInView?: Location
   fullViewSize?: Size
   calculatedRegions?: Region[]
-  renderEnvironment: RenderEnvironment
+  environment: ActualEnvironment
 }
 
 export type SnapshotSettings = {
-  renderers: Renderer[]
+  environments: Environment[]
   resourceSeparation?: boolean
   waitBeforeCapture?: number
   name?: string

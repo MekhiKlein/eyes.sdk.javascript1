@@ -27,8 +27,8 @@ export function makeRender({
 
   const throttles = new Map<string, ReturnType<typeof throat>>()
   const renderWithConcurrency = utils.general.wrap(render, (render, options) => {
-    let throttle = throttles.get(options.settings.renderEnvironmentId)
-    if (!throttle) throttles.set(options.settings.renderEnvironmentId, (throttle = throat(concurrency)))
+    let throttle = throttles.get(options.settings.environmentId)
+    if (!throttle) throttles.set(options.settings.environmentId, (throttle = throat(concurrency)))
     return throttle(render, options)
   })
 

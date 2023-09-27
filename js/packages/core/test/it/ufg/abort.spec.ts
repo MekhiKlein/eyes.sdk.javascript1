@@ -31,7 +31,7 @@ describe('abort', () => {
     })
     await eyes.check({
       target: {snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}},
-      settings: {renderers: [{width: 100, height: 100}]},
+      settings: {environments: [{width: 100, height: 100}]},
     })
 
     let rendering = false
@@ -40,7 +40,7 @@ describe('abort', () => {
     fakeCore.emitter.on('afterAbort', () => (aborted = true))
 
     await new Promise<void>(resolve => {
-      fakeClient.emitter.on('afterGetRenderEnvironment', () => resolve(eyes.abort()))
+      fakeClient.emitter.on('afterGetActualEnvironment', () => resolve(eyes.abort()))
     })
 
     const results = await eyes.getResults()
@@ -57,7 +57,7 @@ describe('abort', () => {
   it('handles abort during open base eyes', async () => {
     const fakeClient = makeFakeClient({
       hooks: {
-        getRenderEnvironment: () => utils.general.sleep(0),
+        getActualEnvironment: () => utils.general.sleep(0),
       },
     })
     const fakeCore = makeFakeCore({
@@ -71,7 +71,7 @@ describe('abort', () => {
     })
     await eyes.check({
       target: {snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}},
-      settings: {renderers: [{width: 100, height: 100}]},
+      settings: {environments: [{width: 100, height: 100}]},
     })
 
     let opened = false
@@ -100,7 +100,7 @@ describe('abort', () => {
   it('handles abort during check base eyes', async () => {
     const fakeClient = makeFakeClient({
       hooks: {
-        getRenderEnvironment: () => utils.general.sleep(0),
+        getActualEnvironment: () => utils.general.sleep(0),
       },
     })
     const fakeCore = makeFakeCore({
@@ -115,7 +115,7 @@ describe('abort', () => {
 
     await eyes.check({
       target: {snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}},
-      settings: {renderers: [{width: 100, height: 100}]},
+      settings: {environments: [{width: 100, height: 100}]},
     })
 
     let checked = false

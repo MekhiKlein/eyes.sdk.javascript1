@@ -75,7 +75,7 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
 
     const driver =
       target && (await makeDriver({spec, driver: target, logger, customConfig: settings as OpenSettings<'classic'>}))
-    const renderers = config?.check?.renderers
+    const environments = config?.check?.environments
 
     core.logEvent({
       settings: {
@@ -106,8 +106,8 @@ export function makeOpenEyes<TSpec extends SpecType, TDefaultType extends 'class
       getTypedEyes,
       check: makeCheck({type, eyes, target: driver, spec, logger}),
       checkAndClose: makeCheckAndClose({type, eyes, target: driver, spec, logger}),
-      close: makeClose({eyes, renderers, logger}),
-      abort: makeAbort({eyes, renderers, logger}),
+      close: makeClose({eyes, environments, logger}),
+      abort: makeAbort({eyes, environments, logger}),
       getResults: makeGetEyesResults({eyes, logger}),
     })) as unknown as Eyes<TSpec, TType> // TODO solve the types issue
   }

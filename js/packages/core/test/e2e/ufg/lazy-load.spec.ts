@@ -34,7 +34,7 @@ describe('lazy load', () => {
         fully: true,
         lazyLoad: true,
         layoutBreakpoints: {breakpoints: true},
-        renderers: [{name: 'chrome', width: 1000, height: 600}],
+        environments: [{name: 'chrome', width: 1000, height: 600}],
       },
     })
     await eyes.close({settings: {updateBaselineIfNew: false}})

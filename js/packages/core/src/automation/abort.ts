@@ -1,15 +1,15 @@
 import type {Mutable} from '@applitools/utils'
-import type {DriverTarget, Eyes, AbortSettings, Renderer} from './types'
+import type {DriverTarget, Eyes, AbortSettings, Environment} from './types'
 import {type Logger} from '@applitools/logger'
 import {type AbortController} from 'abort-controller'
 import {isDriver, makeDriver, type SpecType, type SpecDriver} from '@applitools/driver'
-import {uniquifyRenderers} from './utils/uniquify-renderers'
+import {uniquifyEnvironments} from './utils/uniquify-environments'
 
 type Options<TSpec extends SpecType> = {
   eyes: Eyes<TSpec>
   target?: DriverTarget<TSpec>
   controller: AbortController
-  renderers?: Renderer[]
+  environments?: Environment[]
   spec?: SpecDriver<TSpec>
   logger: Logger
 }
@@ -18,7 +18,7 @@ export function makeAbort<TSpec extends SpecType>({
   eyes,
   target,
   controller,
-  renderers: defaultRenderers,
+  environments: defaultEnvironments,
   spec,
   logger: mainLogger,
 }: Options<TSpec>) {
@@ -51,11 +51,11 @@ export function makeAbort<TSpec extends SpecType>({
       }
     }
 
-    settings.renderers ??= defaultRenderers
-    if (eyes.storage.size === 0 && settings.renderers && settings.renderers.length > 0) {
-      const uniqueRenderers = uniquifyRenderers(settings.renderers)
-      logger.log('Command "abort" starting filler tests for renderers', uniqueRenderers)
-      await Promise.all(uniqueRenderers.map(renderer => eyes.getBaseEyes({settings: {renderer}, logger})))
+    settings.environments ??= defaultEnvironments
+    if (eyes.storage.size === 0 && settings.environments && settings.environments.length > 0) {
+      const uniqueEnvironments = uniquifyEnvironments(settings.environments)
+      logger.log('Command "abort" starting filler tests for environments', uniqueEnvironments)
+      await Promise.all(uniqueEnvironments.map(environment => eyes.getBaseEyes({settings: {environment}, logger})))
     }
 
     eyes.storage.forEach(async item => {

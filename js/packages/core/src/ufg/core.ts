@@ -26,7 +26,7 @@ type Options<TSpec extends SpecType> = {
   asyncCache?: AsyncCache
 }
 
-export function makeCore<TSpec extends SpecType = never>({
+export function makeCore<TSpec extends SpecType>({
   spec,
   clients,
   base,

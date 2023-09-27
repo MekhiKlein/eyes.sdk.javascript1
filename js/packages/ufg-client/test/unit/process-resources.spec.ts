@@ -658,7 +658,7 @@ describe('processResources', () => {
         resources: {
           [googleFontUrl]: makeResource({
             url: googleFontUrl,
-            renderer: {name: 'ie', width: 100, height: 100},
+            environment: {name: 'ie', width: 100, height: 100},
           }),
         },
       })
@@ -866,11 +866,11 @@ describe('processResources', () => {
 
       const googleFontResource = makeResource({
         url: 'https://fonts.googleapis.com/some-font',
-        renderer: {name: 'ie', width: 100, height: 100},
+        environment: {name: 'ie', width: 100, height: 100},
       })
       const standardResource = makeResource({
         url: 'http://bla/some-resource',
-        renderer: {name: 'ie', width: 100, height: 100},
+        environment: {name: 'ie', width: 100, height: 100},
       })
       const defaultUserAgent = 'DefaultUserAgent'
 
@@ -880,7 +880,7 @@ describe('processResources', () => {
           [standardResource.url]: standardResource,
         },
         settings: {
-          renderer: {name: 'chrome', width: 100, height: 100},
+          environment: {name: 'chrome', width: 100, height: 100},
           headers: {'User-Agent': defaultUserAgent},
         },
       })
@@ -900,7 +900,7 @@ describe('processResources', () => {
           [standardResource.url]: standardResource,
         },
         settings: {
-          renderer: {name: 'chrome', width: 100, height: 100},
+          environment: {name: 'chrome', width: 100, height: 100},
         },
       })
 

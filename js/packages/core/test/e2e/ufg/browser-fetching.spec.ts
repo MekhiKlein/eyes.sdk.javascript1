@@ -1,8 +1,8 @@
 import {makeCore} from '../../../src/ufg/core'
 import {makeTestServer} from '@applitools/test-server'
+import assert from 'assert'
 import * as spec from '@applitools/spec-driver-puppeteer'
 import * as path from 'path'
-import assert from 'assert'
 
 describe('browser-fetching', () => {
   let page: spec.Driver, destroyPage: () => Promise<void>, server: any, baseUrl: string
@@ -36,7 +36,9 @@ describe('browser-fetching', () => {
         testName: 'TestDisableBrowserFetching',
       },
     })
-    await eyes.check({settings: {renderers: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true}})
+    await eyes.check({
+      settings: {environments: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
+    })
     await eyes.close({settings: {updateBaselineIfNew: false}})
     const [result] = await eyes.getResults()
 

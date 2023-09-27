@@ -14,7 +14,7 @@ async function extractBrokerUrl(driver: spec.Driver): Promise<string> {
 describe('android snapshot', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
   let proxyServer: any
-  const renderEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
+  const supportedEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
 
   beforeEach(async () => {
     ;[driver, destroyDriver] = await spec.build({
@@ -39,9 +39,9 @@ describe('android snapshot', () => {
 
   it('works', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeSnapshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
+    const {takeSnapshots} = makeNMLClient({settings: {brokerUrl, supportedEnvironmentsUrl}})
     const snapshots = await takeSnapshots<AndroidSnapshot>({
-      settings: {renderers: [{androidDeviceInfo: {deviceName: 'Pixel 3'}}]},
+      settings: {environments: [{androidDeviceInfo: {deviceName: 'Pixel 3'}}]},
     })
     assert.strictEqual(snapshots.length, 1)
     assert.strictEqual(snapshots[0].platformName, 'android')
@@ -52,11 +52,11 @@ describe('android snapshot', () => {
   it('works with a proxy server', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
     const {takeSnapshots} = makeNMLClient({
-      settings: {brokerUrl, renderEnvironmentsUrl, proxy: {url: `http://localhost:${proxyServer.port}`}},
+      settings: {brokerUrl, supportedEnvironmentsUrl, proxy: {url: `http://localhost:${proxyServer.port}`}},
     })
     const snapshots = await takeSnapshots<AndroidSnapshot>({
       settings: {
-        renderers: [{androidDeviceInfo: {deviceName: 'Pixel 3'}}],
+        environments: [{androidDeviceInfo: {deviceName: 'Pixel 3'}}],
       },
     })
     assert.strictEqual(snapshots.length, 1)

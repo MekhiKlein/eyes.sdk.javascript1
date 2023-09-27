@@ -75,7 +75,7 @@ export function makeFetchResource({
         Cookie: settings.cookies && createCookieHeader({url: resource.url, cookies: settings.cookies}),
         ...settings.headers,
         'User-Agent':
-          (resource.renderer && createUserAgentHeader({renderer: resource.renderer})) ??
+          (resource.environment && createUserAgentHeader({environment: resource.environment})) ??
           settings.headers?.['User-Agent'],
       },
       proxy: resourceUrl => {

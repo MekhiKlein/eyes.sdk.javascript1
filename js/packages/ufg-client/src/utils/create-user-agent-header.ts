@@ -1,4 +1,4 @@
-import type {Renderer} from '../types'
+import type {Environment} from '../types'
 import * as utils from '@applitools/utils'
 
 const userAgents = {
@@ -15,9 +15,9 @@ const userAgents = {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4501.0 Safari/537.36 Edg/91.0.866.0',
 }
 
-export function createUserAgentHeader({renderer}: {renderer: Renderer}): string | undefined {
-  if (utils.types.has(renderer, 'name')) {
-    const [browserName] = (renderer.name as string).split(/[-\d]/, 1)
+export function createUserAgentHeader({environment}: {environment: Environment}): string | undefined {
+  if (utils.types.has(environment, 'name')) {
+    const [browserName] = (environment.name as string).split(/[-\d]/, 1)
     return userAgents[browserName as keyof typeof userAgents]
   }
 }

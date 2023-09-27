@@ -1,5 +1,5 @@
-import * as spec from '@applitools/spec-driver-webdriver'
 import {makeCore} from '../../src/index'
+import * as spec from '@applitools/spec-driver-webdriver'
 
 describe('typed check', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
@@ -26,7 +26,7 @@ describe('typed check', () => {
       settings: {
         name: 'default ufg step',
         fully: false,
-        renderers: [
+        environments: [
           {name: 'chrome', width: 800, height: 600},
           {name: 'safari', width: 800, height: 600},
         ],
@@ -40,7 +40,7 @@ describe('typed check', () => {
       settings: {
         name: 'classic step',
         fully: false,
-        renderers: [
+        environments: [
           {name: 'chrome', width: 800, height: 600},
           {name: 'safari', width: 800, height: 600},
         ],
@@ -54,7 +54,7 @@ describe('typed check', () => {
       settings: {
         name: 'ufg step',
         fully: false,
-        renderers: [
+        environments: [
           {name: 'chrome', width: 800, height: 600},
           {name: 'safari', width: 800, height: 600},
         ],
@@ -68,7 +68,7 @@ describe('typed check', () => {
     await eyes.getResults({settings: {throwErr: true}})
   })
 
-  // NOTE: this test is skipped because there is currently no implementation to convert EnvironmentRenderer to the kind of renderer that ufg supports
+  // NOTE: this test is skipped because there is currently no implementation to convert ExactEnvironment to UFGEnvironment that ufg supports
   it.skip('performs ufg check during classic test', async () => {
     await driver.navigateTo('https://applitools.github.io/demo/TestPages/PageWithBurgerMenu/index.html')
 
@@ -82,7 +82,7 @@ describe('typed check', () => {
     await eyes.check({
       settings: {
         name: 'default classic step',
-        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        environments: [{viewportSize: {width: 800, height: 600}}],
         fully: false,
       },
     })
@@ -90,7 +90,7 @@ describe('typed check', () => {
       type: 'ufg',
       settings: {
         name: 'ufg step',
-        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        environments: [{viewportSize: {width: 800, height: 600}}],
         fully: false,
       },
     })
@@ -98,7 +98,7 @@ describe('typed check', () => {
       type: 'classic',
       settings: {
         name: 'classic step',
-        renderers: [{environment: {viewportSize: {width: 800, height: 600}}}],
+        environments: [{viewportSize: {width: 800, height: 600}}],
         fully: false,
       },
     })

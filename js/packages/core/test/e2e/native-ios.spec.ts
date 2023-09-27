@@ -1,5 +1,5 @@
-import {makeCore} from '../../src/index'
 import * as spec from '@applitools/spec-driver-webdriver'
+import {makeCore} from '../../src/index'
 
 describe('native ios (@sauce)', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
@@ -38,7 +38,7 @@ describe('native ios (@sauce)', () => {
     await eyes.getResults({settings: {throwErr: true}})
   })
 
-  it('works in applitools-lib mode with multiple renderers', async () => {
+  it('works in applitools-lib mode with multiple environments', async () => {
     const core = makeCore({spec, concurrency: 10})
     const eyes = await core.openEyes({
       type: 'classic',
@@ -48,7 +48,7 @@ describe('native ios (@sauce)', () => {
     await eyes.check({
       settings: {
         screenshotMode: 'applitools-lib',
-        renderers: [
+        environments: [
           {iosDeviceInfo: {deviceName: 'iPhone SE (3rd generation)'}},
           {iosDeviceInfo: {deviceName: 'iPhone 11 Pro'}},
         ],
@@ -58,7 +58,7 @@ describe('native ios (@sauce)', () => {
     await eyes.getResults({settings: {throwErr: true}})
   })
 
-  it('works in applitools-lib and default mode with multiple renderers', async () => {
+  it('works in applitools-lib and default mode with multiple environments', async () => {
     const core = makeCore({spec, concurrency: 10})
     const eyes = await core.openEyes({
       type: 'classic',
@@ -69,7 +69,7 @@ describe('native ios (@sauce)', () => {
       settings: {
         name: 'applitools lib',
         screenshotMode: 'applitools-lib',
-        renderers: [
+        environments: [
           {iosDeviceInfo: {deviceName: 'iPhone SE (3rd generation)'}},
           {iosDeviceInfo: {deviceName: 'iPhone 11 Pro'}},
         ],
@@ -79,7 +79,7 @@ describe('native ios (@sauce)', () => {
       settings: {
         name: 'default',
         screenshotMode: 'default',
-        renderers: [
+        environments: [
           {iosDeviceInfo: {deviceName: 'iPhone SE (3rd generation)'}},
           {iosDeviceInfo: {deviceName: 'iPhone 11 Pro'}},
         ],

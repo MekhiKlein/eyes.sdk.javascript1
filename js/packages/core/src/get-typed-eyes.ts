@@ -1,4 +1,4 @@
-import type {DriverTarget, TypedCore, TypedEyes, OpenSettings, Renderer} from './types'
+import type {DriverTarget, TypedCore, TypedEyes, OpenSettings} from './types'
 import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 
@@ -23,7 +23,6 @@ export function makeGetTypedEyes<TSpec extends SpecType, TDefaultType extends 'c
     logger = mainLogger,
   }: {
     type?: TType
-    settings?: {renderers?: Renderer[]}
     logger?: Logger
   } = {}): Promise<TypedEyes<TSpec, TType>> {
     logger = logger.extend(mainLogger)

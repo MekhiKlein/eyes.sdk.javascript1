@@ -17,7 +17,7 @@ import {makeOpenEyes} from './open-eyes'
 import {makeMakeManager} from './make-manager'
 import {makeCloseBatch} from './close-batch'
 import {makeDeleteTest} from './delete-test'
-import {extractEnvironment} from './utils/extract-environment'
+import {extractTestEnvironment} from './utils/extract-test-environment'
 import * as utils from '@applitools/utils'
 
 type Options<TSpec extends SpecType> = {
@@ -44,7 +44,7 @@ export function makeCore<TSpec extends SpecType>({
   asyncCache,
 }: Options<TSpec> = {}): Core<TSpec, 'classic' | 'ufg'> {
   const logger = makeLogger({logger: defaultLogger, format: {label: 'core'}})
-  const environment = extractEnvironment(defaultEnvironment)
+  const environment = extractTestEnvironment(defaultEnvironment)
   logger.log(`Core is initialized ${defaultBase ? 'with' : 'without'} custom base core and environment`, environment)
 
   const base = defaultBase ?? makeBaseCore({agentId, cwd, logger})

@@ -3,7 +3,6 @@ import type {
   Eyes,
   GetManagerResultsSettings,
   CloseBatchSettings,
-  TestResult,
   TestResultContainer,
   TestResultSummary,
 } from './types'
@@ -43,7 +42,7 @@ export function makeGetManagerResults<TSpec extends SpecType, TType extends 'cla
               result,
               error: result.status !== 'Passed' ? new TestError(result) : undefined,
               userTestId: result.userTestId,
-              renderer: (result as TestResult<'ufg'>).renderer as any,
+              environment: result.environment,
             })),
           )
         })

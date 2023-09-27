@@ -17,6 +17,6 @@ export function makeNMLClient({
   return {
     takeScreenshots: makeTakeScreenshots({requests, logger}),
     takeSnapshots: makeTakeSnapshots({requests, logger}),
-    getSupportedRenderEnvironments: requests.getSupportedRenderEnvironments,
+    getSupportedEnvironments: requests.getSupportedEnvironments,
   }
 }

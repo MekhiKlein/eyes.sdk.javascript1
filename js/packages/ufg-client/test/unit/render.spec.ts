@@ -5,7 +5,7 @@ import * as utils from '@applitools/utils'
 import assert from 'assert'
 
 describe('render', () => {
-  function createRenderRequest(snapshotHash: string, renderEnvironmentId?: string) {
+  function createRenderRequest(snapshotHash: string, environmentId?: string) {
     return {
       target: {
         snapshot: {hashFormat: 'sha256' as const, hash: snapshotHash, contentType: 'x-applitools-html/cdt'},
@@ -13,8 +13,8 @@ describe('render', () => {
       },
       settings: {
         type: 'web' as const,
-        renderer: {name: 'chrome' as const, width: 1000, height: 700},
-        renderEnvironmentId: renderEnvironmentId ?? Math.random(),
+        environment: {name: 'chrome' as const, width: 1000, height: 700},
+        environmentId: environmentId ?? Math.random(),
       },
     } as any
   }
@@ -210,7 +210,7 @@ describe('render', () => {
     assert.strictEqual(renderCalls[2].length, 1)
   })
 
-  it('runs with specified concurrency per renderer', async () => {
+  it('runs with specified concurrency per environment', async () => {
     const counters = {started: [] as string[], finished: [] as string[]}
     const render = makeRender({
       requests: {
@@ -233,18 +233,18 @@ describe('render', () => {
       logger: makeLogger(),
     })
 
-    const render1 = render({...createRenderRequest('page1', 'renderer-1')})
-    const render2 = render({...createRenderRequest('page2', 'renderer-1')})
-    const render3 = render({...createRenderRequest('page3', 'renderer-1')})
+    const render1 = render({...createRenderRequest('page1', 'environment-1')})
+    const render2 = render({...createRenderRequest('page2', 'environment-1')})
+    const render3 = render({...createRenderRequest('page3', 'environment-1')})
 
     assert.deepStrictEqual(counters, {started: [], finished: []})
 
     await Promise.all([render1, render2])
     assert.deepStrictEqual(counters, {started: ['page1', 'page2'], finished: ['page1', 'page2']})
 
-    const render4 = render({...createRenderRequest('page4', 'renderer-2')})
-    const render5 = render({...createRenderRequest('page5', 'renderer-2')})
-    const render6 = render({...createRenderRequest('page6', 'renderer-2')})
+    const render4 = render({...createRenderRequest('page4', 'environment-2')})
+    const render5 = render({...createRenderRequest('page5', 'environment-2')})
+    const render6 = render({...createRenderRequest('page6', 'environment-2')})
 
     await utils.general.sleep(0)
     assert.deepStrictEqual(counters, {

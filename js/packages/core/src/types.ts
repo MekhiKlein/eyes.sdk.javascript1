@@ -162,7 +162,7 @@ export type TestResult<TType extends 'classic' | 'ufg'> = TType extends 'ufg'
 export interface TestResultContainer<TType extends 'classic' | 'ufg'> {
   readonly error?: Error
   readonly result?: TestResult<TType>
-  readonly renderer?: TType extends 'ufg' ? AutomationCore.Renderer : never
+  readonly environment: AutomationCore.ExactEnvironment
   readonly userTestId?: string
 }
 

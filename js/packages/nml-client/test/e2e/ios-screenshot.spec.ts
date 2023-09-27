@@ -12,7 +12,7 @@ async function extractBrokerUrl(driver: spec.Driver): Promise<string> {
 
 describe('ios screenshot', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
-  const renderEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
+  const supportedEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
 
   beforeEach(async () => {
     ;[driver, destroyDriver] = await spec.build({
@@ -38,27 +38,26 @@ describe('ios screenshot', () => {
 
   it('works', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
+    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, supportedEnvironmentsUrl}})
     const screenshots = await takeScreenshots({
       settings: {
-        renderers: [{environment: {os: 'iOS', deviceName: 'iPhone', viewportSize: {width: 210, height: 700}}}],
+        environments: [{os: 'iOS', deviceName: 'iPhone', viewportSize: {width: 210, height: 700}}],
         fully: true,
       },
     })
 
     screenshots.forEach(screenshot => {
       if (screenshot.image) screenshot.image = 'image-url'
-      if (screenshot.renderEnvironment?.renderEnvironmentId) {
-        screenshot.renderEnvironment.renderEnvironmentId = 'renderer-id'
+      if (screenshot.environment?.environmentId) {
+        screenshot.environment.environmentId = 'environment-id'
       }
     })
 
     assert.deepStrictEqual(screenshots, [
       {
         image: 'image-url',
-        renderEnvironment: {
-          renderEnvironmentId: 'renderer-id',
-          renderer: {environment: {os: 'iOS', deviceName: 'iPhone', viewportSize: {width: 210, height: 700}}},
+        environment: {
+          environmentId: 'environment-id',
           os: 'iOS',
           deviceName: 'iPhone',
           viewportSize: {width: 210, height: 700},
@@ -67,12 +66,12 @@ describe('ios screenshot', () => {
     ])
   })
 
-  it('works with multiple renderers', async () => {
+  it('works with multiple environments', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
+    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, supportedEnvironmentsUrl}})
     const screenshots = await takeScreenshots({
       settings: {
-        renderers: [
+        environments: [
           {iosDeviceInfo: {deviceName: 'iPhone SE (3rd generation)', version: '15.0'}},
           {iosDeviceInfo: {deviceName: 'iPhone 11 Pro', version: '14.0'}},
         ],
@@ -82,17 +81,17 @@ describe('ios screenshot', () => {
 
     screenshots.forEach(screenshot => {
       if (screenshot.image) screenshot.image = 'image-url'
-      if (screenshot.renderEnvironment?.renderEnvironmentId) {
-        screenshot.renderEnvironment.renderEnvironmentId = 'renderer-id'
+      if (screenshot.environment?.environmentId) {
+        screenshot.environment.environmentId = 'environment-id'
       }
     })
 
     assert.deepStrictEqual(screenshots, [
       {
         image: 'image-url',
-        renderEnvironment: {
-          renderEnvironmentId: 'renderer-id',
-          renderer: {iosDeviceInfo: {deviceName: 'iPhone SE (3rd generation)', version: '15.0'}},
+        environment: {
+          requested: {iosDeviceInfo: {deviceName: 'iPhone SE (3rd generation)', version: '15.0'}},
+          environmentId: 'environment-id',
           deviceName: 'iPhone SE (3rd generation)',
           os: 'iOS 15.0',
           viewportSize: {width: 375, height: 667},
@@ -100,9 +99,9 @@ describe('ios screenshot', () => {
       },
       {
         image: 'image-url',
-        renderEnvironment: {
-          renderEnvironmentId: 'renderer-id',
-          renderer: {iosDeviceInfo: {deviceName: 'iPhone 11 Pro', version: '14.0'}},
+        environment: {
+          requested: {iosDeviceInfo: {deviceName: 'iPhone 11 Pro', version: '14.0'}},
+          environmentId: 'environment-id',
           deviceName: 'iPhone 11 Pro',
           os: 'iOS 14.0',
           viewportSize: {width: 375, height: 812},
@@ -111,12 +110,12 @@ describe('ios screenshot', () => {
     ])
   })
 
-  it('throws the error when one of the renderer failed', async () => {
-    const renderEnvironmentsUrl = 'http://renderer-env-url.com'
-    nock(renderEnvironmentsUrl)
+  it('throws the error when one of the environment failed', async () => {
+    const supportedEnvironmentsUrl = 'http://environment-env-url.com'
+    nock(supportedEnvironmentsUrl)
       .get('/')
       .reply(200, {
-        // NOTE: this renderer info causes problem for ios applitools lib because there is no portrait property with needed info
+        // NOTE: this environment info causes problem for ios applitools lib because there is no portrait property with needed info
         'iPhone 13': {
           model: 'iPhone14,5',
           landscapeLeft: {
@@ -129,11 +128,11 @@ describe('ios screenshot', () => {
       })
 
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
+    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, supportedEnvironmentsUrl}})
     await assert.rejects(
       takeScreenshots({
         settings: {
-          renderers: [{iosDeviceInfo: {deviceName: 'iPhone 13', screenOrientation: 'landscape'}}],
+          environments: [{iosDeviceInfo: {deviceName: 'iPhone 13', screenOrientation: 'landscape'}}],
           fully: true,
         },
       }),

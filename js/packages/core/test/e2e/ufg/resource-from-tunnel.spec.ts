@@ -40,7 +40,9 @@ describe('resource fetching from tunnel', () => {
         testName: 'resource-handler works',
       },
     })
-    await eyes.check({settings: {renderers: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true}})
+    await eyes.check({
+      settings: {environments: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
+    })
     await eyes.close({settings: {updateBaselineIfNew: false}})
     const [result] = await eyes.getResults()
     assert.strictEqual(result.isDifferent, false)

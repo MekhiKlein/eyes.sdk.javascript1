@@ -1,7 +1,7 @@
-import * as spec from '@applitools/spec-driver-webdriver'
 import {makeCore} from '../../src/index'
 import {getTestInfo} from '@applitools/test-utils'
 import assert from 'assert'
+import * as spec from '@applitools/spec-driver-webdriver'
 
 describe('get manager results', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
@@ -72,7 +72,9 @@ describe('get manager results', () => {
       settings: {appName: 'core e2e', testName: 'should add internal error to the summary'},
     })
 
-    await eyes.check({settings: {fully: false, renderers: [{name: 'firefox-3' as 'firefox', width: 640, height: 480}]}})
+    await eyes.check({
+      settings: {fully: false, environments: [{name: 'firefox-3' as 'firefox', width: 640, height: 480}]},
+    })
     const summary = await manager.getResults()
     assert.strictEqual((summary.results[0].error as any).reason, 'internal')
   })

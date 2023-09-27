@@ -1,8 +1,8 @@
-import type {Eyes, GetBaseEyesSettings, OpenSettings, Environment} from './types'
+import type {Eyes, GetBaseEyesSettings, OpenSettings} from './types'
 import type {Eyes as BaseEyes} from '@applitools/core-base'
 import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
-import {extractRendererKey} from '../automation/utils/extract-renderer-key'
+import {toEnvironmentKey} from '../automation/utils/to-environment-key'
 import * as utils from '@applitools/utils'
 
 type Options<TSpec extends SpecType> = {
@@ -17,7 +17,7 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
   logger: mainLogger,
 }: Options<TSpec>) {
   const getBaseEyesWithCache = utils.general.wrap(getBaseEyes, (getBaseEyes, options) => {
-    const key = extractRendererKey(options.settings.renderer)
+    const key = toEnvironmentKey(options.settings.environment)
     let item = eyes.storage.get(key)
     if (!item) {
       item = {eyes: utils.promises.makeControlledPromise(), jobs: []}
@@ -40,19 +40,10 @@ export function makeGetBaseEyes<TSpec extends SpecType>({
 
     logger.log(`Command "getBaseEyes" is called with settings`, settings)
 
-    let environment: Environment | undefined
-    if (utils.types.has(settings.renderer, 'environment')) {
-      environment = settings.renderer.environment
-    } else {
-      // NOTE: ios and android handled by nml-client
-      // TODO: chrome emulation, desktop
-      environment = {renderer: settings.renderer}
-    }
-
     return eyes.core.base.openEyes({
       settings: {
         ...defaultSettings,
-        environment: {...defaultSettings.environment, ...environment, properties: settings.renderer.properties},
+        environment: {...defaultSettings.environment, ...settings.environment},
       },
       logger,
     })

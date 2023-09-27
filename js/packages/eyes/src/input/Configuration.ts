@@ -1133,7 +1133,7 @@ export class ConfigurationData<TSpec extends Core.SpecType = Core.SpecType> impl
             : (undefined as any),
       }),
       check: utils.general.removeUndefinedProps({
-        renderers: this.browsersInfo?.map(browserInfo => {
+        environments: this.browsersInfo?.map(browserInfo => {
           if (utils.types.has(browserInfo, 'iosDeviceInfo')) {
             const {iosVersion, ...iosDeviceInfo} = browserInfo.iosDeviceInfo
             return {iosDeviceInfo: {...iosDeviceInfo, version: iosVersion}}

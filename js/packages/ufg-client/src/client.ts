@@ -2,7 +2,7 @@ import type {UFGClient, UFGClientSettings} from './types'
 import {makeLogger, type Logger} from '@applitools/logger'
 import {makeUFGRequests} from './server/requests'
 import {makeCreateRenderTarget} from './create-render-target'
-import {makeGetRenderEnvironment} from './get-render-environment'
+import {makeGetActualEnvironment} from './get-actual-environment'
 import {makeRender} from './render'
 import {makeProcessResources} from './resources/process-resources'
 import {makeFetchResource} from './resources/fetch-resource'
@@ -34,8 +34,8 @@ export function makeUFGClient({settings, logger}: {settings: UFGClientSettings; 
 
   return {
     createRenderTarget: makeCreateRenderTarget({processResources, logger}),
-    getRenderEnvironment: makeGetRenderEnvironment({requests, logger}),
     render: makeRender({requests, logger}),
+    getActualEnvironment: makeGetActualEnvironment({requests, logger}),
     getChromeEmulationDevices: requests.getChromeEmulationDevices,
     getAndroidDevices: requests.getAndroidDevices,
     getIOSDevices: requests.getIOSDevices,

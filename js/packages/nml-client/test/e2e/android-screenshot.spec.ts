@@ -11,7 +11,7 @@ async function extractBrokerUrl(driver: spec.Driver): Promise<string> {
 
 describe('android screenshot', () => {
   let driver: spec.Driver, destroyDriver: () => Promise<void>
-  const renderEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
+  const supportedEnvironmentsUrl = 'https://applitoolsnmlresources.z19.web.core.windows.net/devices-list.json'
 
   beforeEach(async () => {
     ;[driver, destroyDriver] = await spec.build({
@@ -34,8 +34,13 @@ describe('android screenshot', () => {
 
   it('works', async () => {
     const brokerUrl = await extractBrokerUrl(driver)
-    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, renderEnvironmentsUrl}})
-    const screenshots = await takeScreenshots({settings: {renderers: [{environment: {}}], fully: true}})
+    const {takeScreenshots} = makeNMLClient({settings: {brokerUrl, supportedEnvironmentsUrl}})
+    const screenshots = await takeScreenshots({
+      settings: {
+        environments: [{os: 'Android', deviceName: 'Pixel 7 Pro', viewportSize: {width: 100, height: 100}}],
+        fully: true,
+      },
+    })
 
     assert.strictEqual(screenshots.length, 1)
     assert.strictEqual(typeof screenshots[0].image, 'string')

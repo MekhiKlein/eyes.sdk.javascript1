@@ -1,12 +1,12 @@
 import type {Region} from '@applitools/utils'
-import type {DriverTarget, Target, Eyes, CheckSettings, Renderer, SnapshotResult} from './types'
+import type {DriverTarget, Target, Eyes, CheckSettings, Environment, SnapshotResult} from './types'
 import {
-  type Renderer as UFGRenderer,
+  type Environment as UFGEnvironment,
   type DomSnapshot,
   type AndroidSnapshot,
   type IOSSnapshot,
 } from '@applitools/ufg-client'
-import {type Renderer as NMLRenderer} from '@applitools/nml-client'
+import {type Environment as NMLEnvironment} from '@applitools/nml-client'
 import {type AbortSignal} from 'abort-controller'
 import {type Logger} from '@applitools/logger'
 import {
@@ -20,8 +20,8 @@ import {
 } from '@applitools/driver'
 import {takeDomSnapshots} from './utils/take-dom-snapshots'
 import {toBaseCheckSettings} from '../automation/utils/to-base-check-settings'
-import {uniquifyRenderers} from '../automation/utils/uniquify-renderers'
-import {extractRendererKey} from '../automation/utils/extract-renderer-key'
+import {uniquifyEnvironments} from '../automation/utils/uniquify-environments'
+import {toEnvironmentKey} from '../automation/utils/to-environment-key'
 import {AbortError} from '../errors/abort-error'
 import * as utils from '@applitools/utils'
 import chalk from 'chalk'
@@ -29,7 +29,7 @@ import chalk from 'chalk'
 type Options<TSpec extends SpecType> = {
   eyes: Eyes<TSpec>
   target?: DriverTarget<TSpec>
-  renderers?: Renderer[]
+  environments?: Environment[]
   spec?: SpecDriver<TSpec>
   signal?: AbortSignal
   logger: Logger
@@ -38,7 +38,7 @@ type Options<TSpec extends SpecType> = {
 export function makeCheck<TSpec extends SpecType>({
   eyes,
   target: defaultTarget,
-  renderers: defaultRenderers = [],
+  environments: defaultEnvironments = [],
   spec,
   signal,
   logger: mainLogger,
@@ -65,7 +65,7 @@ export function makeCheck<TSpec extends SpecType>({
       settings,
     })
 
-    const uniqueRenderers = uniquifyRenderers(settings.renderers ?? defaultRenderers)
+    const uniqueEnvironments = uniquifyEnvironments(settings.environments ?? defaultEnvironments)
     const ufgClient = await eyes.core.getUFGClient({
       settings: {
         ...eyes.test.ufgServer,
@@ -97,7 +97,7 @@ export function makeCheck<TSpec extends SpecType>({
             waitBeforeCapture: settings.waitBeforeCapture,
             disableBrowserFetching: settings.disableBrowserFetching,
             layoutBreakpoints: settings.layoutBreakpoints,
-            renderers: uniqueRenderers as UFGRenderer[],
+            environments: uniqueEnvironments as UFGEnvironment[],
             skipResources: ufgClient.getCachedResourceUrls(),
             lazyLoad: settings.lazyLoad,
             calculateRegionsOptions: {
@@ -115,14 +115,14 @@ export function makeCheck<TSpec extends SpecType>({
       } else {
         const nmlClient = await eyes.core.getNMLClient({
           driver,
-          settings: {...eyes.test.eyesServer, renderEnvironmentsUrl: eyes.test.renderEnvironmentsUrl},
+          settings: {...eyes.test.eyesServer, supportedEnvironmentsUrl: eyes.test.supportedEnvironmentsUrl},
           logger,
         })
         const snapshots = (await nmlClient.takeSnapshots({
           settings: {
             ...eyes.test.eyesServer,
             waitBeforeCapture: settings.waitBeforeCapture,
-            renderers: uniqueRenderers as NMLRenderer[],
+            environments: uniqueEnvironments as NMLEnvironment[],
           },
           logger,
         })) as AndroidSnapshot[] | IOSSnapshot[]
@@ -142,25 +142,25 @@ export function makeCheck<TSpec extends SpecType>({
       snapshotUrl = await driver.getUrl()
       snapshotTitle = await driver.getTitle()
     } else {
-      snapshotResults = !utils.types.isArray(target) ? Array(uniqueRenderers.length).fill(target) : target
+      snapshotResults = !utils.types.isArray(target) ? Array(uniqueEnvironments.length).fill(target) : target
       snapshotUrl = utils.types.has(snapshotResults[0]?.snapshot, 'url') ? snapshotResults[0].snapshot.url : undefined
     }
 
-    const promises = uniqueRenderers.map(async (renderer, index) => {
-      const rendererLogger = logger.extend({tags: [`renderer-${utils.general.shortid()}`]})
+    const promises = uniqueEnvironments.map(async (environment, index) => {
+      const environmentLogger = logger.extend({tags: [`environment-${utils.general.shortid()}`]})
 
-      const ufgRenderer = renderer as UFGRenderer
+      const ufgEnvironment = environment as UFGEnvironment
 
-      if (utils.types.has(ufgRenderer, 'name') && ufgRenderer.name === 'edge') {
+      if (utils.types.has(ufgEnvironment, 'name') && ufgEnvironment.name === 'edge') {
         const message = chalk.yellow(
           `The 'edge' option that is being used in your browsers' configuration will soon be deprecated. Please change it to either 'edgelegacy' for the legacy version or to 'edgechromium' for the new Chromium-based version. Please note, when using the built-in BrowserType enum, then the values are BrowserType.EDGE_LEGACY and BrowserType.EDGE_CHROMIUM, respectively.`,
         )
-        rendererLogger.console.log(message)
+        environmentLogger.console.log(message)
       }
 
       try {
         if (signal?.aborted) {
-          rendererLogger.warn('Command "check" was aborted before rendering')
+          environmentLogger.warn('Command "check" was aborted before rendering')
           throw new AbortError('Command "check" was aborted before rendering')
         }
 
@@ -182,14 +182,14 @@ export function makeCheck<TSpec extends SpecType>({
             safeSelector: selector as Selector,
           }))
 
-        if (utils.types.has(ufgRenderer, 'iosDeviceInfo') || utils.types.has(ufgRenderer, 'androidDeviceInfo')) {
-          ufgRenderer.type = utils.types.has(snapshot, 'cdt') ? 'web' : 'native'
+        if (utils.types.has(ufgEnvironment, 'iosDeviceInfo') || utils.types.has(ufgEnvironment, 'androidDeviceInfo')) {
+          ufgEnvironment.type = utils.types.has(snapshot, 'cdt') ? 'web' : 'native'
         }
 
         const renderTargetPromise = ufgClient.createRenderTarget({
           snapshot,
           settings: {
-            renderer: ufgRenderer,
+            environment: ufgEnvironment,
             cookies,
             headers: {
               Referer: snapshotUrl,
@@ -199,34 +199,34 @@ export function makeCheck<TSpec extends SpecType>({
             proxy: eyes.test.eyesServer.proxy,
             autProxy: settings.autProxy,
           },
-          logger: rendererLogger,
+          logger: environmentLogger,
         })
 
-        const baseEyes = await eyes.getBaseEyes({settings: {renderer}, logger: rendererLogger})
+        const baseEyes = await eyes.getBaseEyes({settings: {environment}, logger: environmentLogger})
         try {
           if (signal?.aborted) {
-            rendererLogger.warn('Command "check" was aborted before rendering')
+            environmentLogger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
           } else if (!baseEyes.running) {
-            rendererLogger.warn(
-              `Render on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+            environmentLogger.warn(
+              `Render on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
             throw new AbortError(
-              `Render on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+              `Render on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
           }
 
           const renderTarget = await renderTargetPromise
 
           if (signal?.aborted) {
-            rendererLogger.warn('Command "check" was aborted before rendering')
+            environmentLogger.warn('Command "check" was aborted before rendering')
             throw new AbortError('Command "check" was aborted before rendering')
           } else if (!baseEyes.running) {
-            rendererLogger.warn(
-              `Render on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+            environmentLogger.warn(
+              `Render on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
             throw new AbortError(
-              `Render on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+              `Render on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
           }
 
@@ -238,13 +238,13 @@ export function makeCheck<TSpec extends SpecType>({
               scrollRootElement: scrollRootSelector,
               selectorsToCalculate: selectorsToCalculate.flatMap(({safeSelector}) => safeSelector ?? []),
               includeFullPageSize: Boolean(settings.pageId),
-              renderer: ufgRenderer,
-              renderEnvironmentId: baseEyes.test.renderEnvironmentId!,
+              environment: ufgEnvironment,
+              environmentId: baseEyes.test.environment!.environmentId!,
               uploadUrl: baseEyes.test.uploadUrl,
               stitchingServiceUrl: baseEyes.test.stitchingServiceUrl,
             },
             signal,
-            logger: rendererLogger,
+            logger: environmentLogger,
           })
           let offset = 0
           const baseSettings = getBaseCheckSettings({
@@ -258,43 +258,43 @@ export function makeCheck<TSpec extends SpecType>({
           baseTarget.name = snapshotTitle
 
           if (signal?.aborted) {
-            rendererLogger.warn('Command "check" was aborted after rendering')
+            environmentLogger.warn('Command "check" was aborted after rendering')
             throw new AbortError('Command "check" was aborted after rendering')
           } else if (!baseEyes.running) {
-            rendererLogger.warn(
-              `Render on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+            environmentLogger.warn(
+              `Render on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
             throw new AbortError(
-              `Render on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+              `Render on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
           }
 
           await baseEyes.check({
             target: {...baseTarget, isTransformed: true},
             settings: baseSettings,
-            logger: rendererLogger,
+            logger: environmentLogger,
           })
         } catch (error: any) {
-          rendererLogger.error(
-            `Render on environment with id "${baseEyes.test.renderEnvironmentId}" failed due to an error`,
+          environmentLogger.error(
+            `Render on environment with id "${baseEyes.test.environment?.environmentId}" failed due to an error`,
             error,
           )
-          if (baseEyes.running && !signal?.aborted) await baseEyes.abort({logger: rendererLogger})
+          if (baseEyes.running && !signal?.aborted) await baseEyes.abort({logger: environmentLogger})
           error.info = {eyes: baseEyes}
           throw error
         }
       } catch (error: any) {
-        rendererLogger.error(
-          `Renderer with id ${ufgRenderer.id} failed before rendering started due to an error`,
+        environmentLogger.error(
+          `Environment with id ${ufgEnvironment.environmentId} failed before rendering started due to an error`,
           error,
         )
-        error.info = {...error.info, userTestId: eyes.test.userTestId, renderer: ufgRenderer}
+        error.info = {...error.info, userTestId: eyes.test.userTestId, environment: ufgEnvironment}
         throw error
       }
     })
 
-    uniqueRenderers.forEach((renderer, index) => {
-      const key = extractRendererKey(renderer)
+    uniqueEnvironments.forEach((environment, index) => {
+      const key = toEnvironmentKey(environment)
       let item = eyes.storage.get(key)
       if (!item) {
         item = {eyes: utils.promises.makeControlledPromise(), jobs: []}

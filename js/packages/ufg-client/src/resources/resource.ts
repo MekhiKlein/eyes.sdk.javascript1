@@ -1,5 +1,5 @@
 import type {Optional} from '@applitools/utils'
-import type {Renderer} from '../types'
+import type {Environment} from '../types'
 import {createHash} from 'crypto'
 import * as utils from '@applitools/utils'
 
@@ -39,7 +39,7 @@ export type ContentfulResource = {
 export type UrlResource = {
   id: string
   url: string
-  renderer?: Renderer
+  environment?: Environment
 }
 
 export type HashedResource = {
@@ -86,9 +86,9 @@ export function makeResource(
       id: (resource as UrlResource).id ?? resource.url,
       url: resource.url,
     } as UrlResource
-    if (resource.renderer && isRendererDependantResource(resource as UrlResource)) {
-      urlResource.renderer = resource.renderer
-      urlResource.id += `~${extractRendererName(resource as UrlResource)}`
+    if (resource.environment && isEnvironmentDependantResource(resource as UrlResource)) {
+      urlResource.environment = resource.environment
+      urlResource.id += `~${extractEnvironmentName(resource as UrlResource)}`
     }
     return urlResource
   }
@@ -111,13 +111,13 @@ function isDomOrVHS(resource: ContentfulResource) {
   ].includes(resource.contentType)
 }
 
-function isRendererDependantResource({url}: UrlResource) {
+function isEnvironmentDependantResource({url}: UrlResource) {
   return /https:\/\/fonts.googleapis.com/.test(url)
 }
 
-function extractRendererName({renderer}: UrlResource) {
-  if (!utils.types.has(renderer, 'name')) return
-  const [browserName] = (renderer.name as string).split(/[-\d]/, 1)
+function extractEnvironmentName({environment}: UrlResource) {
+  if (!utils.types.has(environment, 'name')) return
+  const [browserName] = (environment.name as string).split(/[-\d]/, 1)
   return browserName
 }
 

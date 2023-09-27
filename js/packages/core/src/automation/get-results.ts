@@ -24,12 +24,12 @@ export function makeGetResults({eyes, logger: mainLogger}: Options) {
         try {
           const [eyes] = await Promise.all([item.eyes, ...item.jobs])
           const [result] = await eyes.getResults({settings, logger})
-          return {...result, renderer: eyes.test.renderer}
+          return {...result, environment: eyes.test.environment}
         } catch (error: any) {
           if (error instanceof AbortError && error.info?.eyes) {
             logger.warn('Command "getResults" received an abort error during performing', settings)
             const [result] = await error.info.eyes.getResults({settings, logger})
-            return {...result, renderer: error.info.renderer}
+            return {...result, environment: error.info.environment}
           }
           logger.fatal('Command "getResults" received an error during performing', settings)
           throw error

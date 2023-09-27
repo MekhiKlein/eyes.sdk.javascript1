@@ -38,7 +38,7 @@ describe('nml - android (@sauce)', () => {
     await eyes.check({
       settings: {
         waitBeforeCapture: 1500,
-        renderers: [{androidDeviceInfo: {deviceName: 'Pixel 5', version: 'latest'}}],
+        environments: [{androidDeviceInfo: {deviceName: 'Pixel 5', version: 'latest'}}],
       },
     })
     await eyes.close({settings: {updateBaselineIfNew: false}})

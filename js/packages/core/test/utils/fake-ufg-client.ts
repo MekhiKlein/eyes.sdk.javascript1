@@ -41,18 +41,18 @@ export function makeFakeClient({
         emitter.emit('afterCreateRenderTarget', options)
       }
     },
-    async getRenderEnvironment(options) {
-      emitter.emit('beforeGetRenderEnvironment', options)
+    async getActualEnvironment(options) {
+      emitter.emit('beforeGetActualEnvironment', options)
       try {
         await utils.general.sleep(0)
-        await hooks?.getRenderEnvironment?.(options)
+        await hooks?.getActualEnvironment?.(options)
         const {settings} = options
-        const renderer = settings.renderer as any
-        const deviceName = renderer.chromeEmulationInfo ?? renderer.iosDeviceInfo ?? renderer.androidDeviceInfo
-        const browserName = renderer.name
+        const environment = settings.environment as any
+        const deviceName = environment.chromeEmulationInfo ?? environment.iosDeviceInfo ?? environment.androidDeviceInfo
+        const browserName = environment.name
         return {
-          renderEnvironmentId: 'renderer-uid',
-          renderer: settings.renderer,
+          requested: settings.environment,
+          environmentId: 'environment-uid',
           rawEnvironment: {
             os: 'os',
             osInfo: 'os',
@@ -60,11 +60,13 @@ export function makeFakeClient({
             hostingAppInfo: browserName,
             deviceInfo: deviceName ?? 'Desktop',
             inferred: `useragent:${browserName}`,
-            displaySize: deviceName ? {width: 400, height: 655} : {width: renderer.width, height: renderer.height},
+            displaySize: deviceName
+              ? {width: 400, height: 655}
+              : {width: environment.width, height: environment.height},
           },
         }
       } finally {
-        emitter.emit('afterGetRenderEnvironment', options)
+        emitter.emit('afterGetActualEnvironment', options)
       }
     },
     async render(options) {

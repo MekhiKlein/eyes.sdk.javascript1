@@ -1,4 +1,4 @@
-import type {ScreenshotSettings, Renderer} from '../types'
+import type {ScreenshotSettings, Environment} from '../types'
 import type {Target as BaseTarget} from '@applitools/core-base'
 import {type Logger} from '@applitools/logger'
 import {type SpecType, type Driver, type ElementReference} from '@applitools/driver'
@@ -7,7 +7,7 @@ import {takeScreenshot} from '../../automation/utils/take-screenshot'
 import * as utils from '@applitools/utils'
 
 export type ScreenshotsSettings<TSpec extends SpecType> = ScreenshotSettings<TSpec> & {
-  renderers: Renderer[]
+  environments: Environment[]
   regionsToCalculate?: ElementReference<TSpec>[]
   calculateView?: boolean
   domSettings?: DomCaptureSettings
@@ -50,5 +50,5 @@ export async function takeScreenshots<TSpec extends SpecType>({
   }
   await screenshot.restoreState()
 
-  return new Array(settings.renderers.length).fill(baseTarget)
+  return new Array(settings.environments.length).fill(baseTarget)
 }

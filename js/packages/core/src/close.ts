@@ -1,17 +1,17 @@
-import type {Eyes, Config, CloseSettings, Renderer} from './types'
+import type {Eyes, Config, CloseSettings, Environment} from './types'
 import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
 type Options<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = {
   eyes: Eyes<TSpec, TType>
-  renderers?: Renderer[]
+  environments?: Environment[]
   logger: Logger
 }
 
 export function makeClose<TSpec extends SpecType, TType extends 'classic' | 'ufg'>({
   eyes,
-  renderers: defaultRenderers,
+  environments: defaultEnvironments,
   logger: mainLogger,
 }: Options<TSpec, TType>) {
   return async function close({
@@ -29,8 +29,8 @@ export function makeClose<TSpec extends SpecType, TType extends 'classic' | 'ufg
 
     settings = {...config?.close, ...settings}
     settings.updateBaselineIfNew ??= true
-    if (typedEyes.type === 'classic' && !utils.types.isEmpty(defaultRenderers)) {
-      settings.renderers ??= defaultRenderers
+    if (typedEyes.type === 'classic' && !utils.types.isEmpty(defaultEnvironments)) {
+      settings.environments ??= defaultEnvironments
     }
 
     await typedEyes.close({settings, logger})

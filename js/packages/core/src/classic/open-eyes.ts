@@ -7,7 +7,7 @@ import {makeCheckAndClose} from './check-and-close'
 import {makeClose} from '../automation/close'
 import {makeAbort} from '../automation/abort'
 import {makeGetResults} from '../automation/get-results'
-import {extractDefaultRenderers} from './utils/extract-default-renderers'
+import {extractDefaultEnvironments} from './utils/extract-default-environments'
 import {AbortController} from 'abort-controller'
 import * as utils from '@applitools/utils'
 
@@ -48,7 +48,7 @@ export function makeOpenEyes<TSpec extends SpecType>({core, spec, logger: mainLo
         settings.environment.ecSessionId = (await driver.getSessionId()) ?? undefined
       }
     }
-    const renderers = await extractDefaultRenderers({driver, settings})
+    const environments = await extractDefaultEnvironments({driver, settings})
     const controller = new AbortController()
     const account = await core.getAccountInfo({settings, logger})
     return utils.general.extend({}, eyes => {
@@ -63,16 +63,16 @@ export function makeOpenEyes<TSpec extends SpecType>({core, spec, logger: mainLo
           ufgServer: account.ufgServer,
           uploadUrl: account.uploadUrl,
           stitchingServiceUrl: account.stitchingServiceUrl,
-          renderEnvironmentsUrl: account.renderEnvironmentsUrl,
+          supportedEnvironmentsUrl: account.supportedEnvironmentsUrl,
           account,
         } as VisualTest,
         running: true,
         storage,
         getBaseEyes: makeGetBaseEyes({settings, eyes, logger}),
-        check: makeCheck({eyes, target: driver, renderers, spec, signal: controller.signal, logger}),
-        checkAndClose: makeCheckAndClose({eyes, target: driver, renderers, spec, signal: controller.signal, logger}),
-        close: makeClose({eyes, target: driver, renderers, logger}),
-        abort: makeAbort({eyes, target: driver, renderers, spec, controller, logger}),
+        check: makeCheck({eyes, target: driver, environments, spec, signal: controller.signal, logger}),
+        checkAndClose: makeCheckAndClose({eyes, target: driver, environments, spec, signal: controller.signal, logger}),
+        close: makeClose({eyes, target: driver, environments, logger}),
+        abort: makeAbort({eyes, target: driver, environments, spec, controller, logger}),
         getResults: makeGetResults({eyes, logger}),
       }
     })

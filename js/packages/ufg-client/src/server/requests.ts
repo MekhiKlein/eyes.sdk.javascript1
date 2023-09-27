@@ -1,11 +1,12 @@
 import type {
   UFGServerSettings,
   RenderTarget,
-  RenderEnvironmentSettings,
-  RenderEnvironment,
+  GetActualEnvironmentSettings,
+  ActualEnvironment,
   RenderSettings,
   RenderResult,
   Selector,
+  Environment,
 } from '../types'
 import {type ContentfulResource} from '../resources/resource'
 import {makeLogger, type Logger} from '@applitools/logger'
@@ -24,11 +25,14 @@ export type StartedRender = {
 }
 
 export interface UFGRequests {
-  getRenderEnvironments(options: {settings: RenderEnvironmentSettings[]; logger?: Logger}): Promise<RenderEnvironment[]>
   startRenders(options: {requests: RenderRequest[]; logger?: Logger}): Promise<StartedRender[]>
   checkRenderResults(options: {renders: StartedRender[]; logger?: Logger}): Promise<RenderResult[]>
   uploadResource(options: {resource: ContentfulResource; logger?: Logger}): Promise<void>
   checkResources(options: {resources: ContentfulResource[]; logger?: Logger}): Promise<(boolean | null)[]>
+  getActualEnvironments(options: {
+    settings: GetActualEnvironmentSettings[]
+    logger?: Logger
+  }): Promise<ActualEnvironment[]>
   getChromeEmulationDevices(options?: {logger?: Logger}): Promise<Record<string, any>>
   getIOSDevices(options?: {logger?: Logger}): Promise<Record<string, any>>
   getAndroidDevices(options?: {logger?: Logger}): Promise<Record<string, any>>
@@ -45,53 +49,14 @@ export function makeUFGRequests({settings, logger}: {settings: UFGServerSettings
   const getAndroidDevicesWithCache = utils.general.cachify(() => null as never)
 
   return {
-    getRenderEnvironments,
     startRenders,
     checkRenderResults,
     uploadResource,
     checkResources,
+    getActualEnvironments,
     getChromeEmulationDevices: getChromeEmulationDevicesWithCache,
     getIOSDevices: getIOSDevicesWithCache,
     getAndroidDevices: getAndroidDevicesWithCache,
-  }
-
-  async function getRenderEnvironments({
-    settings,
-    logger = mainLogger,
-  }: {
-    settings: RenderEnvironmentSettings[]
-    logger?: Logger
-  }): Promise<RenderEnvironment[]> {
-    logger = logger.extend(mainLogger, {tags: [`get-render-environments-${utils.general.shortid()}`]})
-
-    logger.log('Request "getRenderEnvironments" called for with settings', settings)
-    const response = await req('./job-info', {
-      name: 'getRenderEnvironments',
-      method: 'POST',
-      body: settings.map(settings => {
-        const renderOptions: any = {
-          agentId: defaultAgentId,
-          webhook: '',
-          stitchingService: '',
-          ...transformRenderEnvironmentSettings(settings),
-        }
-        renderOptions.renderInfo.target = 'viewport'
-        return renderOptions
-      }),
-      expected: 200,
-      logger,
-    })
-    const results = await response.json().then((results: any) => {
-      return (results as any[]).map((result, index) => {
-        return {
-          renderEnvironmentId: utils.general.guid(),
-          renderer: settings[index]?.renderer,
-          rawEnvironment: result.eyesEnvironment,
-        }
-      })
-    })
-    logger.log('Request "getRenderEnvironments" finished successfully with body', results)
-    return results
   }
 
   async function startRenders({
@@ -121,9 +86,9 @@ export function makeUFGRequests({settings, logger}: {settings: UFGServerSettings
           sendDom: settings.sendDom,
           includeFullPageSize: settings.includeFullPageSize,
           enableMultipleResultsPerSelector: true,
-          ...transformRenderEnvironmentSettings(settings),
+          ...transformEnvironment(settings.environment),
         }
-        if (utils.types.has(settings.renderer, 'type') && settings.renderer.type === 'native') {
+        if (utils.types.has(settings.environment, 'type') && settings.environment.type === 'native') {
           renderOptions.renderInfo.vhsType = target.vhsType
           renderOptions.renderInfo.vhsCompatibilityParams = target.vhsCompatibilityParams
           //NOTE: at the moment stitch mode is supported only for native devices
@@ -140,7 +105,7 @@ export function makeUFGRequests({settings, logger}: {settings: UFGServerSettings
         } else {
           renderOptions.renderInfo.target = settings.fully ? 'full-page' : 'viewport'
           //NOTE: at the moment scroll root is supported only for native devices
-          if (utils.types.has(settings.renderer, 'type') && settings.renderer.type === 'native') {
+          if (utils.types.has(settings.environment, 'type') && settings.environment.type === 'native') {
             renderOptions.renderInfo.selector = settings.scrollRootElement
           }
         }
@@ -263,6 +228,45 @@ export function makeUFGRequests({settings, logger}: {settings: UFGServerSettings
     logger.log('Request "uploadResource" finished successfully')
   }
 
+  async function getActualEnvironments({
+    settings,
+    logger = mainLogger,
+  }: {
+    settings: GetActualEnvironmentSettings[]
+    logger?: Logger
+  }): Promise<ActualEnvironment[]> {
+    logger = logger.extend(mainLogger, {tags: [`get-actual-environments-${utils.general.shortid()}`]})
+
+    logger.log('Request "getActualEnvironments" called for with settings', settings)
+    const response = await req('./job-info', {
+      name: 'getActualEnvironments',
+      method: 'POST',
+      body: settings.map(settings => {
+        const renderOptions: any = {
+          agentId: defaultAgentId,
+          webhook: '',
+          stitchingService: '',
+          ...transformEnvironment(settings.environment),
+        }
+        renderOptions.renderInfo.target = 'viewport'
+        return renderOptions
+      }),
+      expected: 200,
+      logger,
+    })
+    const results = await response.json().then((results: any) => {
+      return (results as any[]).map((result, index) => {
+        return {
+          requested: settings[index]?.environment,
+          environmentId: utils.general.guid(),
+          rawEnvironment: result.eyesEnvironment,
+        }
+      })
+    })
+    logger.log('Request "getActualEnvironments" finished successfully with body', results)
+    return results
+  }
+
   async function getChromeEmulationDevices({
     logger = mainLogger,
   }: {
@@ -300,47 +304,47 @@ export function makeUFGRequests({settings, logger}: {settings: UFGServerSettings
   }
 }
 
-function transformRenderEnvironmentSettings(settings: RenderEnvironmentSettings) {
-  if (utils.types.has(settings.renderer, ['width', 'height'])) {
+function transformEnvironment(environment: Environment) {
+  if (utils.types.has(environment, ['width', 'height'])) {
     return {
       platform: {name: 'linux', type: 'web'},
       browser: {
-        name: settings.renderer.name!.replace(/(one|two)-versions?-back$/, (_, num) => (num === 'one' ? '1' : '2')),
+        name: environment.name!.replace(/(one|two)-versions?-back$/, (_, num) => (num === 'one' ? '1' : '2')),
       },
-      renderInfo: {width: settings.renderer.width, height: settings.renderer.height},
+      renderInfo: {width: environment.width, height: environment.height},
     }
-  } else if (utils.types.has(settings.renderer, 'chromeEmulationInfo')) {
+  } else if (utils.types.has(environment, 'chromeEmulationInfo')) {
     return {
       platform: {name: 'linux', type: 'web'},
       browser: {name: 'chrome'},
       renderInfo: {
         emulationInfo: {
-          deviceName: settings.renderer.chromeEmulationInfo.deviceName,
-          screenOrientation: settings.renderer.chromeEmulationInfo.screenOrientation,
+          deviceName: environment.chromeEmulationInfo.deviceName,
+          screenOrientation: environment.chromeEmulationInfo.screenOrientation,
         },
       },
     }
-  } else if (utils.types.has(settings.renderer, 'androidDeviceInfo')) {
+  } else if (utils.types.has(environment, 'androidDeviceInfo')) {
     return {
-      platform: {name: 'android', type: settings.renderer.type ?? 'native'},
-      browser: settings.renderer.type === 'web' ? {name: 'chrome'} : undefined,
+      platform: {name: 'android', type: environment.type ?? 'native'},
+      browser: environment.type === 'web' ? {name: 'chrome'} : undefined,
       renderInfo: {
         androidDeviceInfo: {
-          name: settings.renderer.androidDeviceInfo.deviceName,
-          version: settings.renderer.androidDeviceInfo.version,
-          screenOrientation: settings.renderer.androidDeviceInfo.screenOrientation,
+          name: environment.androidDeviceInfo.deviceName,
+          version: environment.androidDeviceInfo.version,
+          screenOrientation: environment.androidDeviceInfo.screenOrientation,
         },
       },
     }
-  } else if (utils.types.has(settings.renderer, 'iosDeviceInfo')) {
+  } else if (utils.types.has(environment, 'iosDeviceInfo')) {
     return {
-      platform: {name: 'ios', type: settings.renderer.type ?? 'native'},
-      browser: settings.renderer.type === 'web' ? {name: 'safari'} : undefined,
+      platform: {name: 'ios', type: environment.type ?? 'native'},
+      browser: environment.type === 'web' ? {name: 'safari'} : undefined,
       renderInfo: {
         iosDeviceInfo: {
-          name: settings.renderer.iosDeviceInfo.deviceName,
-          version: settings.renderer.iosDeviceInfo.version,
-          screenOrientation: settings.renderer.iosDeviceInfo.screenOrientation,
+          name: environment.iosDeviceInfo.deviceName,
+          version: environment.iosDeviceInfo.version,
+          screenOrientation: environment.iosDeviceInfo.screenOrientation,
         },
       },
     }

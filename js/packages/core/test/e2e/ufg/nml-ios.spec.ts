@@ -32,7 +32,7 @@ describe('nml - ios (@sauce)', () => {
     await eyes.check({
       settings: {
         waitBeforeCapture: 1500,
-        renderers: [{iosDeviceInfo: {deviceName: 'iPhone 12', version: 'latest-1'}}],
+        environments: [{iosDeviceInfo: {deviceName: 'iPhone 12', version: 'latest-1'}}],
       },
     })
     await eyes.close({settings: {updateBaselineIfNew: false}})

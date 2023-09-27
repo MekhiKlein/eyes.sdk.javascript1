@@ -25,7 +25,7 @@ describe('check', () => {
       ],
       settings: {
         name: 'good',
-        renderers: [
+        environments: [
           {width: 320, height: 480},
           {width: 640, height: 768},
           {width: 1600, height: 900},
@@ -42,7 +42,7 @@ describe('check', () => {
     )
   })
 
-  it('renders with correct renderer', async () => {
+  it('renders with correct environment', async () => {
     const core = makeCore({
       base: makeFakeCore(),
       clients: {
@@ -72,7 +72,7 @@ describe('check', () => {
       settings: {
         name: 'good',
         region: {x: 3, y: 4, width: 1, height: 2},
-        renderers: [{name: 'firefox', width: 100, height: 100}],
+        environments: [{name: 'firefox', width: 100, height: 100}],
       },
     })
 
@@ -80,7 +80,7 @@ describe('check', () => {
     const results = await eyes.getResults()
 
     assert.deepStrictEqual(
-      results.map(result => result.renderer),
+      results.map(result => result.environment.requested),
       [{name: 'firefox', width: 100, height: 100}],
     )
   })
@@ -99,7 +99,7 @@ describe('check', () => {
 
     await eyes.check({
       target: [{snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}}],
-      settings: {name: 'good', region: 'sel1', renderers: [{width: 100, height: 100}]},
+      settings: {name: 'good', region: 'sel1', environments: [{width: 100, height: 100}]},
     })
 
     await eyes.close()
@@ -133,7 +133,7 @@ describe('check', () => {
       settings: {
         name: 'good',
         region: {x: 3, y: 4, width: 1, height: 2},
-        renderers: [{width: 100, height: 100}],
+        environments: [{width: 100, height: 100}],
       },
     })
 
@@ -239,7 +239,7 @@ describe('check', () => {
     assert.deepStrictEqual(originalDocument, resultDocument)
   })
 
-  it('adds unique id to duplicated renderers', async function () {
+  it('adds unique id to duplicated environments', async function () {
     const core = makeCore({base: makeFakeCore(), clients: {ufg: makeFakeClient()}, concurrency: 10})
 
     const eyes = await core.openEyes({
@@ -258,7 +258,7 @@ describe('check', () => {
       ],
       settings: {
         name: 'good',
-        renderers: [
+        environments: [
           {name: 'firefox', width: 100, height: 100},
           {name: 'firefox', width: 100, height: 100},
         ],
@@ -269,10 +269,10 @@ describe('check', () => {
     const results = await eyes.getResults()
 
     assert.deepStrictEqual(
-      results.map(result => result.renderer),
+      results.map(result => result.environment.requested),
       [
         {name: 'firefox', width: 100, height: 100},
-        {name: 'firefox', id: '1', width: 100, height: 100},
+        {name: 'firefox', width: 100, height: 100, environmentId: '1'},
       ],
     )
     assert.deepStrictEqual(
@@ -306,7 +306,7 @@ describe('check', () => {
 
     await eyes1.check({
       target: [{snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}}],
-      settings: {renderers: [{name: 'chrome', width: 100, height: 100}]},
+      settings: {environments: [{name: 'chrome', width: 100, height: 100}]},
     })
     await eyes1.close()
 
@@ -347,7 +347,7 @@ describe('check', () => {
     await eyes.check({
       target: [{snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}}],
       settings: {
-        renderers: [{width: 320, height: 480}],
+        environments: [{width: 320, height: 480}],
         headers: expectedHeaders,
       },
     })

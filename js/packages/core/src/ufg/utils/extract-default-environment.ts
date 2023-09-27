@@ -1,11 +1,11 @@
-import type {Renderer} from '../types'
+import type {Environment} from '../types'
 import {type SpecType, type Driver} from '@applitools/driver'
 
-export async function extractDefaultRenderers<TSpec extends SpecType>({
+export async function extractDefaultEnvironments<TSpec extends SpecType>({
   driver,
 }: {
   driver?: Driver<TSpec>
-}): Promise<Renderer[]> {
+}): Promise<Environment[]> {
   if (!driver) return []
 
   const currentContext = driver.currentContext

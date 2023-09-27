@@ -47,14 +47,11 @@ describe('close', async () => {
     assert.strictEqual(results.length, 1)
   })
 
-  it('should return results of classic eyes for renderers if no check was called', async () => {
+  it('should return results of classic eyes for environments if no check was called', async () => {
     const eyes = await core.openEyes({type: 'classic', target: driver, settings: {appName: 'App', testName: 'Test'}})
     await eyes.close({
       settings: {
-        renderers: [
-          {environment: {viewportSize: {width: 100, height: 100}}},
-          {environment: {viewportSize: {width: 200, height: 200}}},
-        ],
+        environments: [{viewportSize: {width: 100, height: 100}}, {viewportSize: {width: 200, height: 200}}],
       },
     })
     const results = await eyes.getResults()
@@ -62,7 +59,7 @@ describe('close', async () => {
     assert.strictEqual(results.length, 2)
   })
 
-  it('should return results of classic eyes for renderers from open config if no check was called', async () => {
+  it('should return results of classic eyes for environments from open config if no check was called', async () => {
     const eyes = await core.openEyes({
       type: 'classic',
       target: driver,
@@ -71,10 +68,7 @@ describe('close', async () => {
         open: {},
         screenshot: {},
         check: {
-          renderers: [
-            {environment: {viewportSize: {width: 100, height: 100}}},
-            {environment: {viewportSize: {width: 200, height: 200}}},
-          ],
+          environments: [{viewportSize: {width: 100, height: 100}}, {viewportSize: {width: 200, height: 200}}],
         },
         close: {},
       },
@@ -93,11 +87,11 @@ describe('close', async () => {
     assert.strictEqual(results.length, 0)
   })
 
-  it('should return results of ufg eyes for renderers if no check was called', async () => {
+  it('should return results of ufg eyes for environments if no check was called', async () => {
     const eyes = await core.openEyes({type: 'ufg', target: driver, settings: {appName: 'App', testName: 'Test'}})
     await eyes.close({
       settings: {
-        renderers: [
+        environments: [
           {name: 'chrome', width: 100, height: 100},
           {name: 'chrome', width: 200, height: 200},
         ],
@@ -108,7 +102,7 @@ describe('close', async () => {
     assert.strictEqual(results.length, 2)
   })
 
-  it('should not return results of ufg eyes for renderers from open config if no check was called', async () => {
+  it('should not return results of ufg eyes for environments from open config if no check was called', async () => {
     const eyes = await core.openEyes({
       type: 'ufg',
       target: driver,
@@ -117,7 +111,7 @@ describe('close', async () => {
         open: {},
         screenshot: {},
         check: {
-          renderers: [
+          environments: [
             {name: 'chrome', width: 100, height: 100},
             {name: 'chrome', width: 200, height: 200},
           ],

@@ -32,12 +32,12 @@ describe('take-dom-snapshots', () => {
     } as typeof logger.console
   })
 
-  it('warns if not able to resize to the renderer width', async () => {
+  it('warns if not able to resize to the environment width', async () => {
     await takeDomSnapshots({
       driver,
       settings: {
         layoutBreakpoints: {breakpoints: true},
-        renderers: [
+        environments: [
           {width: 200, height: 400, name: 'chrome'},
           {width: 700, height: 900, name: 'chrome'},
           {width: 1000, height: 1200, name: 'chrome'},
@@ -60,7 +60,7 @@ describe('take-dom-snapshots', () => {
       driver,
       settings: {
         layoutBreakpoints: {breakpoints: [200, 700, 1000]},
-        renderers: [
+        environments: [
           {width: 200, height: 400, name: 'chrome'},
           {width: 700, height: 900, name: 'chrome'},
           {width: 1000, height: 1200, name: 'chrome'},
@@ -78,12 +78,12 @@ describe('take-dom-snapshots', () => {
     })
   })
 
-  it('warns if renderer is smaller than the smallest breakpoint', async () => {
+  it('warns if environment is smaller than the smallest breakpoint', async () => {
     await takeDomSnapshots({
       driver,
       settings: {
         layoutBreakpoints: {breakpoints: [400, 500]},
-        renderers: [
+        environments: [
           {width: 300, height: 400, name: 'chrome'},
           {width: 350, height: 400, name: 'chrome'},
           {width: 700, height: 900, name: 'chrome'},

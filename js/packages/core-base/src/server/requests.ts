@@ -153,12 +153,12 @@ export function makeCoreRequests({
       const account = await accountPromise
       return {
         testId: result.id,
+        // TODO revisit the need for it
+        testName: settings.testName,
         userTestId: settings.userTestId!,
         batchId: settings.batch?.id ?? result.batchId,
         baselineId: result.baselineId,
         sessionId: result.sessionId,
-        renderEnvironmentId: settings.environment?.renderEnvironmentId,
-        renderer: settings.environment?.renderer,
         initializedAt,
         appId: settings.appName,
         isNew: result.isNew ?? response.status === 201,
@@ -168,10 +168,10 @@ export function makeCoreRequests({
         eyesServer: account.eyesServer,
         ufgServer: account.ufgServer,
         uploadUrl: account.uploadUrl,
-        renderEnvironmentsUrl: account.renderEnvironmentsUrl,
+        supportedEnvironmentsUrl: account.supportedEnvironmentsUrl,
         stitchingServiceUrl: account.stitchingServiceUrl,
-        testName: settings.testName,
         account,
+        environment: settings.environment,
       } satisfies VisualTest
     })
     logger.log('Request "openEyes" finished successfully with body', test)
@@ -253,6 +253,7 @@ export function makeCoreRequests({
         keepIfDuplicate: !!settings.baselineEnvName,
         eyesServer: account.eyesServer,
         account,
+        environment: settings.environment,
       } satisfies FunctionalTest
     })
     logger.log('Request "openFunctionalSession" finished successfully with body', test)
@@ -411,7 +412,7 @@ export function makeCoreRequests({
       const {
         serviceUrl: ufgServerUrl,
         accessToken,
-        mobileDevicesListUrl: renderEnvironmentsUrl,
+        mobileDevicesListUrl: supportedEnvironmentsUrl,
         resultsUrl: uploadUrl,
         ...rest
       } = result
@@ -430,7 +431,7 @@ export function makeCoreRequests({
           proxy: settings.proxy,
           useDnsCache: settings.useDnsCache,
         },
-        renderEnvironmentsUrl,
+        supportedEnvironmentsUrl,
         uploadUrl,
         ...rest,
       } satisfies Account

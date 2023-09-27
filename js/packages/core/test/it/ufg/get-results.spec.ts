@@ -14,7 +14,7 @@ describe('get results', () => {
     await eyes.check({
       target: {snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}},
       settings: {
-        renderers: [
+        environments: [
           {name: 'chrome', width: 100, height: 100},
           {name: 'firefox', width: 100, height: 100},
         ],
@@ -25,10 +25,10 @@ describe('get results', () => {
     const results = await eyes.getResults()
 
     assert.deepStrictEqual(
-      results.map(results => ({status: results.status, renderer: results.renderer})),
+      results.map(results => ({status: results.status, requestedEnvironment: results.environment.requested})),
       [
-        {status: 'Passed', renderer: {name: 'chrome', width: 100, height: 100}},
-        {status: 'Passed', renderer: {name: 'firefox', width: 100, height: 100}},
+        {status: 'Passed', requestedEnvironment: {name: 'chrome', width: 100, height: 100}},
+        {status: 'Passed', requestedEnvironment: {name: 'firefox', width: 100, height: 100}},
       ],
     )
   })
@@ -49,7 +49,7 @@ describe('get results', () => {
     await eyes.check({
       target: {snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}},
       settings: {
-        renderers: [
+        environments: [
           {name: 'chrome', width: 100, height: 100},
           {name: 'firefox', width: 100, height: 100},
         ],
@@ -79,7 +79,7 @@ describe('get results', () => {
     await eyes.check({
       target: {snapshot: {cdt: [], resourceContents: {}, resourceUrls: [], url: ''}},
       settings: {
-        renderers: [
+        environments: [
           {name: 'chrome', width: 100, height: 100},
           {name: 'firefox', width: 100, height: 100},
         ],

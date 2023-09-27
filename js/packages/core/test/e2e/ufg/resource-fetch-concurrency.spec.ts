@@ -49,7 +49,9 @@ describe('resource fetching with fetchConcurrency', () => {
         testName: 'FetchConcurrency',
       },
     })
-    await eyes.check({settings: {renderers: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true}})
+    await eyes.check({
+      settings: {environments: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
+    })
     await eyes.close({settings: {updateBaselineIfNew: false}})
     const [result] = await eyes.getResults()
     assert.strictEqual(result.isDifferent, false)
@@ -92,14 +94,14 @@ describe('resource fetching with fetchConcurrency', () => {
     })
     checkPromise.push(
       eyes1.check({
-        settings: {renderers: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
+        settings: {environments: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
         target: {snapshot: snapshot1},
       }),
     )
 
     checkPromise.push(
       eyes2.check({
-        settings: {renderers: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
+        settings: {environments: [{name: 'chrome', width: 800, height: 600}], disableBrowserFetching: true},
         target: {snapshot: snapshot2},
       }),
     )

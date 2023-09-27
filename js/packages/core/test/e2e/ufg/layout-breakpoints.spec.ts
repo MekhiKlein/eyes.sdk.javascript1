@@ -32,7 +32,7 @@ describe('layout breakpoints', () => {
     await eyes.check({
       settings: {
         layoutBreakpoints: {breakpoints: true, reload: true},
-        renderers: [
+        environments: [
           {name: 'chrome', width: 400, height: 600},
           {name: 'chrome', width: 1000, height: 600},
         ],
@@ -62,7 +62,7 @@ describe('layout breakpoints', () => {
     await eyes.checkAndClose({
       settings: {
         layoutBreakpoints: {breakpoints: true, reload: true},
-        renderers: [
+        environments: [
           {name: 'chrome', width: 400, height: 600},
           {name: 'chrome', width: 1000, height: 600},
         ],
@@ -91,7 +91,7 @@ describe('layout breakpoints', () => {
     await eyes.check({
       settings: {
         layoutBreakpoints: {breakpoints: true, reload: true},
-        renderers: [
+        environments: [
           {name: 'chrome', width: 400, height: 600},
           {name: 'chrome', width: 1000, height: 600},
         ],
@@ -128,7 +128,7 @@ describe('layout breakpoints', () => {
     await eyes.checkAndClose({
       settings: {
         layoutBreakpoints: {breakpoints: true, reload: true},
-        renderers: [
+        environments: [
           {name: 'chrome', width: 400, height: 600},
           {name: 'chrome', width: 1000, height: 600},
         ],
@@ -164,7 +164,7 @@ describe('layout breakpoints', () => {
     await eyes.check({
       settings: {
         layoutBreakpoints: {breakpoints: true, reload: true},
-        renderers: [
+        environments: [
           {name: 'chrome', width: 400, height: 600},
           {name: 'chrome', width: 1000, height: 600},
         ],
@@ -196,7 +196,7 @@ describe('layout breakpoints', () => {
     await eyes.checkAndClose({
       settings: {
         layoutBreakpoints: {breakpoints: true, reload: true},
-        renderers: [
+        environments: [
           {name: 'chrome', width: 400, height: 600},
           {name: 'chrome', width: 1000, height: 600},
         ],

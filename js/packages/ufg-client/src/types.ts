@@ -2,7 +2,7 @@ import type {Location, Size, Region} from '@applitools/utils'
 import {type Logger} from '@applitools/logger'
 import {type Proxy} from '@applitools/req'
 import {type AbortSignal} from 'abort-controller'
-import type {HashedResource, KnownResource} from './resources/resource'
+import {type HashedResource, type KnownResource} from './resources/resource'
 
 export interface UFGClient {
   createRenderTarget(options: {
@@ -10,13 +10,13 @@ export interface UFGClient {
     settings?: RenderTargetSettings
     logger?: Logger
   }): Promise<RenderTarget>
-  getRenderEnvironment(options: {settings: RenderEnvironmentSettings; logger?: Logger}): Promise<RenderEnvironment>
   render(options: {
     target: RenderTarget
     settings: RenderSettings
     signal?: AbortSignal
     logger?: Logger
   }): Promise<RenderResult>
+  getActualEnvironment(options: {settings: GetActualEnvironmentSettings; logger?: Logger}): Promise<ActualEnvironment>
   getChromeEmulationDevices(options?: {logger?: Logger}): Promise<Record<string, any>>
   getIOSDevices(options?: {logger?: Logger}): Promise<Record<string, any>>
   getAndroidDevices(options?: {logger?: Logger}): Promise<Record<string, any>>
@@ -33,7 +33,6 @@ export interface UFGServerSettings {
 }
 
 type CacheFunctionWithCallback<TResult> = (key: string, callback: () => Promise<TResult>) => Promise<TResult>
-
 export type AsyncCache = {
   getCachedResource: CacheFunctionWithCallback<KnownResource>
   isUploadedToUFG: CacheFunctionWithCallback<boolean>
@@ -48,7 +47,7 @@ export interface UFGClientSettings extends UFGServerSettings {
   asyncCache?: AsyncCache
 }
 
-export interface DesktopBrowserRenderer {
+export interface DesktopBrowserEnvironment {
   name?:
     | 'chrome'
     | 'chrome-one-version-back'
@@ -70,7 +69,7 @@ export interface DesktopBrowserRenderer {
   width: number
   height: number
 }
-export interface ChromeEmulationDeviceRenderer {
+export interface ChromeEmulationDeviceEnvironment {
   chromeEmulationInfo: {
     deviceName:
       | 'Blackberry PlayBook'
@@ -146,7 +145,7 @@ export interface ChromeEmulationDeviceRenderer {
     screenOrientation?: 'portrait' | 'landscape'
   }
 }
-export interface IOSDeviceRenderer {
+export interface IOSDeviceEnvironment {
   iosDeviceInfo: {
     deviceName:
       | 'iPhone 14 Pro Max'
@@ -178,7 +177,7 @@ export interface IOSDeviceRenderer {
     screenOrientation?: 'portrait' | 'landscape'
   }
 }
-export interface AndroidDeviceRenderer {
+export interface AndroidDeviceEnvironment {
   androidDeviceInfo: {
     deviceName:
       | 'Pixel 3 XL'
@@ -210,14 +209,14 @@ export interface AndroidDeviceRenderer {
     screenOrientation?: 'portrait' | 'landscape'
   }
 }
-export type MobileDeviceRenderer = (IOSDeviceRenderer | AndroidDeviceRenderer) & {type?: 'web' | 'native'}
-export type Renderer = (DesktopBrowserRenderer | ChromeEmulationDeviceRenderer | MobileDeviceRenderer) & {
+export type MobileDeviceEnvironment = (IOSDeviceEnvironment | AndroidDeviceEnvironment) & {type?: 'web' | 'native'}
+export type Environment = (DesktopBrowserEnvironment | ChromeEmulationDeviceEnvironment | MobileDeviceEnvironment) & {
   /**
-   * The id of the renderer
-   * Used to identify the renderer if the same renderer is used multiple times
+   * The id of the environment
+   * Used to identify the environment if the same environment is used multiple times
    * @internal
    **/
-  id?: string
+  environmentId?: string
 }
 
 export interface Cookie {
@@ -252,7 +251,7 @@ export interface IOSSnapshot {
 export type Snapshot = DomSnapshot | AndroidSnapshot | IOSSnapshot
 
 export interface RenderTargetSettings {
-  renderer?: Renderer
+  environment?: Environment
   proxy?: Proxy
   autProxy?: Proxy & {mode?: 'Allow' | 'Block'; domains?: string[]}
   cookies?: Cookie[]
@@ -267,20 +266,21 @@ export interface RenderTarget {
   vhsCompatibilityParams?: Record<string, any>
 }
 
-export interface RenderEnvironmentSettings {
-  renderer: Renderer
+export interface GetActualEnvironmentSettings {
+  environment: Environment
 }
 
-export interface RenderEnvironment {
-  renderEnvironmentId: string
-  renderer: Renderer
+export interface ActualEnvironment {
+  requested: Environment
+  environmentId: string
   rawEnvironment: Record<string, any>
 }
 
 export type Selector = string | {selector: string; type?: string; shadow?: Selector; frame?: Selector}
 
-export interface RenderSettings extends RenderEnvironmentSettings {
-  renderEnvironmentId: string
+export interface RenderSettings {
+  environmentId: string
+  environment: Environment
   uploadUrl: string
   stitchingServiceUrl: string
   region?: Region | Selector

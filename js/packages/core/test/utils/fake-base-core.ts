@@ -81,6 +81,7 @@ export function makeFakeCore({
         return {
           test: {
             testId: 'test-id',
+            testName: 'test-name',
             userTestId: 'user-test-id',
             batchId: 'batch-id',
             baselineId: 'baseline-id',
@@ -92,7 +93,7 @@ export function makeFakeCore({
             initializedAt: new Date().toISOString(),
             keepIfDuplicate: !!options.settings.baselineEnvName,
             account: account as Account,
-            renderer: options.settings.environment?.renderer,
+            environment: options.settings.environment,
             ufgServer: {
               ufgServerUrl: options.settings?.eyesServerUrl,
               accessToken: '',
@@ -104,7 +105,7 @@ export function makeFakeCore({
             },
             uploadUrl: '',
             stitchingServiceUrl: '',
-            renderEnvironmentsUrl: '',
+            supportedEnvironmentsUrl: '',
           },
           core,
           get running() {

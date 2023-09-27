@@ -1,4 +1,4 @@
-import type {Renderer, AsyncCache} from '../types'
+import type {Environment, AsyncCache} from '../types'
 import {
   makeResource,
   type UrlResource,
@@ -32,7 +32,7 @@ export type ProcessResources = (options: {
   logger?: Logger
 }) => Promise<{mapping: ResourceMapping; promise: Promise<ResourceMapping>}>
 
-export type ProcessResourcesSettings = FetchResourceSettings & {renderer?: Renderer}
+export type ProcessResourcesSettings = FetchResourceSettings & {environment?: Environment}
 
 export type ResourceMapping = Record<string, HashedResource | {errorStatusCode: number}>
 
@@ -182,7 +182,7 @@ export function makeProcessResources({
         if (processedResource.dependencies) {
           const dependencyResources = processedResource.dependencies.flatMap(dependencyUrl => {
             if (processedResourcesWithDependencies[dependencyUrl]) return []
-            return makeResource({url: dependencyUrl, renderer: settings?.renderer})
+            return makeResource({url: dependencyUrl, environment: settings?.environment})
           })
           await Promise.all(dependencyResources.map(doProcessUrlResourceWithDependencies))
         }

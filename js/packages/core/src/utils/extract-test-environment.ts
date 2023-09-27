@@ -1,6 +1,6 @@
 import * as os from 'os'
 
-export function extractEnvironment(baseEnvironment?: Record<string, any>): Record<string, any> {
+export function extractTestEnvironment(baseEnvironment?: Record<string, any>): Record<string, any> {
   return {
     ...baseEnvironment,
     versions: {

@@ -35,7 +35,7 @@ describe('google fonts', () => {
     await eyes.check({
       settings: {
         fully: true,
-        renderers: [{name: 'ie', width: 640, height: 480}],
+        environments: [{name: 'ie', width: 640, height: 480}],
       },
     })
 
@@ -62,7 +62,7 @@ describe('google fonts', () => {
     await eyes.check({
       settings: {
         fully: true,
-        renderers: [
+        environments: [
           {width: 640, height: 480, name: 'ie'},
           {iosDeviceInfo: {deviceName: 'iPhone 11', version: 'latest'}},
         ],

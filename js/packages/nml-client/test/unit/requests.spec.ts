@@ -10,7 +10,7 @@ describe('requests', () => {
 
   it('updates broker url on each request', async () => {
     let count = 0
-    nock('http://renderer-env-url.com').get('/').reply(200, {})
+    nock('http://environment-env-url.com').get('/').reply(200, {})
 
     nock('http://broker-url.com')
       .post(path => path === `/message-${count}`)
@@ -39,15 +39,21 @@ describe('requests', () => {
     const requests = makeNMLRequests({
       settings: {
         brokerUrl: 'http://broker-url.com/message-0',
-        renderEnvironmentsUrl: 'http://renderer-env-url.com',
+        supportedEnvironmentsUrl: 'http://environment-env-url.com',
         agentId: 'nml-client',
       },
       logger: makeLogger(),
     })
 
-    await assert.rejects(requests.takeScreenshots({settings: {renderers: [{environment: {}}]}}))
-    await requests.takeSnapshots({settings: {renderers: [{iosDeviceInfo: {deviceName: 'iPhone 12'}}]}})
-    await requests.takeScreenshots({settings: {renderers: [{environment: {}}]}})
+    await assert.rejects(
+      requests.takeScreenshots({
+        settings: {environments: [{os: 'OS', deviceName: 'Device Pro', viewportSize: {width: 100, height: 100}}]},
+      }),
+    )
+    await requests.takeSnapshots({settings: {environments: [{iosDeviceInfo: {deviceName: 'iPhone 12'}}]}})
+    await requests.takeScreenshots({
+      settings: {environments: [{os: 'OS', deviceName: 'Device Pro', viewportSize: {width: 100, height: 100}}]},
+    })
 
     assert.strictEqual(count, 3)
   })

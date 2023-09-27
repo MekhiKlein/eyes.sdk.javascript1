@@ -34,7 +34,7 @@ describe('wait before capture', () => {
       settings: {
         waitBeforeCapture: 1500,
         layoutBreakpoints: {breakpoints: true},
-        renderers: [{name: 'chrome', width: 1000, height: 600}],
+        environments: [{name: 'chrome', width: 1000, height: 600}],
       },
     })
     await eyes.close({settings: {updateBaselineIfNew: false}})
@@ -63,7 +63,7 @@ describe('wait before capture', () => {
       settings: {
         waitBeforeCapture: 1500,
         layoutBreakpoints: {breakpoints: true},
-        renderers: [{name: 'chrome', width: 390, height: 400}],
+        environments: [{name: 'chrome', width: 390, height: 400}],
       },
     })
     await eyes.close({settings: {updateBaselineIfNew: false}})

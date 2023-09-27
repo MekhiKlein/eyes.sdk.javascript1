@@ -1,25 +1,25 @@
-import type {Target, DriverTarget, Eyes, CheckSettings, CloseSettings, Renderer} from './types'
+import type {Target, DriverTarget, Eyes, CheckSettings, CloseSettings, Environment, ExactEnvironment} from './types'
 import type {
   Target as BaseTarget,
   CheckSettings as BaseCheckSettings,
   CloseSettings as BaseCloseSettings,
 } from '@applitools/core-base'
 import {type AbortSignal} from 'abort-controller'
-import {type Renderer as NMLRenderer} from '@applitools/nml-client'
+import {type Environment as NMLEnvironment} from '@applitools/nml-client'
 import {type Logger} from '@applitools/logger'
 import {makeDriver, isDriver, type SpecType, type SpecDriver} from '@applitools/driver'
 import {takeScreenshots} from './utils/take-screenshots'
 import {toBaseCheckSettings} from '../automation/utils/to-base-check-settings'
 import {waitForLazyLoad} from '../automation/utils/wait-for-lazy-load'
-import {uniquifyRenderers} from '../automation/utils/uniquify-renderers'
-import {extractRendererKey} from '../automation/utils/extract-renderer-key'
+import {uniquifyEnvironments} from '../automation/utils/uniquify-environments'
+import {toEnvironmentKey} from '../automation/utils/to-environment-key'
 import {AbortError} from '../errors/abort-error'
 import * as utils from '@applitools/utils'
 
 type Options<TSpec extends SpecType> = {
   eyes: Eyes<TSpec>
   target?: DriverTarget<TSpec>
-  renderers?: Renderer[]
+  environments?: Environment[]
   spec?: SpecDriver<TSpec>
   signal?: AbortSignal
   logger: Logger
@@ -28,7 +28,7 @@ type Options<TSpec extends SpecType> = {
 export function makeCheckAndClose<TSpec extends SpecType>({
   eyes,
   target: defaultTarget,
-  renderers: defaultRenderers = [],
+  environments: defaultEnvironments = [],
   spec,
   signal,
   logger: mainLogger,
@@ -53,26 +53,26 @@ export function makeCheckAndClose<TSpec extends SpecType>({
       throw new AbortError('Command "checkAndClose" was called after test was already aborted')
     }
 
-    const uniqueRenderers = uniquifyRenderers(settings.renderers ?? defaultRenderers)
+    const uniqueEnvironments = uniquifyEnvironments(settings.environments ?? defaultEnvironments)
 
     const baseTargets = [] as BaseTarget[]
     const baseSettings = [] as (BaseCheckSettings & BaseCloseSettings)[]
-    const transformedRenderers = [] as Renderer[]
+    const exactEnvironments = [] as ExactEnvironment[]
     if (isDriver(target, spec)) {
       const driver = await makeDriver({spec, driver: target, reset: target === defaultTarget, logger})
       await driver.currentContext.setScrollingElement(settings.scrollRootElement ?? null)
 
-      const environment = await driver.getEnvironment()
-      uniqueRenderers.forEach(renderer => {
-        if (utils.types.has(renderer, 'iosDeviceInfo')) {
-          renderer.iosDeviceInfo.version ??= environment.platformVersion
-        } else if (utils.types.has(renderer, 'androidDeviceInfo')) {
-          renderer.androidDeviceInfo.version ??= environment.platformVersion
+      const driverEnvironment = await driver.getEnvironment()
+      uniqueEnvironments.forEach(environment => {
+        if (utils.types.has(environment, 'iosDeviceInfo')) {
+          environment.iosDeviceInfo.version ??= driverEnvironment.platformVersion
+        } else if (utils.types.has(environment, 'androidDeviceInfo')) {
+          environment.androidDeviceInfo.version ??= driverEnvironment.platformVersion
         }
-        return renderer
+        return environment
       })
 
-      if (settings.lazyLoad && environment.isWeb) {
+      if (settings.lazyLoad && driverEnvironment.isWeb) {
         await waitForLazyLoad({
           context: driver.currentContext,
           settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
@@ -81,19 +81,19 @@ export function makeCheckAndClose<TSpec extends SpecType>({
       }
 
       const {elementReferencesToCalculate, getBaseCheckSettings} = toBaseCheckSettings({settings})
-      if (environment.isWeb || !environment.isApplitoolsLib || settings.screenshotMode === 'default') {
+      if (driverEnvironment.isWeb || !driverEnvironment.isApplitoolsLib || settings.screenshotMode === 'default') {
         const screenshots = await takeScreenshots({
           driver,
           settings: {
             ...settings,
-            renderers: uniqueRenderers,
+            environments: uniqueEnvironments,
             regionsToCalculate: elementReferencesToCalculate,
             calculateView: !!settings.pageId,
             domSettings: settings.sendDom ? {proxy: eyes.test.eyesServer.proxy} : undefined,
           },
           logger,
         })
-        transformedRenderers.push(...uniqueRenderers)
+        exactEnvironments.push(...uniqueEnvironments)
         screenshots.forEach(({calculatedRegions, ...baseTarget}) => {
           baseTargets.push(baseTarget)
           baseSettings.push(getBaseCheckSettings({calculatedRegions}))
@@ -101,12 +101,12 @@ export function makeCheckAndClose<TSpec extends SpecType>({
       } else {
         const nmlClient = await eyes.core.getNMLClient({
           driver,
-          settings: {...eyes.test.eyesServer, renderEnvironmentsUrl: eyes.test.renderEnvironmentsUrl},
+          settings: {...eyes.test.eyesServer, supportedEnvironmentsUrl: eyes.test.supportedEnvironmentsUrl},
           logger,
         })
         const screenshots = await nmlClient.takeScreenshots({
           settings: {
-            renderers: uniqueRenderers as NMLRenderer[],
+            environments: uniqueEnvironments as NMLEnvironment[],
             fully: settings.fully,
             stitchMode: settings.stitchMode,
             hideScrollbars: settings.hideScrollbars,
@@ -119,64 +119,67 @@ export function makeCheckAndClose<TSpec extends SpecType>({
           },
           logger,
         })
-        screenshots.forEach(({calculatedRegions: _calculatedRegions, renderEnvironment, ...baseTarget}) => {
-          transformedRenderers.push({environment: renderEnvironment})
+        screenshots.forEach(({environment, ...baseTarget}) => {
+          exactEnvironments.push(environment)
           baseTargets.push({...baseTarget, isTransformed: true})
           baseSettings.push(getBaseCheckSettings({calculatedRegions: []}))
         })
       }
     } else {
-      transformedRenderers.push(...uniqueRenderers)
+      exactEnvironments.push(...uniqueEnvironments)
       baseTargets.push(target)
       baseSettings.push(settings as BaseCheckSettings)
     }
 
-    const promises = transformedRenderers.map(async (renderer, index) => {
-      const rendererLogger = logger.extend({tags: [`renderer-${utils.general.shortid()}`]})
+    const promises = exactEnvironments.map(async (environment, index) => {
+      const environmentLogger = logger.extend({tags: [`environment-${utils.general.shortid()}`]})
 
       try {
         if (signal?.aborted) {
-          rendererLogger.warn('Command "checkAndClose" was aborted before checking')
+          environmentLogger.warn('Command "checkAndClose" was aborted before checking')
           throw new AbortError('Command "checkAndClose" was aborted before checking')
         }
 
-        const baseEyes = await eyes.getBaseEyes({settings: {renderer}, logger: rendererLogger})
+        const baseEyes = await eyes.getBaseEyes({settings: {environment}, logger: environmentLogger})
         try {
           if (signal?.aborted) {
-            rendererLogger.warn('Command "checkAndClose" was aborted before checking')
+            environmentLogger.warn('Command "checkAndClose" was aborted before checking')
             throw new AbortError('Command "checkAndClose" was aborted before checking')
           } else if (!baseEyes.running) {
-            rendererLogger.warn(
-              `Check on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+            environmentLogger.warn(
+              `Check on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
             throw new AbortError(
-              `Check on environment with id "${baseEyes.test.renderEnvironmentId}" was aborted during one of the previous steps`,
+              `Check on environment with id "${baseEyes.test.environment?.environmentId}" was aborted during one of the previous steps`,
             )
           }
 
           await baseEyes.checkAndClose({
             target: baseTargets[index],
             settings: baseSettings[index],
-            logger: rendererLogger,
+            logger: environmentLogger,
           })
         } catch (error: any) {
-          rendererLogger.error(
-            `Check on environment with id "${baseEyes.test.renderEnvironmentId}" failed due to an error`,
+          environmentLogger.error(
+            `Check on environment with id "${baseEyes.test.environment?.environmentId}" failed due to an error`,
             error,
           )
-          await baseEyes.abort({logger: rendererLogger})
+          await baseEyes.abort({logger: environmentLogger})
           error.info = {eyes: baseEyes}
           throw error
         }
       } catch (error: any) {
-        rendererLogger.error(`Check with id ${renderer.id} failed before checking started due to an error`, error)
-        error.info = {...error.info, userTestId: eyes.test.userTestId, renderer}
+        environmentLogger.error(
+          `Environment with id ${environment.environmentId} failed before checking started due to an error`,
+          error,
+        )
+        error.info = {...error.info, userTestId: eyes.test.userTestId, environment: environment}
         throw error
       }
     })
 
-    transformedRenderers.forEach((renderer, index) => {
-      const key = extractRendererKey(renderer)
+    exactEnvironments.forEach((environment, index) => {
+      const key = toEnvironmentKey(environment)
       let item = eyes.storage.get(key)
       if (!item) {
         item = {eyes: utils.promises.makeControlledPromise(), jobs: []}

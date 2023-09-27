@@ -1,17 +1,17 @@
-import type {Eyes, AbortSettings, Renderer} from './types'
+import type {Eyes, AbortSettings, Environment} from './types'
 import {type SpecType} from '@applitools/driver'
 import {type Logger} from '@applitools/logger'
 import * as utils from '@applitools/utils'
 
 type Options<TSpec extends SpecType, TType extends 'classic' | 'ufg'> = {
   eyes: Eyes<TSpec, TType>
-  renderers?: Renderer[]
+  environments?: Environment[]
   logger: Logger
 }
 
 export function makeAbort<TSpec extends SpecType, TType extends 'classic' | 'ufg'>({
   eyes,
-  renderers: defaultRenderers,
+  environments: defaultEnvironments,
   logger: mainLogger,
 }: Options<TSpec, TType>) {
   return async function abort({
@@ -26,8 +26,8 @@ export function makeAbort<TSpec extends SpecType, TType extends 'classic' | 'ufg
     const typedEyes = await eyes.getTypedEyes({logger})
 
     settings ??= {}
-    if (typedEyes.type === 'classic' && !utils.types.isEmpty(defaultRenderers)) {
-      settings.renderers ??= defaultRenderers
+    if (typedEyes.type === 'classic' && !utils.types.isEmpty(defaultEnvironments)) {
+      settings.environments ??= defaultEnvironments
     }
 
     await typedEyes.abort({settings, logger})

@@ -58,25 +58,24 @@ export interface FunctionalSession {
 
 export interface VisualTest {
   testId: string
+  testName: string
   userTestId: string
   batchId: string
   baselineId: string
   sessionId: string
   appId: string
-  renderEnvironmentId?: string
-  renderer?: Record<string, any>
   initializedAt: string
   isNew: boolean
   keepBatchOpen: boolean
   keepIfDuplicate: boolean
   eyesServer: EyesServerSettings
   ufgServer: UFGServerSettings
+  supportedEnvironmentsUrl: string
   uploadUrl: string
-  renderEnvironmentsUrl: string
   stitchingServiceUrl: string
   resultsUrl: string
   account: Account
-  testName: string
+  environment?: Environment
 }
 
 export interface FunctionalTest {
@@ -91,13 +90,14 @@ export interface FunctionalTest {
   eyesServer: EyesServerSettings
   resultsUrl: string
   account: Account
+  environment?: Environment
 }
 
 export interface Account {
   eyesServer: EyesServerSettings
   ufgServer: UFGServerSettings
+  supportedEnvironmentsUrl: string
   stitchingServiceUrl: string
-  renderEnvironmentsUrl: string
   uploadUrl: string
   maxImageHeight: number
   maxImageArea: number
@@ -132,8 +132,7 @@ export type Batch = {
   properties?: CustomProperty[]
 }
 export type Environment = {
-  renderEnvironmentId?: string
-  ecSessionId?: string
+  environmentId?: string
   os?: string
   displayOs?: string
   hostingApp?: string
@@ -141,8 +140,10 @@ export type Environment = {
   deviceName?: string
   viewportSize?: Size
   userAgent?: string
-  renderer?: Record<string, any>
+  ecSessionId?: string
+
   rawEnvironment?: Record<string, any>
+
   properties?: CustomProperty[]
 }
 export interface OpenSettings extends EyesServerSettings {

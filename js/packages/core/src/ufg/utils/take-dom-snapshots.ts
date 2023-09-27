@@ -1,18 +1,18 @@
+import type {LazyLoadOptions, SnapshotResult} from '../types'
 import {type Size} from '@applitools/utils'
 import {type Logger} from '@applitools/logger'
 import {type SpecType, type Driver} from '@applitools/driver'
-import {type DomSnapshot, type Renderer} from '@applitools/ufg-client'
+import {type DomSnapshot, type Environment} from '@applitools/ufg-client'
 import {takeDomSnapshot, type DomSnapshotSettings} from './take-dom-snapshot'
-import * as utils from '@applitools/utils'
-import chalk from 'chalk'
-import {type CalculateRegionsOptions, calculateRegions} from './calculate-regions'
-import {SnapshotResult} from '../types'
+import {calculateRegions, type CalculateRegionsOptions} from './calculate-regions'
 import {waitForLazyLoad} from '../../automation/utils/wait-for-lazy-load'
-import {type LazyLoadOptions} from '../types'
+import chalk from 'chalk'
+import * as utils from '@applitools/utils'
 
 export * from './take-dom-snapshot'
+
 export type DomSnapshotsSettings = DomSnapshotSettings & {
-  renderers: Renderer[]
+  environments: Environment[]
   waitBeforeCapture?: number | (() => void)
   layoutBreakpoints?: {breakpoints: number[] | boolean; reload?: boolean}
   calculateRegionsOptions?: CalculateRegionsOptions
@@ -63,20 +63,20 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
     await waitBeforeCapture()
     const snapshot = await takeDomSnapshot({context: currentContext, settings, logger})
     await calculateRegionsResults?.cleanupGeneratedSelectors?.()
-    return Array(settings.renderers.length).fill({snapshot, ...calculateRegionsResults})
+    return Array(settings.environments.length).fill({snapshot, ...calculateRegionsResults})
   }
 
   const isStrictBreakpoints = utils.types.isArray(settings.layoutBreakpoints?.breakpoints)
 
-  const requiredWidths = await settings.renderers.reduce(async (prev, renderer, index) => {
-    const {name, width} = (await extractRendererInfo({renderer}))!
+  const requiredWidths = await settings.environments.reduce(async (prev, environment, index) => {
+    const {name, width} = (await extractEnvironmentInfo(environment))!
     const requiredWidths = await prev
     const requiredWidth = isStrictBreakpoints
       ? calculateBreakpoint({breakpoints: settings.layoutBreakpoints!.breakpoints as number[], value: width})
       : width
-    let renderers = requiredWidths.get(requiredWidth)
-    if (!renderers) requiredWidths.set(requiredWidth, (renderers = []))
-    renderers.push({name, width, index})
+    let environments = requiredWidths.get(requiredWidth)
+    if (!environments) requiredWidths.set(requiredWidth, (environments = []))
+    environments.push({name, width, index})
     return requiredWidths
   }, Promise.resolve(new Map<number, {name: string; width: number; index: number}[]>()))
 
@@ -98,7 +98,7 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
   logger.log(`taking multiple dom snapshots for breakpoints:`, settings.layoutBreakpoints.breakpoints)
   logger.log(`required widths: ${[...requiredWidths.keys()].join(', ')}`)
   const viewportSize = await driver.getViewportSize()
-  const snapshotsResults: SnapshotResult<DomSnapshot>[] = Array(settings.renderers.length)
+  const snapshotsResults: SnapshotResult<DomSnapshot>[] = Array(settings.environments.length)
   if (requiredWidths.has(viewportSize.width)) {
     logger.log(`taking dom snapshot for existing width ${viewportSize.width}`)
     await hooks?.beforeEachSnapshot?.()
@@ -167,17 +167,17 @@ export async function takeDomSnapshots<TSpec extends SpecType>({
     else return breakpoints[nextBreakpointIndex - 1]
   }
 
-  async function extractRendererInfo({renderer}: {renderer: Renderer}) {
-    if (utils.types.has(renderer, ['width', 'height'])) {
-      const {name, width, height} = renderer
+  async function extractEnvironmentInfo(environment: Environment) {
+    if (utils.types.has(environment, ['width', 'height'])) {
+      const {name, width, height} = environment
       return {name: name ?? 'default', width, height}
-    } else if (utils.types.has(renderer, 'chromeEmulationInfo')) {
+    } else if (utils.types.has(environment, 'chromeEmulationInfo')) {
       const devices = await provides!.getChromeEmulationDevices()
-      const {deviceName, screenOrientation = 'portrait'} = renderer.chromeEmulationInfo
+      const {deviceName, screenOrientation = 'portrait'} = environment.chromeEmulationInfo
       return {name: deviceName, screenOrientation, ...devices[deviceName][screenOrientation]}
-    } else if (utils.types.has(renderer, 'iosDeviceInfo')) {
+    } else if (utils.types.has(environment, 'iosDeviceInfo')) {
       const devices = await provides!.getIOSDevices()
-      const {deviceName, screenOrientation = 'portrait'} = renderer.iosDeviceInfo
+      const {deviceName, screenOrientation = 'portrait'} = environment.iosDeviceInfo
       return {name: deviceName, screenOrientation, ...devices[deviceName][screenOrientation]}
     }
   }

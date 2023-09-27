@@ -5,7 +5,7 @@ import type {
   SnapshotSettings,
   IOSSnapshot,
   AndroidSnapshot,
-  RenderEnvironment,
+  ActualEnvironment,
 } from '../types'
 import {type Logger} from '@applitools/logger'
 import {makeReqBroker} from './req-broker'
@@ -13,7 +13,7 @@ import globalReq from '@applitools/req'
 import * as utils from '@applitools/utils'
 
 export interface NMLRequests {
-  getSupportedRenderEnvironments(options: {logger?: Logger}): Promise<Record<string, any>>
+  getSupportedEnvironments(options: {logger?: Logger}): Promise<Record<string, any>>
   takeScreenshots(options: {settings: ScreenshotSettings; logger?: Logger}): Promise<Screenshot[]>
   takeSnapshots<TSnapshot extends IOSSnapshot | AndroidSnapshot = IOSSnapshot | AndroidSnapshot>(options: {
     settings: SnapshotSettings
@@ -31,16 +31,16 @@ export function makeNMLRequests({
   let brokerUrl = settings.brokerUrl
   const req = makeReqBroker({settings, logger: mainLogger})
 
-  const getSupportedRenderEnvironmentsWithCache = utils.general.cachify(getSupportedRenderEnvironments, () => 'default')
+  const getSupportedEnvironmentsWithCache = utils.general.cachify(getSupportedEnvironments, () => 'default')
 
   return {
-    getSupportedRenderEnvironments: getSupportedRenderEnvironmentsWithCache,
+    getSupportedEnvironments: getSupportedEnvironmentsWithCache,
     takeScreenshots,
     takeSnapshots,
   }
 
-  async function getSupportedRenderEnvironments({logger: _logger}: {logger?: Logger}): Promise<Record<string, any>> {
-    const response = await globalReq(settings.renderEnvironmentsUrl)
+  async function getSupportedEnvironments({logger: _logger}: {logger?: Logger}): Promise<Record<string, any>> {
+    const response = await globalReq(settings.supportedEnvironmentsUrl)
     const result: any = await response.json()
     return result
   }
@@ -56,33 +56,33 @@ export function makeNMLRequests({
 
     logger.log('Request "takeScreenshots" called with settings', settings)
 
-    const supportedRenderEnvironments = await getSupportedRenderEnvironmentsWithCache({logger})
-    const {localEnvironment, renderEnvironments, rendererSettings} = settings.renderers.reduce(
-      (result, renderer) => {
-        if (utils.types.has(renderer, 'environment')) {
-          result.localEnvironment = {...renderer.environment, renderEnvironmentId: utils.general.guid(), renderer}
+    const supportedEnvironments = await getSupportedEnvironmentsWithCache({logger})
+    const {localEnvironment, renderEnvironments, environmentSettings} = settings.environments.reduce(
+      (result, environment) => {
+        if (!utils.types.has(environment, 'iosDeviceInfo') && !utils.types.has(environment, 'androidDeviceInfo')) {
+          result.localEnvironment = {...environment, environmentId: utils.general.guid()}
         } else {
-          const deviceInfo = utils.types.has(renderer, 'iosDeviceInfo')
-            ? renderer.iosDeviceInfo
-            : renderer.androidDeviceInfo
+          const deviceInfo = utils.types.has(environment, 'iosDeviceInfo')
+            ? environment.iosDeviceInfo
+            : environment.androidDeviceInfo
           const orientation =
             deviceInfo.screenOrientation === 'landscape' ? 'landscapeLeft' : deviceInfo.screenOrientation ?? 'portrait'
-          const rawEnvironment = supportedRenderEnvironments[deviceInfo.deviceName][orientation].env
+          const rawEnvironment = supportedEnvironments[deviceInfo.deviceName][orientation].env
           result.renderEnvironments.push({
-            renderEnvironmentId: utils.general.guid(),
-            renderer,
+            requested: environment,
+            environmentId: utils.general.guid(),
             deviceName: rawEnvironment.deviceInfo,
             os: rawEnvironment.os + (deviceInfo.version ? ` ${deviceInfo.version}` : ''),
             viewportSize: rawEnvironment.displaySize,
           })
-          result.rendererSettings.push({...supportedRenderEnvironments[deviceInfo.deviceName], orientation})
+          result.environmentSettings.push({...supportedEnvironments[deviceInfo.deviceName], orientation})
         }
         return result
       },
       {
-        localEnvironment: undefined as RenderEnvironment | undefined,
-        renderEnvironments: [] as RenderEnvironment[],
-        rendererSettings: [] as any[],
+        localEnvironment: undefined as ActualEnvironment | undefined,
+        renderEnvironments: [] as ActualEnvironment[],
+        environmentSettings: [] as any[],
       },
     )
 
@@ -95,8 +95,8 @@ export function makeNMLRequests({
           key: utils.general.guid(),
           payload: {
             ...settings,
-            renderers: undefined,
-            deviceList: !localEnvironment ? rendererSettings : undefined,
+            environments: undefined,
+            deviceList: !localEnvironment ? environmentSettings : undefined,
           },
         },
         logger,
@@ -104,9 +104,9 @@ export function makeNMLRequests({
       const result: any = await response.json()
       brokerUrl = result.nextPath
       const screenshots = localEnvironment
-        ? [{image: result.payload.result.screenshotUrl, renderEnvironment: localEnvironment}]
-        : renderEnvironments.map((renderEnvironment, index) => {
-            return {image: result.payload[index].result.screenshotUrl, renderEnvironment}
+        ? [{image: result.payload.result.screenshotUrl, environment: localEnvironment}]
+        : renderEnvironments.map((environment, index) => {
+            return {image: result.payload[index].result.screenshotUrl, environment}
           })
 
       logger.log('Request "takeScreenshots" finished successfully with body', screenshots)
@@ -150,7 +150,7 @@ export function makeNMLRequests({
       } else if (platformName === 'android') {
         ;(snapshot as AndroidSnapshot).vhsType = 'android-x'
       }
-      return Array(settings.renderers.length).fill(snapshot)
+      return Array(settings.environments.length).fill(snapshot)
     } catch (error: any) {
       if (error.nextPath) brokerUrl = error.nextPath
       throw error
