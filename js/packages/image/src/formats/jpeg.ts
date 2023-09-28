@@ -3,7 +3,7 @@ import type {Size} from '@applitools/utils'
 import * as jpeg from 'jpeg-js'
 
 export function isJpegBuffer(buffer: ImageBuffer): boolean {
-  return ['JFIF', 'Exif'].includes(new TextDecoder('ascii').decode(buffer.subarray(6, 10)))
+  return ['JFIF', 'Exif'].includes(new TextDecoder().decode(buffer.subarray(6, 10)))
 }
 
 export function extractJpegSize(buffer: ImageBuffer): Size {

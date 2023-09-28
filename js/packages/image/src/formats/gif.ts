@@ -3,7 +3,7 @@ import type {Size} from '@applitools/utils'
 import * as gif from 'omggif'
 
 export function isGifBuffer(buffer: ImageBuffer): boolean {
-  return ['GIF87a', 'GIF89a'].includes(new TextDecoder('ascii').decode(buffer.subarray(0, 6)))
+  return ['GIF87a', 'GIF89a'].includes(new TextDecoder().decode(buffer.subarray(0, 6)))
 }
 
 export function extractGifSize(buffer: ImageBuffer): Size {

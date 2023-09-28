@@ -3,7 +3,7 @@ import type {Size} from '@applitools/utils'
 import * as bmp from 'bmpimagejs'
 
 export function isBmpBuffer(buffer: ImageBuffer): boolean {
-  return new TextDecoder('ascii').decode(buffer.subarray(0, 2)) === 'BM'
+  return new TextDecoder().decode(buffer.subarray(0, 2)) === 'BM'
 }
 
 export function extractBmpSize(buffer: ImageBuffer): Size {

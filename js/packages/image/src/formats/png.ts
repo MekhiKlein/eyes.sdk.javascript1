@@ -4,7 +4,7 @@ import * as png from 'png-async'
 import * as utils from '@applitools/utils'
 
 export function isPngBuffer(buffer: ImageBuffer): boolean {
-  return new TextDecoder('ascii').decode(buffer.subarray(12, 16)) === 'IHDR'
+  return new TextDecoder().decode(buffer.subarray(12, 16)) === 'IHDR'
 }
 
 export function extractPngSize(buffer: ImageBuffer): Size {
