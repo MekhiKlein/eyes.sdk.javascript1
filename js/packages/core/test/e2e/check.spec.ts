@@ -49,7 +49,6 @@ describe('check', () => {
       },
     })
     await eyes.close()
-    const [result] = await eyes.getResults()
-    assert.strictEqual(result.status, 'Passed')
+    await eyes.getResults({settings: {throwErr: true}})
   })
 })
