@@ -181,7 +181,7 @@ describe('req-proxy', () => {
         targetUrl: 'http://localhost:3000',
         retry: {
           validate: async ({response}) =>
-            !!response && response.status >= 400 && (await response.clone().json())?.error,
+            !!response && response.status >= 400 && ((await response.clone().json()) as any)?.error,
           limit: 2,
           timeout: 0,
         },

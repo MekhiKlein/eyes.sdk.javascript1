@@ -41,7 +41,7 @@ export function makeExecuteScript({req, core}: Options) {
         const driver = await makeDriver({
           driver: {
             sessionId: session.sessionId,
-            serverUrl: session.serverUrl,
+            serverUrl: session.ecServerUrl,
             capabilities: session.capabilities,
             proxy: session.proxy,
           },
@@ -100,6 +100,6 @@ export function makeExecuteScript({req, core}: Options) {
       }
     }
 
-    await req(request.url!, {baseUrl: session.serverUrl, body: requestBody, io: {request, response}, logger})
+    await req(request.url!, {baseUrl: session.ecServerUrl, body: requestBody, io: {request, response}, logger})
   }
 }

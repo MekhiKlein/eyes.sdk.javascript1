@@ -60,21 +60,21 @@ export function makeStartSession({settings, req, tunnels}: Options) {
     } as ECCapabilitiesOptions
 
     const session = {
-      serverUrl: settings.serverUrl,
+      ecServerUrl: settings.ecServerUrl,
       proxy: settings.proxy,
       credentials: {eyesServerUrl: options.eyesServerUrl, apiKey: options.apiKey},
       options,
     } as ECSession
 
     if (options.region) {
-      if (SERVER_URLS[options.region]) session.serverUrl = SERVER_URLS[options.region]
+      if (SERVER_URLS[options.region]) session.ecServerUrl = SERVER_URLS[options.region]
       else throw new Error(`Failed to create session in unknown region ${options.region}`)
     }
 
     if (options.tunnel && tunnels) {
       // TODO should be removed once tunnel spawning issue is solved
-      await prepareTunnelEnvironment({settings: {tunnelServerUrl: session.serverUrl}, logger})
-      session.tunnels = await tunnels.acquire({...session.credentials, tunnelServerUrl: session.serverUrl})
+      await prepareTunnelEnvironment({settings: {tunnelServerUrl: session.ecServerUrl}, logger})
+      session.tunnels = await tunnels.acquire({...session.credentials, tunnelServerUrl: session.ecServerUrl})
     }
 
     const applitoolsCapabilities = Object.fromEntries([
@@ -112,7 +112,7 @@ export function makeStartSession({settings, req, tunnels}: Options) {
       if (signal.aborted) return queue.pause
 
       const proxyResponse = await req(request.url!, {
-        baseUrl: session.serverUrl,
+        baseUrl: session.ecServerUrl,
         body: requestBody,
         io: {request, response, handle: false},
         // TODO uncomment when we can throw different abort reasons for task cancelation and timeout abortion

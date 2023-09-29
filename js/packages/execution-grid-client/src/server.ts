@@ -72,7 +72,7 @@ export async function makeServer({
       router.any(/^\/session\/(?<sessionId>[^\/]+).*$/, async ({match}) => {
         requestLogger.log('Passthrough request')
         const session = sessions.get(match.groups!.sessionId)!
-        await req(request.url!, {baseUrl: session.serverUrl, io: {request, response}, logger: requestLogger})
+        await req(request.url!, {baseUrl: session.ecServerUrl, io: {request, response}, logger: requestLogger})
       })
       router.fallback(async () => {
         throw new Error('Unknown request')

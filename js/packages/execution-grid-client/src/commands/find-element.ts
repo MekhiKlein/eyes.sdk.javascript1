@@ -21,7 +21,7 @@ export function makeFindElement({req}: Options) {
   }): Promise<void> {
     logger.log('Inspecting element lookup request to collect self-healing metadata')
     const proxyResponse = await req(request.url!, {
-      baseUrl: session.serverUrl,
+      baseUrl: session.ecServerUrl,
       io: {request, response, handle: false},
       logger,
     })

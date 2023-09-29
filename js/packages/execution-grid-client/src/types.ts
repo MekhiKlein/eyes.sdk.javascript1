@@ -10,7 +10,7 @@ export interface ECClient {
 }
 
 export interface ECClientSettings {
-  serverUrl: string
+  ecServerUrl: string
   proxy?: Proxy
   useDnsCache?: boolean
   options?: ECCapabilitiesOptions
@@ -36,7 +36,7 @@ export interface ECCapabilitiesOptions {
 }
 
 export interface ECSession {
-  serverUrl: string
+  ecServerUrl: string
   proxy?: Proxy
   sessionId: string
   credentials: {eyesServerUrl: string; apiKey: string}

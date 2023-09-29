@@ -13,7 +13,7 @@ export async function makeECClient({
   const logger = makeLogger({logger: defaultLogger, format: {label: 'ec-client'}})
 
   settings ??= {}
-  settings.serverUrl ??=
+  settings.ecServerUrl ??=
     utils.general.getEnvValue('EXECUTION_CLOUD_URL') ??
     utils.general.getEnvValue('EG_SERVER_URL') ??
     'https://exec-wus.applitools.com'
