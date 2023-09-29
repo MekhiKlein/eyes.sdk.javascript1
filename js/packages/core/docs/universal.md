@@ -407,7 +407,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
 
 ```jsonc
 {
-  "capabilities": { // default options that will be used if user do not provide `applitools:` caps
+  "options": { // default options that will be used if user do not provide `applitools:` caps
     "eyesServerUrl": "https://eyesapi.applitools.com/",
     "apiKey": "DFH$HJD%77333J355",
   },
