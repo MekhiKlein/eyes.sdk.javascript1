@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.6](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.11.5...js/core@3.11.6) (2023-10-02)
+
+
+### Bug Fixes
+
+* move lazyload option to take-dom-snapshots ([#1947](https://github.com/applitools/eyes.sdk.javascript1/issues/1947)) ([1833613](https://github.com/applitools/eyes.sdk.javascript1/commit/18336131048733d6d31d31ea4fa959c299320bfe))
+
 ## [3.11.5](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.11.4...js/core@3.11.5) (2023-09-29)
 
 
