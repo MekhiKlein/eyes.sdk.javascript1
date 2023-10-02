@@ -65,9 +65,8 @@ describe('check', () => {
         }),
       ]),
       error => {
-        return (
-          error.message ===
-          'Request "check" that was sent to the address "[POST]https://localhost:3000/api/sessions/running/test-id?apiKey=my0api0key" failed due to unexpected status (400)'
+        return /Request \"check\" \[1--\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\] that was sent to the address \"\[POST\]https:\/\/localhost:3000\/api\/sessions\/running\/test-id\?apiKey=my0api0key\" failed due to unexpected status \(400\)/.test(
+          error.message,
         )
       },
     )
