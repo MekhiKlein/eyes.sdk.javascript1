@@ -57,8 +57,8 @@ jobs:
         run: |
           cd dotnet
 
-          $selected_core_ver = ${{inputs.core_version}}
-          if [[ "$selected_core_ver" != "latest" ]]; then
+          export selected_core_ver=${{inputs.core_version}}
+          if [[ "$selected_core_ver" = "latest" ]]; then
             export CORE_VERSION=$(../scripts/download-core-bin.sh --output version)
             echo using latest version: $CORE_VERSION
           else
