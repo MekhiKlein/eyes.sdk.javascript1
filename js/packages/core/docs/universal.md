@@ -452,7 +452,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
     "os": "OS name",
     "displayOs": "Display OS",
     "hostingApp": "Host app name",
-    "displayHostingApp": "Host app info",
+    "displayHostingApp": "Display Hosting App",
     "deviceName": "Device name",
     "viewportSize": {"width": 210, "height": 700},
   },
