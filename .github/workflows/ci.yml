@@ -350,11 +350,16 @@ jobs:
         with:
           name: ${{matrix.key}}
           path: ${{join(matrix.artifacts)}}
+      - name: Print env
+        run: |
+          cat <<EOF
+          {{toJSON(matrix)}}
+          EOF
       - name: Save built packages as workflow artifacts
         if: ${{matrix.key && matrix.artifacts}}
         uses: actions/upload-artifact@v3
         with:
-          name: python_package_${{hashFiles(matrix.artifacts)}}
+          name: python_package_${{matrix.short-name}}
           path: ${{join(matrix.artifacts)}}
           retention-days: 2
           if-no-files-found: ignore
