@@ -52,7 +52,7 @@ export interface EmitOptions {
   template(options: {test: Test; commands: Record<string, string[]>}): string
 }
 
-export interface Fixture extends String {
+export type Fixture = string & {
   toPath(): string
   toBase64(): string
   toText(): string

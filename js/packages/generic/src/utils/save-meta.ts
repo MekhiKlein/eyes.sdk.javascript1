@@ -14,16 +14,19 @@ export async function saveMeta(
 
   await mkdir(path.dirname(filePath), {recursive: true})
 
-  const meta = tests.reduce((meta, test) => {
-    meta[pascalize ? test.key : test.name] = {
-      name: test.group,
-      params: {...params, variant: test.variant},
-      generic: true,
-      skip: test.skipEmit || test.skip,
-      reason: test.reason,
-    }
-    return meta
-  }, {} as Record<string, any>)
+  const meta = tests.reduce(
+    (meta, test) => {
+      meta[pascalize ? test.key : test.name] = {
+        name: test.group,
+        params: {...params, variant: test.variant},
+        generic: true,
+        skip: test.skipEmit || test.skip,
+        reason: test.reason,
+      }
+      return meta
+    },
+    {} as Record<string, any>,
+  )
 
   await writeFile(filePath, JSON.stringify(meta, null, 2))
 }

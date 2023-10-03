@@ -1,6 +1,7 @@
 'use strict';
 
 const {promisify} = require('util');
+const {Buffer} = require('buffer');
 const express = require('express');
 const UAParser = require('ua-parser-js');
 const fs = require('fs');

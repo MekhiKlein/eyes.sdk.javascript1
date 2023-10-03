@@ -1,5 +1,6 @@
 import {type Transport} from '../transport'
 import {type Socket} from 'net'
+import {Buffer} from 'buffer'
 
 export type Data = string | Uint8Array
 

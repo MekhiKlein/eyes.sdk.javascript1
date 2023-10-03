@@ -1,4 +1,5 @@
 import {PassThrough, type Readable} from 'stream'
+import {Buffer} from 'buffer'
 import * as general from './general'
 
 export async function toBuffer(stream: Readable): Promise<Buffer> {

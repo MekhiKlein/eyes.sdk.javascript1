@@ -11,10 +11,15 @@
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": ["error", {"fix": true}],
     "no-console": "error",
+    "no-restricted-globals": [
+      "error",
+      {"name": "Buffer", "message": "Import from 'buffer' instead."}
+    ],
     "@typescript-eslint/no-unused-vars": [
       "error",
       {"varsIgnorePattern": "^_", "args": "all", "argsIgnorePattern": "^_"}
     ],
+    "@typescript-eslint/no-duplicate-enum-values": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-comment": "off",

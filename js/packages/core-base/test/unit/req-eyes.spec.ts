@@ -94,7 +94,7 @@ describe('req-eyes', () => {
       .matchHeader('eyes-date', () => true)
       .reply(200, {hello: 'result'})
 
-    const response = await req('/long', {method: 'POST', body: Buffer.alloc(0)})
+    const response = await req('/long', {method: 'POST', body: new Uint8Array(0)})
 
     assert.strictEqual(response.status, 200)
     assert.deepStrictEqual(await response.json(), {hello: 'result'})

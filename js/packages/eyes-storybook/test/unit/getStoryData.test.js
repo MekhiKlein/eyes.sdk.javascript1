@@ -1,6 +1,7 @@
 'use strict';
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
+const {Buffer} = require('buffer');
 const {presult} = require('@applitools/functional-commons');
 const makeGetStoryData = require('../../src/getStoryData');
 const renderStoryWithClientAPI = require('../../dist/renderStoryWithClientAPI');

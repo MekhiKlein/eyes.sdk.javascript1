@@ -99,12 +99,15 @@ function makePool<TResource, TResourceOptions = never>(
   }
 
   async function create(resourceOptions: TResourceOptions): Promise<TResource> {
-    const availableItem = [...pending].reduce((availableItem, item) => {
-      return (!options.maxInuse || item.waiting < options.maxInuse) &&
-        (!availableItem || availableItem.waiting > item.waiting)
-        ? item
-        : availableItem
-    }, null as PendingItem<TResource> | null)
+    const availableItem = [...pending].reduce(
+      (availableItem, item) => {
+        return (!options.maxInuse || item.waiting < options.maxInuse) &&
+          (!availableItem || availableItem.waiting > item.waiting)
+          ? item
+          : availableItem
+      },
+      null as PendingItem<TResource> | null,
+    )
 
     if (availableItem) {
       availableItem.waiting += 1
@@ -133,13 +136,16 @@ function makePool<TResource, TResourceOptions = never>(
   }
 
   async function get(): Promise<TResource | null> {
-    const freeItem = [...pool.values()].reduce((freeItem, item) => {
-      return !item.destroyed &&
-        (!options.maxInuse || item.inuse < options.maxInuse) &&
-        (!freeItem || freeItem.inuse > item.inuse)
-        ? item
-        : freeItem
-    }, null as PoolItem<TResource> | null)
+    const freeItem = [...pool.values()].reduce(
+      (freeItem, item) => {
+        return !item.destroyed &&
+          (!options.maxInuse || item.inuse < options.maxInuse) &&
+          (!freeItem || freeItem.inuse > item.inuse)
+          ? item
+          : freeItem
+      },
+      null as PoolItem<TResource> | null,
+    )
 
     return freeItem?.resource ?? null
   }

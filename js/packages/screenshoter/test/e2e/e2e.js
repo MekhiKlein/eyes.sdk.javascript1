@@ -5,6 +5,7 @@ const WebDriver = require('webdriver').default
 const pixelmatch = require('pixelmatch')
 const utils = require('@applitools/utils')
 const spec = require('@applitools/spec-driver-webdriver')
+const {Buffer} = require('buffer')
 const {makeLogger} = require('@applitools/logger')
 const {Driver} = require('@applitools/driver')
 const {makeImage} = require('@applitools/image')

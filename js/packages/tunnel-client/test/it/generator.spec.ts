@@ -1,5 +1,6 @@
-import {makeGenerator} from '../../src/generator'
+import {Buffer} from 'buffer'
 import {makeLogger} from '@applitools/logger'
+import {makeGenerator} from '../../src/generator'
 import nock from 'nock'
 import assert from 'assert'
 

@@ -137,21 +137,24 @@ function mergeOptions(...options: LoggerOptions[]): LoggerOptions {
 }
 
 function mergeTags(...tags: (string[] | string[][])[]): string[] | string[][] {
-  return tags.reduce((baseTags, currentTags) => {
-    if (utils.types.isArray(baseTags[0])) {
-      let mergedTags = (baseTags as string[][]).map(baseTags => [...baseTags])
-      if (utils.types.isArray(currentTags[0])) {
-        mergedTags.push(...(currentTags as string[][]).map(currentTags => [...currentTags]))
+  return tags.reduce(
+    (baseTags, currentTags) => {
+      if (utils.types.isArray(baseTags[0])) {
+        let mergedTags = (baseTags as string[][]).map(baseTags => [...baseTags])
+        if (utils.types.isArray(currentTags[0])) {
+          mergedTags.push(...(currentTags as string[][]).map(currentTags => [...currentTags]))
+        } else {
+          mergedTags = mergedTags.map(mergedTags => [
+            ...new Set([...(mergedTags as string[]), ...(currentTags as string[])]),
+          ])
+        }
+        return mergedTags
       } else {
-        mergedTags = mergedTags.map(mergedTags => [
-          ...new Set([...(mergedTags as string[]), ...(currentTags as string[])]),
-        ])
+        return utils.types.isArray(currentTags[0])
+          ? [...(baseTags as string[][]), ...(currentTags as string[][])]
+          : [...new Set([...(baseTags as string[]), ...(currentTags as string[])])]
       }
-      return mergedTags
-    } else {
-      return utils.types.isArray(currentTags[0])
-        ? [...(baseTags as string[][]), ...(currentTags as string[][])]
-        : [...new Set([...(baseTags as string[]), ...(currentTags as string[])])]
-    }
-  }, [] as string[] | string[][])
+    },
+    [] as string[] | string[][],
+  )
 }

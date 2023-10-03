@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer'
 import {Image} from 'png-async'
 
 export function generateScreenshot(this: any) {
@@ -7,7 +8,7 @@ export function generateScreenshot(this: any) {
   })
   const stream = image.pack()
   return new Promise((resolve, reject) => {
-    let buffer = Buffer.from([])
+    let buffer = Buffer.alloc(0)
     stream.on('data', chunk => {
       buffer = Buffer.concat([buffer, chunk])
     })

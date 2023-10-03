@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const {describe, it, before, after} = require('mocha');
 const {expect} = require('chai');
+const {Buffer} = require('buffer');
 const {testServerInProcess} = require('@applitools/test-server');
 const makeGetStoryData = require('../../src/getStoryData');
 const {ptimeoutWithError} = require('@applitools/functional-commons');

@@ -1,4 +1,5 @@
 import {makeResource} from '../../src/resources/resource'
+import {Buffer} from 'buffer'
 import assert from 'assert'
 
 describe('resource', () => {

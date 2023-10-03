@@ -34,23 +34,26 @@ export function makeGetManagerResults<TSpec extends SpecType, TType extends 'cla
   } = {}): Promise<TestResultSummary<TType>> {
     logger = logger.extend(mainLogger, {tags: [`get-manager-results-${utils.general.shortid()}`]})
 
-    let containers = await storage.reduce(async (promise, eyes) => {
-      try {
-        const results = await eyes.getResults({settings: {...settings, throwErr: false}, logger})
-        return promise.then(containers => {
-          return containers.concat(
-            results.map(result => ({
-              result,
-              error: result.status !== 'Passed' ? new TestError(result) : undefined,
-              userTestId: result.userTestId,
-              renderer: (result as TestResult<'ufg'>).renderer as any,
-            })),
-          )
-        })
-      } catch (error: any) {
-        return promise.then(containers => containers.concat({error: new InternalError(error), ...error.info}))
-      }
-    }, Promise.resolve([] as TestResultContainer<TType>[]))
+    let containers = await storage.reduce(
+      async (promise, eyes) => {
+        try {
+          const results = await eyes.getResults({settings: {...settings, throwErr: false}, logger})
+          return promise.then(containers => {
+            return containers.concat(
+              results.map(result => ({
+                result,
+                error: result.status !== 'Passed' ? new TestError(result) : undefined,
+                userTestId: result.userTestId,
+                renderer: (result as TestResult<'ufg'>).renderer as any,
+              })),
+            )
+          })
+        } catch (error: any) {
+          return promise.then(containers => containers.concat({error: new InternalError(error), ...error.info}))
+        }
+      },
+      Promise.resolve([] as TestResultContainer<TType>[]),
+    )
 
     if (settings?.removeDuplicateTests) {
       logger.log('User opted into removing duplicate tests, checking for duplicates...')
@@ -76,13 +79,16 @@ export function makeGetManagerResults<TSpec extends SpecType, TType extends 'cla
       }
     }
 
-    const batches = storage.reduce((batches, eyes) => {
-      if (!eyes.test.keepBatchOpen) {
-        const settings = {...eyes.test.eyesServer, batchId: eyes.test.batchId}
-        batches[`${settings.eyesServerUrl}:${settings.apiKey}:${settings.batchId}`] = settings
-      }
-      return batches
-    }, {} as Record<string, CloseBatchSettings>)
+    const batches = storage.reduce(
+      (batches, eyes) => {
+        if (!eyes.test.keepBatchOpen) {
+          const settings = {...eyes.test.eyesServer, batchId: eyes.test.batchId}
+          batches[`${settings.eyesServerUrl}:${settings.apiKey}:${settings.batchId}`] = settings
+        }
+        return batches
+      },
+      {} as Record<string, CloseBatchSettings>,
+    )
 
     await core.closeBatch({settings: Object.values(batches), logger}).catch(() => null)
 

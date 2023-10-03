@@ -170,25 +170,36 @@ export class Context<T extends SpecType> {
       const features = await this.driver.getFeatures()
       if (elements.length > 0) {
         if (selector.child && !features.nestedSelectors) {
-          elements = await elements.reduce((result, element) => {
-            return result.then(async result => {
-              return result.concat(await this._findElements(selector.child!, {parent: element, all, wait}))
-            })
-          }, Promise.resolve([] as T['element'][]))
+          elements = await elements.reduce(
+            (result, element) => {
+              return result.then(async result => {
+                return result.concat(await this._findElements(selector.child!, {parent: element, all, wait}))
+              })
+            },
+            Promise.resolve([] as T['element'][]),
+          )
         } else if (selector.shadow && !features.nestedSelectors) {
-          elements = await elements.reduce((result, element) => {
-            return result.then(async result => {
-              const root: T['element'] = await this._spec.executeScript(this.target, snippets.getShadowRoot, [element])
-              return result.concat(root ? await this._findElements(selector.shadow!, {parent: root, all, wait}) : [])
-            })
-          }, Promise.resolve([] as T['element'][]))
+          elements = await elements.reduce(
+            (result, element) => {
+              return result.then(async result => {
+                const root: T['element'] = await this._spec.executeScript(this.target, snippets.getShadowRoot, [
+                  element,
+                ])
+                return result.concat(root ? await this._findElements(selector.shadow!, {parent: root, all, wait}) : [])
+              })
+            },
+            Promise.resolve([] as T['element'][]),
+          )
         } else if (selector.frame) {
-          elements = await elements.reduce((result, element) => {
-            return result.then(async result => {
-              const context = await this.context(element)
-              return result.concat(await context._findElements(selector.frame!, {all, wait}))
-            })
-          }, Promise.resolve([] as T['element'][]))
+          elements = await elements.reduce(
+            (result, element) => {
+              return result.then(async result => {
+                const context = await this.context(element)
+                return result.concat(await context._findElements(selector.frame!, {all, wait}))
+              })
+            },
+            Promise.resolve([] as T['element'][]),
+          )
         }
       }
 
@@ -540,11 +551,14 @@ export class Context<T extends SpecType> {
   }
 
   async getLocationInMainContext(): Promise<Location> {
-    return this.path.reduce((location, context) => {
-      return location.then(async location => {
-        return utils.geometry.offset(location, utils.geometry.location(await context.getClientRegion()))
-      })
-    }, Promise.resolve({x: 0, y: 0}))
+    return this.path.reduce(
+      (location, context) => {
+        return location.then(async location => {
+          return utils.geometry.offset(location, utils.geometry.location(await context.getClientRegion()))
+        })
+      },
+      Promise.resolve({x: 0, y: 0}),
+    )
   }
 
   async getLocationInViewport(): Promise<Location> {

@@ -1,4 +1,5 @@
 import {makeCore} from '../../src/core'
+import {Buffer} from 'buffer'
 import {readFileSync} from 'fs'
 import nock from 'nock'
 import assert from 'assert'

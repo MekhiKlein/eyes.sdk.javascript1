@@ -1,6 +1,7 @@
 import {Selector, ClientFunction} from 'testcafe'
 import * as assert from 'assert'
 import * as spec from '../../src/spec-driver'
+import * as utils from '@applitools/utils'
 
 function isEqualElements(t: spec.Driver, element1: spec.Element, element2: spec.Element) {
   if (!element1 || !element2) return false
@@ -162,7 +163,7 @@ test('visit()', async driver => {
 })
 test('takeScreenshot', async driver => {
   const screenshot = await spec.takeScreenshot(driver)
-  assert.ok(Buffer.isBuffer(screenshot))
+  assert.ok(utils.types.isUint8Array(screenshot))
 })
 test('setViewportSize(width, height)', async driver => {
   const expectedRect = {width: 500, height: 500}

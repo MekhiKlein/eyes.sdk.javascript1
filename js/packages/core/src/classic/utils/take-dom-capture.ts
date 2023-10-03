@@ -68,9 +68,12 @@ export async function takeDomCapture<TSpec extends SpecType>({
     let dom = raws[frameEndIndex + 1]
 
     const cssResources = await Promise.all(
-      raws.slice(1, cssEndIndex).reduce((cssResources, href) => {
-        return href ? cssResources.concat(fetchCssResource(new URL(href, url).href)) : cssResources
-      }, [] as Promise<{url: string; css: string}>[]),
+      raws.slice(1, cssEndIndex).reduce(
+        (cssResources, href) => {
+          return href ? cssResources.concat(fetchCssResource(new URL(href, url).href)) : cssResources
+        },
+        [] as Promise<{url: string; css: string}>[],
+      ),
     )
     for (const {url, css} of cssResources) {
       dom = dom.replace(`${tokens.cssStartToken}${url}${tokens.cssEndToken}`, css)

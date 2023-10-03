@@ -1,4 +1,5 @@
 import type * as Core from '@applitools/core'
+import {type Buffer} from 'buffer'
 import {initSDK, type SDK} from './SDK'
 import {EyesSelector} from './input/EyesSelector'
 import {SessionType, SessionTypeEnum} from './enums/SessionType'
@@ -442,10 +443,13 @@ export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
     const config = this._config.toJSON()
 
     const results = await this._core.locate({target, settings: {...this._state, ...settings}, config})
-    return Object.entries<Region[]>(results).reduce((results, [key, regions]) => {
-      results[key as TLocator] = regions.map(region => new RegionData(region))
-      return results
-    }, {} as Record<TLocator, Region[]>)
+    return Object.entries<Region[]>(results).reduce(
+      (results, [key, regions]) => {
+        results[key as TLocator] = regions.map(region => new RegionData(region))
+        return results
+      },
+      {} as Record<TLocator, Region[]>,
+    )
   }
 
   async extractTextRegions<TPattern extends string>(
@@ -517,11 +521,14 @@ export class Eyes<TSpec extends Core.SpecType = Core.SpecType> {
 
     const config = this._config.toJSON()
 
-    return await settings.reduce((results, settings, index) => {
-      return results.then(async results => {
-        return results.concat(await this._core.extractText({target: targets[index], settings: settings!, config}))
-      })
-    }, Promise.resolve([] as string[]))
+    return await settings.reduce(
+      (results, settings, index) => {
+        return results.then(async results => {
+          return results.concat(await this._core.extractText({target: targets[index], settings: settings!, config}))
+        })
+      },
+      Promise.resolve([] as string[]),
+    )
   }
 
   async close(throwErr = true): Promise<TestResultsData> {

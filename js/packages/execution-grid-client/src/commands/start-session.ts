@@ -3,8 +3,9 @@ import {type IncomingMessage, type ServerResponse} from 'http'
 import {type Logger} from '@applitools/logger'
 import {type ReqProxy} from '../req-proxy'
 import {type TunnelManager} from '../tunnels/manager'
-import {prepareTunnelEnvironment} from '@applitools/tunnel-client'
 import {AbortController, type AbortSignal} from 'abort-controller'
+import {Buffer} from 'buffer'
+import {prepareTunnelEnvironment} from '@applitools/tunnel-client'
 import * as utils from '@applitools/utils'
 
 type Options = {

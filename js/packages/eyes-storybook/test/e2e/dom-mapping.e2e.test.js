@@ -52,10 +52,9 @@ describe('dom-mapping', () => {
     for (const testResults of results) {
       const session = await getTestInfo(testResults);
       const [actualAppOutput] = session.actualAppOutput;
-      const expectedDomMapping = require(path.resolve(
-        __dirname,
-        '../fixtures/dom-mapping/dom-mapping.json',
-      ));
+      const expectedDomMapping = require(
+        path.resolve(__dirname, '../fixtures/dom-mapping/dom-mapping.json'),
+      );
       const actualDomMapping = await getTestDom(
         testResults,
         actualAppOutput.image.domMappingId,

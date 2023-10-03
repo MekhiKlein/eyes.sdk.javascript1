@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer'
 import {req} from '@applitools/req'
 
 export async function fetchResource({resourceUrl}: {resourceUrl: string}): Promise<string> {

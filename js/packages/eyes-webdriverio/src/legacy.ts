@@ -28,7 +28,10 @@ export class By {
     return By.xpath(xpath)
   }
 
-  constructor(readonly value: string, readonly using: string = 'css selector') {}
+  constructor(
+    readonly value: string,
+    readonly using: string = 'css selector',
+  ) {}
 
   toString(): string {
     return `${this.using}:${this.value}`

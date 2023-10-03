@@ -2,6 +2,7 @@ import type {ECSession} from '../types'
 import {type IncomingMessage, type ServerResponse} from 'http'
 import {type Logger} from '@applitools/logger'
 import {type ReqProxy} from '../req-proxy'
+import {Buffer} from 'buffer'
 
 type Options = {
   req: ReqProxy

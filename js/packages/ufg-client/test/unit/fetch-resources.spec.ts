@@ -1,6 +1,7 @@
 import {makeResource, type ContentfulResource, type FailedResource} from '../../src/resources/resource'
 import {makeFetchResource} from '../../src/resources/fetch-resource'
 import {makeLogger} from '@applitools/logger'
+import {Buffer} from 'buffer'
 import assert from 'assert'
 import nock from 'nock'
 import * as utils from '@applitools/utils'

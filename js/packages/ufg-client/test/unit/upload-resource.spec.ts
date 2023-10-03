@@ -1,8 +1,9 @@
 import {type UFGRequests} from '../../src/server/requests'
-import {makeUploadResource} from '../../src/resources/upload-resource'
 import {makeResource, type ContentfulResource} from '../../src/resources/resource'
+import {makeUploadResource} from '../../src/resources/upload-resource'
 import {makeResourceDom} from '../../src/resources/resource-dom'
 import {makeLogger} from '@applitools/logger'
+import {Buffer} from 'buffer'
 import assert from 'assert'
 import * as utils from '@applitools/utils'
 

@@ -8,6 +8,7 @@ import {makeFixtureResources as makeFixtureSvgResources} from '../fixtures/page/
 import {readFileSync} from 'fs'
 import {makeLogger} from '@applitools/logger'
 import {makeTestServer} from '@applitools/test-server'
+import {Buffer} from 'buffer'
 import nock from 'nock'
 import assert from 'assert'
 import {type VerifyableAsynCache, makeAsyncCache} from '../utils/fake-async-cache'

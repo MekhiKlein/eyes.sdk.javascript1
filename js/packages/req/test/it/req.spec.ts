@@ -1,5 +1,6 @@
 import assert from 'assert'
 import nock from 'nock'
+import {Buffer} from 'buffer'
 import {Request} from 'node-fetch'
 import {req} from '../../src/req.js'
 import {AbortCode} from '../../src/req-errors.js'

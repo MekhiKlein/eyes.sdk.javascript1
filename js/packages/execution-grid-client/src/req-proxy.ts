@@ -1,5 +1,6 @@
 import {type IncomingMessage, type ServerResponse} from 'http'
 import {type Logger} from '@applitools/logger'
+import {Buffer} from 'buffer'
 import {makeReq, type Req, type Proxy, type Retry, type Options} from '@applitools/req'
 import * as utils from '@applitools/utils'
 

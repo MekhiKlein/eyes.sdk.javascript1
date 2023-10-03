@@ -1,3 +1,4 @@
+import {type Buffer} from 'buffer'
 import {Server as HttpServer, request as httpRequest} from 'http'
 import {Server as HttpsServer, request as httpsRequest} from 'https'
 import {Server as WsServer, type AddressInfo} from 'ws'

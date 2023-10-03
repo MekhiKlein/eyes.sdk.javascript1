@@ -1,5 +1,6 @@
 import type {ImageBuffer, ImageRaw} from '../types'
 import type {Size} from '@applitools/utils'
+import {Buffer} from 'buffer'
 import * as png from 'png-async'
 import * as utils from '@applitools/utils'
 

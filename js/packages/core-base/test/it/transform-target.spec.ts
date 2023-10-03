@@ -1,5 +1,6 @@
-import {readFileSync} from 'fs'
 import {makeImage, type Image} from '@applitools/image'
+import {Buffer} from 'buffer'
+import {readFileSync} from 'fs'
 import {resolve as resolvePath} from 'path'
 import {pathToFileURL} from 'url'
 import {testServer} from '@applitools/test-server'

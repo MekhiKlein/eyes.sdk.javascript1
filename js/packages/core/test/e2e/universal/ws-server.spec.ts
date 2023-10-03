@@ -1,6 +1,7 @@
-import WebSocket from 'ws'
+import {Buffer} from 'buffer'
 import {generateCertificate} from '@applitools/test-server'
 import {makeServer} from '../../../src/universal/ws-server'
+import WebSocket from 'ws'
 import assert from 'assert'
 
 describe('universal ws server', () => {

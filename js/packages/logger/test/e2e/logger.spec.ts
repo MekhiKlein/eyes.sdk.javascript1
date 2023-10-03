@@ -250,7 +250,7 @@ describe('logger', () => {
 
   it('formatter', () => {
     const output = [] as string[]
-    const formatter = (chunks: any[], options?: Record<string, any>) => ({chunks, ...options} as any)
+    const formatter = (chunks: any[], options?: Record<string, any>) => ({chunks, ...options}) as any
     const handler = {log: (message: string) => output.push(message)}
     const timestamp = new Date('2021-03-19T16:49:00.000Z')
     const label = 'Test'

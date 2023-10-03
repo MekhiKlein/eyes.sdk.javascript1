@@ -1,5 +1,6 @@
 import type {Optional} from '@applitools/utils'
 import type {Renderer} from '../types'
+import {Buffer} from 'buffer'
 import {createHash} from 'crypto'
 import * as utils from '@applitools/utils'
 

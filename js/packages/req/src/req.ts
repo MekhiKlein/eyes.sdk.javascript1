@@ -123,16 +123,19 @@ export async function req(input: string | URL | Request, ...requestOptions: Opti
       }
 
       // if the request has to be retried due to status code
-      const retry = await (options.retry as Retry[])?.reduce(async (prev, retry) => {
-        const result = await prev
-        return (
-          result ??
-          ((retry.statuses?.includes(response.status) || (await retry.validate?.({response}))) &&
-          (!retry.limit || !retry.attempt || retry.attempt < retry.limit)
-            ? retry
-            : null)
-        )
-      }, Promise.resolve(null as Retry | null))
+      const retry = await (options.retry as Retry[])?.reduce(
+        async (prev, retry) => {
+          const result = await prev
+          return (
+            result ??
+            ((retry.statuses?.includes(response.status) || (await retry.validate?.({response}))) &&
+            (!retry.limit || !retry.attempt || retry.attempt < retry.limit)
+              ? retry
+              : null)
+          )
+        },
+        Promise.resolve(null as Retry | null),
+      )
       if (retry) {
         retry.attempt ??= 0
         const delay = response.headers.has('Retry-After')
@@ -156,15 +159,18 @@ export async function req(input: string | URL | Request, ...requestOptions: Opti
       else if (abortCode === AbortCode.connectionTimeout) error = new ConnectionTimeoutError()
 
       // if the request has to be retried due to network error
-      const retry = await (options.retry as Retry[])?.reduce((prev, retry) => {
-        return prev.then(async result => {
-          return result ??
-            ((retry.codes?.includes(error.code) || (await retry.validate?.({error}))) &&
-              (!retry.limit || !retry.attempt || retry.attempt < retry.limit))
-            ? retry
-            : null
-        })
-      }, Promise.resolve(null as Retry | null))
+      const retry = await (options.retry as Retry[])?.reduce(
+        (prev, retry) => {
+          return prev.then(async result => {
+            return result ??
+              ((retry.codes?.includes(error.code) || (await retry.validate?.({error}))) &&
+                (!retry.limit || !retry.attempt || retry.attempt < retry.limit))
+              ? retry
+              : null
+          })
+        },
+        Promise.resolve(null as Retry | null),
+      )
       if (retry) {
         retry.attempt ??= 0
         const delay = utils.types.isArray(retry.timeout)
@@ -229,16 +235,19 @@ function beforeRequest({request, options, ...rest}: Parameters<NonNullable<Hooks
 }
 
 function beforeRetry({request, options, ...rest}: Parameters<NonNullable<Hooks['beforeRetry']>>[0]) {
-  return ((options?.hooks ?? []) as Hooks[]).reduce(async (request, hooks) => {
-    request = await request
-    if (request === stop) return request
-    const result = await hooks.beforeRetry?.({request, options, ...rest})
-    if (result === stop) return result
-    else if (!result) return request
-    else if (utils.types.instanceOf(result, Request)) return result
-    else if (utils.types.has(result, 'url')) return new Request(result.url, result.request ?? result)
-    else return new Request(result.request, result)
-  }, request as Awaitable<Request | Stop>)
+  return ((options?.hooks ?? []) as Hooks[]).reduce(
+    async (request, hooks) => {
+      request = await request
+      if (request === stop) return request
+      const result = await hooks.beforeRetry?.({request, options, ...rest})
+      if (result === stop) return result
+      else if (!result) return request
+      else if (utils.types.instanceOf(result, Request)) return result
+      else if (utils.types.has(result, 'url')) return new Request(result.url, result.request ?? result)
+      else return new Request(result.request, result)
+    },
+    request as Awaitable<Request | Stop>,
+  )
 }
 
 function afterResponse({response, options, ...rest}: Parameters<NonNullable<Hooks['afterResponse']>>[0]) {

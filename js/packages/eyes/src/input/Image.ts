@@ -1,3 +1,4 @@
+import {type Buffer} from 'buffer'
 import {RectangleSize} from './RectangleSize'
 import {Location} from './Location'
 

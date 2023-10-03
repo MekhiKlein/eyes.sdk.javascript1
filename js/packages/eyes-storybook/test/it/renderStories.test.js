@@ -2,6 +2,7 @@
 
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
+const {Buffer} = require('buffer');
 const makeRenderStories = require('../../src/renderStories');
 const testStream = require('../util/testStream');
 const createPagePool = require('../../src/pagePool');

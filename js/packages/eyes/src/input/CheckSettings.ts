@@ -1,4 +1,5 @@
 import type * as Core from '@applitools/core'
+import {type Buffer} from 'buffer'
 import {EyesSelector} from './EyesSelector'
 import {Image} from './Image'
 import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'

@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer'
 import {makeTunnelClientWorker} from '../../src/worker'
 import {makeLogger} from '@applitools/logger'
 import nock from 'nock'

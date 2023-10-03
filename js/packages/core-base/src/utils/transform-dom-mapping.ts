@@ -22,7 +22,7 @@ export async function transformDomMapping(settings: CheckSettings): Promise<void
     const str = settings.domMapping
     if (utils.types.isHttpUrl(str)) {
       const response = await req(str, {proxy: settings.autProxy})
-      settings.domMapping = Buffer.from(await response.arrayBuffer())
+      settings.domMapping = new Uint8Array(await response.arrayBuffer())
     } else {
       settings.domMapping = await fs.readFile(str)
     }

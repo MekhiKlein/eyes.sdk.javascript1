@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer'
 import * as types from './types'
 
 export function getEnvValue<T extends 'boolean' | 'number' | 'string' = 'string'>(

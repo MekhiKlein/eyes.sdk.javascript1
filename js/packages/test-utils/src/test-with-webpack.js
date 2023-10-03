@@ -5,7 +5,7 @@ const fs = require('fs')
 const {Volume} = require('memfs')
 const {Union} = require('unionfs')
 
-async function testWithWebpack({cwd = process.cwd()} = {}) {
+async function testWithWebpack({cwd = process.cwd(), internals = []} = {}) {
   const {name} = require(path.resolve(cwd, './package.json'))
   const memfs = Volume.fromJSON(
     {
@@ -15,7 +15,12 @@ async function testWithWebpack({cwd = process.cwd()} = {}) {
   )
   const unionfs = new Union().use(fs).use(memfs)
 
-  const compiler = webpack({mode: 'production', context: cwd, entry: './main.js'})
+  const compiler = webpack({
+    mode: 'production',
+    context: cwd,
+    entry: './main.js',
+    resolve: {fallback: Object.fromEntries(internals.map(internal => [internal, false]))},
+  })
   compiler.inputFileSystem = unionfs
   compiler.intermediateFileSystem = unionfs
   compiler.outputFileSystem = memfs
