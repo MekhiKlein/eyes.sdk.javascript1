@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>LazyLoad</title>
+</head>
+<style>
+  .separator {
+      height: 100vh;
+      width: 100wh;
+      border: 1px solid black;
+  }
+  img {
+    height: 200px;
+    border: 1px solid black;
+  }
+</style>
+<body>
+  <h1>lazy load test page</h1>
+  <div class="separator"></div>
+  <div><img class="lazy" height="340" data-src="https://applitools.github.io/demo/TestPages/LazyLoad/George_W_Bush.jpeg"></div>
+</body>
+</html>
+<script>
+  const lazyImgs = document.querySelectorAll(".lazy")
+  const lazyImgObserver = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const lazyImg = entry.target
+        setTimeout(() => {
+          lazyImg.src = lazyImg.dataset.src
+          lazyImg.classList.remove("lazy")
+        }, 100)
+        lazyImgObserver.unobserve(lazyImg)
+      }
+    })
+  })
+  lazyImgs.forEach(function(lazyImg) {
+    lazyImgObserver.observe(lazyImg)
+  })
+</script>
