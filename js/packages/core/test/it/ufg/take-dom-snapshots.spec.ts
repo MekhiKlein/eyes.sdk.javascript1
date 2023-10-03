@@ -6,6 +6,8 @@ import {generateDomSnapshot} from '../../utils/generate-dom-snapshot'
 import chalk from 'chalk'
 import assert from 'assert'
 
+const {lazyLoad} = require('@applitools/snippets')
+
 describe('take-dom-snapshots', () => {
   let driver: Driver<SpecType<MockDriver>>, logger: Logger, output: string[]
 
@@ -97,5 +99,22 @@ describe('take-dom-snapshots', () => {
     warns.forEach((warn, index) => {
       assert.strictEqual(output[index], chalk.yellow(warn))
     })
+  })
+
+  it('run lazyLoad as a settings parameter', async () => {
+    let isLazyLoaded = false
+    driver.target.mockScript(lazyLoad, () => {
+      isLazyLoaded = true
+      return JSON.stringify({status: 'SUCCESS'})
+    })
+    await takeDomSnapshots({
+      driver,
+      settings: {
+        lazyLoad: true,
+        renderers: [{width: 300, height: 400, name: 'chrome'}],
+      },
+      logger,
+    })
+    assert.strictEqual(isLazyLoaded, true, 'should run the lazyLoad script')
   })
 })
