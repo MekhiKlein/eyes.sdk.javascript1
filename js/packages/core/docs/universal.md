@@ -450,7 +450,7 @@ The `locate` method historically was implemented under the `Eyes` namespace, whi
   "environmentName": "Env name",
   "environment": {
     "os": "OS name",
-    "displayOs": "OS info",
+    "displayOs": "Display OS",
     "hostingApp": "Host app name",
     "displayHostingApp": "Host app info",
     "deviceName": "Device name",
