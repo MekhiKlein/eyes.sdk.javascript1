@@ -603,7 +603,7 @@ New config structure represents the fact that it just provides a default values 
     "environmentName": "Env name",
     "environment": {
       "os": "OS name",
-      "displayOs": "OS info",
+      "displayOs": "Display OS",
       "hostingApp": "Host app name",
       "displayHostingApp": "Host app info",
       "deviceName": "Device name",
