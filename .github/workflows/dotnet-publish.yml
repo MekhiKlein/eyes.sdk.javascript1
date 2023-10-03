@@ -16,6 +16,10 @@ on:
           - minor
           - patch
         default: minor
+      core_version:
+        description: Core version
+        type: string
+        default: latest
 
 env:
   DRIVER_PATH: /usr/bin
@@ -53,7 +57,15 @@ jobs:
         run: |
           cd dotnet
 
-          export CORE_VERSION=$(../scripts/download-core-bin.sh --output version)
+          export selected_core_ver=${{inputs.core_version}}
+          if [[ "$selected_core_ver" = "latest" ]]; then
+            export CORE_VERSION=$(../scripts/download-core-bin.sh --output version)
+          else
+            export CORE_VERSION=$(../scripts/download-core-bin.sh --tag js/core@$selected_core_ver --output version)
+          fi
+
+          echo using selected version: $CORE_VERSION
+
           export SEM_VER_PART=${{inputs.sem_ver_part}}
 
           ls core-*
