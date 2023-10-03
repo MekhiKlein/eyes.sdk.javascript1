@@ -12,8 +12,8 @@ const {makeTiming} = require('@applitools/monitoring-commons');
 const logger = require('../util/testLogger');
 const testStream = require('../util/testStream');
 const {performance, timeItAsync} = makeTiming();
-const fetch = require('node-fetch');
 const snap = require('@applitools/snaptdout');
+const {getTestInfo} = require('@applitools/test-utils');
 
 describe('eyes-storybook accessibility', () => {
   let closeStorybook, closeTestServer;
@@ -57,9 +57,7 @@ describe('eyes-storybook accessibility', () => {
     expect(results.some(x => x instanceof Error)).to.be.false;
     expect(results).to.have.length(1);
     for (const testResults of results) {
-      const sessionUrl = `${testResults.apiUrls.session}?format=json&AccessToken=${testResults.secretToken}&apiKey=${process.env.APPLITOOLS_API_KEY}`;
-
-      const session = await fetch(sessionUrl).then(r => r.json());
+      const session = await getTestInfo(testResults);
       const [actualAppOutput] = session.actualAppOutput;
       expect(actualAppOutput.imageMatchSettings.accessibilitySettings).to.eql({
         level: globalConfig.accessibilityValidation.level,

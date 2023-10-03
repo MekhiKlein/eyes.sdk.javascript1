@@ -65,7 +65,7 @@ export async function parentContext(driver: Driver): Promise<Driver> {
 export async function childContext(driver: Driver, element: Element): Promise<Driver> {
   return driver.switchToFrame(element)
 }
-export async function takeScreenshot(driver: Driver): Promise<Buffer | string> {
+export async function takeScreenshot(driver: Driver): Promise<Uint8Array | string> {
   return driver.takeScreenshot()
 }
 export async function getDriverInfo(driver: Driver): Promise<DriverInfo> {
@@ -90,4 +90,8 @@ export async function getTitle(driver: Driver): Promise<string> {
 }
 export async function visit(driver: Driver, url: string): Promise<void> {
   await driver.visit(url)
+}
+
+export async function getCurrentWorld(driver: Driver) {
+  return driver.getCurrentWorld()
 }

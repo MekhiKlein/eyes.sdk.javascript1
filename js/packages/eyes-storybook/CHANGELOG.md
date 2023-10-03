@@ -1,5 +1,212 @@
 # Changelog
 
+## [3.43.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-storybook@3.43.1...js/eyes-storybook@3.43.2) (2023-09-30)
+
+
+### Bug Fixes
+
+* bump ([756e2d6](https://github.com/applitools/eyes.sdk.javascript1/commit/756e2d6899b58dfa69001d70133230447b4794d3))
+
+## [3.43.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-storybook@3.43.0...js/eyes-storybook@3.43.1) (2023-09-29)
+
+
+### Dependencies
+
+* @applitools/driver bumped to 1.14.3
+  #### Bug Fixes
+
+  * force native on get environment ([#1939](https://github.com/applitools/eyes.sdk.javascript1/issues/1939)) ([f42854e](https://github.com/applitools/eyes.sdk.javascript1/commit/f42854eacc769751447204143cb4d50113edc732))
+* @applitools/screenshoter bumped to 3.8.13
+  #### Bug Fixes
+
+  * force native on get environment ([#1939](https://github.com/applitools/eyes.sdk.javascript1/issues/1939)) ([f42854e](https://github.com/applitools/eyes.sdk.javascript1/commit/f42854eacc769751447204143cb4d50113edc732))
+
+
+
+* @applitools/ec-client bumped to 1.7.12
+  #### Bug Fixes
+
+  * change expiration time of the tunnel ([c019241](https://github.com/applitools/eyes.sdk.javascript1/commit/c0192411410135b23f3ae47dd62fbef67be66f1a))
+
+
+  #### Code Refactoring
+
+  * refactored spec driver interface ([#1839](https://github.com/applitools/eyes.sdk.javascript1/issues/1839)) ([aa49ec2](https://github.com/applitools/eyes.sdk.javascript1/commit/aa49ec2a7d14b8529acc3a8a4c2baecfa113d98a))
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/core-base bumped to 1.7.1
+  #### Bug Fixes
+
+  * send domMapping payload with correct content encoding ([2bc8e39](https://github.com/applitools/eyes.sdk.javascript1/commit/2bc8e390de1d147d84d1de24df337b8652547b6a))
+* @applitools/spec-driver-webdriver bumped to 1.0.47
+
+* @applitools/spec-driver-selenium bumped to 1.5.61
+
+* @applitools/spec-driver-puppeteer bumped to 1.2.3
+
+* @applitools/nml-client bumped to 1.5.13
+
+* @applitools/core bumped to 3.11.5
+
+
+## [3.43.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-storybook-v3.42.2...js/eyes-storybook@3.43.0) (2023-09-28)
+
+
+### Features
+
+* add support for passing a DOM mapping file to deobfuscate RCA ([8c99f8d](https://github.com/applitools/eyes.sdk.javascript1/commit/8c99f8da53ded229306fe2f3da89cb3b5691e2c0))
+* rework log event on opent eyes ([#1842](https://github.com/applitools/eyes.sdk.javascript1/issues/1842)) ([532756b](https://github.com/applitools/eyes.sdk.javascript1/commit/532756b75c1023967c3781316148c890dbcfaac8))
+* show aborted tests in Eyes dashboard ([#1877](https://github.com/applitools/eyes.sdk.javascript1/issues/1877)) ([f9840d4](https://github.com/applitools/eyes.sdk.javascript1/commit/f9840d494222ccc6c6f262896771e28da2565bc6))
+* update puppeteer version and minimum node version ([#1889](https://github.com/applitools/eyes.sdk.javascript1/issues/1889)) ([d449030](https://github.com/applitools/eyes.sdk.javascript1/commit/d449030bed6bf4f4c3e7a0dcb6f3ec78f7623e4c))
+
+
+### Bug Fixes
+
+* update timeout when rendering stories with variants and legacy ([00b8499](https://github.com/applitools/eyes.sdk.javascript1/commit/00b8499716827518fe24abe5031ef950f0254119))
+
+
+### Dependencies
+
+* @applitools/core-base bumped to 1.7.0
+  #### Features
+
+  * add support for passing a DOM mapping file to deobfuscate RCA ([8c99f8d](https://github.com/applitools/eyes.sdk.javascript1/commit/8c99f8da53ded229306fe2f3da89cb3b5691e2c0))
+* @applitools/ec-client bumped to 1.7.11
+
+* @applitools/core bumped to 3.11.4
+
+
+## [3.42.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-storybook@3.42.0...js/eyes-storybook@3.42.1) (2023-09-26)
+
+
+### Bug Fixes
+
+* update timeout when rendering stories with variants and legacy ([00b8499](https://github.com/applitools/eyes.sdk.javascript1/commit/00b8499716827518fe24abe5031ef950f0254119))
+
+## [3.42.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-storybook-v3.41.3...js/eyes-storybook@3.42.0) (2023-09-25)
+
+
+### Features
+
+* rework log event on opent eyes ([#1842](https://github.com/applitools/eyes.sdk.javascript1/issues/1842)) ([532756b](https://github.com/applitools/eyes.sdk.javascript1/commit/532756b75c1023967c3781316148c890dbcfaac8))
+* show aborted tests in Eyes dashboard ([#1877](https://github.com/applitools/eyes.sdk.javascript1/issues/1877)) ([f9840d4](https://github.com/applitools/eyes.sdk.javascript1/commit/f9840d494222ccc6c6f262896771e28da2565bc6))
+* update puppeteer version and minimum node version ([#1889](https://github.com/applitools/eyes.sdk.javascript1/issues/1889)) ([d449030](https://github.com/applitools/eyes.sdk.javascript1/commit/d449030bed6bf4f4c3e7a0dcb6f3ec78f7623e4c))
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.1
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+* @applitools/logger bumped to 2.0.11
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+
+* @applitools/socket bumped to 1.1.11
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/req bumped to 1.6.1
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+
+* @applitools/image bumped to 1.1.6
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/driver bumped to 1.14.2
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/tunnel-client bumped to 1.2.3
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/ec-client bumped to 1.7.10
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/spec-driver-webdriver bumped to 1.0.46
+
+* @applitools/spec-driver-puppeteer bumped to 1.2.2
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/nml-client bumped to 1.5.12
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/ufg-client bumped to 1.9.2
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/core-base bumped to 1.6.1
+  #### Reverts
+
+  * perform major changes ([994cd70](https://github.com/applitools/eyes.sdk.javascript1/commit/994cd703ebe891bf68aecd49d77b5fb119f6ebe8))
+
+
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+* @applitools/spec-driver-selenium bumped to 1.5.60
+
+* @applitools/screenshoter bumped to 3.8.12
+
+* @applitools/core bumped to 3.11.2
+  #### Reverts
+
+  * perform major changes ([994cd70](https://github.com/applitools/eyes.sdk.javascript1/commit/994cd703ebe891bf68aecd49d77b5fb119f6ebe8))
+
+
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+
 ## [3.41.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/eyes-storybook@3.41.1...js/eyes-storybook@3.41.2) (2023-09-12)
 
 

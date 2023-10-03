@@ -1,5 +1,65 @@
 # Changelog
 
+## [1.7.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core-base@1.7.0...js/core-base@1.7.1) (2023-09-29)
+
+
+### Bug Fixes
+
+* send domMapping payload with correct content encoding ([2bc8e39](https://github.com/applitools/eyes.sdk.javascript1/commit/2bc8e390de1d147d84d1de24df337b8652547b6a))
+
+## [1.7.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core-base@1.6.1...js/core-base@1.7.0) (2023-09-28)
+
+
+### Features
+
+* add support for passing a DOM mapping file to deobfuscate RCA ([8c99f8d](https://github.com/applitools/eyes.sdk.javascript1/commit/8c99f8da53ded229306fe2f3da89cb3b5691e2c0))
+
+## [1.6.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core-base@1.6.0...js/core-base@1.6.1) (2023-09-25)
+
+
+### Reverts
+
+* perform major changes ([994cd70](https://github.com/applitools/eyes.sdk.javascript1/commit/994cd703ebe891bf68aecd49d77b5fb119f6ebe8))
+
+
+### Code Refactoring
+
+* use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.1
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+* @applitools/logger bumped to 2.0.11
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+
+* @applitools/req bumped to 1.6.1
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+
+* @applitools/image bumped to 1.1.6
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+
 ## [1.6.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core-base@1.5.3...js/core-base@1.6.0) (2023-09-05)
 
 

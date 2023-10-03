@@ -265,9 +265,10 @@ export class Driver<T extends SpecType> {
       this._logger.log('Extracted capabilities environment', capabilitiesEnvironment)
       this._environment = {...this._environment, ...capabilitiesEnvironment}
 
-      if (this._environment.isMobile && !this._environment.browserName) {
+      if (this._environment.isMobile) {
         const world = await this.getCurrentWorld()
-        if (!!world?.includes('WEBVIEW')) {
+        this._environment.isNative = world === 'NATIVE_APP'
+        if (!!world?.includes('WEBVIEW') && !this._environment.browserName) {
           this._environment.isNative = true
           this._environment.isWeb = true
         }
@@ -709,7 +710,7 @@ export class Driver<T extends SpecType> {
     return context.getRegionInViewport(region)
   }
 
-  async takeScreenshot(): Promise<Buffer> {
+  async takeScreenshot(): Promise<Uint8Array> {
     const image = await this._spec.takeScreenshot(this.target)
     if (utils.types.isString(image)) {
       return Buffer.from(image.replace(/[\r\n]+/g, ''), 'base64')

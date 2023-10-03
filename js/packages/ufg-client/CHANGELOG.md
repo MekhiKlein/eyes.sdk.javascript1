@@ -1,5 +1,60 @@
 # Changelog
 
+## [1.9.3](https://github.com/applitools/eyes.sdk.javascript1/compare/js/ufg-client@1.9.2...js/ufg-client@1.9.3) (2023-09-28)
+
+
+### Bug Fixes
+
+* avoid saving data urls in cache (both sync and async) ([#1940](https://github.com/applitools/eyes.sdk.javascript1/issues/1940)) ([170181a](https://github.com/applitools/eyes.sdk.javascript1/commit/170181a3e4918411f3f18bbc4481b0752edf335f))
+
+## [1.9.2](https://github.com/applitools/eyes.sdk.javascript1/compare/js/ufg-client@1.9.1...js/ufg-client@1.9.2) (2023-09-25)
+
+
+### Code Refactoring
+
+* use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+### Dependencies
+
+* @applitools/utils bumped to 1.6.1
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+* @applitools/logger bumped to 2.0.11
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+
+* @applitools/req bumped to 1.6.1
+  #### Bug Fixes
+
+  * add browser entry point declaration and test ([#1933](https://github.com/applitools/eyes.sdk.javascript1/issues/1933)) ([5ba0720](https://github.com/applitools/eyes.sdk.javascript1/commit/5ba0720d62a9af8a9a2e1c2437c569e6ab19afd8))
+
+
+
+* @applitools/image bumped to 1.1.6
+  #### Code Refactoring
+
+  * use Uint8Array instead of Buffer for binary data representation ([#1928](https://github.com/applitools/eyes.sdk.javascript1/issues/1928)) ([d1472ab](https://github.com/applitools/eyes.sdk.javascript1/commit/d1472ab8fd49e9a240e99a44dbf1d180b6c7a54b))
+
+
+
+
+## [1.9.1](https://github.com/applitools/eyes.sdk.javascript1/compare/js/ufg-client@1.9.0...js/ufg-client@1.9.1) (2023-09-21)
+
+
+### Bug Fixes
+
+* async cache key - avoid undefined keys and ready promise ([#1929](https://github.com/applitools/eyes.sdk.javascript1/issues/1929)) ([8654f99](https://github.com/applitools/eyes.sdk.javascript1/commit/8654f99d92403f1e59bf8e2f6fbc32ba467e3037))
+
 ## [1.9.0](https://github.com/applitools/eyes.sdk.javascript1/compare/js/ufg-client@1.8.0...js/ufg-client@1.9.0) (2023-09-13)
 
 

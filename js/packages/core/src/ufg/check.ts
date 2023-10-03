@@ -19,7 +19,6 @@ import {
   type Cookie,
 } from '@applitools/driver'
 import {takeDomSnapshots} from './utils/take-dom-snapshots'
-import {waitForLazyLoad} from '../automation/utils/wait-for-lazy-load'
 import {toBaseCheckSettings} from '../automation/utils/to-base-check-settings'
 import {uniquifyRenderers} from '../automation/utils/uniquify-renderers'
 import {extractRendererKey} from '../automation/utils/extract-renderer-key'
@@ -72,7 +71,6 @@ export function makeCheck<TSpec extends SpecType>({
         ...eyes.test.ufgServer,
         eyesServerUrl: eyes.test.eyesServer.eyesServerUrl,
         apiKey: eyes.test.eyesServer.apiKey,
-        asyncCache: settings.asyncCache,
       },
       logger,
     })
@@ -101,21 +99,11 @@ export function makeCheck<TSpec extends SpecType>({
             layoutBreakpoints: settings.layoutBreakpoints,
             renderers: uniqueRenderers as UFGRenderer[],
             skipResources: ufgClient.getCachedResourceUrls(),
+            lazyLoad: settings.lazyLoad,
             calculateRegionsOptions: {
               elementReferencesToCalculate,
               elementReferenceToTarget,
               scrollRootElement: settings.scrollRootElement,
-            },
-          },
-          hooks: {
-            async beforeSnapshots() {
-              if (settings.lazyLoad && environment.isWeb) {
-                await waitForLazyLoad({
-                  context: driver.currentContext,
-                  settings: settings.lazyLoad !== true ? settings.lazyLoad : {},
-                  logger,
-                })
-              }
             },
           },
           provides: {
