@@ -60,11 +60,11 @@ jobs:
           export selected_core_ver=${{inputs.core_version}}
           if [[ "$selected_core_ver" = "latest" ]]; then
             export CORE_VERSION=$(../scripts/download-core-bin.sh --output version)
-            echo using latest version: $CORE_VERSION
           else
-            export CORE_VERSION=$(../scripts/download-core-bin.sh --tag $selected_core_ver --output version)
-            echo using selected version: $CORE_VERSION
+            export CORE_VERSION=$(../scripts/download-core-bin.sh --tag js/core@$selected_core_ver --output version)
           fi
+
+          echo using selected version: $CORE_VERSION
 
           export SEM_VER_PART=${{inputs.sem_ver_part}}
 
