@@ -2,7 +2,7 @@ import {promises as fs} from 'fs'
 import {Buffer} from 'buffer'
 import assert from 'assert'
 import pixelmatch from 'pixelmatch'
-import {makeImage} from '../src/image'
+import {makeImage} from '../../src/image'
 
 describe('image', () => {
   it('should work with array buffer', async () => {

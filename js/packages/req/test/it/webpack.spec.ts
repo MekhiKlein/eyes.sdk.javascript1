@@ -2,6 +2,6 @@ import {testWithWebpack} from '@applitools/test-utils'
 
 describe('webpack', () => {
   it('works', async () => {
-    await testWithWebpack()
+    await testWithWebpack({internals: ['stream', 'buffer']})
   })
 })

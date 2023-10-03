@@ -669,6 +669,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@applitools/image@workspace:packages/image"
   dependencies:
+    "@applitools/test-utils": "workspace:^"
     "@applitools/utils": "workspace:*"
     "@types/node": ^12.20.55
     "@types/omggif": ^1.0.3

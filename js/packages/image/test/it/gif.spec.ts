@@ -1,6 +1,6 @@
 import {promises as fs} from 'fs'
 import {Buffer} from 'buffer'
-import {freezeGif} from '../src/formats/gif'
+import {freezeGif} from '../../src/formats/gif'
 import assert from 'assert'
 
 describe('gif', () => {
