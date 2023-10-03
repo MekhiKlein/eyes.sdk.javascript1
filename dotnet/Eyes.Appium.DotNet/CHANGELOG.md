@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.73](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/appium@5.72...dotnet/appium@5.73) (2023-10-03)
+
+### Dependencies
+
+* Eyes.Selenium bumped to 3.75
+
+* Eyes.Images bumped to 3.46
+
+* Eyes.Image.Core bumped to 3.11.6
+
+* js/core bumped to 3.11.6
+
+  #### Bug Fixes
+
+  * move lazyload option to take-dom-snapshots ([#1947](https://github.com/applitools/eyes.sdk.javascript1/issues/1947)) ([1833613](https://github.com/applitools/eyes.sdk.javascript1/commit/18336131048733d6d31d31ea4fa959c299320bfe))
+
 ## [5.72](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/appium@5.71...dotnet/appium@5.72) (2023-09-21)
 
 ### Dependencies

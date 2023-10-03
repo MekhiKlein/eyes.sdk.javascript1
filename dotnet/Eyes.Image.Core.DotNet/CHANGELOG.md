@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.11.6](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/image.core@3.11.0...dotnet/image.core@3.11.6) (2023-10-03)
+
+### Dependencies
+
+* js/core bumped to 3.11.6
+
+  #### Bug Fixes
+
+  * move lazyload option to take-dom-snapshots ([#1947](https://github.com/applitools/eyes.sdk.javascript1/issues/1947)) ([1833613](https://github.com/applitools/eyes.sdk.javascript1/commit/18336131048733d6d31d31ea4fa959c299320bfe))
+
 ## [3.11.0](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/image.core@3.10.3...dotnet/image.core@3.11.0) (2023-09-14)
 
 ### Dependencies
