@@ -97,9 +97,7 @@ class DebugScreenshotHandler(USDKSchema):
 
 class Environment(USDKSchema):
     host_os = String(dump_to="os")
-    # osInfo
     host_app = String(dump_to="hostingApp")
-    # hostingAppInfo
     # deviceName
     viewport_size = Nested(Size, dump_to="viewportSize")
 
@@ -327,7 +325,7 @@ class EyesConfig(USDKSchema):
     layout_breakpoints = LayoutBreakpoints(dump_to="layoutBreakpoints")
     disable_browser_fetching = Boolean(dump_to="disableBrowserFetching")
     match_timeout = Float(dump_to="retryTimeout")
-    browsers_info = List(BrowserInfo(), dump_to="renderers")
+    browsers_info = List(BrowserInfo(), dump_to="environments")
     # autProxy
     normalization = NormalizationField()
     debug_images = DebugScreenshots(dump_to="debugImages")
@@ -337,7 +335,7 @@ class EyesConfig(USDKSchema):
 
 class OpenSettings(USDKSchema):
     is_disabled = Boolean(dump_to="isDisabled")
-    server_url = String(dump_to="serverUrl")
+    server_url = String(dump_to="eyesServerUrl")
     api_key = String(dump_to="apiKey")
     proxy = Nested(Proxy)
     _timeout = Integer(dump_to="connectionTimeout")
@@ -426,7 +424,7 @@ class CloseSettings(USDKSchema):
 
 class CloseBatchSettings(USDKSchema):
     batch_id = String(dump_to="batchId")
-    server_url = String(dump_to="serverUrl")
+    server_url = String(dump_to="eyesServerUrl")
     api_key = String(dump_to="apiKey")
     proxy = Nested(Proxy)
 
@@ -435,13 +433,15 @@ class DeleteTestSettings(USDKSchema):
     id = String(dump_to="testId")
     batch_id = String(dump_to="batchId")
     secret_token = String(dump_to="secretToken")
-    server_url = String(attribute="_connection_config.server_url", dump_to="serverUrl")
+    server_url = String(
+        attribute="_connection_config.server_url", dump_to="eyesServerUrl"
+    )
     api_key = String(attribute="_connection_config.api_key", dump_to="apiKey")
     proxy = Nested(Proxy, attribute="_connection_config.proxy")
 
 
 class ECClientCapabilitiesOptions(USDKSchema):
-    server_url = String(dump_to="serverUrl")
+    server_url = String(dump_to="ecServerUrl")
     api_key = String(dump_to="apiKey")
 
 
@@ -578,7 +578,7 @@ class TestResults(Schema):
 
 class TestResultContainer(Schema):
     test_results = Nested(TestResults, load_from="result")
-    browser_info = BrowserInfo(load_from="renderer")
+    browser_info = BrowserInfo(load_from="environment")
     exception = Error(allow_none=True, load_from="error")
     user_test_id = String(load_from="userTestId")
 
