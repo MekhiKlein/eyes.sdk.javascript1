@@ -221,9 +221,10 @@ class BrowserInfo(Field):
 
     def _deserialize(self, value, *_):
         # type: (t.Optional[dict], *t.Any) -> t.Optional[ufg.IRenderBrowserInfo]
-        if value is None:
+        if value is None or "requested" not in value:
             return None
-        elif "iosDeviceInfo" in value:
+        value = value["requested"]
+        if "iosDeviceInfo" in value:
             from .schema import IosDeviceRenderer
 
             return check_error(IosDeviceRenderer().load(value["iosDeviceInfo"]))
