@@ -10,7 +10,7 @@ async function getTagPackages() {
     'js/eyes-nightwatch',
     'js/eyes-playwright',
     'js/eyes-puppeteer',
-    'js/eyes-browser-extension',
+    // 'js/eyes-browser-extension',
     'js/eyes-storybook',
     'js/eyes-cypress',
 

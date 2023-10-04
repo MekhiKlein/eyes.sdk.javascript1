@@ -32,6 +32,11 @@ exports.builder = yargs =>
       description: 'wether to capitalize the log lines',
       default: true,
     },
+    level: {
+      type: 'number',
+      description: 'level of the heading of the output',
+      default: 1,
+    },
     edit: {
       type: 'boolean',
       descriptions: 'wether you want to edit changelog before output',
@@ -144,7 +149,7 @@ exports.handler = async options => {
     }
   }
 
-  const formattedChangelog = formatChangelog(changelog)
+  const formattedChangelog = formatChangelog(changelog, options)
 
   if (options.file) {
     if (options.file === true) {
@@ -222,13 +227,16 @@ function extractChangelogSections(changelog, {capitalize = false} = {}) {
     }, {})
 }
 
-function formatChangelog(changelog) {
+function formatChangelog(changelog, {level = 1} = {}) {
+  const formatter = new Intl.DateTimeFormat('en-US', {year: 'numeric', month: 'short', day: 'numeric'})
   return Object.entries(changelog).reduce((changelog, [package, releases], _index, {length}) => {
-    if (length > 1) changelog += `# ${package}\n\n`
+    if (length > 1) changelog += `${''.padStart(level, '#')} ${package}\n\n`
     Object.values(releases).forEach(({header, sections}) => {
-      changelog += `## ${header.version} (${header.date})\n\n`
+      changelog += `${''.padStart(level + 1, '#')} ${header.version} (${formatter.format(new Date(header.date))})\n\n`
       changelog += Object.entries(sections)
-        .map(([name, items]) => `### ${name}\n\n${items.map(item => `* ${item}`).join('\n')}`)
+        .map(([name, items]) => {
+          return `${''.padStart(level + 2, '#')} ${name}\n\n${items.map(item => `* ${item}`).join('\n')}`
+        })
         .join('\n\n')
       changelog += '\n\n'
     })
