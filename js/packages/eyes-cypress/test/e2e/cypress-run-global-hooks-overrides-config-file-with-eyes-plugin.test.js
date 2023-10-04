@@ -61,8 +61,8 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
     updateGlobalHooks(globalHooks)
     const [err, output] = await presult(runCypress({targetDir: targetTestAppPath, cypressVersion: 10}))
     expect(err).to.be.undefined
-    expect(output).to.contain('@@@ before:run @@@')
-    expect(output).to.contain('@@@ after:run @@@')
+    expect(output.stdout).to.contain('@@@ before:run @@@')
+    expect(output.stdout).to.contain('@@@ after:run @@@')
   })
 
   it('supports running user defined global hooks, when user throws error on before', async () => {
@@ -108,6 +108,6 @@ describe('global hooks override in cypress.config.js file using eyes-plugin', ()
     updateGlobalHooks(globalHooks)
     const [err, output] = await presult(runCypress({targetDir: targetTestAppPath, cypressVersion: 10}))
     expect(err).to.be.undefined
-    expect(output).to.contain('@@@ after:run @@@')
+    expect(output.stdout).to.contain('@@@ after:run @@@')
   })
 })
