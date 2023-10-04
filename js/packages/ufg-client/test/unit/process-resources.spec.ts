@@ -955,5 +955,47 @@ describe('processResources', () => {
         [['http://url.com/some.css', {dependencies: [], hash: resource.hash}]],
       )
     })
+
+    it(`waits for resource to upload to UFG in async cache (${mode[0]})`, async () => {
+      const content = 'div{background:url("data:text/png,bla");}'
+
+      const resource = makeResource({
+        url: 'http://url.com/some.css',
+        value: Buffer.from(content),
+        contentType: 'text/css',
+      })
+      nock('http://url.com/').get('/some.css').reply(200, content, {'Content-Type': 'text/css'})
+
+      const asyncCache = mode[1]()
+      const cache = new Map()
+
+      const processResources = makeProcessResources({
+        fetchResource,
+        uploadResource,
+        asyncCache,
+        cache,
+        logger: makeLogger(),
+      })
+
+      const urlResource = makeResource({url: 'http://url.com/some.css'})
+
+      const resources1 = await processResources({
+        resources: {[urlResource.url]: urlResource},
+      })
+
+      assert.deepStrictEqual(resources1.mapping, {[resource.url]: resource.hash})
+
+      const resources2 = await processResources({
+        resources: {[urlResource.url]: urlResource},
+      })
+
+      assert.deepStrictEqual(resources2.mapping, resources1.mapping)
+
+      await resources2.promise
+
+      if (asyncCache) {
+        assert.deepStrictEqual([...asyncCache.getUploadCache().entries()], [[JSON.stringify(resource.hash), true]])
+      }
+    })
   }
 })

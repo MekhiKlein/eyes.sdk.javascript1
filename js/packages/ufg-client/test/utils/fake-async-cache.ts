@@ -17,18 +17,20 @@ export const makeAsyncCache = (): VerifyableAsynCache => {
   }
 
   function cacheFunc(cache: Map<string, any>) {
+    const timeout = 100
     return async (key: string, callback: () => Promise<unknown>) => {
       if (!cache.get(key)) {
         cache.set(
           key,
-          wait(100).then(async () => {
+          // this is intentionally 20ms more so that the promise that it returned will be pending and not already resolved
+          wait(timeout + 20).then(async () => {
             const result = await callback()
             cache.set(key, result)
             return result
           }),
         )
       }
-      await wait(100)
+      await wait(timeout)
       return cache.get(key)
     }
   }

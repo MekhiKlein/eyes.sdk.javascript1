@@ -16,6 +16,7 @@ import {freezeGif} from '@applitools/image'
 import * as utils from '@applitools/utils'
 
 type AwaitableKnownResource = KnownResource & {ready: boolean | Promise<boolean>}
+type MaybeAwaitableKnownresource = utils.Optional<AwaitableKnownResource, 'ready'>
 
 export type Options = {
   fetchResource: FetchResource
@@ -76,7 +77,7 @@ export function makeProcessResources({
           return Object.assign(await processedResourcesPromise, processedResourceWithDependencies)
         }
       },
-      Promise.resolve({} as Record<string, KnownResource & {ready: boolean | Promise<boolean>}>),
+      Promise.resolve({} as Record<string, AwaitableKnownResource>),
     )
 
     const mapping = {} as ResourceMapping
@@ -138,7 +139,7 @@ export function makeProcessResources({
       return await fetchAndUpload()
     }
 
-    async function fetchAndUpload(): Promise<KnownResource & {ready?: boolean | Promise<boolean>}> {
+    async function fetchAndUpload(): Promise<MaybeAwaitableKnownresource> {
       try {
         const fetchedResource = await fetchResource({resource, settings, logger})
         if (utils.types.has(fetchedResource, 'value')) {
@@ -260,9 +261,9 @@ export function makeProcessResources({
   // So we need to peel off `ready` which is a promise, but still use it as the return value from the callback.
   function getCachedResource(
     key: string,
-    callback: () => Promise<KnownResource & {ready?: boolean | Promise<boolean>}>,
+    callback: () => Promise<MaybeAwaitableKnownresource>,
     logger: Logger,
-  ): Promise<KnownResource> {
+  ): Promise<MaybeAwaitableKnownresource> {
     return new Promise(async (resolve, reject) => {
       try {
         if (!key) {
@@ -270,8 +271,10 @@ export function makeProcessResources({
           resolve(await callback())
           return
         }
+        let fromCache = true
         const resourceFromCache = await asyncCache!.getCachedResource(key, async () => {
           logger.log(`async cache callback called for ${key}`)
+          fromCache = false
           const ret = await callback()
           resolve(ret)
 
@@ -283,7 +286,18 @@ export function makeProcessResources({
           }
         })
         logger.log(`return value from async cache for ${key}:`, resourceFromCache)
-        resolve(resourceFromCache)
+
+        if (fromCache) {
+          logger.log(`resource ${key} got from async cache, need to make it wait for uploading to UFG`)
+          resolve({
+            ...resourceFromCache,
+            ready: asyncCache!.isUploadedToUFG(JSON.stringify(resourceFromCache.hash), () => {
+              throw new Error(
+                `Should not get here! resource ${key} got from async cache, so it should not be uploaded to UFG at this point`,
+              )
+            }),
+          })
+        }
       } catch (err) {
         logger.log(`error from async cache for ${key}:`, err)
         reject(err)
