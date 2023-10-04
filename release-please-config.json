@@ -1204,31 +1204,37 @@
         {
           "key": "{{component}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
-          "framework-version": "5.0.0"
+          "framework-version": "5.0.0",
+          "report": {"name": "js/eyes-storybook", "params": {"framework": "5.0.0", "node": 18}, "result-path": "./logs/report.xml"}
         },
         {
           "key": "{{component}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
-          "framework-version": "5.3.21"
+          "framework-version": "5.3.21",
+          "report": {"name": "js/eyes-storybook", "params": {"framework": "5.3.21", "node": 18}, "result-path": "./logs/report.xml"}
         },
         {
           "key": "{{component}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
-          "framework-version": "6.3.12"
+          "framework-version": "6.3.12",
+          "report": {"name": "js/eyes-storybook", "params": {"framework": "6.3.12", "node": 18}, "result-path": "./logs/report.xml"}
         },
         {
           "key": "{{component}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
-          "framework-version": "latest"
+          "framework-version": "latest",
+          "report": {"name": "js/eyes-storybook", "params": {"framework": "latest", "node": 18}, "result-path": "./logs/report.xml"}
         },
         {
           "key": "{{component}}/framework-{{framework-version}}",
           "artifacts": ["./logs/**/*"],
-          "framework-version": "next"
+          "framework-version": "next",
+          "report": {"name": "js/eyes-storybook", "params": {"framework": "next", "node": 18}, "result-path": "./logs/report.xml"}
         }
       ],
       "releases": [{
-        "npm": {"registry-url": "https://registry.npmjs.org"}
+        "npm": {"registry-url": "https://registry.npmjs.org"},
+        "notification": {"name": "js/eyes-storybook"}
       }]
     },
     "js/packages/eyes-cypress": {
