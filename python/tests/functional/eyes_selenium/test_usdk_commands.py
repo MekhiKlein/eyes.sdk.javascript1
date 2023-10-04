@@ -85,7 +85,7 @@ def test_usdk_commands_open_close_eyes(local_chrome_driver):
         "missing": 0,
         "passed": 1,
         "unresolved": 0,
-        "results": [{"result": test_result, "userTestId": "42"}],
+        "results": [{"environment": ANY, "result": test_result, "userTestId": "42"}],
     }
 
 
@@ -179,7 +179,7 @@ def test_usdk_commands_open_check_close_eyes(local_chrome_driver):
         "missing": 0,
         "passed": 1,
         "unresolved": 0,
-        "results": [{"result": test_result, "userTestId": "abc"}],
+        "results": [{"environment": ANY, "result": test_result, "userTestId": "abc"}],
     }
 
 
