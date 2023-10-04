@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* Fixed `Eyes.Open` serialization.
+
 ## [3.45](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/images@3.44...dotnet/images@3.45) (2023-09-21)
 
 ### Bug Fixes

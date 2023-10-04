@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* Fixed `Eyes.Open` serialization.
+
 ## [3.74](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/selenium4@3.73...dotnet/selenium4@3.74) (2023-09-21)
 
 ### Dependencies

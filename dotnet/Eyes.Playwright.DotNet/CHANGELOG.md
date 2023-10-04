@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+* Fixed `Eyes.Open` serialization.
+
 ## [1.22](https://github.com/applitools/eyes.sdk.javascript1/compare/dotnet/playwright@1.21...dotnet/playwright@1.22) (2023-09-21)
 
 ### Dependencies
