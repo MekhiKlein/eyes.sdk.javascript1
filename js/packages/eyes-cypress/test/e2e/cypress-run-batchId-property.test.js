@@ -24,10 +24,6 @@ describe('handle batchId property', () => {
       fs.rmdirSync(targetTestAppPath, {recursive: true})
     }
     await pexec(`cp -r ${sourceTestAppPath}/. ${targetTestAppPath}`)
-    try {
-    } catch (ex) {
-      console.log(ex)
-    }
   })
 
   after(async () => {
