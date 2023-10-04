@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.11.7](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.11.6...js/core@3.11.7) (2023-10-04)
+
+
+### Dependencies
+
+* @applitools/ufg-client bumped to 1.9.4
+  #### Bug Fixes
+
+  * async cache should wait for upload ([#1961](https://github.com/applitools/eyes.sdk.javascript1/issues/1961)) ([53c7204](https://github.com/applitools/eyes.sdk.javascript1/commit/53c72046738d5589fc53c16822f9b2efd142357c))
+
 ## [3.11.6](https://github.com/applitools/eyes.sdk.javascript1/compare/js/core@3.11.5...js/core@3.11.6) (2023-10-02)
 
 
