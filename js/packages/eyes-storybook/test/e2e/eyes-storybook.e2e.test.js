@@ -13,7 +13,7 @@ const envWithColor = {...process.env, FORCE_COLOR: true};
 const spawnOptions = {stdio: 'pipe', env: envWithColor};
 const tmpdir = path.resolve(os.tmpdir(), 'eyes-storybook');
 
-describe.only('eyes-storybook', () => {
+describe('eyes-storybook', () => {
   let closeTestServer, showLogsOrig;
   before(async () => {
     fs.mkdirSync(tmpdir, {recursive: true});
@@ -43,7 +43,7 @@ describe.only('eyes-storybook', () => {
         {spawnOptions},
       ),
     );
-
+    console.log(`some change in the test`);
     const stdout = err ? err.stdout : result.stdout;
     const stderr = err ? err.stderr : result.stderr;
     const normalizedStdout = stdout
