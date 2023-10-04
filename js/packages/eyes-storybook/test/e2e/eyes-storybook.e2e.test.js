@@ -13,7 +13,7 @@ const envWithColor = {...process.env, FORCE_COLOR: true};
 const spawnOptions = {stdio: 'pipe', env: envWithColor};
 const tmpdir = path.resolve(os.tmpdir(), 'eyes-storybook');
 
-describe('eyes-storybook', () => {
+describe.only('eyes-storybook', () => {
   let closeTestServer, showLogsOrig;
   before(async () => {
     fs.mkdirSync(tmpdir, {recursive: true});
