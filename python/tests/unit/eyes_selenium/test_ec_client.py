@@ -61,7 +61,7 @@ def test_get_execution_cloud_url_all_args(monkeypatch):
                                 "username": "u",
                                 "url": "http://u:p@host:80",
                             },
-                            "options": {"apiKey": "key", "serverUrl": "url"},
+                            "options": {"apiKey": "key", "ecServerUrl": "url"},
                         }
                     },
                 ),

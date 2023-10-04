@@ -125,6 +125,7 @@ def test_usdk_commands_open_abort_eyes(local_chrome_driver):
         "unresolved": 0,
         "results": [
             {
+                "environment": ANY,
                 "result": test_result,
                 "error": {
                     "message": ANY,

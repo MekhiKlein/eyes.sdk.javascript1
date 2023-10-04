@@ -29,7 +29,7 @@ def test_get_execution_cloud_url(session_keyword, eyes_library_with_selenium):
                     "settings": {
                         "options": {
                             "apiKey": "SOME API KEY",
-                            "serverUrl": "https://eyes.server",
+                            "ecServerUrl": "https://eyes.server",
                         },
                         "proxy": {"url": "http://proxyhost:123"},
                     }

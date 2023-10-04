@@ -145,7 +145,7 @@ def test_config_marshal(monkeypatch):
             "username": "user",
         },
         "saveDiffs": True,
-        "serverUrl": "https://server.url",
+        "eyesServerUrl": "https://server.url",
         "sessionType": "SEQUENTIAL",
         "testName": "test name",
         "userTestId": "user test id",
@@ -168,7 +168,7 @@ def test_config_marshal(monkeypatch):
             "scaleRatio": 50.0,
         },
         "overlap": {"bottom": 10},
-        "renderers": [
+        "environments": [
             {"height": 800.0, "name": "chrome", "width": 1200.0},
             {
                 "chromeEmulationInfo": {
@@ -414,7 +414,7 @@ def test_enabled_batch_close_marshal():
             "url": "http://user:pass@host:80",
             "username": "user",
         },
-        "serverUrl": "https://server.url",
+        "eyesServerUrl": "https://server.url",
     }
 
 
@@ -433,7 +433,7 @@ def test_delete_test_settings_marshall():
         "batchId": "batch id",
         "proxy": {"url": "http://proxy:8888"},
         "secretToken": "secret token",
-        "serverUrl": "server url",
+        "eyesServerUrl": "server url",
         "testId": "results is",
     }
 
@@ -591,7 +591,9 @@ def test_test_results_summary_demarshal():
                     "result": {},
                     "exception": None,
                     "userTestId": "user test id",
-                    "renderer": {"width": 800, "name": "chrome", "height": 600},
+                    "environment": {
+                        "requested": {"width": 800, "name": "chrome", "height": 600}
+                    },
                 },
                 {
                     "result": {},
@@ -601,7 +603,9 @@ def test_test_results_summary_demarshal():
                         "reason": "test different",
                     },
                     "userTestId": "user test id",
-                    "renderer": {"width": 640, "name": "firefox", "height": 480},
+                    "environment": {
+                        "requested": {"width": 640, "name": "firefox", "height": 480}
+                    },
                 },
             ],
             "passed": 1,
