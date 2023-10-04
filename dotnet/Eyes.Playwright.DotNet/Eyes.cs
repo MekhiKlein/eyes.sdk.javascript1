@@ -146,7 +146,6 @@ namespace Applitools.Playwright
                     },
                     Target = driver_,
                     Config = ToConfig(Config),
-                    Settings = ToOpenSettings(Config)
                 }
             };
             result.Payload.Config.Open.Properties = properties_; // ?

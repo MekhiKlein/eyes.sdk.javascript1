@@ -898,7 +898,6 @@ namespace Applitools.Selenium
                         Proxy = Config.Proxy
                     },
                     Config = ToConfig(Config),
-                    Settings = ToOpenSettings(Config)
                 }
             };
             return result;

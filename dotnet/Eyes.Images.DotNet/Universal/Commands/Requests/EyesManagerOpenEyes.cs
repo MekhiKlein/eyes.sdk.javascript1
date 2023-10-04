@@ -12,7 +12,6 @@ namespace Applitools.Commands.Requests
     {
         public ManagerRef Manager { get; set; }
         public ITarget Target { get; set; }
-        public OpenSettings Settings { get; set; }
         public Config Config { get; set; }
     }
 

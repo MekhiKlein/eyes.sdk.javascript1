@@ -59,6 +59,12 @@ namespace Applitools.Generated.Utils
         {
             CollectionAssert.AreEquivalent(expected, actual.ToDictionary());
         }
+        
+        public static void compareProcedure(JObject actual, Dictionary<string, string> expected)
+        {
+            CollectionAssert.AreEquivalent(expected, actual.ToObject<Dictionary<string, string>>());
+        }
+        
         public static void compareProcedure(Dictionary<string, IList<Region>> actual, Dictionary<string, IList<Region>> expected)
         {
             CollectionAssert.AreEquivalent(expected, actual);

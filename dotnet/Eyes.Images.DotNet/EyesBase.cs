@@ -97,19 +97,6 @@ namespace Applitools
             return new Config(openConfig, screenshotConfig, checkConfig, closeConfig);
         }
 
-        protected OpenSettings ToOpenSettings(Configuration configuration)
-        {
-            var config = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<MapProfiler>();
-            });
-            var mapper = config.CreateMapper();
-
-            var settings = mapper.Map<OpenSettings>(configuration);
-
-            return settings;
-        }
-     
         protected LocateSettings ToLocateSettings(Configuration configuration, ICollection<string> locatorNames)
         {
             var config = new MapperConfiguration(cfg =>
