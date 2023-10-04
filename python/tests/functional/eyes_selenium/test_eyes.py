@@ -136,8 +136,8 @@ def test_get_all_vg_test_results_all_desktop_browsers(local_chrome_driver):
     runner = VisualGridRunner(5)
     eyes = Eyes(runner)
     for browser_type in BrowserType:
-        if browser_type is BrowserType.IE_10:
-            continue  # IE10 is broken 2023-06-07
+        if browser_type is BrowserType.EDGE_LEGACY:
+            continue  # EDGE_LEGACY conflicts with CHROMIUM_EDGE versions 2023-10-03
         eyes.configure.add_browser(DesktopBrowserInfo(800, 600, browser_type))
 
     eyes.open(
