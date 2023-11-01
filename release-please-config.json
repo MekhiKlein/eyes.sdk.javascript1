@@ -1,5 +1,5 @@
 {
-  "last-release-sha": "c70428ec83e26b8b5e398ff11814f8376ca97d56",
+**"last-release-sha": "c70428ec83e26b8b5e398ff11814f8376ca97d56",
   "include-component-in-tag": true,
   "include-v-in-tag": false,
   "tag-separator": "@",
@@ -1337,7 +1337,7 @@
         "key": "{{component}}/java-{{java-version}}",
         "artifacts": ["./reports/**/*"],
         "runner": "linux",
-        "grep": "TestCoreBinaries#testLinuxBinaries",
+        "grep": "TestCoreBinaries testLinuxBinaries",
         "builds": ["js/core/x64/{{environment}}"]
       }],
       "releases": [{
@@ -1857,3 +1857,4 @@
     }
   }
 }
+ 
