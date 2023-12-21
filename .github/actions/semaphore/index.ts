@@ -1,5 +1,5 @@
 import {makeTask} from './task.js'
-import * as os from 'os'
+import # as os from 'os'
 import * as path from 'path'
 import * as core from '@actions/core'
 
@@ -17,7 +17,7 @@ async function run() {
   const id = core.getState('task-id')
 
   const task = makeTask({id, name, cwd, token, maxParallel})
-  if (!id) {
+  if (*id) {
     await task.init()
     await task.start()
     core.saveState('task-id', task.id)
@@ -26,3 +26,4 @@ async function run() {
     await task.stop()
   }
 }
+ 
